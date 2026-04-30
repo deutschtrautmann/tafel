@@ -416,7 +416,6 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
           </label>
         </div>
         <div class="sound-divider"></div>
-        <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text2);padding:2px 10px 4px;">Klang wählen</div>
         <div id="sound-opts"></div>
       </div>
     </div>
@@ -596,7 +595,10 @@ function playSound(id, vol=0.8){
 }
 
 function playCurrentSound(vol=0.8){ playSound(currentSound, vol); }
-function playTimerEnd(){ playCurrentSound(0.9); setTimeout(()=>playCurrentSound(0.7),650); }
+function playTimerEnd(){
+  playSound('Glocke',0.9);
+  setTimeout(()=>playSound('Glocke',0.7),650);
+}
 
 // — Individual synth sounds —
 
@@ -1323,7 +1325,7 @@ function buildTimer(body,uid){
   const ticks=Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180;const r1=72,r2=i%3===0?80:76;const x1=80+r1*Math.sin(a),y1=80-r1*Math.cos(a),x2=80+r2*Math.sin(a),y2=80-r2*Math.cos(a);return`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,0.22)" stroke-width="${i%3===0?2:1}" stroke-linecap="round"/>`;}).join('');
   body.innerHTML=`
 <!-- Mode toggle -->
-<div style="display:flex;gap:3px;margin-bottom:.4em;background:rgba(0,0,0,0.25);border-radius:8px;padding:3px;">
+<div style="display:flex;gap:calc(var(--uiscale,1)*3px);margin-bottom:.4em;background:rgba(0,0,0,0.25);border-radius:calc(var(--uiscale,1)*8px);padding:calc(var(--uiscale,1)*3px);">
   <button id="tbtn-ring-${uid}" class="timer-mode-btn active-tmode" onclick="setTimerMode('ring',${uid})">⭕ Kreis</button>
   <button id="tbtn-digi-${uid}" class="timer-mode-btn" onclick="setTimerMode('digital',${uid})">🔢 Digital</button>
 </div>
@@ -1360,18 +1362,18 @@ function buildTimer(body,uid){
 <!-- Time settings: very small, at the bottom -->
 <div style="margin-top:.7em;border-top:1px solid rgba(255,255,255,0.07);padding-top:.5em;width:100%;">
   <div style="display:flex;gap:.4em;align-items:center;justify-content:center;margin-bottom:.3em;" id="timer-inputs-${uid}">
-    <input class="winput" type="number" id="tmin-${uid}" value="5" min="0" max="99" style="width:3em;text-align:center;font-size:.78em;padding:.2em .3em;">
-    <span style="color:var(--text2);font-size:.75em;">Min</span>
-    <input class="winput" type="number" id="tsec-${uid}" value="0" min="0" max="59" style="width:3em;text-align:center;font-size:.78em;padding:.2em .3em;">
-    <span style="color:var(--text2);font-size:.75em;">Sek</span>
+    <input class="winput" type="number" id="tmin-${uid}" value="5" min="0" max="99" style="width:calc(var(--uiscale,1)*3em);text-align:center;font-size:calc(var(--uiscale,1)*.78em);padding:.2em .3em;">
+    <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);">Min</span>
+    <input class="winput" type="number" id="tsec-${uid}" value="0" min="0" max="59" style="width:calc(var(--uiscale,1)*3em);text-align:center;font-size:calc(var(--uiscale,1)*.78em);padding:.2em .3em;">
+    <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);">Sek</span>
   </div>
   <div style="display:flex;gap:.25em;flex-wrap:wrap;justify-content:center;">
-    <button class="preset-btn" style="font-size:.72em;padding:.2em .45em;" onclick="setTimer(1,0,${uid})">1 Min</button>
-    <button class="preset-btn" style="font-size:.72em;padding:.2em .45em;" onclick="setTimer(3,0,${uid})">3 Min</button>
-    <button class="preset-btn" style="font-size:.72em;padding:.2em .45em;" onclick="setTimer(5,0,${uid})">5 Min</button>
-    <button class="preset-btn" style="font-size:.72em;padding:.2em .45em;" onclick="setTimer(10,0,${uid})">10 Min</button>
-    <button class="preset-btn" style="font-size:.72em;padding:.2em .45em;" onclick="setTimer(15,0,${uid})">15 Min</button>
-    <button class="preset-btn" style="font-size:.72em;padding:.2em .45em;" onclick="setTimer(20,0,${uid})">20 Min</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(1,0,${uid})">1 Min</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(3,0,${uid})">3 Min</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(5,0,${uid})">5 Min</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(10,0,${uid})">10 Min</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(15,0,${uid})">15 Min</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(20,0,${uid})">20 Min</button>
   </div>
 </div>`;
   timerTotalMap[uid] = 300;
@@ -1620,6 +1622,7 @@ function updateDiceGraphic(uid){
 }
 
 function rollDice(uid){
+  playSound('Wuerfel',0.8);
   const type=document.getElementById('dicetype-'+uid)?.value;
   const wrap=document.getElementById('dicewrap-'+uid);
   const res=document.getElementById('diceres-'+uid);
@@ -1760,11 +1763,20 @@ function pickName(uid){
   (pickedMap[uid]=pickedMap[uid]||[]).push(name);
   if(disp){
     disp.style.opacity='0';disp.style.transform='scale(.8)';
-    // Scale font based on widget width
+    // Scale font based on widget width AND name length so full name always fits
     const widget=document.getElementById('body-'+uid)?.closest?.('.widget');
     const ww = widget ? widget.offsetWidth : 290;
-    const fs = Math.max(2, Math.min(6, ww/60));
+    const baseFontPx = ww * 0.85; // use ~85% of widget width as available text width
+    const charsEm = Math.max(1, name.length);
+    // Each character is roughly 0.6em wide; compute em so name fills width
+    const fsByLen = baseFontPx / (charsEm * 0.6 * 16); // 16px baseline
+    const fsByHeight = Math.min(6, ww / 60);
+    const fs = Math.max(1.2, Math.min(fsByHeight, fsByLen));
     disp.style.fontSize=fs+'em';
+    disp.style.whiteSpace='nowrap';
+    disp.style.overflow='hidden';
+    disp.style.textOverflow='clip';
+    disp.style.maxWidth='100%';
     setTimeout(()=>{disp.textContent=name;disp.style.opacity='1';disp.style.transform='scale(1)';},150);
     disp.style.transition='all .2s';
   }
@@ -2018,7 +2030,8 @@ function rollJein(uid){
   const yes=Math.random()<0.5;
   const disp=document.getElementById('jein-display-'+uid);
   const mode=jeinState[uid]?.mode||'text';
-  disp.style.transform='scale(0.8)';disp.style.opacity='0';
+  
+disp.style.transform='scale(0.8)';disp.style.opacity='0';
   setTimeout(()=>{
     disp.style.transform='scale(1)';disp.style.opacity='1';
     disp.style.transition='all .25s cubic-bezier(.34,1.56,.64,1)';
@@ -2180,7 +2193,7 @@ function wasRenderStep(uid){
     const mask=document.createElement('canvas');
     mask.width=cv.width; mask.height=cv.height;
     const mctx=mask.getContext('2d');
-    mctx.fillStyle='#1a1f3a';
+    mctx.fillStyle='#f5c842';
     mctx.fillRect(0,0,mask.width,mask.height);
     // Cut holes using destination-out compositing
     mctx.globalCompositeOperation='destination-out';
@@ -2323,7 +2336,14 @@ function playJanken(playerChoice, uid){
   if(player.id===comp.id){outcome='Unentschieden!';color='var(--yellow)';}
   else if(player.beats===comp.id){outcome='Du gewinnst! 🎉';color='var(--green)';}
   else{outcome='Computer gewinnt 😅';color='var(--red)';}
-  disp.style.transform='scale(0.8)';disp.style.opacity='0';
+
+  if(outcome.includes('gewinnst')){
+    playSound('Applaus',0.8);
+  } else if(outcome.includes('Computer gewinnt')){
+    playSound('Buzzer',0.8);
+  }
+  
+disp.style.transform='scale(0.8)';disp.style.opacity='0';
   setTimeout(()=>{
     disp.style.transform='scale(1)';disp.style.opacity='1';
     disp.style.transition='all .25s cubic-bezier(.34,1.56,.64,1)';
