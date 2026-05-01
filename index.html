@@ -1548,6 +1548,8 @@ function randomClockTime(uid){
   const m=Math.floor(Math.random()*12)*5; // 5-min steps: 0,5,10,...,55
   clockOverrides[uid]={h,m,s:0};
   drawAnalogClock(uid);
+
+  playSound('Glocke'); // 🔔 Sound
 }
 
 function resetClockTime(uid){
