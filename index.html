@@ -1692,7 +1692,9 @@ function setTimer(min,sec,uid){
 }
 function startTimer(uid){
   if(timerRunning){pauseTimer();return;}
-  if(uid){
+  // Nur beim ersten Start (nicht nach Pause) die Eingabefelder auslesen
+  const wasPaused = (timerSec > 0 && timerTotalMap[uid] && timerSec < timerTotalMap[uid]);
+  if(uid && !wasPaused){
     const minEl=document.getElementById('tmin-'+uid),secEl=document.getElementById('tsec-'+uid);
     timerSec=(parseInt(minEl?.value)||0)*60+(parseInt(secEl?.value)||0);
     timerTotalMap[uid]=timerSec;
@@ -2046,7 +2048,6 @@ function pickName(uid){
   const remAfter=list.filter(n=>!(pickedMap[uid]||[]).includes(n));
   if(left && left.textContent!=='🔄 Neue Runde!') left.textContent=`${remAfter.length} von ${list.length} verbleibend`;
   else if(left && left.textContent==='🔄 Neue Runde!') setTimeout(()=>{if(left) left.textContent=`${remAfter.length} von ${list.length} verbleibend`;},1200);
-  playCurrentSound(0.6);
 }
 function resetNames(uid){
   pickedMap[uid]=[];
@@ -2845,7 +2846,6 @@ disp.style.transform='scale(0.8)';disp.style.opacity='0';
       disp.innerHTML='';
     }
   },150);
-  playCurrentSound(0.5);
 }
 
 // ════════════════════════════════════════════════
@@ -3132,7 +3132,6 @@ disp.style.transform='scale(0.8)';disp.style.opacity='0';
       <div style="font-size:1em;font-weight:900;color:${color};">${outcome}</div>
     </div>`;
   },150);
-  playCurrentSound(0.6);
 }
 
 // ════════════════════════════════════════════════
