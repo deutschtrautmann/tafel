@@ -124,7 +124,7 @@ html,body{width:100%;height:100%;min-height:100dvh;overflow:hidden;font-family:'
 /* Sound dropdown */
 .sound-wrap{position:relative;flex-shrink:0;}
 
-/* ── SHARED STYLE: Signalton · Hintergrund · Fullscreen · Zumpad ── */
+/* ── SHARED STYLE: Audio · Design · Fullscreen · Zumpad ── */
 .sound-btn, .bg-btn, .zumpad-inline {
   background:var(--bg3);
   border:1px solid rgba(255,255,255,0.13);
@@ -548,6 +548,159 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   text-align:center;pointer-events:none;color:var(--text2);
 }
+
+/* ══════════════════════════════════════
+   SLOT MASCHINE
+   ══════════════════════════════════════ */
+
+.widget[data-type="slot"] .widget-body{
+  padding:0 !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+/* Tab bar lives outside the machine */
+.slot-tabbar{
+  display:flex;gap:6px;align-items:center;
+  padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;
+}
+
+/* The machine fills all remaining space */
+.slot-machine{
+  flex:1;min-height:0;
+  background:linear-gradient(160deg,#3b2a1a 0%,#2a1a0a 100%);
+  display:flex;flex-direction:column;
+  padding:3% 4% 3%;
+  gap:3%;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+
+/* ── SPIELSTAND ── */
+.slot-scorebar{
+  flex-shrink:0;
+  background:linear-gradient(90deg,#1a1a1a,#2a2a2a,#1a1a1a);
+  border:3px solid #c8a840;border-radius:10px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:2% 4%;
+}
+.slot-scorebar-title{
+  font-weight:900;color:#c8a840;letter-spacing:2px;text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;font-size:clamp(13px,3.5vw,26px);
+  white-space:nowrap;
+}
+.slot-score-star{color:#f0c040;font-size:1.3em;}
+.slot-score-star.win{animation:slot-star-pulse .6s ease-in-out infinite alternate;}
+@keyframes slot-star-pulse{from{transform:scale(1)}to{transform:scale(1.4);filter:brightness(1.8)}}
+.slot-score-val{
+  background:#111;border:2px solid #c8a840;border-radius:8px;
+  padding:2% 6%;font-weight:900;color:#c8a840;white-space:nowrap;
+  font-size:clamp(13px,3.5vw,26px);font-variant-numeric:tabular-nums;
+}
+
+/* ── ROLLEN ── */
+.slot-reels-outer{
+  flex:1;min-height:0;
+  background:#111;border:3px solid #c8a840;border-radius:12px;
+  padding:2%;display:flex;align-items:stretch;
+}
+.slot-reels{
+  flex:1;display:flex;gap:2%;align-items:stretch;
+}
+.slot-reel-wrap{
+  flex:1;min-width:0;
+  background:#fff;border-radius:8px;overflow:hidden;
+  position:relative;
+  box-shadow:0 3px 10px rgba(0,0,0,0.5),inset 0 1px 4px rgba(0,0,0,0.1);
+}
+.slot-reel-wrap::before{
+  content:'';position:absolute;inset:0;border-radius:6px;
+  box-shadow:inset 0 0 0 3px transparent;
+  z-index:10;pointer-events:none;transition:box-shadow .3s;
+}
+.slot-reel-wrap.reel-win::before{
+  box-shadow:inset 0 0 0 4px #22cc44,0 0 18px rgba(34,204,68,0.7);
+}
+.slot-reel-inner{
+  position:absolute;left:0;right:0;top:0;transition:none;
+}
+/* Each cell is exactly 100% of the wrap height — set by JS */
+.slot-reel-cell{
+  width:100%;box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:900;color:#111;text-align:center;
+  background:#fff;line-height:1.1;
+  word-break:break-word;hyphens:auto;
+  /* height + font-size set by JS */
+}
+.slot-center-line{
+  position:absolute;left:0;right:0;top:50%;height:3px;
+  background:rgba(200,168,64,0.45);transform:translateY(-50%);
+  pointer-events:none;z-index:5;
+}
+
+/* ── BUTTONS ── */
+.slot-btn-row{
+  flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;gap:4%;
+}
+.slot-btn-start{
+  flex:1;max-width:40%;
+  background:linear-gradient(160deg,#2ecc00,#1a9a00,#2ecc00);
+  border:3px solid #0e5c00;border-radius:12px;
+  color:#fff;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
+  font-size:clamp(14px,4vw,32px);
+  padding:5% 0;
+  cursor:pointer;
+  box-shadow:0 5px 16px rgba(0,0,0,0.5),inset 0 2px 4px rgba(255,255,255,0.2);
+  transition:filter .1s,transform .1s;
+}
+.slot-btn-start:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-2px);}
+.slot-btn-start:active:not(:disabled){transform:translateY(2px);}
+.slot-btn-start:disabled{filter:brightness(0.45);cursor:not-allowed;transform:none;}
+
+/* Big round red STOP */
+.slot-btn-stop-main{
+  flex-shrink:0;
+  /* size set by JS to match button row height */
+  background:radial-gradient(circle at 35% 30%,#ff7070,#dd0000 50%,#880000);
+  border:4px solid #550000;border-radius:50%;
+  color:#fff;font-weight:900;letter-spacing:1px;text-transform:uppercase;
+  font-size:clamp(14px,4vw,30px);
+  cursor:pointer;
+  box-shadow:0 6px 20px rgba(0,0,0,0.6),inset 0 3px 8px rgba(255,255,255,0.25),0 0 0 5px #2a0000;
+  transition:filter .1s,transform .1s;
+}
+.slot-btn-stop-main:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-3px);}
+.slot-btn-stop-main:active:not(:disabled){transform:translateY(3px);filter:brightness(0.8);}
+.slot-btn-stop-main:disabled{filter:brightness(0.4);cursor:not-allowed;transform:none;}
+
+/* EDIT PANEL */
+.slot-edit-panel{display:none;flex:1;overflow-y:auto;padding:12px;box-sizing:border-box;}
+.slot-edit-panel.open{display:block;}
+.slot-edit-hint{font-size:clamp(12px,1.6vw,15px);color:var(--text2);margin-bottom:8px;line-height:1.5;}
+.slot-edit-table{width:100%;border-collapse:collapse;margin-bottom:10px;}
+.slot-edit-table th{
+  font-size:clamp(11px,1.5vw,14px);font-weight:800;text-transform:uppercase;
+  color:var(--text2);padding:6px 8px;border-bottom:1px solid rgba(255,255,255,.12);text-align:left;
+}
+.slot-edit-table td{padding:4px;}
+.slot-edit-table td input{
+  width:100%;background:var(--bg3);border:1px solid rgba(255,255,255,.18);
+  color:var(--text);border-radius:8px;padding:9px 11px;
+  font-size:clamp(13px,1.8vw,16px);font-family:'Arial',sans-serif;
+}
+.slot-edit-table td input:focus{outline:none;border-color:var(--accent);}
+.slot-add-row-btn,.slot-del-row-btn{
+  background:var(--bg3);border:1px solid rgba(255,255,255,.14);
+  color:var(--text2);border-radius:8px;padding:7px 14px;
+  font-size:clamp(12px,1.6vw,15px);font-weight:700;cursor:pointer;transition:background .12s;
+}
+.slot-add-row-btn:hover{background:var(--card2);color:var(--text);}
+.slot-del-row-btn{color:#f87171;}
+.slot-del-row-btn:hover{background:rgba(248,113,113,.15);}
+
 #empty-hint svg{opacity:.25;margin-bottom:12px;}
 #empty-hint p{font-size:15px;font-weight:700;opacity:.5;}
 #empty-hint small{font-size:12px;opacity:.35;}
@@ -595,25 +748,31 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
     <button class="tool-btn" onclick="spawnWidget('clock')"><span class="tb-icon" style="font-size:22px;">🕰️</span>Uhr</button>
     <button class="tool-btn" onclick="spawnWidget('qr')"><span class="tb-icon">📱</span>QR-Code</button>
     <button class="tool-btn" onclick="spawnWidget('wheel')"><span class="tb-icon" style="font-size:22px;">🎡</span>Rad</button>
+    <button class="tool-btn" onclick="spawnWidget('slot')"><span class="tb-icon" style="font-size:22px;">🎰</span>Slot</button>
   </div>
 
   <!-- Right side: sound, bg, fullscreen -->
   <div id="topbar-row1">
-    <!-- Zumpad placeholder removed (moved to launcher) -->
 
     <!-- Sound control -->
     <div class="sound-wrap" id="sound-wrap">
-      <button class="sound-btn" id="sound-btn" onclick="toggleSoundMenu()">🔔 Signalton ▾</button>
+      <button class="tool-btn" id="sound-btn" onclick="toggleSoundMenu()">
+        <span class="tb-icon">🔔</span>Audio ▾
+      </button>
       <div class="sound-menu" id="sound-menu">
         <div id="sound-opts"></div>
       </div>
     </div>
 
-    <!-- BG -->
-    <button class="bg-btn" onclick="toggleBgPanel()">🖼 Hintergrund</button>
+    <!-- Design -->
+    <button class="tool-btn" onclick="toggleBgPanel()">
+      <span class="tb-icon">🎨</span>Design
+    </button>
 
     <!-- Fullscreen -->
-    <button class="bg-btn" onclick="toggleFullscreen()">⛶</button>
+    <button class="tool-btn" onclick="toggleFullscreen()">
+      <span class="tb-icon" style="font-size:22px;">⛶</span>Vollbild
+    </button>
 
   </div>
 </div>
@@ -799,7 +958,8 @@ function setSoundEnabled(val){
   soundEnabled = val;
   const btn = document.getElementById('sound-btn');
   btn.classList.toggle('muted', !soundEnabled);
-  btn.textContent = (soundEnabled ? '🔔 Signalton' : '🔕 Signalton') + ' ▾';
+  btn.innerHTML = (soundEnabled ? '🔔' : '🔕') + '<br>' + (soundEnabled ? 'Audio' : 'Audio') + ' ▾';
+  btn.innerHTML = `<span class="tb-icon">${soundEnabled ? '🔔' : '🔕'}</span>Audio ▾`;
 }
 
 function selectSound(id){
@@ -1154,6 +1314,7 @@ const WIDGET_DEFS={
   jein:   {title:'Jein',                icon:'🤔', w:310,h:355, fitContent:true},
   was:    {title:'Was?',                icon:'🖼', w:420,h:400, fitContent:false},
   wheel:  {title:'Frage-Rad',           icon:'🎡', w:820,h:900, fitContent:false},
+  slot:   {title:'Slot-Maschine',        icon:'🎰', w:560,h:620, fitContent:false},
 };
 
 
@@ -1252,7 +1413,7 @@ function spawnWidget(type){
   el.addEventListener('mousedown',()=>el.style.zIndex=++zTop);
   makeDraggable(el,hdr);
   makeResizable(el,rh);
-  const builders={clock:buildClock,timer:buildTimer,dice:buildDice,names:buildNames,draw:buildDraw,qr:buildQR,textpad:buildTextpad,jein:buildJein,was:buildWas,wheel:buildWheel};
+  const builders={clock:buildClock,timer:buildTimer,dice:buildDice,names:buildNames,draw:buildDraw,qr:buildQR,textpad:buildTextpad,jein:buildJein,was:buildWas,wheel:buildWheel,slot:buildSlot};
   if(builders[type]) builders[type](body,uid);
   updateWidgetScale(el);
   updateEmptyHint();
@@ -3135,6 +3296,296 @@ disp.style.transform='scale(0.8)';disp.style.opacity='0';
 }
 
 // ════════════════════════════════════════════════
+// WIDGET: SLOT MASCHINE
+// ════════════════════════════════════════════════
+const slotState = {};
+const SLOT_STRIP_REPS = 40;
+
+function buildSlot(body, uid){
+  body.style.cssText = 'padding:0;display:flex;flex-direction:column;overflow:hidden;height:100%;box-sizing:border-box;';
+
+  const defaultRows = [
+    ['Ich','komme','aus'],
+    ['Wo','wohnst','du?'],
+    ['Mein','Name','ist'],
+  ];
+
+  slotState[uid] = {
+    rows:         defaultRows.map(r=>[...r]),
+    phase:        'idle',
+    nextStopReel: 0,
+    stoppedReels: [false,false,false],
+    stoppedCount: 0,
+    rafIds:       [0,0,0],
+    pixelPos:     [0,0,0],
+    centerIdx:    [0,0,0],
+    cellH:        100,
+    currentWords: [
+      defaultRows.map(r=>r[0]),
+      defaultRows.map(r=>r[1]),
+      defaultRows.map(r=>r[2]),
+    ],
+    points: 0,
+    resizeObs: null,
+  };
+
+  body.innerHTML = `
+<div class="slot-tabbar">
+  <button class="timer-mode-btn active-tmode" id="slot-tab-play-${uid}" onclick="slotShowTab('play',${uid})">&#9654; Spielen</button>
+  <button class="timer-mode-btn" id="slot-tab-edit-${uid}" onclick="slotShowTab('edit',${uid})">&#9999; Wörter</button>
+</div>
+
+<div id="slot-play-${uid}" class="slot-machine">
+
+  <div class="slot-scorebar">
+    <div class="slot-scorebar-title">
+      <span class="slot-score-star" id="slot-star-l-${uid}">&#9733;</span>
+      SPIELSTAND
+    </div>
+    <div class="slot-score-val" id="slot-pts-${uid}">0 PKT</div>
+    <span class="slot-score-star" id="slot-star-r-${uid}">&#9733;</span>
+  </div>
+
+  <div class="slot-reels-outer" id="slot-reels-outer-${uid}">
+    <div class="slot-reels" id="slot-reels-${uid}">
+      <div class="slot-reel-wrap" id="slot-reel-wrap-0-${uid}">
+        <div class="slot-reel-inner" id="slot-reel-0-${uid}"></div>
+        <div class="slot-center-line"></div>
+      </div>
+      <div class="slot-reel-wrap" id="slot-reel-wrap-1-${uid}">
+        <div class="slot-reel-inner" id="slot-reel-1-${uid}"></div>
+        <div class="slot-center-line"></div>
+      </div>
+      <div class="slot-reel-wrap" id="slot-reel-wrap-2-${uid}">
+        <div class="slot-reel-inner" id="slot-reel-2-${uid}"></div>
+        <div class="slot-center-line"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="slot-btn-row" id="slot-btn-row-${uid}">
+    <button class="slot-btn-start" id="slot-btn-start-${uid}" onclick="slotMainStart(${uid})">START</button>
+    <button class="slot-btn-stop-main" id="slot-btn-stop-${uid}" onclick="slotMainStop(${uid})" disabled>STOP</button>
+  </div>
+
+</div>
+
+<div id="slot-edit-${uid}" class="slot-edit-panel">
+  <div class="slot-edit-hint">Trage je Zeile drei Wörter ein (Wort 1 · Wort 2 · Wort 3).<br>Eine Zeile = ein passender Satz.</div>
+  <table class="slot-edit-table">
+    <thead><tr><th>Wort 1</th><th>Wort 2</th><th>Wort 3</th><th></th></tr></thead>
+    <tbody id="slot-edit-body-${uid}"></tbody>
+  </table>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+    <button class="slot-add-row-btn" onclick="slotAddRow(${uid})">+ Zeile</button>
+    <button class="wbtn primary" style="font-size:.92em;padding:.4em 1em;" onclick="slotApplyWords(${uid})">&#10004; Übernehmen</button>
+  </div>
+</div>`;
+
+  slotRebuildEditTable(uid);
+
+  requestAnimationFrame(()=>{
+    slotSizeReels(uid);
+    slotInitReels(uid);
+    const reelOuter = document.getElementById('slot-reels-outer-'+uid);
+    if(reelOuter && window.ResizeObserver){
+      const ro = new ResizeObserver(()=>{ slotSizeReels(uid); });
+      ro.observe(reelOuter);
+      slotState[uid].resizeObs = ro;
+    }
+  });
+}
+
+function slotSizeReels(uid){
+  const s = slotState[uid];
+  const wrap0 = document.getElementById('slot-reel-wrap-0-'+uid);
+  if(!wrap0) return;
+  const cellH = wrap0.clientHeight;
+  if(cellH < 10) return;
+  s.cellH = cellH;
+  const fs = Math.round(cellH * 0.50);
+  for(let c=0;c<3;c++){
+    const strip = document.getElementById('slot-reel-'+c+'-'+uid);
+    if(!strip) continue;
+    strip.querySelectorAll('.slot-reel-cell').forEach(cell=>{
+      cell.style.height   = cellH + 'px';
+      cell.style.fontSize = fs + 'px';
+    });
+    slotRenderPos(c, uid);
+  }
+  const btnRow = document.getElementById('slot-btn-row-'+uid);
+  if(btnRow){
+    const bh = btnRow.clientHeight;
+    const stopD = Math.round(bh * 0.90);
+    const bStop = document.getElementById('slot-btn-stop-'+uid);
+    if(bStop){
+      bStop.style.width    = stopD+'px';
+      bStop.style.height   = stopD+'px';
+      bStop.style.fontSize = Math.round(stopD*0.25)+'px';
+    }
+  }
+}
+
+function slotShowTab(tab, uid){
+  const play = document.getElementById('slot-play-'+uid);
+  const edit = document.getElementById('slot-edit-'+uid);
+  if(tab==='play'){ play.style.display='flex'; } else { play.style.display='none'; }
+  edit.classList.toggle('open', tab==='edit');
+  document.getElementById('slot-tab-play-'+uid).classList.toggle('active-tmode', tab==='play');
+  document.getElementById('slot-tab-edit-'+uid).classList.toggle('active-tmode', tab==='edit');
+  if(tab==='edit') slotRebuildEditTable(uid);
+  if(tab==='play') requestAnimationFrame(()=>slotSizeReels(uid));
+}
+
+function slotRebuildEditTable(uid){
+  const s = slotState[uid];
+  const tbody = document.getElementById('slot-edit-body-'+uid);
+  if(!tbody) return;
+  tbody.innerHTML = '';
+  s.rows.forEach((row,ri)=>{
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><input type="text" value="${escHtml(row[0])}" oninput="slotState[${uid}].rows[${ri}][0]=this.value"></td>
+      <td><input type="text" value="${escHtml(row[1])}" oninput="slotState[${uid}].rows[${ri}][1]=this.value"></td>
+      <td><input type="text" value="${escHtml(row[2])}" oninput="slotState[${uid}].rows[${ri}][2]=this.value"></td>
+      <td><button class="slot-del-row-btn" onclick="slotDelRow(${uid},${ri})">&#x2715;</button></td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function slotAddRow(uid){ slotState[uid].rows.push(['','','']); slotRebuildEditTable(uid); }
+function slotDelRow(uid,ri){ if(slotState[uid].rows.length<=1)return; slotState[uid].rows.splice(ri,1); slotRebuildEditTable(uid); }
+
+function slotApplyWords(uid){
+  const s = slotState[uid];
+  s.rows = s.rows.filter(r=>r.some(w=>w.trim()));
+  if(!s.rows.length) s.rows=[['Wort 1','Wort 2','Wort 3']];
+  s.currentWords=[s.rows.map(r=>r[0]||'—'),s.rows.map(r=>r[1]||'—'),s.rows.map(r=>r[2]||'—')];
+  slotInitReels(uid);
+  requestAnimationFrame(()=>slotSizeReels(uid));
+  slotShowTab('play',uid);
+}
+
+function slotInitReels(uid){
+  const s = slotState[uid];
+  s.currentWords=[s.rows.map(r=>r[0]||'—'),s.rows.map(r=>r[1]||'—'),s.rows.map(r=>r[2]||'—')];
+  for(let c=0;c<3;c++){
+    s.pixelPos[c]=0;
+    slotBuildStrip(c,uid);
+    slotRenderPos(c,uid);
+  }
+}
+
+function slotBuildStrip(col, uid){
+  const s = slotState[uid];
+  const words = s.currentWords[col];
+  const el = document.getElementById('slot-reel-'+col+'-'+uid);
+  if(!el) return;
+  const cellH = s.cellH||100;
+  const fs    = Math.round(cellH*0.50);
+  let html='';
+  for(let rep=0;rep<SLOT_STRIP_REPS;rep++)
+    for(let i=0;i<words.length;i++)
+      html+=`<div class="slot-reel-cell" style="height:${cellH}px;font-size:${fs}px;">${escHtml(words[i])}</div>`;
+  el.innerHTML=html;
+  el.style.transition='none';
+}
+
+function slotRenderPos(col, uid){
+  const s = slotState[uid];
+  const el = document.getElementById('slot-reel-'+col+'-'+uid);
+  if(!el) return;
+  el.style.top = (-s.pixelPos[col])+'px';
+  const n = s.currentWords[col].length;
+  const cellH = s.cellH||100;
+  s.centerIdx[col] = Math.round(s.pixelPos[col]/cellH) % n;
+  if(s.centerIdx[col]<0) s.centerIdx[col]+=n;
+}
+
+function slotMainStart(uid){
+  const s = slotState[uid];
+  if(s.phase!=='idle') return;
+  s.phase='spinning'; s.nextStopReel=0;
+  s.stoppedReels=[false,false,false]; s.stoppedCount=0;
+  const btnStart = document.getElementById('slot-btn-start-'+uid);
+  btnStart.disabled=true; btnStart.textContent='START';
+  document.getElementById('slot-btn-stop-'+uid).disabled=false;
+  for(let c=0;c<3;c++) document.getElementById('slot-reel-wrap-'+c+'-'+uid)?.classList.remove('reel-win');
+  ['l','r'].forEach(side=>{
+    const el=document.getElementById('slot-star-'+side+'-'+uid);
+    if(el){el.innerHTML='&#9733;';el.classList.remove('win');}
+  });
+  const speeds=[1.8,2.1,1.6];
+  for(let c=0;c<3;c++) slotAnimReel(c,uid,speeds[c]);
+}
+
+function slotMainStop(uid){
+  const s = slotState[uid];
+  if(s.phase!=='spinning') return;
+  const c = s.nextStopReel;
+  if(c>=3) return;
+  slotStopReel(c,uid);
+  s.nextStopReel++;
+  if(s.nextStopReel>=3) document.getElementById('slot-btn-stop-'+uid).disabled=true;
+}
+
+function slotAnimReel(col, uid, speed){
+  const s = slotState[uid];
+  function frame(){
+    if(s.stoppedReels[col]) return;
+    const cellH=s.cellH||100, n=s.currentWords[col].length;
+    s.pixelPos[col]+=speed;
+    if(s.pixelPos[col] > (SLOT_STRIP_REPS-2)*n*cellH) s.pixelPos[col]-=(SLOT_STRIP_REPS-4)*n*cellH;
+    slotRenderPos(col,uid);
+    s.rafIds[col]=requestAnimationFrame(frame);
+  }
+  s.rafIds[col]=requestAnimationFrame(frame);
+}
+
+function slotStopReel(col, uid){
+  const s = slotState[uid];
+  if(s.stoppedReels[col]) return;
+  s.stoppedReels[col]=true;
+  cancelAnimationFrame(s.rafIds[col]);
+  const cellH=s.cellH||100;
+  s.pixelPos[col]=Math.round(s.pixelPos[col]/cellH)*cellH;
+  slotRenderPos(col,uid);
+  try{const ac=new(window.AudioContext||window.webkitAudioContext)();playPop(ac,0.85);}catch(e){}
+  s.stoppedCount++;
+  if(s.stoppedCount===3){ s.phase='done'; setTimeout(()=>slotCheckResult(uid),80); }
+}
+
+function slotCheckResult(uid){
+  const s=slotState[uid];
+  const t0=s.centerIdx[0],t1=s.centerIdx[1],t2=s.centerIdx[2];
+  const fullWin=(t0===t1&&t1===t2);
+  const partWin=!fullWin&&(t0===t1||t1===t2||t0===t2);
+  let gained=0;
+  if(fullWin){
+    gained=10;
+    for(let c=0;c<3;c++) document.getElementById('slot-reel-wrap-'+c+'-'+uid)?.classList.add('reel-win');
+    ['l','r'].forEach(side=>{const el=document.getElementById('slot-star-'+side+'-'+uid);if(el){el.innerHTML='&#11088;';el.classList.add('win');}});
+    playSound('Applaus',0.9);
+  } else if(partWin){
+    gained=5;
+    if(t0===t1){document.getElementById('slot-reel-wrap-0-'+uid)?.classList.add('reel-win');document.getElementById('slot-reel-wrap-1-'+uid)?.classList.add('reel-win');}
+    if(t1===t2){document.getElementById('slot-reel-wrap-1-'+uid)?.classList.add('reel-win');document.getElementById('slot-reel-wrap-2-'+uid)?.classList.add('reel-win');}
+    if(t0===t2){document.getElementById('slot-reel-wrap-0-'+uid)?.classList.add('reel-win');document.getElementById('slot-reel-wrap-2-'+uid)?.classList.add('reel-win');}
+    try{const ac=new(window.AudioContext||window.webkitAudioContext)();playChime(ac,0.8);}catch(e){}
+  } else {
+    try{const ac=new(window.AudioContext||window.webkitAudioContext)();playPop(ac,0.4);}catch(e){}
+  }
+  s.points+=gained;
+  const ptsEl=document.getElementById('slot-pts-'+uid);
+  if(ptsEl) ptsEl.textContent=s.points+' PKT';
+  const btnStart=document.getElementById('slot-btn-start-'+uid);
+  btnStart.disabled=false; btnStart.textContent='NEUES SPIEL';
+  document.getElementById('slot-btn-stop-'+uid).disabled=true;
+  s.phase='idle'; s.nextStopReel=0;
+}
+
+// ════════════════════════════════════════════════
 // ZUMPAD
 // ════════════════════════════════════════════════
 function openZumpad(){
@@ -3183,50 +3634,13 @@ window.addEventListener('load',()=>{
 // WIDGET: FRAGE-RAD  (offline, Variante A)
 // ════════════════════════════════════════════════
 const WHEEL_QUESTIONS_DEFAULT = [
-  "Wo … ?",
-  "Woher … ?",
-  "Wie geht … ?",
-  "Wie finden … ?",
-  "… gut können?",
-  "Was … gern?",
-  "… am Wochenende?",
-  "Geschwister?",
-  "… verheiratet?",
-  "… alt?",
-  "studieren?",
-  "Sport … ?",
-  "Wann … ?",
-  "Welche Farbe … ?",
-  "Wie oft … ?",
-  "Wie lange … ?",
-  "Was … gemacht?",
-  "Wohin gehen … ?",
-  "… gern essen?",
-  "Wer … ?",
-  "… Eltern?",
-  "… das?",
-  "Haben … ?",
-  "Was brauchen … ?",
-  "… nicht gut können?",
-  "Was möchten … ?",
-  "Was kosten … ?",
-  "Wie heißt … ?",
-  "Wo wohnen … ?",
-  "Was trinkst … ?",
-  "Was isst … ?",
-  "Hobby?",
+  "Name?",
+  "Wohnort?",
+  "Land?",
   "Familie?",
-  "Arbeit?",
-  "Schule?",
-  "Freizeit?",
-  "Lieblingsessen?",
-  "Lieblingsfarbe?",
-  "Reisen?",
-  "Musik?",
-  "Film?",
-  "Warum … ?",
-  "Mit wem … ?",
-  "Seit wann … ?"
+  "Beruf?",
+  "Kinder?",
+  "Alter?"
 ];
 
 const wheelStates = {};
