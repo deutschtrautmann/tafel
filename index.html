@@ -258,46 +258,67 @@ html,body{width:100%;height:100%;min-height:100dvh;overflow:hidden;font-family:'
 .bg-btn:hover{background:var(--card2);}
 
 /* BG Panel */
+<div id="bg-panel">
+  <button class="bg-panel-close" onclick="toggleBgPanel()">✕</button>
+  <h3>🖼 Hintergrund</h3>
+
+  <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:4px;">Hintergrundfarbe</div>
+  
+  <!-- KOMPAKTER FARBBEREICH -->
+  <div style="display:flex;gap:8px;align-items:center;margin-bottom:4px;">
+    
+    <!-- kleiner Color Picker -->
+    <input type="color" id="bg-color-picker" value="#1a1f3a"
+      style="width:36px;height:36px;border:2px solid rgba(255,255,255,0.2);border-radius:8px;cursor:pointer;background:none;padding:2px;"
+      oninput="applyBgColor(this.value)">
+
+    <!-- GRID statt Text + Listen -->
+    <div style="flex:1;padding-top:2px;">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;" id="bg-swatches"></div>
+    </div>
+
+  </div>
+
+  <div class="sound-divider"></div>
+
+  <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:4px;">Foto hochladen</div>
+  <div class="bg-upload-zone" id="bg-dropzone" onclick="document.getElementById('bg-file-input').click()" ondragover="event.preventDefault()" ondrop="handleBgDrop(event)">
+    <input type="file" id="bg-file-input" accept="image/*" onchange="handleBgFile(this.files[0])">
+    <div style="font-size:28px;margin-bottom:6px;">📁</div>
+    <div style="font-weight:700;">Klicken oder Foto hierher ziehen</div>
+    <div style="font-size:11px;margin-top:3px;">JPG, PNG, WEBP, GIF</div>
+  </div>
+
+  <div id="bg-photo-controls" style="display:none;">
+    <div class="bg-dim-row">
+      <label>Abdunkeln: <span id="dim-val">30</span>%</label>
+      <input type="range" min="0" max="85" value="30" id="dim-slider" oninput="setBgDim(this.value)">
+    </div>
+    <div class="bg-dim-row" style="margin-top:8px;">
+      <label>Unschärfe: <span id="blur-val">0</span>px</label>
+      <input type="range" min="0" max="20" value="0" id="blur-slider" oninput="setBgBlur(this.value)">
+    </div>
+    <button class="wbtn" style="margin-top:8px;width:100%;" onclick="removeBgPhoto()">✕ Foto entfernen</button>
+  </div>
+
+  <div class="sound-divider"></div>
+
+  <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:4px;">Widget-Transparenz</div>
+  <div class="bg-dim-row">
+    <label>Fenster-Transparenz: <span id="widget-alpha-val">88</span>%</label>
+    <input type="range" min="40" max="100" value="88" id="widget-alpha-slider" oninput="setWidgetAlpha(this.value)">
+  </div>
+</div>
+
+
+<!-- CSS ANPASSUNG -->
+<style>
 #bg-panel{
-  display:none;position:fixed;top:0;right:0;bottom:0;
-  width:280px;background:var(--card);
-  border-left:1px solid rgba(255,255,255,0.1);
-  z-index:10001;padding:20px 16px;
-  flex-direction:column;gap:12px;
-  box-shadow:-8px 0 32px rgba(0,0,0,0.4);
-  overflow-y:auto;
+  width:240px;
+  gap:8px;
 }
-#bg-panel.open{display:flex;}
-#bg-panel h3{font-size:14px;font-weight:900;color:var(--accent);letter-spacing:.5px;margin-bottom:4px;}
-.bg-panel-close{
-  position:absolute;top:12px;right:12px;
-  background:none;border:none;color:var(--text2);
-  font-size:18px;cursor:pointer;padding:4px 8px;border-radius:6px;
-}
-.bg-panel-close:hover{background:rgba(255,255,255,0.1);color:var(--text);}
+</style>
 
-.bg-preset-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;}
-.bg-preset{
-  aspect-ratio:16/9;border-radius:8px;cursor:pointer;
-  border:2px solid transparent;transition:border-color .15s,transform .1s;
-  background-size:cover;background-position:center;
-  display:flex;align-items:center;justify-content:center;
-  font-size:22px;
-}
-.bg-preset:hover{border-color:var(--accent);transform:scale(1.04);}
-.bg-preset.active{border-color:var(--accent2);}
-
-.bg-upload-zone{
-  border:2px dashed rgba(255,255,255,0.2);border-radius:10px;
-  padding:18px;text-align:center;cursor:pointer;
-  transition:border-color .15s,background .15s;
-  font-size:12px;color:var(--text2);
-}
-.bg-upload-zone:hover{border-color:var(--accent);background:rgba(108,143,255,0.05);}
-.bg-upload-zone input{display:none;}
-
-.bg-dim-row{display:flex;flex-direction:column;gap:6px;}
-.bg-dim-row label{font-size:11px;color:var(--text2);font-weight:700;}
 
 /* ── DESKTOP ── */
 #desktop{position:fixed;left:0;right:0;bottom:0;z-index:2;overflow:hidden;min-height:0;}
