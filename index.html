@@ -91,7 +91,20 @@ html,body{width:100%;height:100%;min-height:100dvh;overflow:hidden;font-family:'
   flex:0 0 60px;
   touch-action:pan-x;
 }
-.tool-btn .tb-icon{font-size:20px;line-height:1;}
+.tool-btn 
+.tb-icon {
+  font-family: 'Material Symbols Rounded';
+  font-size: 26px;
+  line-height: 1;
+  color: var(--accent);
+  transition: all .2s ease;
+}
+
+.tool-btn:hover .tb-icon {
+  transform: scale(1.15);
+  color: #ffffff;
+}
+
 .tool-btn:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.25);transform:translateY(-1px);}
 .tool-btn:active{transform:scale(0.94);}
 .tool-btn.sep{margin-left:4px;}
@@ -717,9 +730,62 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 #empty-hint svg{opacity:.25;margin-bottom:12px;}
 #empty-hint p{font-size:15px;font-weight:700;opacity:.5;}
 #empty-hint small{font-size:12px;opacity:.35;}
+
+.tool-btn {
+  background: linear-gradient(145deg, rgba(255,255,255,0.08), rgba(0,0,0,0.2));
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 12px;
+  transition: all .2s ease;
+}
+
+.tool-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  background: linear-gradient(145deg, rgba(108,143,255,0.25), rgba(0,0,0,0.3));
+  border-color: var(--accent);
+}
+
+
+.tb-icon {
+  font-family: 'Material Symbols Rounded';
+  font-size: 26px;
+  line-height: 1;
+  color: var(--accent);
+  transition: all .2s ease;
+}
+
+.tool-btn:hover .tb-icon {
+  transform: scale(1.15);
+  color: #ffffff;
+}
+
+
+
+/* Colored icons per tool */
+.tool-btn:nth-child(2) .tb-icon { color:#4ade80; }   /* Namen - green */
+.tool-btn:nth-child(3) .tb-icon { color:#60a5fa; }   /* Zeichnen - blue */
+.tool-btn:nth-child(4) .tb-icon { color:#fbbf24; }   /* Text - yellow */
+.tool-btn:nth-child(5) .tb-icon { color:#fb923c; }   /* Würfel - orange */
+.tool-btn:nth-child(6) .tb-icon { color:#f87171; }   /* Was - red */
+.tool-btn:nth-child(7) .tb-icon { color:#a78bfa; }   /* Timer - purple */
+.tool-btn:nth-child(8) .tb-icon { color:#22d3ee; }   /* Uhr - cyan */
+.tool-btn:nth-child(9) .tb-icon { color:#f472b6; }   /* QR - pink */
+.tool-btn:nth-child(10) .tb-icon { color:#facc15; }  /* Spiele - gold */
+
+/* hover keeps color but brighter */
+.tool-btn:hover .tb-icon {
+  filter: brightness(1.4);
+}
+
+
+/* Audio icon red */
+#sound-btn .tb-icon {
+  color: #f87171 !important;
+}
+
 </style>
 
 <!-- FIXED_FULL_FROM_UPLOADED_T19_SOUND_MENU_DROPDOWN_V1 -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
 </head>
 <body>
 
@@ -741,26 +807,63 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 <!-- ═══ TOPBAR ═══ -->
 <div id="topbar">
   <!-- Launcher: left side -->
-  <div id="launcher">
-    <!-- Zumpad inline -->
-    <div class="zumpad-inline" id="zumpad-inline">
-      <input type="text" id="zumpad-input" class="zumpad-input"
-        placeholder="Pad-Name?"
-        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-        inputmode="text"
-        onkeydown="if(event.key==='Enter'){event.preventDefault();openZumpad();}">
-      <button class="zumpad-los-btn" onclick="openZumpad()" type="button">Los!</button>
-    </div>
-    <button class="tool-btn" onclick="spawnWidget('names')"><span class="tb-icon" style="font-size:22px;">🎓</span>Namen</button>
-    <button class="tool-btn" onclick="spawnWidget('draw')"><span class="tb-icon">✏️</span>Zeichnen</button>
-    <button class="tool-btn" onclick="spawnWidget('textpad')"><span class="tb-icon">📝</span>Textfeld</button>
-    <button class="tool-btn" onclick="spawnWidget('dice')"><span class="tb-icon">🎲</span>Würfel</button>
-    <button class="tool-btn" onclick="spawnWidget('was')"><span class="tb-icon" style="font-size:22px;">🔎</span>Was?</button>
-    <button class="tool-btn" onclick="spawnWidget('timer')"><span class="tb-icon">⏱</span>Timer</button>
-    <button class="tool-btn" onclick="spawnWidget('clock')"><span class="tb-icon" style="font-size:22px;">🕰️</span>Uhr</button>
-    <button class="tool-btn" onclick="spawnWidget('qr')"><span class="tb-icon">📱</span>QR-Code</button>
-    <button class="tool-btn" onclick="spawnWidget('spiele')"><span class="tb-icon" style="font-size:22px;">🎮</span>Spiele</button>
+  
+<div id="launcher">
+
+  <div class="zumpad-inline" id="zumpad-inline">
+    <input type="text" id="zumpad-input" class="zumpad-input"
+      placeholder="Pad-Name?"
+      autocomplete="off">
+    <button class="zumpad-los-btn" onclick="openZumpad()">Los!</button>
   </div>
+
+  <button class="tool-btn" onclick="spawnWidget('names')">
+    <span class="tb-icon material-symbols-rounded">groups</span>
+    <span>Namen</span>
+  </button>
+
+  <button class="tool-btn" onclick="spawnWidget('draw')">
+    <span class="tb-icon material-symbols-rounded">edit</span>
+    <span>Zeichnen</span>
+  </button>
+
+  <button class="tool-btn" onclick="spawnWidget('textpad')">
+    <span class="tb-icon material-symbols-rounded">description</span>
+    <span>Text</span>
+  </button>
+
+  <button class="tool-btn" onclick="spawnWidget('dice')">
+    <span class="tb-icon material-symbols-rounded">casino</span>
+    <span>Würfel</span>
+  </button>
+
+  <button class="tool-btn" onclick="spawnWidget('was')">
+    <span class="tb-icon material-symbols-rounded">help</span>
+    <span>Was?</span>
+  </button>
+
+  <button class="tool-btn" onclick="spawnWidget('timer')">
+    <span class="tb-icon material-symbols-rounded">timer</span>
+    <span>Timer</span>
+  </button>
+
+  <button class="tool-btn" onclick="spawnWidget('clock')">
+    <span class="tb-icon material-symbols-rounded">schedule</span>
+    <span>Uhr</span>
+  </button>
+
+  <button class="tool-btn" onclick="spawnWidget('qr')">
+    <span class="tb-icon material-symbols-rounded">qr_code</span>
+    <span>QR</span>
+  </button>
+
+  <button class="tool-btn" onclick="spawnWidget('spiele')">
+    <span class="tb-icon material-symbols-rounded">sports_esports</span>
+    <span>Spiele</span>
+  </button>
+
+</div>
+
 
   <!-- Right side: sound, bg, fullscreen -->
   <div id="topbar-row1">
@@ -768,7 +871,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
     <!-- Sound control -->
     <div class="sound-wrap" id="sound-wrap">
       <button class="tool-btn" id="sound-btn" onclick="toggleSoundMenu()">
-        <span class="tb-icon">🔔</span>Audio ▾
+        <span class="tb-icon material-symbols-rounded">volume_up</span>Audio ▾
       </button>
       <div class="sound-menu" id="sound-menu">
         <div id="sound-opts"></div>
@@ -777,7 +880,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 
     <!-- Design -->
     <button class="tool-btn" onclick="toggleBgPanel()">
-      <span class="tb-icon">🎨</span>Design
+      <span class="tb-icon material-symbols-rounded">palette</span>Design
     </button>
 
     <!-- Fullscreen -->
@@ -922,6 +1025,19 @@ const SOUNDS = [
 function buildSoundMenu(){
   const container = document.getElementById('sound-opts');
   container.innerHTML = '';
+
+  // Global on/off toggle at top
+  const toggleDiv = document.createElement('div');
+  toggleDiv.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:8px 12px 10px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:4px;gap:10px;';
+  toggleDiv.innerHTML=`
+    <span style="font-weight:700;font-size:.95em;">Alle Sounds</span>
+    <button id="sound-master-toggle" onclick="setSoundEnabled(!soundEnabled)"
+      style="padding:4px 14px;border-radius:20px;font-size:.85em;font-weight:700;cursor:pointer;border:2px solid;transition:all .15s;
+             background:${soundEnabled?'#22c55e':'#374151'};border-color:${soundEnabled?'#16a34a':'#4b5563'};color:#fff;">
+      ${soundEnabled?'AN':'AUS'}
+    </button>`;
+  container.appendChild(toggleDiv);
+
   SOUNDS.forEach(s => {
     const d = document.createElement('div');
     d.className = 'sound-opt' + (s.id===currentSound?' active':'');
@@ -968,9 +1084,15 @@ window.addEventListener('scroll', ()=>{ if(document.getElementById('sound-menu')
 function setSoundEnabled(val){
   soundEnabled = val;
   const btn = document.getElementById('sound-btn');
+  btn.innerHTML = `<span class="tb-icon material-symbols-rounded">${soundEnabled ? 'volume_up' : 'volume_off'}</span>Audio ▾`;
   btn.classList.toggle('muted', !soundEnabled);
-  btn.innerHTML = (soundEnabled ? '🔔' : '🔕') + '<br>' + (soundEnabled ? 'Audio' : 'Audio') + ' ▾';
-  btn.innerHTML = `<span class="tb-icon">${soundEnabled ? '🔔' : '🔕'}</span>Audio ▾`;
+  // Update toggle button in open menu if visible
+  const tog = document.getElementById('sound-master-toggle');
+  if(tog){
+    tog.textContent = soundEnabled ? 'AN' : 'AUS';
+    tog.style.background = soundEnabled ? '#22c55e' : '#374151';
+    tog.style.borderColor = soundEnabled ? '#16a34a' : '#4b5563';
+  }
 }
 
 function selectSound(id){
@@ -2020,6 +2142,7 @@ function buildDice(body,uid){
   <button class="jein-mode-btn" id="dtbtn-jein-smiley-${uid}" onclick="selectDiceType('jein-smiley',${uid})" title="Smiley">😊</button>
   <button class="jein-mode-btn" id="dtbtn-jein-ampel-${uid}"  onclick="selectDiceType('jein-ampel',${uid})"  title="Ampel">🚦</button>
   <button class="jein-mode-btn" id="dtbtn-jein-color-${uid}"  onclick="selectDiceType('jein-color',${uid})"  title="Farbe">🎨</button>
+  <button class="jein-mode-btn" id="dtbtn-colorname-${uid}" onclick="toggleColorName(${uid})" title="Farbname ein/aus" style="font-size:.75em;padding:.3em .6em;opacity:.4;">Name</button>
 </div>
 <input type="hidden" id="dicetype-${uid}" value="6">
 <input type="hidden" id="dicecount-${uid}" value="1">`;
@@ -2054,9 +2177,16 @@ function selectDiceType(sides, uid){
       if(mode==='text'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(1.6em,6vw,3em);font-weight:900;color:var(--text2);opacity:.5;">JA / NEIN</span></div>`;
       } else if(mode==='smiley'){
-        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(2.5em,10vw,5em);opacity:.4;">😊</span></div>`;
+        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"><span style="font-size:clamp(4em,18vw,9em);opacity:.35;">😊</span></div>`;
       } else if(mode==='ampel'){
-        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(2.5em,10vw,5em);opacity:.5;">🚦</span></div>`;
+        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#1a1a1a;border-radius:16px;">
+          <svg viewBox="0 0 60 180" width="33%" height="90%" xmlns="http://www.w3.org/2000/svg">
+            <rect x="5" y="5" width="50" height="170" rx="12" fill="#222" stroke="#444" stroke-width="2"/>
+            <circle cx="30" cy="35"  r="18" fill="rgba(80,0,0,0.4)"/>
+            <circle cx="30" cy="90"  r="18" fill="rgba(80,70,0,0.4)"/>
+            <circle cx="30" cy="145" r="18" fill="rgba(0,80,0,0.4)"/>
+          </svg>
+        </div>`;
         scheduleAmpelSwitch(uid);
       } else if(mode==='color'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(2.5em,10vw,5em);opacity:.5;">🎨</span></div>`;
@@ -2188,7 +2318,6 @@ function rollJeinInDice(uid){
   const res =document.getElementById('diceres-'+uid);
   if(!wrap) return;
 
-  // Animate wrap
   wrap.style.transition='transform .12s ease-in';
   wrap.style.transform='scale(0.82)';
   setTimeout(()=>{
@@ -2197,25 +2326,31 @@ function rollJeinInDice(uid){
   },130);
 
   if(mode==='text'){
-    playSound('Wuerfel',0.7);
+    // Ja/Nein: kein Ton
     const ja=Math.random()<0.5;
     const txt=ja?'JA':'NEIN';
     const col=ja?'#4ade80':'#f87171';
     wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:${col}20;border:3px solid ${col};"><span style="font-size:clamp(2em,8vw,4em);font-weight:900;color:${col};">${txt}</span></div>`;
     if(res) res.textContent=txt;
+
   } else if(mode==='smiley'){
-    playSound('Wuerfel',0.7);
+    // Kein Ton, kein Label
     const s=BEFINDEN_SMILEYS[Math.floor(Math.random()*BEFINDEN_SMILEYS.length)];
-    wrap.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:${s.color}20;border:3px solid ${s.color};gap:.2em;"><span style="font-size:clamp(2.5em,10vw,5em);line-height:1;">${s.emoji}</span><span style="font-size:.9em;font-weight:700;color:${s.color};">${s.label}</span></div>`;
-    if(res) res.textContent=s.label;
+    wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"><span style="font-size:clamp(4em,18vw,9em);line-height:1;">${s.emoji}</span></div>`;
+    if(res) res.textContent='';
+
   } else if(mode==='color'){
-    playSound('Wuerfel',0.7);
+    // Kein Ton
     const COLORS=[{name:'Rot',hex:'#ef4444'},{name:'Grün',hex:'#22c55e'},{name:'Blau',hex:'#3b82f6'},{name:'Gelb',hex:'#eab308'},{name:'Orange',hex:'#f97316'},{name:'Lila',hex:'#a855f7'},{name:'Rosa',hex:'#ec4899'},{name:'Türkis',hex:'#06b6d4'},{name:'Weiß',hex:'#f8fafc'},{name:'Schwarz',hex:'#1e293b'}];
     const c=COLORS[Math.floor(Math.random()*COLORS.length)];
-    wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:${c.hex};border:3px solid rgba(255,255,255,0.2);"><span style="font-size:1.2em;font-weight:900;color:${c.hex==='#f8fafc'||c.hex==='#eab308'?'#1e293b':'#fff'};text-shadow:0 1px 4px rgba(0,0,0,0.3);">${c.name}</span></div>`;
+    const showName=jeinState[uid]?.colorShowName===true; // default: versteckt
+    const textColor=c.hex==='#f8fafc'||c.hex==='#eab308'?'#1e293b':'#fff';
+    wrap.innerHTML=`<div id="dice-color-box-${uid}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:${c.hex};position:relative;">
+      <span id="dice-color-label-${uid}" style="font-size:clamp(1.4em,6vw,3em);font-weight:900;color:${textColor};text-shadow:0 1px 6px rgba(0,0,0,0.35);display:${showName?'block':'none'};">${c.name}</span>
+    </div>`;
     if(res) res.textContent=c.name;
+
   } else if(mode==='ampel'){
-    // handled by scheduleAmpelSwitch — just trigger a manual flip
     rollJeinAmpelInDice(uid);
   }
 }
@@ -2227,15 +2362,40 @@ function rollJeinAmpelInDice(uid){
   let next;
   do{ next=['rot','gelb','gruen'][Math.floor(Math.random()*3)]; }while(next===prev&&Math.random()<0.7);
   if(jeinState[uid]) jeinState[uid].ampelState=next;
-  const cfg={rot:{bg:'#ef4444',label:'STOPP'},gelb:{bg:'#eab308',label:'WARTEN'},gruen:{bg:'#22c55e',label:'LOS!'}};
-  const c=cfg[next];
-  playSound('Wuerfel',0.6);
-  wrap.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:${c.bg}22;border:3px solid ${c.bg};gap:.3em;"><span style="font-size:2.5em;">🚦</span><span style="font-size:1.1em;font-weight:900;color:${c.bg};">${c.label}</span></div>`;
+  // Big colored circle: red/yellow/green — no frame, no text
+  const circles={
+    rot:  {bg:'#1a0000', dot:'#ef4444', empty:'rgba(80,0,0,0.4)'},
+    gelb: {bg:'#1a1400', dot:'#eab308', empty:'rgba(80,70,0,0.4)'},
+    gruen:{bg:'#001a00', dot:'#22c55e', empty:'rgba(0,80,0,0.4)'},
+  };
+  const col=circles[next];
+  wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:${col.bg};border-radius:16px;">
+    <svg viewBox="0 0 60 180" width="33%" height="90%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="5" y="5" width="50" height="170" rx="12" fill="#222" stroke="#444" stroke-width="2"/>
+      <circle cx="30" cy="35"  r="18" fill="${next==='rot'  ? col.dot : col.empty}"/>
+      <circle cx="30" cy="90"  r="18" fill="${next==='gelb' ? col.dot : col.empty}"/>
+      <circle cx="30" cy="145" r="18" fill="${next==='gruen'? col.dot : col.empty}"/>
+    </svg>
+  </div>`;
   const res=document.getElementById('diceres-'+uid);
-  if(res) res.textContent=c.label;
+  const labels={rot:'Rot',gelb:'Gelb',gruen:'Grün'};
+  if(res) res.textContent=labels[next];
+}
+
+function toggleColorName(uid){
+  if(!jeinState[uid]) jeinState[uid]={};
+  const cur = jeinState[uid].colorShowName===true; // default false
+  jeinState[uid].colorShowName = !cur;
+  // Update label visibility if currently displayed
+  const lbl = document.getElementById('dice-color-label-'+uid);
+  if(lbl) lbl.style.display = jeinState[uid].colorShowName ? 'block' : 'none';
+  // Update toggle button appearance
+  const btn = document.getElementById('dtbtn-colorname-'+uid);
+  if(btn) btn.style.opacity = jeinState[uid].colorShowName ? '1' : '0.4';
 }
 
 function playDiceRoll(ac, vol){
+  if(!soundEnabled) return;
   // Only the final thud/settle sound
   const o=ac.createOscillator(),g2=ac.createGain();
   o.connect(g2);g2.connect(ac.destination);
@@ -3803,11 +3963,18 @@ function buildSpiele(body, uid){
   buildSlot(slotPanel, uid*1000+2);
   slotPanel.style.display = 'none';   // restore hidden state
 
-  // Janken panel: extract just the janken UI from buildJein
+  // Janken panel — starts hidden, style must NOT set display:flex here
   const jankenPanel=document.getElementById(`spiele-panel-janken-${uid}`);
   const juid=uid*1000+3;
   jeinState[juid]={mode:'janken',result:null};
-  jankenPanel.style.cssText='flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;gap:12px;overflow:hidden;';
+  // Only set layout styles that don't affect display visibility
+  jankenPanel.style.flexDirection='column';
+  jankenPanel.style.alignItems='center';
+  jankenPanel.style.justifyContent='center';
+  jankenPanel.style.padding='16px';
+  jankenPanel.style.gap='12px';
+  jankenPanel.style.overflow='hidden';
+  // display stays 'none' (set by panel creation loop above)
   jankenPanel.innerHTML=`
 <div id="jein-display-${juid}" style="min-height:120px;width:100%;max-width:320px;display:flex;align-items:center;justify-content:center;border-radius:12px;transition:all .3s;background:rgba(0,0,0,0.15);">
   <span style="font-size:2em;color:var(--text2);opacity:.4;">?</span>
@@ -3929,6 +4096,17 @@ function buildWheel(body, uid){
     cv.height = Math.round(size*dpr);
     cv.style.width = size+'px';
     cv.style.height = size+'px';
+    // Scale pointer proportionally: base size is 40×52 at size=560
+    const pointer = document.getElementById('wheel-pointer-'+uid);
+    if(pointer){
+      const scale = size / 560;
+      const pw = Math.round(40 * scale);
+      const ph = Math.round(52 * scale);
+      const pt = Math.round(-14 * scale);
+      const svg = pointer.querySelector('svg');
+      if(svg){ svg.setAttribute('width', pw); svg.setAttribute('height', ph); }
+      pointer.style.top = pt + 'px';
+    }
     drawQuestionWheel(uid);
   }
   setTimeout(resize, 0);
@@ -4201,10 +4379,4 @@ function spinQuestionWheel(uid){
 })();
 </script>
 </body>
-  <div style="text-align: center;">
-    <img src="Tafel.png" width="100" alt="Ikon">
-    <h1>Interaktive Tafel</h1>
-    <p>Willkommen zu meinem Projekt!</p>
-</div>
 </html>
-
