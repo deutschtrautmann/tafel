@@ -1,7 +1,7 @@
 {
   "name": "Interaktive Tafel",
   "short_name": "Tafel",
-  "start_url": ".",
+  "start_url": "index.html",
   "display": "standalone",
   "background_color": "#1a1f3a",
   "theme_color": "#1a1f3a",
