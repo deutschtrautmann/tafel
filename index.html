@@ -1099,13 +1099,21 @@ function toggleMute(){
 }
 
 function setVolume(val){
+  let volumePreviewTimeout;
+
+function setVolume(val){
   soundVolume = Math.max(0, Math.min(1, val/100));
-  // Un-mute automatically when slider is moved above 0
+
   if(soundVolume > 0 && !soundEnabled) setSoundEnabled(true);
   if(soundVolume === 0) setSoundEnabled(false);
-  // Update label
+
   const lbl = document.getElementById('sound-vol-label');
   if(lbl) lbl.textContent = Math.round(soundVolume*100)+'%';
+
+  clearTimeout(volumePreviewTimeout);
+  volumePreviewTimeout = setTimeout(()=>{
+    playSound('Glocke', 1.0);
+  }, 120);
 }
 
 function setSoundEnabled(val){
