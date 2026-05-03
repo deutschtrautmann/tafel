@@ -1114,6 +1114,10 @@ function setVolume(val){
   volumePreviewTimeout = setTimeout(()=>{
     playSound('Glocke', 1.0);
   }, 120);
+  clearTimeout(window._volPreviewTimer);
+window._volPreviewTimer = setTimeout(()=>{
+  playSound('Glocke', 1.0);
+}, 120);
 }
 
 function setSoundEnabled(val){
