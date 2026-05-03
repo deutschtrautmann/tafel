@@ -977,6 +977,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 const desktop = document.getElementById('desktop');
 let zTop = 10, instanceCounter = 0;
 let soundEnabled = true;
+let soundVolume  = 0.8;  // 0.0 – 1.0
 let currentSound = 'pop';
 
 // Adjust desktop top when topbar height changes
@@ -1032,17 +1033,23 @@ function buildSoundMenu(){
   const container = document.getElementById('sound-opts');
   container.innerHTML = '';
 
-  // Global on/off toggle at top
-  const toggleDiv = document.createElement('div');
-  toggleDiv.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:8px 12px 10px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:4px;gap:10px;';
-  toggleDiv.innerHTML=`
-    <span style="font-weight:700;font-size:.95em;">Alle Sounds</span>
-    <button id="sound-master-toggle" onclick="setSoundEnabled(!soundEnabled)"
-      style="padding:4px 14px;border-radius:20px;font-size:.85em;font-weight:700;cursor:pointer;border:2px solid;transition:all .15s;
-             background:${soundEnabled?'#22c55e':'#374151'};border-color:${soundEnabled?'#16a34a':'#4b5563'};color:#fff;">
-      ${soundEnabled?'AN':'AUS'}
-    </button>`;
-  container.appendChild(toggleDiv);
+  // Volume slider + mute button
+  const ctrl = document.createElement('div');
+  ctrl.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 12px 10px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:4px;';
+  ctrl.innerHTML=`
+    <button id="sound-mute-btn" onclick="toggleMute()"
+      title="${soundEnabled?'Ton aus':'Ton an'}"
+      style="background:none;border:none;cursor:pointer;font-size:1.25em;padding:2px 4px;line-height:1;transition:opacity .15s;opacity:${soundEnabled?'1':'.45'};">
+      ${soundEnabled?'🔔':'🔕'}
+    </button>
+    <input id="sound-vol-slider" type="range" min="0" max="100"
+      value="${Math.round(soundVolume*100)}"
+      oninput="setVolume(this.value)"
+      style="flex:1;accent-color:#6c8fff;cursor:pointer;height:4px;">
+    <span id="sound-vol-label" style="font-size:.82em;font-weight:700;color:var(--text2);min-width:2.4em;text-align:right;">
+      ${Math.round(soundVolume*100)}%
+    </span>`;
+  container.appendChild(ctrl);
 
   SOUNDS.forEach(s => {
     const d = document.createElement('div');
@@ -1087,17 +1094,44 @@ document.addEventListener('click', e=>{
 window.addEventListener('resize', ()=>{ if(document.getElementById('sound-menu')?.classList.contains('open')) positionSoundMenu(); });
 window.addEventListener('scroll', ()=>{ if(document.getElementById('sound-menu')?.classList.contains('open')) positionSoundMenu(); }, true);
 
+function toggleMute(){
+  setSoundEnabled(!soundEnabled);
+}
+
+function setVolume(val){
+  soundVolume = Math.max(0, Math.min(1, val/100));
+  // Un-mute automatically when slider is moved above 0
+  if(soundVolume > 0 && !soundEnabled) setSoundEnabled(true);
+  if(soundVolume === 0) setSoundEnabled(false);
+  // Update label
+  const lbl = document.getElementById('sound-vol-label');
+  if(lbl) lbl.textContent = Math.round(soundVolume*100)+'%';
+}
+
 function setSoundEnabled(val){
   soundEnabled = val;
+  // Toolbar button icon
   const btn = document.getElementById('sound-btn');
-  btn.innerHTML = `<span class="tb-icon material-symbols-rounded">${soundEnabled ? 'volume_up' : 'volume_off'}</span>Audio ▾`;
-  btn.classList.toggle('muted', !soundEnabled);
-  // Update toggle button in open menu if visible
-  const tog = document.getElementById('sound-master-toggle');
-  if(tog){
-    tog.textContent = soundEnabled ? 'AN' : 'AUS';
-    tog.style.background = soundEnabled ? '#22c55e' : '#374151';
-    tog.style.borderColor = soundEnabled ? '#16a34a' : '#4b5563';
+  if(btn){
+    btn.innerHTML = `<span class="tb-icon material-symbols-rounded">${soundEnabled ? 'volume_up' : 'volume_off'}</span>Audio ▾`;
+    btn.classList.toggle('muted', !soundEnabled);
+  }
+  // Update mute button in open menu
+  const muteBtn = document.getElementById('sound-mute-btn');
+  if(muteBtn){
+    muteBtn.textContent = soundEnabled ? '🔔' : '🔕';
+    muteBtn.style.opacity = soundEnabled ? '1' : '.45';
+    muteBtn.title = soundEnabled ? 'Ton aus' : 'Ton an';
+  }
+  // Sync slider if muted via button (not via slider)
+  const slider = document.getElementById('sound-vol-slider');
+  const lbl    = document.getElementById('sound-vol-label');
+  if(!soundEnabled && slider && parseFloat(slider.value)>0){
+    slider.style.opacity = '.45';
+    if(lbl) lbl.style.opacity = '.45';
+  } else if(slider){
+    slider.style.opacity = '1';
+    if(lbl) lbl.style.opacity = '1';
   }
 }
 
@@ -1117,18 +1151,21 @@ function previewSound(id){ playSound(id, 0.7); }
 
 function playSound(id, vol=0.8){
   if(!soundEnabled) return;
+  const v = vol * soundVolume;
   if(typeof window._waPlaySound === 'function'){
-    window._waPlaySound(id, vol);
+    window._waPlaySound(id, v);
   } else {
     const audio = document.getElementById("snd-"+id);
-    if(audio){ audio.volume=vol; audio.currentTime=0; audio.play(); }
+    if(audio){ audio.volume=Math.min(1,v); audio.currentTime=0; audio.play(); }
   }
 }
 
 function playCurrentSound(vol=0.8){ playSound(currentSound, vol); }
 function playTimerEnd(){
-  playSound('Glocke',0.9);
-  setTimeout(()=>playSound('Glocke',0.7),650);
+  // Läufer-Modus aktiv? → Applaus, sonst 1× Glocke
+  const lauferActive = !!document.querySelector('.timer-mode-btn.active-tmode[id^="tbtn-lauf-"]');
+  if(lauferActive) playSound('Applaus',0.9);
+  else             playSound('Glocke',0.9);
 }
 
 // — Individual synth sounds —
@@ -1885,45 +1922,88 @@ function fmtTime(s){return pad(Math.floor(Math.abs(s)/60))+':'+pad(Math.abs(s)%6
 function buildTimer(body,uid){
   body.style.display='flex'; body.style.flexDirection='column'; body.style.alignItems='center'; body.style.padding='8px 12px';
   const CIRC=427;
-  // Ticks for clock-face markers
   const ticks=Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180;const r1=72,r2=i%3===0?80:76;const x1=80+r1*Math.sin(a),y1=80-r1*Math.cos(a),x2=80+r2*Math.sin(a),y2=80-r2*Math.cos(a);return`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,0.22)" stroke-width="${i%3===0?2:1}" stroke-linecap="round"/>`;}).join('');
   body.innerHTML=`
-<!-- Mode toggle -->
 <div style="display:flex;gap:calc(var(--uiscale,1)*3px);margin-bottom:.4em;background:rgba(0,0,0,0.25);border-radius:calc(var(--uiscale,1)*8px);padding:calc(var(--uiscale,1)*3px);">
   <button id="tbtn-ring-${uid}" class="timer-mode-btn active-tmode" onclick="setTimerMode('ring',${uid})">⭕ Kreis</button>
   <button id="tbtn-digi-${uid}" class="timer-mode-btn" onclick="setTimerMode('digital',${uid})">🔢 Digital</button>
+  <button id="tbtn-lauf-${uid}" class="timer-mode-btn" onclick="setTimerMode('laufer',${uid})">🏃 Läufer</button>
 </div>
-<!-- Ring view: SVG scales with widget via viewBox -->
 <div id="tview-ring-${uid}" style="position:relative;width:100%;flex:1;min-height:100px;display:flex;align-items:center;justify-content:center;margin:.1em auto .2em;">
   <svg id="timer-svg-${uid}" viewBox="0 0 160 160" style="width:100%;height:100%;max-width:100%;max-height:100%;display:block;cursor:pointer;" onclick="startTimer(${uid})" title="Klicken zum Starten / Pausieren">
-    <!-- Background track -->
     <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
-    <!-- Arc: starts at top (−90°), goes counterclockwise (scaleX −1) = left direction.
-         transform: rotate(−90) puts 12-o-clock at start; scale(−1,1) flips to go left/counterclockwise -->
     <circle id="sw-arc-${uid}" cx="80" cy="80" r="68" fill="none" stroke="#4ade80" stroke-width="8"
       stroke-linecap="round" stroke-dasharray="${CIRC}" stroke-dashoffset="0"
       transform="rotate(-90 80 80) scale(-1 1) translate(-160 0)"
       style="transition:stroke-dashoffset .9s linear,stroke .4s;"/>
-    <!-- Tick marks -->
     ${ticks}
-    <!-- Time text in center -->
     <text id="td-svg-${uid}" x="80" y="84" text-anchor="middle" dominant-baseline="central"
       font-family="Arial,sans-serif" font-weight="400" font-size="22" fill="#ffffff"
       letter-spacing="1">${fmtTime(timerSec)}</text>
   </svg>
-  <!-- hidden td- element needed for updateAllTimerDisplays -->
   <div id="td-${uid}" style="display:none;">${fmtTime(timerSec)}</div>
 </div>
-<!-- Digital view (hidden by default) -->
 <div id="tview-digi-${uid}" style="display:none;width:100%;text-align:center;padding:.8em 0 .4em;">
   <div class="timer-disp" id="td-digi-${uid}" style="font-size:5em;margin:0;cursor:pointer;" onclick="startTimer(${uid})" title="Klicken zum Starten / Pausieren">${fmtTime(timerSec)}</div>
+</div>
+<div id="tview-lauf-${uid}" style="display:none;width:100%;flex:1;min-height:130px;cursor:pointer;overflow:hidden;border-radius:10px;position:relative;" onclick="startTimer(${uid})" title="Klicken zum Starten / Pausieren">
+  <svg id="lauf-svg-${uid}" viewBox="0 0 790 160" width="100%" height="100%" style="display:block;" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+    <!-- Himmel -->
+    <rect x="0" y="0" width="790" height="160" fill="#87CEEB"/>
+    <!-- Wolken -->
+    <ellipse cx="120" cy="30" rx="40" ry="18" fill="white" opacity=".85"/>
+    <ellipse cx="150" cy="25" rx="30" ry="15" fill="white" opacity=".85"/>
+    <ellipse cx="500" cy="22" rx="45" ry="16" fill="white" opacity=".8"/>
+    <ellipse cx="530" cy="17" rx="28" ry="13" fill="white" opacity=".8"/>
+    <!-- Hügel -->
+    <ellipse cx="200" cy="130" rx="160" ry="45" fill="#5a9e5a"/>
+    <ellipse cx="600" cy="135" rx="200" ry="40" fill="#4e8f4e"/>
+    <!-- Bäume links -->
+    <rect x="55" y="85" width="6" height="30" fill="#795548"/>
+    <circle cx="58" cy="78" r="18" fill="#2ecc71"/>
+    <rect x="90" y="90" width="5" height="25" fill="#795548"/>
+    <circle cx="92" cy="83" r="14" fill="#27ae60"/>
+    <!-- Bäume rechts -->
+    <rect x="700" y="80" width="7" height="35" fill="#795548"/>
+    <circle cx="703" cy="72" r="22" fill="#2ecc71"/>
+    <rect x="735" y="88" width="5" height="26" fill="#795548"/>
+    <circle cx="737" cy="81" r="15" fill="#27ae60"/>
+    <!-- Strasse -->
+    <rect x="0" y="125" width="790" height="22" fill="#9ca3af"/>
+    <line x1="0" y1="136" x2="790" y2="136" stroke="rgba(255,255,255,0.5)" stroke-dasharray="18,12" stroke-width="2"/>
+    <!-- Haus / Halbzeit -->
+    <rect x="340" y="78" width="110" height="47" fill="#fef3c7" stroke="#d1c04a" stroke-width="1.5"/>
+    <polygon points="330,78 460,78 395,50" fill="#e74c3c" stroke="#c0392b" stroke-width="1.5"/>
+    <text x="395" y="105" font-weight="bold" font-size="11" text-anchor="middle" fill="#555" font-family="Arial,sans-serif">HALBZEIT</text>
+    <!-- Baum neben Haus -->
+    <rect x="465" y="83" width="8" height="42" fill="#795548"/>
+    <circle cx="469" cy="72" r="22" fill="#2ecc71"/>
+    <!-- START -->
+    <rect x="18" y="90" width="3" height="35" fill="#22c55e"/>
+    <rect x="0" y="68" width="44" height="22" rx="4" fill="#22c55e"/>
+    <text x="22" y="83" fill="white" font-weight="bold" font-size="10" text-anchor="middle" font-family="Arial,sans-serif">START</text>
+    <!-- ZIEL -->
+    <rect x="769" y="90" width="3" height="35" fill="#ef4444"/>
+    <rect x="748" y="68" width="44" height="22" rx="4" fill="#ef4444"/>
+    <text x="770" y="83" fill="white" font-weight="bold" font-size="10" text-anchor="middle" font-family="Arial,sans-serif">ZIEL</text>
+    <!-- Zeit -->
+    <text id="lauf-time-${uid}" x="395" y="148" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="rgba(0,0,0,0.6)">${fmtTime(timerSec)}</text>
+    <!-- Läufer Gruppe — Startposition cx=20 -->
+    <g id="lauf-runner-${uid}">
+      <circle id="lauf-head-${uid}"  cx="20" cy="108" r="5.5" fill="#fbbf24"/>
+      <line  id="lauf-body-${uid}"   x1="20" y1="113" x2="20" y2="124" stroke="#fbbf24" stroke-width="2.5"/>
+      <path  id="lauf-leg1-${uid}"   d="M20,124 L13,135" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path  id="lauf-leg2-${uid}"   d="M20,124 L27,135" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <path  id="lauf-arm1-${uid}"   d="M20,116 L13,121" stroke="#fbbf24" stroke-width="2"   stroke-linecap="round" fill="none"/>
+      <path  id="lauf-arm2-${uid}"   d="M20,116 L27,121" stroke="#fbbf24" stroke-width="2"   stroke-linecap="round" fill="none"/>
+    </g>
+  </svg>
 </div>
 <div class="row" style="justify-content:center;">
   <button class="wbtn primary" onclick="startTimer(${uid})">▶ Start</button>
   <button class="wbtn" onclick="pauseTimer()">⏸ Pause</button>
   <button class="wbtn" onclick="resetTimer(${uid})">↺ Reset</button>
 </div>
-<!-- Time settings: very small, at the bottom -->
 <div style="margin-top:.7em;border-top:1px solid rgba(255,255,255,0.07);padding-top:.5em;width:100%;">
   <div style="display:flex;gap:.4em;align-items:center;justify-content:center;margin-bottom:.3em;" id="timer-inputs-${uid}">
     <input class="winput" type="number" id="tmin-${uid}" value="5" min="0" max="99" style="width:calc(var(--uiscale,1)*3em);text-align:center;font-size:calc(var(--uiscale,1)*.78em);padding:.2em .3em;">
@@ -1944,10 +2024,12 @@ function buildTimer(body,uid){
 }
 
 function setTimerMode(mode, uid){
-  document.getElementById('tview-ring-'+uid).style.display = mode==='ring' ? 'block' : 'none';
-  document.getElementById('tview-digi-'+uid).style.display = mode==='digital' ? 'block' : 'none';
+  document.getElementById('tview-ring-'+uid).style.display  = mode==='ring'    ? 'flex'  : 'none';
+  document.getElementById('tview-digi-'+uid).style.display  = mode==='digital'  ? 'block' : 'none';
+  document.getElementById('tview-lauf-'+uid).style.display  = mode==='laufer'   ? 'block' : 'none';
   document.getElementById('tbtn-ring-'+uid).classList.toggle('active-tmode', mode==='ring');
   document.getElementById('tbtn-digi-'+uid).classList.toggle('active-tmode', mode==='digital');
+  document.getElementById('tbtn-lauf-'+uid).classList.toggle('active-tmode', mode==='laufer');
 }
 
 function timerColor(sec, total){
@@ -1978,14 +2060,12 @@ function updateAllTimerDisplays(){
     const col=timerColor(timerSec,total);
     el.style.color=timerSec<=10?'#f87171':col;
     const arc=document.getElementById('sw-arc-'+uid);
-    // dashoffset: 0 = full arc; CIRC = empty. Decreases from full to empty as timer runs.
     if(arc){arc.style.stroke=col;arc.style.strokeDashoffset=String(CIRC*(1-timerSec/total));}
-    // update SVG text
     const svgTxt=document.getElementById('td-svg-'+uid);
     if(svgTxt){svgTxt.textContent=fmtTime(timerSec);svgTxt.style.fill=timerSec<=10?'#f87171':col;}
-    // update digital twin
     const digi=document.getElementById('td-digi-'+uid);
     if(digi){digi.textContent=fmtTime(timerSec);digi.style.color=el.style.color;}
+    updateLaufer(uid, timerSec, total);
   });
 }
 function setTimer(min,sec,uid){
@@ -1997,7 +2077,6 @@ function setTimer(min,sec,uid){
 }
 function startTimer(uid){
   if(timerRunning){pauseTimer();return;}
-  // Nur beim ersten Start (nicht nach Pause) die Eingabefelder auslesen
   const wasPaused = (timerSec > 0 && timerTotalMap[uid] && timerSec < timerTotalMap[uid]);
   if(uid && !wasPaused){
     const minEl=document.getElementById('tmin-'+uid),secEl=document.getElementById('tsec-'+uid);
@@ -2005,7 +2084,17 @@ function startTimer(uid){
     timerTotalMap[uid]=timerSec;
   }
   if(timerSec<=0)return;
+  // Knall beim (frischen) Start
+  // Knall nur im Läufer-Modus
+  const lauferMode = !!document.querySelector('.timer-mode-btn.active-tmode[id^="tbtn-lauf-"]');
+  if(!wasPaused && lauferMode) playSound('Knall',0.85);
   timerRunning=true;
+  // Start smooth runner animation
+  document.querySelectorAll('[id^="td-"]').forEach(el=>{
+    if(!el.id.startsWith('td-') || el.id.startsWith('td-digi-') || el.id.startsWith('td-svg-')) return;
+    const u=el.id.replace('td-','');
+    if(document.getElementById('lauf-runner-'+u)) lauferStartRaf(u);
+  });
   timerInterval=setInterval(()=>{
     timerSec--;if(timerSec<=0){timerSec=0;clearInterval(timerInterval);timerRunning=false;playTimerEnd();}
     updateAllTimerDisplays();
@@ -2016,7 +2105,59 @@ function resetTimer(uid){
   clearInterval(timerInterval);timerRunning=false;
   timerSec=(parseInt(document.getElementById('tmin-'+uid)?.value)||5)*60+(parseInt(document.getElementById('tsec-'+uid)?.value)||0);
   timerTotalMap[uid]=timerSec;
+  if(lauferRaf[uid]){cancelAnimationFrame(lauferRaf[uid]);lauferRaf[uid]=null;}
+  lauferPos[uid]=0;
   updateAllTimerDisplays();
+}
+
+// ── LÄUFER: flüssige Animation via requestAnimationFrame ──
+const lauferRaf={};   // uid → raf id
+const lauferPos={};   // uid → current x offset (0‥750)
+const lauferPhase={}; // uid → animation time accumulator
+
+function updateLaufer(uid, sec, total){
+  const timeTxt=document.getElementById('lauf-time-'+uid);
+  if(timeTxt) timeTxt.textContent=fmtTime(sec);
+  // Smooth position is driven by rAF loop when running; here we just sync on tick
+  const target = total>0 ? (1-sec/total)*750 : 0;
+  lauferPos[uid] = target;
+  if(!timerRunning) lauferDrawFrame(uid); // static update when paused/reset
+}
+
+function lauferStartRaf(uid){
+  if(lauferRaf[uid]) cancelAnimationFrame(lauferRaf[uid]);
+  if(!lauferPhase[uid]) lauferPhase[uid]=0;
+  let last=performance.now();
+  function frame(now){
+    if(!timerRunning){lauferRaf[uid]=null;return;}
+    const dt=now-last; last=now;
+    lauferPhase[uid]=(lauferPhase[uid]||0)+dt;
+    lauferDrawFrame(uid);
+    lauferRaf[uid]=requestAnimationFrame(frame);
+  }
+  lauferRaf[uid]=requestAnimationFrame(frame);
+}
+
+function lauferDrawFrame(uid){
+  const runner=document.getElementById('lauf-runner-'+uid);
+  if(!runner) return;
+  const total=timerTotalMap[uid]||300;
+  const tx=lauferPos[uid]||0;
+  // Bounce: smooth vertical sine based on accumulated time
+  const t=(lauferPhase[uid]||0)/1000; // seconds
+  const ty=timerRunning ? Math.sin(t*Math.PI*4)*3 : 0; // 2 bounces/sec
+  runner.setAttribute('transform',`translate(${tx.toFixed(1)},${ty.toFixed(2)})`);
+  // Limb animation: alternate arms/legs via sine
+  const phase=Math.sin(t*Math.PI*4);
+  const leg1=document.getElementById('lauf-leg1-'+uid);
+  const leg2=document.getElementById('lauf-leg2-'+uid);
+  const arm1=document.getElementById('lauf-arm1-'+uid);
+  const arm2=document.getElementById('lauf-arm2-'+uid);
+  const s=phase*8; // swing amplitude in px
+  if(leg1) leg1.setAttribute('d',`M20,124 L${14+s},135`);
+  if(leg2) leg2.setAttribute('d',`M20,124 L${26-s},135`);
+  if(arm1) arm1.setAttribute('d',`M20,116 L${13+s},${121-Math.abs(s)*0.4}`);
+  if(arm2) arm2.setAttribute('d',`M20,116 L${27-s},${121-Math.abs(s)*0.4}`);
 }
 
 // ════════════════════════════════════════════════
