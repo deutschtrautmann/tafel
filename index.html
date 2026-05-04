@@ -259,13 +259,14 @@ html,body{width:100%;height:100%;min-height:100dvh;overflow:hidden;font-family:'
 
 /* BG Panel */
 #bg-panel{
-  display:none;position:fixed;top:0;right:0;bottom:0;
-  width:280px;background:var(--card);
-  border-left:1px solid rgba(255,255,255,0.1);
-  z-index:10001;padding:20px 16px;
-  flex-direction:column;gap:12px;
-  box-shadow:-8px 0 32px rgba(0,0,0,0.4);
-  overflow-y:auto;
+  display:none;position:fixed;
+  width:260px;background:var(--card);
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:14px;
+  z-index:10001;padding:12px 14px;
+  flex-direction:column;gap:8px;
+  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  overflow-y:auto;max-height:80vh;
 }
 #bg-panel.open{display:flex;}
 #bg-panel h3{font-size:14px;font-weight:900;color:var(--accent);letter-spacing:.5px;margin-bottom:4px;}
@@ -919,29 +920,22 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 
 <!-- BG PANEL -->
 <div id="bg-panel">
-  <button class="bg-panel-close" onclick="toggleBgPanel()">✕</button>
-  <h3>🖼 Hintergrund</h3>
-
-  <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:6px;">Hintergrundfarbe</div>
-  <!-- Color picker + quick swatches -->
-  <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+  <!-- Farb-Picker + Swatches kompakt ohne Titel/Labels -->
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
     <input type="color" id="bg-color-picker" value="#1a1f3a"
-      style="width:48px;height:48px;border:2px solid rgba(255,255,255,0.2);border-radius:10px;cursor:pointer;background:none;padding:2px;"
+      style="width:40px;height:40px;border:2px solid rgba(255,255,255,0.2);border-radius:10px;cursor:pointer;background:none;padding:2px;flex-shrink:0;"
       oninput="applyBgColor(this.value)">
-    <div style="flex:1">
-      <div style="font-size:11px;color:var(--text2);margin-bottom:5px;">Schnellfarben</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="bg-swatches"></div>
+    <div style="flex:1;">
+      <div style="display:flex;gap:4px;flex-wrap:wrap;" id="bg-swatches"></div>
     </div>
   </div>
 
   <div class="sound-divider"></div>
 
-  <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:4px;">Foto hochladen</div>
   <div class="bg-upload-zone" id="bg-dropzone" onclick="document.getElementById('bg-file-input').click()" ondragover="event.preventDefault()" ondrop="handleBgDrop(event)">
     <input type="file" id="bg-file-input" accept="image/*" onchange="handleBgFile(this.files[0])">
-    <div style="font-size:28px;margin-bottom:6px;">📁</div>
-    <div style="font-weight:700;">Klicken oder Foto hierher ziehen</div>
-    <div style="font-size:11px;margin-top:3px;">JPG, PNG, WEBP, GIF</div>
+    <div style="font-size:22px;margin-bottom:3px;">📁</div>
+    <div style="font-weight:700;font-size:.85em;">Foto hochladen</div>
   </div>
 
   <div id="bg-photo-controls" style="display:none;">
@@ -949,15 +943,14 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
       <label>Abdunkeln: <span id="dim-val">30</span>%</label>
       <input type="range" min="0" max="85" value="30" id="dim-slider" oninput="setBgDim(this.value)">
     </div>
-    <div class="bg-dim-row" style="margin-top:8px;">
+    <div class="bg-dim-row" style="margin-top:6px;">
       <label>Unschärfe: <span id="blur-val">0</span>px</label>
       <input type="range" min="0" max="20" value="0" id="blur-slider" oninput="setBgBlur(this.value)">
     </div>
-    <button class="wbtn" style="margin-top:8px;width:100%;" onclick="removeBgPhoto()">✕ Foto entfernen</button>
+    <button class="wbtn" style="margin-top:6px;width:100%;font-size:.82em;" onclick="removeBgPhoto()">✕ Foto entfernen</button>
   </div>
 
   <div class="sound-divider"></div>
-  <div style="font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--text2);margin-bottom:4px;">Widget-Transparenz</div>
   <div class="bg-dim-row">
     <label>Fenster-Transparenz: <span id="widget-alpha-val">88</span>%</label>
     <input type="range" min="40" max="100" value="88" id="widget-alpha-slider" oninput="setWidgetAlpha(this.value)">
@@ -1343,68 +1336,54 @@ function applyBgColor(hex){
 
 function buildBgSwatches(){
   const cont=document.getElementById('bg-swatches');
-  if(!cont)return;
+  if(!cont) return;
   cont.innerHTML='';
-  // Label: Dunkel
-  const lbl1=document.createElement('div');
-  lbl1.style.cssText='font-size:9px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;width:100%;margin-bottom:2px;margin-top:2px;';
-  lbl1.textContent='Dunkel';
-  cont.appendChild(lbl1);
-  const darkRow=document.createElement('div');
-  darkRow.style.cssText='display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px;';
-  BG_SWATCHES_DARK.forEach(hex=>{
+  // All three rows inline, no labels, tighter gaps
+  const allSwatches=[
+    ...BG_SWATCHES_DARK.map(h=>({hex:h,border:'rgba(255,255,255,0.25)'})),
+    ...BG_SWATCHES_MID .map(h=>({hex:h,border:'rgba(255,255,255,0.2)'})),
+    ...BG_SWATCHES_LIGHT.map(h=>({hex:h,border:'rgba(0,0,0,0.15)'})),
+  ];
+  allSwatches.forEach(({hex,border})=>{
     const d=document.createElement('div');
-    d.style.cssText=`width:24px;height:24px;border-radius:6px;background:${hex};cursor:pointer;border:2px solid rgba(255,255,255,0.25);flex-shrink:0;transition:transform .1s,border-color .1s;`;
+    d.style.cssText=`width:26px;height:26px;border-radius:7px;background:${hex};cursor:pointer;border:2px solid ${border};flex-shrink:0;transition:transform .1s;`;
     d.title=hex;
-    d.onmouseover=()=>d.style.transform='scale(1.2)';
+    d.onmouseover=()=>d.style.transform='scale(1.18)';
     d.onmouseleave=()=>d.style.transform='';
     d.onclick=()=>applyBgColor(hex);
-    darkRow.appendChild(d);
+    cont.appendChild(d);
   });
-  cont.appendChild(darkRow);
-  // Label: Normal
-  const lbl3=document.createElement('div');
-  lbl3.style.cssText='font-size:9px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;width:100%;margin-bottom:2px;';
-  lbl3.textContent='Normal';
-  cont.appendChild(lbl3);
-  const midRow=document.createElement('div');
-  midRow.style.cssText='display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px;';
-  BG_SWATCHES_MID.forEach(hex=>{
-    const d=document.createElement('div');
-    d.style.cssText=`width:24px;height:24px;border-radius:6px;background:${hex};cursor:pointer;border:2px solid rgba(255,255,255,0.2);flex-shrink:0;transition:transform .1s,border-color .1s;`;
-    d.title=hex;
-    d.onmouseover=()=>d.style.transform='scale(1.2)';
-    d.onmouseleave=()=>d.style.transform='';
-    d.onclick=()=>applyBgColor(hex);
-    midRow.appendChild(d);
-  });
-  cont.appendChild(midRow);
-  // Label: Hell
-  const lbl2=document.createElement('div');
-  lbl2.style.cssText='font-size:9px;color:var(--text2);font-weight:700;text-transform:uppercase;letter-spacing:.5px;width:100%;margin-bottom:2px;';
-  lbl2.textContent='Hell';
-  cont.appendChild(lbl2);
-  const lightRow=document.createElement('div');
-  lightRow.style.cssText='display:flex;gap:5px;flex-wrap:wrap;';
-  BG_SWATCHES_LIGHT.forEach(hex=>{
-    const d=document.createElement('div');
-    d.style.cssText=`width:24px;height:24px;border-radius:6px;background:${hex};cursor:pointer;border:2px solid rgba(0,0,0,0.15);flex-shrink:0;transition:transform .1s,border-color .1s;`;
-    d.title=hex;
-    d.onmouseover=()=>d.style.transform='scale(1.2)';
-    d.onmouseleave=()=>d.style.transform='';
-    d.onclick=()=>applyBgColor(hex);
-    lightRow.appendChild(d);
-  });
-  cont.appendChild(lightRow);
 }
 
 let bgPhotoData = null;
 
 function toggleBgPanel(){
-  const p=document.getElementById('bg-panel');
+  const p = document.getElementById('bg-panel');
+  // Move to body so it's not clipped by topbar overflow
+  if(p.parentElement !== document.body) document.body.appendChild(p);
   p.classList.toggle('open');
-  if(p.classList.contains('open')) buildBgSwatches();
+  if(p.classList.contains('open')){
+    buildBgSwatches();
+    // Position below the Design button
+    const btn = document.querySelector('[onclick="toggleBgPanel()"]');
+    if(btn){
+      const r = btn.getBoundingClientRect();
+      const panelW = 260;
+      const left = Math.max(8, Math.min(r.left, window.innerWidth - panelW - 8));
+      p.style.left = left + 'px';
+      p.style.top  = Math.round(r.bottom + 8) + 'px';
+      p.style.right = 'auto';
+      p.style.bottom = 'auto';
+    }
+  }
 }
+// Close bg-panel on outside click
+document.addEventListener('click', e=>{
+  const p = document.getElementById('bg-panel');
+  const btn = document.querySelector('[onclick="toggleBgPanel()"]');
+  if(p && p.classList.contains('open') && !p.contains(e.target) && btn && !btn.contains(e.target))
+    p.classList.remove('open');
+});
 
 function handleBgDrop(e){
   e.preventDefault();
