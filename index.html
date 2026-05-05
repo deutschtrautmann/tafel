@@ -1093,12 +1093,13 @@ function toggleMute(){
 
 function setVolume(val){
   soundVolume = Math.max(0, Math.min(1, val/100));
-  // Un-mute automatically when slider is moved above 0
   if(soundVolume > 0 && !soundEnabled) setSoundEnabled(true);
   if(soundVolume === 0) setSoundEnabled(false);
-  // Update label
   const lbl = document.getElementById('sound-vol-label');
   if(lbl) lbl.textContent = Math.round(soundVolume*100)+'%';
+  // Glocke 1× als Vorschau — Debounce 300ms damit nicht jedes px feuert
+  clearTimeout(setVolume._t);
+  setVolume._t = setTimeout(()=>{ if(soundEnabled) playSound('Glocke', 0.9); }, 300);
 }
 
 function setSoundEnabled(val){
