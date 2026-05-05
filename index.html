@@ -3423,7 +3423,7 @@ disp.style.transform='scale(0.8)';disp.style.opacity='0';
 const wasState={};
 
 function buildWas(body,uid){
-  wasState[uid]={img:null,step:0,maxSteps:8,canvas:null,revealed:false,mode:'mosaic',blurInterval:null};
+  wasState[uid]={imgs:[],imgIndex:0,step:0,maxSteps:8,canvas:null,revealed:false,mode:'mosaic',blurInterval:null};
   body.style.display='flex';body.style.flexDirection='column';body.style.padding='8px';
   body.innerHTML=`
 <!-- Mode tabs -->
@@ -3434,13 +3434,19 @@ function buildWas(body,uid){
 </div>
 <div id="was-upload-${uid}" style="text-align:center;">
   <div class="bg-upload-zone" onclick="document.getElementById('was-file-${uid}').click()" style="padding:20px 10px;">
-    <input type="file" id="was-file-${uid}" accept="image/*" style="display:none" onchange="loadWasImage(${uid},this.files[0])">
+    <input type="file" id="was-file-${uid}" accept="image/*" multiple style="display:none" onchange="loadWasImages(${uid},this.files)">
     <div style="font-size:32px;margin-bottom:6px;">🖼</div>
-    <div style="font-weight:700;font-size:.9em;">Foto hier hochladen</div>
-    <div style="font-size:11px;margin-top:3px;color:var(--text2);">Das Bild wird schrittweise enthüllt</div>
+    <div style="font-weight:700;font-size:.9em;">Fotos hier hochladen</div>
+    <div style="font-size:11px;margin-top:3px;color:var(--text2);">Mehrere Fotos möglich – werden schrittweise enthüllt</div>
   </div>
 </div>
 <div id="was-canvas-wrap-${uid}" style="display:none;flex:1;flex-direction:column;gap:6px;">
+  <!-- Photo nav bar (visible only when >1 photo) -->
+  <div id="was-nav-${uid}" style="display:none;align-items:center;gap:6px;background:rgba(0,0,0,0.25);border-radius:8px;padding:4px 8px;">
+    <button class="wbtn" onclick="wasGoPrev(${uid})" id="was-prev-${uid}" style="padding:.3em .7em;font-size:.85em;">◀</button>
+    <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;">Foto 1 / 1</div>
+    <button class="wbtn primary" onclick="wasGoNext(${uid})" id="was-next-${uid}" style="padding:.3em .9em;font-size:.85em;">Weiter ▶</button>
+  </div>
   <canvas id="was-canvas-${uid}" style="display:block;width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasRevealMore(${uid})" title="Klicken zum Enthüllen"></canvas>
   <div style="display:flex;gap:.4em;align-items:center;">
     <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;">Schritt 1 / 8</div>
@@ -3448,6 +3454,82 @@ function buildWas(body,uid){
     <button class="wbtn" onclick="wasReset(${uid})">↺</button>
   </div>
 </div>`;
+}
+
+function loadWasImages(uid, files){
+  if(!files||!files.length)return;
+  const s=wasState[uid];
+  s.imgs=[];
+  s.imgIndex=0;
+  let loaded=0;
+  const total=files.length;
+  Array.from(files).forEach((file,i)=>{
+    const img=new Image();
+    const reader=new FileReader();
+    reader.onload=e=>{
+      img.onload=()=>{
+        s.imgs[i]=img;
+        loaded++;
+        if(loaded===total) wasActivatePhoto(uid,0);
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function wasActivatePhoto(uid, index){
+  const s=wasState[uid];
+  if(!s||!s.imgs.length)return;
+  s.imgIndex=index;
+  s.step=0;
+  s.revealed=false;
+  // Show canvas area, hide upload zone
+  document.getElementById('was-upload-'+uid).style.display='none';
+  const wrap=document.getElementById('was-canvas-wrap-'+uid);
+  wrap.style.display='flex';
+  const cv=document.getElementById('was-canvas-'+uid);
+  const img=s.imgs[index];
+  const maxW=Math.min(img.width,400);
+  cv.width=maxW; cv.height=Math.round(img.height*(maxW/img.width));
+  s.canvas=cv;
+  // Update reveal button label
+  const btn=document.getElementById('was-btn-'+uid);
+  if(btn){
+    if(s.mode==='blur') btn.textContent='🔍 Schärfer';
+    else if(s.mode==='kaese') btn.textContent='🧀 Mehr zeigen';
+    else btn.textContent='🔍 Feiner';
+    btn.disabled=false;
+  }
+  // Nav bar
+  const nav=document.getElementById('was-nav-'+uid);
+  const navLabel=document.getElementById('was-nav-label-'+uid);
+  const prevBtn=document.getElementById('was-prev-'+uid);
+  const nextBtn=document.getElementById('was-next-'+uid);
+  if(s.imgs.length>1){
+    nav.style.display='flex';
+    navLabel.textContent=`Foto ${index+1} / ${s.imgs.length}`;
+    prevBtn.disabled=(index===0);
+    prevBtn.style.opacity=(index===0)?'0.35':'1';
+    nextBtn.disabled=(index===s.imgs.length-1);
+    nextBtn.style.opacity=(index===s.imgs.length-1)?'0.35':'1';
+    // Change label to "Fertig" on last photo
+    nextBtn.textContent=index===s.imgs.length-1?'✓ Fertig':'Weiter ▶';
+  } else {
+    nav.style.display='none';
+  }
+  wasRenderStep(uid);
+}
+
+function wasGoNext(uid){
+  const s=wasState[uid];
+  if(!s||!s.imgs.length)return;
+  if(s.imgIndex<s.imgs.length-1) wasActivatePhoto(uid, s.imgIndex+1);
+}
+function wasGoPrev(uid){
+  const s=wasState[uid];
+  if(!s||!s.imgs.length)return;
+  if(s.imgIndex>0) wasActivatePhoto(uid, s.imgIndex-1);
 }
 
 function setWasMode(mode, uid){
@@ -3463,41 +3545,18 @@ function setWasMode(mode, uid){
     else btn.textContent='🔍 Feiner';
     btn.disabled = false;
   }
-  if(wasState[uid].img) wasRenderStep(uid);
+  if(wasState[uid].imgs&&wasState[uid].imgs.length) wasRenderStep(uid);
 }
 
+// loadWasImage kept for backward compat (single-file fallback)
 function loadWasImage(uid, file){
   if(!file)return;
-  const img=new Image();
-  const reader=new FileReader();
-  reader.onload=e=>{
-    img.onload=()=>{
-      wasState[uid].img=img;
-      wasState[uid].step=0;
-      wasState[uid].revealed=false;
-      document.getElementById('was-upload-'+uid).style.display='none';
-      const wrap=document.getElementById('was-canvas-wrap-'+uid);
-      wrap.style.display='flex';
-      const cv=document.getElementById('was-canvas-'+uid);
-      const maxW=Math.min(img.width,400);
-      cv.width=maxW; cv.height=Math.round(img.height*(maxW/img.width));
-      wasState[uid].canvas=cv;
-      const btn=document.getElementById('was-btn-'+uid);
-      if(btn){
-        if(wasState[uid].mode==='blur') btn.textContent='🔍 Schärfer';
-        else if(wasState[uid].mode==='kaese') btn.textContent='🧀 Mehr zeigen';
-        else btn.textContent='🔍 Feiner';
-        btn.disabled=false;
-      }
-      wasRenderStep(uid);
-    };
-    img.src=e.target.result;
-  };
-  reader.readAsDataURL(file);
+  loadWasImages(uid,[file]);
 }
 
 function wasRenderStep(uid){
-  const s=wasState[uid]; if(!s||!s.img||!s.canvas)return;
+  const s=wasState[uid]; if(!s||!s.imgs||!s.imgs.length||!s.canvas)return;
+  s.img=s.imgs[s.imgIndex]||s.imgs[0]; // compat alias
   const cv=s.canvas;
   const ctx=cv.getContext('2d');
   const mode = s.mode||'mosaic';
@@ -3616,7 +3675,9 @@ function wasReset(uid){
     else btn.textContent='🔍 Feiner';
     btn.disabled=false;
   }
-  wasRenderStep(uid);
+  // Reset to first photo
+  if(s.imgs&&s.imgs.length) wasActivatePhoto(uid,0);
+  else wasRenderStep(uid);
 }
 
 // ════════════════════════════════════════════════
