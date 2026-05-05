@@ -3423,7 +3423,7 @@ disp.style.transform='scale(0.8)';disp.style.opacity='0';
 const wasState={};
 
 function buildWas(body,uid){
-  wasState[uid]={imgs:[],imgIndex:0,step:0,maxSteps:8,canvas:null,revealed:false,mode:'mosaic',blurInterval:null};
+  wasState[uid]={img:null,step:0,maxSteps:8,canvas:null,revealed:false,mode:'mosaic',blurInterval:null};
   body.style.display='flex';body.style.flexDirection='column';body.style.padding='8px';
   body.innerHTML=`
 <!-- Mode tabs -->
@@ -3434,19 +3434,13 @@ function buildWas(body,uid){
 </div>
 <div id="was-upload-${uid}" style="text-align:center;">
   <div class="bg-upload-zone" onclick="document.getElementById('was-file-${uid}').click()" style="padding:20px 10px;">
-    <input type="file" id="was-file-${uid}" accept="image/*" multiple style="display:none" onchange="loadWasImages(${uid},this.files)">
+    <input type="file" id="was-file-${uid}" accept="image/*" style="display:none" onchange="loadWasImage(${uid},this.files[0])">
     <div style="font-size:32px;margin-bottom:6px;">🖼</div>
-    <div style="font-weight:700;font-size:.9em;">Fotos hier hochladen</div>
-    <div style="font-size:11px;margin-top:3px;color:var(--text2);">Mehrere Fotos möglich – werden schrittweise enthüllt</div>
+    <div style="font-weight:700;font-size:.9em;">Foto hier hochladen</div>
+    <div style="font-size:11px;margin-top:3px;color:var(--text2);">Das Bild wird schrittweise enthüllt</div>
   </div>
 </div>
 <div id="was-canvas-wrap-${uid}" style="display:none;flex:1;flex-direction:column;gap:6px;">
-  <!-- Photo nav bar (visible only when >1 photo) -->
-  <div id="was-nav-${uid}" style="display:none;align-items:center;gap:6px;background:rgba(0,0,0,0.25);border-radius:8px;padding:4px 8px;">
-    <button class="wbtn" onclick="wasGoPrev(${uid})" id="was-prev-${uid}" style="padding:.3em .7em;font-size:.85em;">◀</button>
-    <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;">Foto 1 / 1</div>
-    <button class="wbtn primary" onclick="wasGoNext(${uid})" id="was-next-${uid}" style="padding:.3em .9em;font-size:.85em;">Weiter ▶</button>
-  </div>
   <canvas id="was-canvas-${uid}" style="display:block;width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasRevealMore(${uid})" title="Klicken zum Enthüllen"></canvas>
   <div style="display:flex;gap:.4em;align-items:center;">
     <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;">Schritt 1 / 8</div>
@@ -3454,82 +3448,6 @@ function buildWas(body,uid){
     <button class="wbtn" onclick="wasReset(${uid})">↺</button>
   </div>
 </div>`;
-}
-
-function loadWasImages(uid, files){
-  if(!files||!files.length)return;
-  const s=wasState[uid];
-  s.imgs=[];
-  s.imgIndex=0;
-  let loaded=0;
-  const total=files.length;
-  Array.from(files).forEach((file,i)=>{
-    const img=new Image();
-    const reader=new FileReader();
-    reader.onload=e=>{
-      img.onload=()=>{
-        s.imgs[i]=img;
-        loaded++;
-        if(loaded===total) wasActivatePhoto(uid,0);
-      };
-      img.src=e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function wasActivatePhoto(uid, index){
-  const s=wasState[uid];
-  if(!s||!s.imgs.length)return;
-  s.imgIndex=index;
-  s.step=0;
-  s.revealed=false;
-  // Show canvas area, hide upload zone
-  document.getElementById('was-upload-'+uid).style.display='none';
-  const wrap=document.getElementById('was-canvas-wrap-'+uid);
-  wrap.style.display='flex';
-  const cv=document.getElementById('was-canvas-'+uid);
-  const img=s.imgs[index];
-  const maxW=Math.min(img.width,400);
-  cv.width=maxW; cv.height=Math.round(img.height*(maxW/img.width));
-  s.canvas=cv;
-  // Update reveal button label
-  const btn=document.getElementById('was-btn-'+uid);
-  if(btn){
-    if(s.mode==='blur') btn.textContent='🔍 Schärfer';
-    else if(s.mode==='kaese') btn.textContent='🧀 Mehr zeigen';
-    else btn.textContent='🔍 Feiner';
-    btn.disabled=false;
-  }
-  // Nav bar
-  const nav=document.getElementById('was-nav-'+uid);
-  const navLabel=document.getElementById('was-nav-label-'+uid);
-  const prevBtn=document.getElementById('was-prev-'+uid);
-  const nextBtn=document.getElementById('was-next-'+uid);
-  if(s.imgs.length>1){
-    nav.style.display='flex';
-    navLabel.textContent=`Foto ${index+1} / ${s.imgs.length}`;
-    prevBtn.disabled=(index===0);
-    prevBtn.style.opacity=(index===0)?'0.35':'1';
-    nextBtn.disabled=(index===s.imgs.length-1);
-    nextBtn.style.opacity=(index===s.imgs.length-1)?'0.35':'1';
-    // Change label to "Fertig" on last photo
-    nextBtn.textContent=index===s.imgs.length-1?'✓ Fertig':'Weiter ▶';
-  } else {
-    nav.style.display='none';
-  }
-  wasRenderStep(uid);
-}
-
-function wasGoNext(uid){
-  const s=wasState[uid];
-  if(!s||!s.imgs.length)return;
-  if(s.imgIndex<s.imgs.length-1) wasActivatePhoto(uid, s.imgIndex+1);
-}
-function wasGoPrev(uid){
-  const s=wasState[uid];
-  if(!s||!s.imgs.length)return;
-  if(s.imgIndex>0) wasActivatePhoto(uid, s.imgIndex-1);
 }
 
 function setWasMode(mode, uid){
@@ -3545,18 +3463,41 @@ function setWasMode(mode, uid){
     else btn.textContent='🔍 Feiner';
     btn.disabled = false;
   }
-  if(wasState[uid].imgs&&wasState[uid].imgs.length) wasRenderStep(uid);
+  if(wasState[uid].img) wasRenderStep(uid);
 }
 
-// loadWasImage kept for backward compat (single-file fallback)
 function loadWasImage(uid, file){
   if(!file)return;
-  loadWasImages(uid,[file]);
+  const img=new Image();
+  const reader=new FileReader();
+  reader.onload=e=>{
+    img.onload=()=>{
+      wasState[uid].img=img;
+      wasState[uid].step=0;
+      wasState[uid].revealed=false;
+      document.getElementById('was-upload-'+uid).style.display='none';
+      const wrap=document.getElementById('was-canvas-wrap-'+uid);
+      wrap.style.display='flex';
+      const cv=document.getElementById('was-canvas-'+uid);
+      const maxW=Math.min(img.width,400);
+      cv.width=maxW; cv.height=Math.round(img.height*(maxW/img.width));
+      wasState[uid].canvas=cv;
+      const btn=document.getElementById('was-btn-'+uid);
+      if(btn){
+        if(wasState[uid].mode==='blur') btn.textContent='🔍 Schärfer';
+        else if(wasState[uid].mode==='kaese') btn.textContent='🧀 Mehr zeigen';
+        else btn.textContent='🔍 Feiner';
+        btn.disabled=false;
+      }
+      wasRenderStep(uid);
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function wasRenderStep(uid){
-  const s=wasState[uid]; if(!s||!s.imgs||!s.imgs.length||!s.canvas)return;
-  s.img=s.imgs[s.imgIndex]||s.imgs[0]; // compat alias
+  const s=wasState[uid]; if(!s||!s.img||!s.canvas)return;
   const cv=s.canvas;
   const ctx=cv.getContext('2d');
   const mode = s.mode||'mosaic';
@@ -3675,9 +3616,7 @@ function wasReset(uid){
     else btn.textContent='🔍 Feiner';
     btn.disabled=false;
   }
-  // Reset to first photo
-  if(s.imgs&&s.imgs.length) wasActivatePhoto(uid,0);
-  else wasRenderStep(uid);
+  wasRenderStep(uid);
 }
 
 // ════════════════════════════════════════════════
@@ -4114,17 +4053,17 @@ function slotCheckResult(uid){
 }
 
 // ════════════════════════════════════════════════
-// WIDGET: SPIELE (Rad · Slot · Janken)
+// WIDGET: SPIELE (Rad · Slot · Janken · Satz ordnen)
 // ════════════════════════════════════════════════
 function buildSpiele(body, uid){
   body.style.cssText='padding:0;display:flex;flex-direction:column;overflow:hidden;height:100%;box-sizing:border-box;';
 
   // Tab bar
   const tabBar=document.createElement('div');
-  tabBar.style.cssText='display:flex;gap:6px;align-items:center;padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;';
-  ['rad','slot','janken'].forEach((tab,i)=>{
-    const icons={rad:'🎡',slot:'🎰',janken:'✂️'};
-    const labels={rad:'Rad',slot:'Slot',janken:'Janken'};
+  tabBar.style.cssText='display:flex;gap:6px;align-items:center;padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;flex-wrap:wrap;';
+  ['rad','slot','janken','satzordnen'].forEach((tab,i)=>{
+    const icons={rad:'🎡',slot:'🎰',janken:'✂️',satzordnen:'📝'};
+    const labels={rad:'Rad',slot:'Slot',janken:'Janken',satzordnen:'Satz'};
     const btn=document.createElement('button');
     btn.className='timer-mode-btn'+(i===0?' active-tmode':'');
     btn.id=`spiele-tab-${tab}-${uid}`;
@@ -4135,7 +4074,7 @@ function buildSpiele(body, uid){
   body.appendChild(tabBar);
 
   // Panels
-  ['rad','slot','janken'].forEach((tab,i)=>{
+  ['rad','slot','janken','satzordnen'].forEach((tab,i)=>{
     const panel=document.createElement('div');
     panel.id=`spiele-panel-${tab}-${uid}`;
     panel.style.cssText=`flex:1;min-height:0;overflow:hidden;display:${i===0?'flex':'none'};flex-direction:column;`;
@@ -4143,26 +4082,23 @@ function buildSpiele(body, uid){
   });
 
   // Build each sub-widget into its panel
-  // Note: buildWheel/buildSlot overwrite body.style — restore display after
   const radPanel  = document.getElementById(`spiele-panel-rad-${uid}`);
   const slotPanel = document.getElementById(`spiele-panel-slot-${uid}`);
   buildWheel(radPanel,  uid*1000+1);
-  radPanel.style.display  = 'flex';   // restore (buildWheel may overwrite)
+  radPanel.style.display  = 'flex';
   buildSlot(slotPanel, uid*1000+2);
-  slotPanel.style.display = 'none';   // restore hidden state
+  slotPanel.style.display = 'none';
 
-  // Janken panel — starts hidden, style must NOT set display:flex here
+  // Janken panel
   const jankenPanel=document.getElementById(`spiele-panel-janken-${uid}`);
   const juid=uid*1000+3;
   jeinState[juid]={mode:'janken',result:null};
-  // Only set layout styles that don't affect display visibility
   jankenPanel.style.flexDirection='column';
   jankenPanel.style.alignItems='center';
   jankenPanel.style.justifyContent='center';
   jankenPanel.style.padding='16px';
   jankenPanel.style.gap='12px';
   jankenPanel.style.overflow='hidden';
-  // display stays 'none' (set by panel creation loop above)
   jankenPanel.innerHTML=`
 <div id="jein-display-${juid}" style="min-height:120px;width:100%;max-width:320px;display:flex;align-items:center;justify-content:center;border-radius:12px;transition:all .3s;background:rgba(0,0,0,0.15);">
   <span style="font-size:2em;color:var(--text2);opacity:.4;">?</span>
@@ -4173,16 +4109,196 @@ function buildSpiele(body, uid){
     <span style="font-size:.75em;font-weight:700;color:var(--text2);">${c.label}</span>
   </button>`).join('')}
 </div>`;
+
+  // Satz-Ordnen panel
+  buildSatzOrdnen(document.getElementById(`spiele-panel-satzordnen-${uid}`), uid*1000+4);
 }
 
 function spieleShowTab(tab, uid){
-  ['rad','slot','janken'].forEach(t=>{
+  ['rad','slot','janken','satzordnen'].forEach(t=>{
     const panel=document.getElementById(`spiele-panel-${t}-${uid}`);
     const btn  =document.getElementById(`spiele-tab-${t}-${uid}`);
     if(panel) panel.style.display = t===tab ? 'flex' : 'none';
     if(btn)   btn.classList.toggle('active-tmode', t===tab);
   });
   if(tab==='slot') requestAnimationFrame(()=>slotSizeReels(uid*1000+2));
+}
+
+// ════════════════════════════════════════════════
+// WIDGET: SATZ ORDNEN
+// ════════════════════════════════════════════════
+const satzState={};
+
+function buildSatzOrdnen(panel, uid){
+  panel.style.flexDirection='column';
+  panel.style.padding='12px';
+  panel.style.gap='10px';
+  panel.style.overflow='hidden';
+  panel.style.boxSizing='border-box';
+  satzState[uid]={sentences:[],currentIndex:0,dragged:null};
+
+  panel.innerHTML=`
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex-shrink:0;">
+  <label style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:0 10px;height:28px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;">
+    📂 Sätze laden
+    <input type="file" accept=".txt" style="display:none" onchange="satzLoadFile(${uid},this)">
+  </label>
+  <button class="wbtn" style="height:28px;font-size:11px;padding:0 10px;" onclick="satzShowSolution(${uid})">💡 Lösung</button>
+  <button class="wbtn" style="height:28px;font-size:11px;padding:0 10px;" onclick="satzReset(${uid})">↺ Nochmal</button>
+</div>
+<div id="satz-progress-${uid}" style="font-size:.9em;color:var(--text2);font-weight:700;flex-shrink:0;"></div>
+<div style="height:8px;background:rgba(255,255,255,0.1);border-radius:10px;overflow:hidden;flex-shrink:0;">
+  <div id="satz-progressfill-${uid}" style="height:100%;width:0%;background:var(--green);border-radius:10px;transition:width .3s;"></div>
+</div>
+<div id="satz-game-${uid}" style="display:flex;flex-direction:column;gap:12px;flex:1;min-height:0;overflow:auto;"></div>
+<div id="satz-msg-${uid}" style="font-size:1em;font-weight:700;min-height:1.4em;text-align:center;flex-shrink:0;"></div>`;
+}
+
+function satzLoadFile(uid, input){
+  const file=input.files[0]; if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    const s=satzState[uid];
+    s.sentences=e.target.result.split('\n').filter(l=>l.trim());
+    s.currentIndex=0;
+    satzShowSentence(uid);
+  };
+  r.readAsText(file);
+}
+
+function satzShuffle(a){return [...a].sort(()=>Math.random()-0.5);}
+
+function satzUpdateProgress(uid){
+  const s=satzState[uid];
+  if(!s.sentences.length)return;
+  document.getElementById('satz-progress-'+uid).textContent=
+    `Satz ${s.currentIndex+1} von ${s.sentences.length}`;
+  document.getElementById('satz-progressfill-'+uid).style.width=
+    (s.currentIndex/s.sentences.length*100)+'%';
+}
+
+function satzShowSentence(uid){
+  const s=satzState[uid];
+  const game=document.getElementById('satz-game-'+uid);
+  const msg=document.getElementById('satz-msg-'+uid);
+  game.innerHTML=''; msg.textContent='';
+
+  if(s.currentIndex>=s.sentences.length){
+    msg.textContent='🎉 Alle Sätze richtig!';
+    msg.style.color='var(--green)';
+    return;
+  }
+  satzUpdateProgress(uid);
+
+  const sentence=s.sentences[s.currentIndex].trim();
+  const words=satzShuffle(sentence.split(' '));
+
+  const poolLabel=document.createElement('div');
+  poolLabel.style.cssText='font-size:1.1em;font-weight:700;color:var(--text2);margin-bottom:4px;';
+  poolLabel.textContent='Wörter:';
+  game.appendChild(poolLabel);
+
+  const pool=satzCreateZone(uid,'pool');
+  words.forEach(w=>pool.appendChild(satzCreateWord(uid,w)));
+  game.appendChild(pool);
+
+  const ansLabel=document.createElement('div');
+  ansLabel.style.cssText='font-size:1.1em;font-weight:700;color:var(--text2);margin:8px 0 4px;';
+  ansLabel.textContent='Satz:';
+  game.appendChild(ansLabel);
+
+  const answer=satzCreateZone(uid,'answer');
+  answer.dataset.correct=sentence;
+  game.appendChild(answer);
+}
+
+function satzCreateWord(uid,t){
+  const el=document.createElement('span');
+  el.style.cssText='display:inline-block;padding:13px 20px;margin:5px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.18);border-radius:12px;cursor:grab;touch-action:none;box-shadow:0 2px 6px rgba(0,0,0,0.3);font-size:1.45em;font-weight:700;color:var(--text);user-select:none;transition:opacity .1s;';
+  el.textContent=t;
+  el.draggable=true;
+  el.addEventListener('dragstart',()=>{satzState[uid].dragged=el;el.style.opacity='.5';});
+  el.addEventListener('dragend',()=>el.style.opacity='1');
+  el.addEventListener('touchstart',()=>{satzState[uid].dragged=el;el.style.opacity='.5';},{passive:true});
+  el.addEventListener('touchend',()=>el.style.opacity='1');
+  return el;
+}
+
+function satzInsertAt(uid,zone,clientX){
+  const s=satzState[uid]; if(!s.dragged)return;
+  const words=[...zone.querySelectorAll('span')];
+  for(const w of words){
+    const r=w.getBoundingClientRect();
+    if(clientX<r.left+r.width/2){zone.insertBefore(s.dragged,w);break;}
+  }
+  if(!zone.contains(s.dragged)) zone.appendChild(s.dragged);
+  // Auto-check when a word is dropped into the answer zone and all words are placed
+  if(zone.dataset.correct!==undefined){
+    const correct=zone.dataset.correct.split(' ').length;
+    const placed=[...zone.querySelectorAll('span')].length;
+    if(placed>=correct) satzCheck(uid);
+  }
+}
+
+function satzCreateZone(uid,type){
+  const z=document.createElement('div');
+  const bg=type==='pool'?'rgba(108,143,255,0.08)':'rgba(167,139,250,0.08)';
+  z.style.cssText=`min-height:90px;padding:10px;border-radius:12px;border:2px dashed rgba(255,255,255,0.15);background:${bg};display:flex;flex-wrap:wrap;align-items:flex-start;align-content:flex-start;transition:border-color .15s;`;
+  z.addEventListener('dragover',e=>{e.preventDefault();z.style.borderColor='rgba(108,143,255,0.6)';});
+  z.addEventListener('dragleave',()=>z.style.borderColor='rgba(255,255,255,0.15)');
+  z.addEventListener('drop',e=>{
+    e.preventDefault();
+    satzInsertAt(uid,z,e.clientX);
+    z.style.borderColor='rgba(255,255,255,0.15)';
+    satzState[uid].dragged=null;
+  });
+  z.addEventListener('touchend',e=>{
+    const t=e.changedTouches[0];
+    satzInsertAt(uid,z,t.clientX);
+    satzState[uid].dragged=null;
+  });
+  return z;
+}
+
+function satzNormalize(t){
+  return t.replace(/\r/g,'').replace(/[.,!?]/g,'').replace(/\s+/g,' ').trim().toLowerCase();
+}
+
+function satzCheck(uid){
+  const s=satzState[uid];
+  const answer=document.querySelector(`#satz-game-${uid} [data-correct]`);
+  const msg=document.getElementById('satz-msg-'+uid);
+  if(!answer||!s.sentences.length){msg.textContent='Bitte erst eine .txt-Datei laden.';msg.style.color='var(--yellow)';return;}
+
+  const user=satzNormalize([...answer.children].map(e=>e.textContent).join(' '));
+  const correct=satzNormalize(answer.dataset.correct);
+
+  if(user===correct){
+    answer.style.borderColor='var(--green)';
+    answer.style.background='rgba(74,222,128,0.12)';
+    msg.textContent='✓ Richtig!'; msg.style.color='var(--green)';
+    playSound('Applaus',0.8);
+    setTimeout(()=>{s.currentIndex++;satzShowSentence(uid);},900);
+  }else{
+    answer.style.borderColor='var(--red)';
+    answer.style.background='rgba(248,113,113,0.10)';
+    msg.textContent='✗ Versuch es noch einmal.'; msg.style.color='var(--red)';
+    playSound('Buzzer',0.8);
+    setTimeout(()=>{answer.style.borderColor='';answer.style.background='';},1000);
+  }
+}
+
+function satzShowSolution(uid){
+  const s=satzState[uid];
+  const answer=document.querySelector(`#satz-game-${uid} [data-correct]`);
+  if(!answer)return;
+  answer.innerHTML='';
+  answer.dataset.correct.split(' ').forEach(w=>answer.appendChild(satzCreateWord(uid,w)));
+}
+
+function satzReset(uid){
+  satzState[uid].currentIndex=0;
+  satzShowSentence(uid);
 }
 
 // ════════════════════════════════════════════════
