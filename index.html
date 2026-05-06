@@ -260,14 +260,23 @@ html,body{width:100%;height:100%;min-height:100dvh;overflow:hidden;font-family:'
 /* BG Panel */
 #bg-panel{
   display:none;position:fixed;
-  width:260px;background:var(--card);
+  width:260px;min-width:200px;max-width:520px;
+  background:var(--card);
   border:1px solid rgba(255,255,255,0.12);
   border-radius:14px;
   z-index:10001;padding:12px 14px;
   flex-direction:column;gap:8px;
   box-shadow:0 8px 32px rgba(0,0,0,0.5);
-  overflow-y:auto;max-height:80vh;
+  overflow-y:auto;
+  max-height:calc(100dvh - 84px);
+  user-select:none;
 }
+#bg-panel-resize{
+  position:absolute;bottom:0;right:0;width:32px;height:32px;
+  cursor:se-resize;display:flex;align-items:flex-end;justify-content:flex-end;
+  padding:5px;opacity:0.4;transition:opacity .15s;z-index:1;
+}
+#bg-panel-resize:hover{opacity:1;}
 #bg-panel.open{display:flex;}
 #bg-panel h3{font-size:14px;font-weight:900;color:var(--accent);letter-spacing:.5px;margin-bottom:4px;}
 .bg-panel-close{
@@ -820,7 +829,8 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   <div class="zumpad-inline" id="zumpad-inline">
     <input type="text" id="zumpad-input" class="zumpad-input"
       placeholder="Pad-Name?"
-      autocomplete="off">
+      autocomplete="off"
+      onkeydown="if(event.key==='Enter') openZumpad()">
     <button class="zumpad-los-btn" onclick="openZumpad()">Los!</button>
   </div>
 
@@ -940,6 +950,18 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 
   <div id="bg-photo-controls" style="display:none;">
     <div class="bg-dim-row">
+      <label>Größe: <span id="bgsize-val">100</span>%</label>
+      <input type="range" min="20" max="300" value="100" id="bgsize-slider" oninput="setBgSize(this.value)">
+    </div>
+    <div class="bg-dim-row" style="margin-top:6px;">
+      <label>Position X: <span id="bgposx-val">50</span>%</label>
+      <input type="range" min="0" max="100" value="50" id="bgposx-slider" oninput="setBgPos()">
+    </div>
+    <div class="bg-dim-row" style="margin-top:6px;">
+      <label>Position Y: <span id="bgposy-val">50</span>%</label>
+      <input type="range" min="0" max="100" value="50" id="bgposy-slider" oninput="setBgPos()">
+    </div>
+    <div class="bg-dim-row" style="margin-top:6px;">
       <label>Abdunkeln: <span id="dim-val">30</span>%</label>
       <input type="range" min="0" max="85" value="30" id="dim-slider" oninput="setBgDim(this.value)">
     </div>
@@ -954,6 +976,12 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   <div class="bg-dim-row">
     <label>Fenster-Transparenz: <span id="widget-alpha-val">88</span>%</label>
     <input type="range" min="40" max="100" value="88" id="widget-alpha-slider" oninput="setWidgetAlpha(this.value)">
+  </div>
+  <div id="bg-panel-resize" title="Größe ändern">
+    <svg viewBox="0 0 10 10" width="11" height="11" fill="none">
+      <line x1="2" y1="9" x2="9" y2="2" stroke="rgba(255,255,255,.8)" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="6" y1="9" x2="9" y2="6" stroke="rgba(255,255,255,.8)" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
   </div>
 </div>
 
@@ -1365,11 +1393,14 @@ function toggleBgPanel(){
   p.classList.toggle('open');
   if(p.classList.contains('open')){
     buildBgSwatches();
-    // Position below the Design button
+    // Position below the Design button, clamp within visible desktop area
     const btn = document.querySelector('[onclick="toggleBgPanel()"]');
     if(btn){
       const r = btn.getBoundingClientRect();
       const panelW = 260;
+      const topbarH = document.getElementById('topbar').offsetHeight;
+      const maxPanelH = window.innerHeight - topbarH - 16;
+      p.style.maxHeight = maxPanelH + 'px';
       const left = Math.max(8, Math.min(r.left, window.innerWidth - panelW - 8));
       p.style.left = left + 'px';
       p.style.top  = Math.round(r.bottom + 8) + 'px';
@@ -1378,6 +1409,57 @@ function toggleBgPanel(){
     }
   }
 }
+// ── BG-PANEL RESIZE ──
+(function(){
+  let _sx,_sy,_sw,_sh,_active=false;
+  function initBgPanelResize(){
+    const p=document.getElementById('bg-panel');
+    const h=document.getElementById('bg-panel-resize');
+    if(!p||!h||h._bound) return;
+    h._bound=true;
+    const onDown=e=>{
+      e.preventDefault(); e.stopPropagation();
+      _active=true;
+      _sx=e.clientX||e.touches?.[0]?.clientX;
+      _sy=e.clientY||e.touches?.[0]?.clientY;
+      _sw=p.offsetWidth; _sh=p.offsetHeight;
+      document.addEventListener('mousemove',onMove);
+      document.addEventListener('mouseup',onUp);
+      document.addEventListener('touchmove',onMoveT,{passive:false});
+      document.addEventListener('touchend',onUp);
+    };
+    const resize=(cx,cy)=>{
+      const topbarH=document.getElementById('topbar').offsetHeight||68;
+      const maxH=window.innerHeight-topbarH-16;
+      const panelTop=parseInt(p.style.top)||0;
+      const newW=Math.min(520,Math.max(200,_sw+(cx-_sx)));
+      const newH=Math.min(maxH,Math.max(120,_sh+(cy-_sy)));
+      p.style.width=newW+'px';
+      p.style.maxHeight=newH+'px';
+      // Rechten Rand nicht aus dem Viewport schieben
+      const left=parseInt(p.style.left)||0;
+      if(left+newW>window.innerWidth-8) p.style.left=Math.max(8,window.innerWidth-newW-8)+'px';
+    };
+    const onMove=e=>{ if(_active) resize(e.clientX,e.clientY); };
+    const onMoveT=e=>{ if(_active){e.preventDefault();resize(e.touches[0].clientX,e.touches[0].clientY);} };
+    const onUp=()=>{
+      _active=false;
+      document.removeEventListener('mousemove',onMove);
+      document.removeEventListener('mouseup',onUp);
+      document.removeEventListener('touchmove',onMoveT);
+      document.removeEventListener('touchend',onUp);
+    };
+    h.addEventListener('mousedown',onDown);
+    h.addEventListener('touchstart',e=>onDown(e),{passive:false});
+  }
+  // Init sobald Panel zum ersten Mal geöffnet wird
+  const _orig=window.toggleBgPanel;
+  window.toggleBgPanel=function(){
+    _orig&&_orig();
+    requestAnimationFrame(initBgPanelResize);
+  };
+})();
+
 // Close bg-panel on outside click
 document.addEventListener('click', e=>{
   const p = document.getElementById('bg-panel');
@@ -1401,9 +1483,16 @@ function handleBgFile(file){
     bl.classList.add('has-photo');
     bl.style.backgroundImage=`url(${bgPhotoData})`;
     bl.style.backgroundColor='';
-    bl.style.backgroundSize='cover';
-    bl.style.backgroundPosition='center';
+    bl.style.backgroundSize='100%';
+    bl.style.backgroundPosition='50% 50%';
     bl.style.backgroundRepeat='no-repeat';
+    // Regler zurücksetzen
+    const sizeSlider=document.getElementById('bgsize-slider');
+    const posxSlider=document.getElementById('bgposx-slider');
+    const posySlider=document.getElementById('bgposy-slider');
+    if(sizeSlider){sizeSlider.value=100;document.getElementById('bgsize-val').textContent='100';}
+    if(posxSlider){posxSlider.value=50;document.getElementById('bgposx-val').textContent='50';}
+    if(posySlider){posySlider.value=50;document.getElementById('bgposy-val').textContent='50';}
     setBgDim(document.getElementById('dim-slider').value);
     document.getElementById('bg-photo-controls').style.display='block';
     document.querySelectorAll('.bg-preset').forEach(x=>x.classList.remove('active'));
@@ -1419,6 +1508,20 @@ function setBgDim(val){
 function setBgBlur(val){
   document.getElementById('blur-val').textContent=val;
   document.getElementById('bg-layer').style.filter=val>0?`blur(${val}px)`:'';
+}
+
+function setBgSize(val){
+  document.getElementById('bgsize-val').textContent = val;
+  const bl = document.getElementById('bg-layer');
+  bl.style.backgroundSize = val + '%';
+}
+
+function setBgPos(){
+  const x = document.getElementById('bgposx-slider').value;
+  const y = document.getElementById('bgposy-slider').value;
+  document.getElementById('bgposx-val').textContent = x;
+  document.getElementById('bgposy-val').textContent = y;
+  document.getElementById('bg-layer').style.backgroundPosition = x + '% ' + y + '%';
 }
 
 function removeBgPhoto(){
@@ -1549,8 +1652,9 @@ function spawnWidget(type){
   hdr.className='widget-header';
   hdr.innerHTML=`<span class="widget-title">${def.icon} ${def.title}</span>
     <div class="wh-btns">
-      <button class="wh-btn" title="Minimieren" onclick="minimizeWidget('${id}')">−</button>
-      <button class="wh-btn" title="Schließen"  onclick="killWidget('${id}')">✕</button>
+      <button class="wh-btn" title="Minimieren"  onclick="minimizeWidget('${id}')">−</button>
+      <button class="wh-btn" title="Maximieren"  onclick="maximizeWidget('${id}')">⛶</button>
+      <button class="wh-btn" title="Schließen"   onclick="killWidget('${id}')">✕</button>
     </div>`;
   el.appendChild(hdr);
 
@@ -1610,6 +1714,53 @@ function minimizeWidget(id){
   }
 }
 
+function maximizeWidget(id){
+  const el=document.getElementById(id); if(!el)return;
+  const isMax=el._maximized;
+  if(!isMax){
+    // Speichern: Position, Größe, fit-content-Status
+    el._savedMaxState={
+      left:el.style.left, top:el.style.top,
+      width:el.style.width, height:el.style.height,
+      fitContent:el.classList.contains('fit-content')
+    };
+    el._maximized=true;
+    // Vollbild auf Desktop-Fläche
+    el.classList.remove('fit-content');
+    el.style.left='0px';
+    el.style.top='0px';
+    el.style.width=desktop.clientWidth+'px';
+    el.style.height=desktop.clientHeight+'px';
+    el.style.zIndex=++zTop;
+    // Body einblenden falls minimiert
+    const body=el.querySelector('.widget-body');
+    const rh=el.querySelector('.resize-handle');
+    if(body && body.style.display==='none'){
+      body.style.display='';
+      if(rh) rh.style.display='';
+    }
+    // Button-Icon wechseln
+    const btn=el.querySelector('.wh-btn[title="Maximieren"]');
+    if(btn){ btn.title='Wiederherstellen'; btn.textContent='⧉'; }
+  } else {
+    // Wiederherstellen
+    el._maximized=false;
+    const s=el._savedMaxState||{};
+    if(s.fitContent){
+      el.classList.add('fit-content');
+      el.style.height='';
+    } else {
+      el.style.height=s.height||'';
+    }
+    el.style.left=s.left||'0px';
+    el.style.top=s.top||'0px';
+    el.style.width=s.width||'';
+    const btn=el.querySelector('.wh-btn[title="Wiederherstellen"]');
+    if(btn){ btn.title='Maximieren'; btn.textContent='⛶'; }
+  }
+  updateWidgetScale(el);
+}
+
 function updateWidgetScale(el){
   // Version 9: ein gemeinsamer UI-Scale für Breite UND Höhe.
   // Dadurch wächst nicht nur Text, sondern die ganze Widget-Oberfläche gleichmäßiger.
@@ -1628,6 +1779,18 @@ function updateWidgetScale(el){
   requestAnimationFrame(()=>{
     el.querySelectorAll('canvas.draw-canvas').forEach(cv=>{ try{ resizeDrawCanvas(cv); }catch(_){ } });
     el.querySelectorAll('[id^="aclock-"]').forEach(cv=>{ const uid=cv.id.replace('aclock-',''); try{ drawAnalogClock(uid); }catch(_){ } });
+    // Was?-Widget: Canvas nach Fenstergrößenänderung neu berechnen
+    if(el.dataset.type==='was'){
+      const wrap=el.querySelector('[id^="was-canvas-wrap-"]');
+      if(wrap && wrap.style.display!=='none'){
+        const cv=el.querySelector('[id^="was-canvas-"]');
+        if(cv){
+          const uid=cv.id.replace('was-canvas-','');
+          const s=wasState&&wasState[uid];
+          if(s&&s.imgs&&s.imgs.length) wasActivatePhoto(uid,s.imgIndex||0);
+        }
+      }
+    }
   });
 }
 
@@ -1684,6 +1847,12 @@ function makeResizable(el,handle){
     el.classList.remove('fit-content');
     el.style.width = newW + 'px';
     el.style.height= newH + 'px';
+    // Maximiert-Zustand zurücksetzen, wenn manuell skaliert
+    if(el._maximized){
+      el._maximized=false;
+      const btn=el.querySelector('.wh-btn[title="Wiederherstellen"]');
+      if(btn){ btn.title='Maximieren'; btn.textContent='⛶'; }
+    }
     updateWidgetScale(el);
     el.querySelectorAll('canvas.draw-canvas').forEach(cv=>requestAnimationFrame(()=>resizeDrawCanvas(cv)));
   };
@@ -1954,7 +2123,38 @@ function buildTimer(body,uid){
     <!-- Haus / Halbzeit -->
     <rect x="340" y="78" width="110" height="47" fill="#fef3c7" stroke="#d1c04a" stroke-width="1.5"/>
     <polygon points="330,78 460,78 395,50" fill="#e74c3c" stroke="#c0392b" stroke-width="1.5"/>
-    <text x="395" y="105" font-weight="bold" font-size="11" text-anchor="middle" fill="#555" font-family="Arial,sans-serif">HALBZEIT</text>
+    <!-- Tür -->
+    <rect x="378" y="96" width="18" height="29" rx="2" fill="#a0522d" stroke="#7a3b1e" stroke-width="1"/>
+    <circle cx="393" cy="111" r="1.5" fill="#fbbf24"/>
+    <!-- Animierter Hund vor der Tür -->
+    <g id="lauf-dog-${uid}">
+      <!-- Körper -->
+      <ellipse cx="362" cy="121" rx="9" ry="5" fill="#c8a87a"/>
+      <!-- Kopf -->
+      <circle cx="371" cy="117" r="5" fill="#c8a87a"/>
+      <!-- Schnauze -->
+      <ellipse cx="374.5" cy="119" rx="2.5" ry="1.8" fill="#d4b896"/>
+      <!-- Nase -->
+      <circle cx="376" cy="118.2" r="1" fill="#5a3825"/>
+      <!-- Auge -->
+      <circle cx="373" cy="115.5" r="1" fill="#333"/>
+      <circle cx="373.3" cy="115.2" r="0.35" fill="white"/>
+      <!-- Ohr -->
+      <ellipse id="lauf-dog-ear-${uid}" cx="369" cy="113" rx="2.2" ry="3.2" fill="#b8935a" transform="rotate(-15,369,113)"/>
+      <!-- Beine (4 Stück) -->
+      <line id="lauf-dog-leg1-${uid}" x1="356" y1="125" x2="354" y2="132" stroke="#b8935a" stroke-width="2.2" stroke-linecap="round"/>
+      <line id="lauf-dog-leg2-${uid}" x1="360" y1="126" x2="358" y2="132" stroke="#b8935a" stroke-width="2.2" stroke-linecap="round"/>
+      <line id="lauf-dog-leg3-${uid}" x1="365" y1="126" x2="363" y2="132" stroke="#b8935a" stroke-width="2.2" stroke-linecap="round"/>
+      <line id="lauf-dog-leg4-${uid}" x1="369" y1="125" x2="367" y2="132" stroke="#b8935a" stroke-width="2.2" stroke-linecap="round"/>
+      <!-- Schwanz -->
+      <path id="lauf-dog-tail-${uid}" d="M353,120 Q347,112 350,108" stroke="#c8a87a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </g>
+    <!-- Fenster rechts -->
+    <rect x="408" y="86" width="22" height="18" rx="2" fill="#bde0f7" stroke="#d1c04a" stroke-width="1"/>
+    <line x1="419" y1="86" x2="419" y2="104" stroke="#d1c04a" stroke-width="0.8"/>
+    <line x1="408" y1="95" x2="430" y2="95" stroke="#d1c04a" stroke-width="0.8"/>
+    <!-- Halbzeit-Text über dem Haus -->
+    <text x="395" y="46" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="white" stroke="#555" stroke-width="2" paint-order="stroke">HALBZEIT</text>
     <!-- Baum neben Haus -->
     <rect x="465" y="83" width="8" height="42" fill="#795548"/>
     <circle cx="469" cy="72" r="22" fill="#2ecc71"/>
@@ -1966,8 +2166,8 @@ function buildTimer(body,uid){
     <rect x="769" y="90" width="3" height="35" fill="#ef4444"/>
     <rect x="748" y="68" width="44" height="22" rx="4" fill="#ef4444"/>
     <text x="770" y="83" fill="white" font-weight="bold" font-size="10" text-anchor="middle" font-family="Arial,sans-serif">ZIEL</text>
-    <!-- Zeit -->
-    <text id="lauf-time-${uid}" x="395" y="148" text-anchor="middle" font-family="Arial,sans-serif" font-size="12" font-weight="bold" fill="rgba(0,0,0,0.6)">${fmtTime(timerSec)}</text>
+    <!-- Zeit oben rechts im Himmel -->
+    <text id="lauf-time-${uid}" x="735" y="44" text-anchor="middle" font-family="Arial,sans-serif" font-size="40" font-weight="bold" fill="white" stroke="rgba(0,0,80,0.35)" stroke-width="5" paint-order="stroke">${fmtTime(timerSec)}</text>
     <!-- Läufer Gruppe — Startposition cx=20 -->
     <g id="lauf-runner-${uid}">
       <circle id="lauf-head-${uid}"  cx="20" cy="108" r="5.5" fill="#fbbf24"/>
@@ -2087,6 +2287,7 @@ function resetTimer(uid){
   timerTotalMap[uid]=timerSec;
   if(lauferRaf[uid]){cancelAnimationFrame(lauferRaf[uid]);lauferRaf[uid]=null;}
   lauferPos[uid]=0;
+  if(typeof lauferDogPlayed!=='undefined') lauferDogPlayed[uid]=false;
   updateAllTimerDisplays();
 }
 
@@ -2118,11 +2319,23 @@ function lauferStartRaf(uid){
   lauferRaf[uid]=requestAnimationFrame(frame);
 }
 
+const lauferDogPlayed={};  // uid → last tx-zone when dog sound was played
+
 function lauferDrawFrame(uid){
   const runner=document.getElementById('lauf-runner-'+uid);
   if(!runner) return;
   const total=timerTotalMap[uid]||300;
   const tx=lauferPos[uid]||0;
+  // Hund-Sound: einmal abspielen wenn Läufer am Haus vorbeiläuft
+  // Haus bei SVG-x=340, Läufer-Basis cx=20 → tx ≈ 320 beim Passieren
+  if(tx >= 310 && tx < 360){
+    if(!lauferDogPlayed[uid]){
+      lauferDogPlayed[uid]=true;
+      playSound('Hundebellen', 0.85);
+    }
+  } else if(tx < 50){
+    lauferDogPlayed[uid]=false; // zurücksetzen für nächsten Durchgang
+  }
   // Bounce: smooth vertical sine based on accumulated time
   const t=(lauferPhase[uid]||0)/1000; // seconds
   const ty=timerRunning ? Math.sin(t*Math.PI*4)*3 : 0; // 2 bounces/sec
@@ -2138,6 +2351,49 @@ function lauferDrawFrame(uid){
   if(leg2) leg2.setAttribute('d',`M20,124 L${26-s},135`);
   if(arm1) arm1.setAttribute('d',`M20,116 L${13+s},${121-Math.abs(s)*0.4}`);
   if(arm2) arm2.setAttribute('d',`M20,116 L${27-s},${121-Math.abs(s)*0.4}`);
+
+  // ── Hund-Animation ──
+  const dog = document.getElementById('lauf-dog-'+uid);
+  if(dog){
+    const running = timerRunning;
+    const dogT = t * (running ? 1 : 0); // nur animieren wenn läuft
+    // Läufer in der Nähe? (tx 280–420) → Hund aufgeregt
+    const dogExcited = (tx >= 280 && tx <= 420);
+    const dogFreq = dogExcited ? 10 : 6; // schnellere Beinbewegung wenn aufgeregt
+    const dogPhase = Math.sin(dogT * Math.PI * dogFreq);
+    const dogBob   = running ? Math.sin(dogT * Math.PI * dogFreq) * (dogExcited ? 2 : 1.2) : 0;
+
+    // Vertikaler Versatz des ganzen Hundes
+    dog.setAttribute('transform', `translate(0,${dogBob.toFixed(2)})`);
+
+    // Beine wechselseitig schwingen (wie echter Vierbeiner: 1+3 vs 2+4)
+    const dLeg = dogPhase * 3.5;
+    const dl1 = document.getElementById('lauf-dog-leg1-'+uid);
+    const dl2 = document.getElementById('lauf-dog-leg2-'+uid);
+    const dl3 = document.getElementById('lauf-dog-leg3-'+uid);
+    const dl4 = document.getElementById('lauf-dog-leg4-'+uid);
+    if(dl1) dl1.setAttribute('x2', (354 + dLeg).toFixed(1));
+    if(dl2) dl2.setAttribute('x2', (358 - dLeg).toFixed(1));
+    if(dl3) dl3.setAttribute('x2', (363 + dLeg).toFixed(1));
+    if(dl4) dl4.setAttribute('x2', (367 - dLeg).toFixed(1));
+
+    // Schwanz wedeln (schnell, aufgeregt)
+    const tailWag = running
+      ? Math.sin(dogT * Math.PI * (dogExcited ? 14 : 8)) * (dogExcited ? 12 : 7)
+      : Math.sin(dogT * Math.PI * 2) * 3;
+    const tailEl = document.getElementById('lauf-dog-tail-'+uid);
+    if(tailEl){
+      const ty1 = 108 + tailWag;
+      tailEl.setAttribute('d', `M353,120 Q347,${(112+tailWag*0.5).toFixed(1)} 350,${ty1.toFixed(1)}`);
+    }
+
+    // Ohr wippt leicht
+    const earEl = document.getElementById('lauf-dog-ear-'+uid);
+    if(earEl){
+      const earRot = -15 + dogPhase * (running ? 8 : 4);
+      earEl.setAttribute('transform', `rotate(${earRot.toFixed(1)},369,113)`);
+    }
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -3447,7 +3703,7 @@ function buildWas(body,uid){
     <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;">Foto 1 / 1</div>
     <button class="wbtn primary" onclick="wasGoNext(${uid})" id="was-next-${uid}" style="padding:.3em .9em;font-size:.85em;">Weiter ▶</button>
   </div>
-  <canvas id="was-canvas-${uid}" style="display:block;width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasRevealMore(${uid})" title="Klicken zum Enthüllen"></canvas>
+  <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasRevealMore(${uid})" title="Klicken zum Enthüllen"></canvas>
   <div style="display:flex;gap:.4em;align-items:center;">
     <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;">Schritt 1 / 8</div>
     <button class="wbtn" onclick="wasRevealMore(${uid})" id="was-btn-${uid}">🔍 Feiner</button>
@@ -3490,9 +3746,33 @@ function wasActivatePhoto(uid, index){
   wrap.style.display='flex';
   const cv=document.getElementById('was-canvas-'+uid);
   const img=s.imgs[index];
-  const maxW=Math.min(img.width,400);
-  cv.width=maxW; cv.height=Math.round(img.height*(maxW/img.width));
   s.canvas=cv;
+
+  // Canvas-Größe berechnen – nach dem nächsten Paint, damit clientWidth korrekt ist
+  function _wasSetCanvasSize(){
+    const bodyEl = cv.closest('.widget-body');
+    const widget  = cv.closest('.widget');
+    const topbarH = (document.getElementById('topbar')?.offsetHeight) || 68;
+    // Verfügbare Breite
+    const bodyW = bodyEl ? bodyEl.clientWidth : 0;
+    const availW = Math.max(120, bodyW > 0 ? bodyW - 16 : (widget ? widget.offsetWidth - 32 : 400));
+    // Verfügbare Höhe: Widget-Höhe minus Tabs (32px) + Header (36px) + Buttons (38px) + Padding + Nav
+    const hasNav = s.imgs.length > 1;
+    const reserved = 36/*header*/ + 32/*tabs*/ + (hasNav?42:0) + 38/*buttons+step*/ + 24/*padding*/;
+    const widgetH = widget ? widget.offsetHeight : (window.innerHeight - topbarH);
+    const availH = Math.max(80, widgetH - reserved);
+    // Skalieren: Bild proportional einpassen, nie hochskalieren
+    const scaleW = availW / img.width;
+    const scaleH = availH / img.height;
+    const scale  = Math.min(scaleW, scaleH, 1);
+    const cw = Math.round(img.width  * scale);
+    const ch = Math.round(img.height * scale);
+    cv.width  = cw;
+    cv.height = ch;
+    // CSS-Größe explizit setzen damit das Canvas nicht durch "width:100%" verzerrt wird
+    cv.style.width  = cw + 'px';
+    cv.style.height = ch + 'px';
+  }
   // Update reveal button label
   const btn=document.getElementById('was-btn-'+uid);
   if(btn){
@@ -3513,12 +3793,12 @@ function wasActivatePhoto(uid, index){
     prevBtn.style.opacity=(index===0)?'0.35':'1';
     nextBtn.disabled=(index===s.imgs.length-1);
     nextBtn.style.opacity=(index===s.imgs.length-1)?'0.35':'1';
-    // Change label to "Fertig" on last photo
     nextBtn.textContent=index===s.imgs.length-1?'✓ Fertig':'Weiter ▶';
   } else {
     nav.style.display='none';
   }
-  wasRenderStep(uid);
+  // Erst nach dem nächsten Render-Frame messen (wrap ist gerade erst auf display:flex gesetzt)
+  requestAnimationFrame(()=>{ _wasSetCanvasSize(); wasRenderStep(uid); });
 }
 
 function wasGoNext(uid){
