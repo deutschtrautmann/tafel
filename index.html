@@ -589,128 +589,221 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;
 }
 
-/* The machine fills all remaining space */
+/* The machine fills all remaining space — richer dark-wood gradient */
 .slot-machine{
   flex:1;min-height:0;
-  background:linear-gradient(160deg,#3b2a1a 0%,#2a1a0a 100%);
+  background:
+    linear-gradient(180deg,rgba(0,0,0,0.35) 0%,transparent 18%,transparent 82%,rgba(0,0,0,0.45) 100%),
+    linear-gradient(160deg,#4a3320 0%,#2e1c08 40%,#261507 70%,#3a2610 100%);
   display:flex;flex-direction:column;
   padding:3% 4% 3%;
   gap:3%;
   box-sizing:border-box;
   overflow:hidden;
+  /* subtle wood-grain top/bottom edge light */
+  box-shadow:inset 0 6px 18px rgba(255,200,80,0.08), inset 0 -6px 18px rgba(0,0,0,0.5);
 }
 
+/* ── SCOREBAR: polished gold display ── */
 .slot-scorebar{
   flex-shrink:0;
-  background:linear-gradient(90deg,#1a1a1a,#2a2a2a,#1a1a1a);
+  background:linear-gradient(90deg,#111 0%,#1e1e1e 30%,#242424 50%,#1e1e1e 70%,#111 100%);
   border:3px solid #c8a840;border-radius:10px;
   display:flex;align-items:center;justify-content:space-between;
   padding:2% 4%;
   overflow:hidden;
   min-width:0;
+  /* 3D-Rahmen: helle Oberkante, dunkle Unterkante */
+  box-shadow:
+    0 1px 0 rgba(255,220,100,0.45),
+    0 -1px 0 rgba(0,0,0,0.7),
+    inset 0 2px 6px rgba(0,0,0,0.6),
+    inset 0 -1px 3px rgba(255,180,40,0.12);
 }
 .slot-scorebar-title{
   font-weight:900;color:#c8a840;letter-spacing:2px;text-transform:uppercase;
   display:flex;align-items:center;gap:8px;font-size:clamp(13px,3.5vw,26px);
   white-space:nowrap;flex-shrink:1;min-width:0;overflow:hidden;
+  text-shadow:0 1px 4px rgba(0,0,0,0.8),0 0 12px rgba(200,168,64,0.35);
 }
-.slot-score-star{color:#f0c040;font-size:1.3em;flex-shrink:0;}
+.slot-score-star{color:#f0c040;font-size:clamp(16px,3.5vw,28px);flex-shrink:0;filter:drop-shadow(0 0 5px rgba(240,192,64,0.7));line-height:1;}
 .slot-score-star.win{animation:slot-star-pulse .6s ease-in-out infinite alternate;}
 @keyframes slot-star-pulse{from{transform:scale(1)}to{transform:scale(1.4);filter:brightness(1.8)}}
 .slot-score-val{
-  background:#111;border:2px solid #c8a840;border-radius:8px;
-  padding:2% 4%;font-weight:900;color:#c8a840;
+  background:linear-gradient(180deg,#0a0a0a,#1a1a1a);
+  border:2px solid #c8a840;border-radius:8px;
+  padding:2% 4%;font-weight:900;color:#f0c040;
   font-size:clamp(13px,3.5vw,26px);font-variant-numeric:tabular-nums;
-  white-space:nowrap;flex-shrink:0;          /* PKT-Feld nie abschneiden */
+  white-space:nowrap;flex-shrink:0;
   margin-left:6px;
+  text-shadow:0 0 10px rgba(240,192,64,0.6),0 1px 3px rgba(0,0,0,0.9);
+  box-shadow:inset 0 2px 5px rgba(0,0,0,0.7),inset 0 -1px 2px rgba(255,200,64,0.15),0 1px 0 rgba(255,200,64,0.3);
 }
 
-/* ── ROLLEN ── */
+/* ── ROLLEN-GEHÄUSE ── */
 .slot-reels-outer{
   flex:1;min-height:0;
-  background:#111;border:3px solid #c8a840;border-radius:12px;
+  background:linear-gradient(180deg,#0a0a0a 0%,#181818 15%,#141414 85%,#080808 100%);
+  border:3px solid #c8a840;border-radius:14px;
   padding:2%;display:flex;align-items:stretch;
+  /* 3D-Rahmen: helle Oberkante simuliert Lichteinfall von oben */
+  box-shadow:
+    0 2px 0 rgba(255,220,100,0.5),
+    0 -2px 0 rgba(0,0,0,0.8),
+    inset 0 3px 12px rgba(0,0,0,0.9),
+    inset 0 -3px 10px rgba(0,0,0,0.7);
 }
 .slot-reels{
   flex:1;display:flex;gap:2%;align-items:stretch;
 }
+
+/* ── EINZELNE ROLLE — 3D-Look ── */
 .slot-reel-wrap{
   flex:1;min-width:0;
-  background:#fff;border-radius:8px;overflow:hidden;
+  background:#f5f5f0;
+  border-radius:8px;overflow:hidden;
   position:relative;
-  box-shadow:0 3px 10px rgba(0,0,0,0.5),inset 0 1px 4px rgba(0,0,0,0.1);
+  /* Außenschatten: Vertiefung im Gehäuse */
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.7),
+    0 -2px 6px rgba(0,0,0,0.5),
+    inset 0 0 0 1px rgba(0,0,0,0.2);
+  /* Rand aus sattem Braun/Bronze */
+  border:2px solid rgba(100,70,20,0.6);
 }
+
+/* Win-Highlight */
 .slot-reel-wrap::before{
   content:'';position:absolute;inset:0;border-radius:6px;
   box-shadow:inset 0 0 0 3px transparent;
   z-index:10;pointer-events:none;transition:box-shadow .3s;
 }
 .slot-reel-wrap.reel-win::before{
-  box-shadow:inset 0 0 0 4px #22cc44,0 0 18px rgba(34,204,68,0.7);
+  box-shadow:inset 0 0 0 4px #22cc44,0 0 22px rgba(34,204,68,0.8);
 }
+
+/* 3D-Schatten oben und unten auf der Rolle (pseudo-element über dem Content) */
+.slot-reel-wrap::after{
+  content:'';
+  position:absolute;inset:0;border-radius:6px;
+  pointer-events:none;z-index:8;
+  background:
+    linear-gradient(180deg,
+      rgba(0,0,0,0.42) 0%,
+      rgba(0,0,0,0.12) 22%,
+      rgba(255,255,255,0.06) 44%,
+      rgba(255,255,255,0.06) 56%,
+      rgba(0,0,0,0.12) 78%,
+      rgba(0,0,0,0.48) 100%
+    );
+}
+
 .slot-reel-inner{
   position:absolute;left:0;right:0;top:0;transition:none;
 }
+
+/* Mittellinie — etwas prominenter */
+.slot-center-line{
+  background:linear-gradient(90deg,transparent,rgba(200,168,64,0.55) 20%,rgba(200,168,64,0.65) 50%,rgba(200,168,64,0.55) 80%,transparent);
+  transform:translateY(-50%);
+  pointer-events:none;z-index:6;
+  box-shadow:0 1px 4px rgba(200,168,64,0.4),0 -1px 4px rgba(200,168,64,0.4);
+}
+
 /* Each cell is exactly 100% of the wrap height — set by JS */
 .slot-reel-cell{
   width:100%;box-sizing:border-box;
   display:flex;align-items:center;justify-content:center;
   font-weight:900;color:#111;text-align:center;
-  background:#fff;line-height:1;
-  white-space:nowrap;          /* Wörter NIE umbrechen */
-  overflow:hidden;             /* überstehende Zeichen abschneiden statt umbrechen */
+  background:#f5f5f0;line-height:1;
+  white-space:nowrap;
+  overflow:hidden;
   word-break:normal;
   hyphens:none;
-  /* height + font-size set by JS */
 }
 .slot-reel-sym{
-  background:linear-gradient(135deg,#fffbe6,#fff3cc) !important;
-  border-top:1px dashed rgba(200,168,64,0.35);
-  border-bottom:1px dashed rgba(200,168,64,0.35);
+  background:linear-gradient(135deg,#fffbe6,#fff3cc,#ffeaa0) !important;
+  border-top:1px solid rgba(200,168,64,0.4);
+  border-bottom:1px solid rgba(200,168,64,0.4);
   letter-spacing:3px;
   justify-content:center;
   gap:2px;
-}
-.slot-center-line{
-  background:rgba(200,168,64,0.45);transform:translateY(-50%);
-  pointer-events:none;z-index:5;
 }
 
 /* ── BUTTONS ── */
 .slot-btn-row{
   flex-shrink:0;
   display:flex;align-items:center;justify-content:center;gap:4%;
+  /* Feste Mindesthöhe damit der Knopf immer sichtbar groß ist */
+  min-height:clamp(72px, 17%, 130px);
+  height:clamp(72px, 17%, 130px);
+  padding:4px 0;
 }
-.slot-btn-start{
-  flex:1;max-width:40%;
-  background:linear-gradient(160deg,#2ecc00,#1a9a00,#2ecc00);
-  border:3px solid #0e5c00;border-radius:12px;
-  color:#fff;font-weight:900;letter-spacing:1.5px;text-transform:uppercase;
-  font-size:clamp(14px,4vw,32px);
-  padding:5% 0;
-  cursor:pointer;
-  box-shadow:0 5px 16px rgba(0,0,0,0.5),inset 0 2px 4px rgba(255,255,255,0.2);
-  transition:filter .1s,transform .1s;
-}
-.slot-btn-start:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-2px);}
-.slot-btn-start:active:not(:disabled){transform:translateY(2px);}
-.slot-btn-start:disabled{filter:brightness(0.45);cursor:not-allowed;transform:none;}
 
-/* Big round red STOP */
+/* ── Einheitlicher Knopf: rund, altes Maß (0.90), 3D-Look ── */
 .slot-btn-stop-main{
   flex-shrink:0;
-  /* size set by JS to match button row height */
-  background:radial-gradient(circle at 35% 30%,#ff7070,#dd0000 50%,#880000);
-  border:4px solid #550000;border-radius:50%;
+  /* size set by JS */
+  border-radius:50%;
   color:#fff;font-weight:900;letter-spacing:1px;text-transform:uppercase;
   font-size:clamp(14px,4vw,30px);
   cursor:pointer;
-  box-shadow:0 6px 20px rgba(0,0,0,0.6),inset 0 3px 8px rgba(255,255,255,0.25),0 0 0 5px #2a0000;
-  transition:filter .1s,transform .1s;
+  transition:box-shadow .12s, transform .1s, filter .1s;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+
+  /* Roter Grundzustand */
+  background:
+    radial-gradient(circle at 38% 28%, #ff9090 0%, #e80000 45%, #7a0000 100%);
+  border:none;
+  /* Äußerer Metallring + tiefer Knopf-Schatten */
+  box-shadow:
+    0 0 0 5px #3a0000,               /* dunkler Ring */
+    0 0 0 7px rgba(200,60,60,0.35),  /* Leuchtring */
+    0 8px 22px rgba(0,0,0,0.7),      /* Tiefenschatten */
+    inset 0 3px 7px rgba(255,160,160,0.45),  /* helles Highlight oben */
+    inset 0 -4px 8px rgba(0,0,0,0.55);       /* dunkle Basis unten */
 }
-.slot-btn-stop-main:hover:not(:disabled){filter:brightness(1.15);transform:translateY(-3px);}
-.slot-btn-stop-main:active:not(:disabled){transform:translateY(3px);filter:brightness(0.8);}
-.slot-btn-stop-main:disabled{filter:brightness(0.4);cursor:not-allowed;transform:none;}
+.slot-btn-stop-main:hover:not(:disabled){
+  filter:brightness(1.15);transform:translateY(-3px);
+  box-shadow:
+    0 0 0 5px #3a0000,
+    0 0 0 7px rgba(200,60,60,0.5),
+    0 12px 28px rgba(0,0,0,0.65),
+    inset 0 3px 7px rgba(255,160,160,0.45),
+    inset 0 -4px 8px rgba(0,0,0,0.55);
+}
+.slot-btn-stop-main:active:not(:disabled){
+  transform:translateY(3px);filter:brightness(0.82);
+  box-shadow:
+    0 0 0 5px #3a0000,
+    0 0 0 6px rgba(200,60,60,0.25),
+    0 4px 10px rgba(0,0,0,0.7),
+    inset 0 5px 12px rgba(0,0,0,0.5),
+    inset 0 -2px 4px rgba(255,140,140,0.2);
+}
+.slot-btn-stop-main:disabled{filter:brightness(0.38);cursor:not-allowed;transform:none;}
+
+/* Grüner Idle/Neues-Spiel-Zustand */
+.slot-btn-stop-main.idle{
+  background:
+    radial-gradient(circle at 38% 28%, #80ff70 0%, #18bb00 45%, #095500 100%);
+  box-shadow:
+    0 0 0 5px #042800,
+    0 0 0 7px rgba(30,160,30,0.35),
+    0 8px 22px rgba(0,0,0,0.7),
+    inset 0 3px 7px rgba(160,255,130,0.45),
+    inset 0 -4px 8px rgba(0,0,0,0.55);
+}
+.slot-btn-stop-main.idle:hover:not(:disabled){
+  filter:brightness(1.15);transform:translateY(-3px);
+  box-shadow:
+    0 0 0 5px #042800,
+    0 0 0 7px rgba(30,180,30,0.5),
+    0 12px 28px rgba(0,0,0,0.65),
+    inset 0 3px 7px rgba(160,255,130,0.45),
+    inset 0 -4px 8px rgba(0,0,0,0.55);
+}
+.slot-btn-stop-sub{font-size:0.42em;letter-spacing:2px;opacity:0.82;margin-top:1px;}
 
 /* EDIT PANEL */
 .slot-edit-panel{display:none;flex:1;overflow-y:auto;padding:12px;box-sizing:border-box;}
@@ -4113,8 +4206,10 @@ function buildSlot(body, uid){
   </div>
 
   <div class="slot-btn-row" id="slot-btn-row-${uid}">
-    <button class="slot-btn-start" id="slot-btn-start-${uid}" onclick="slotMainStart(${uid})">START</button>
-    <button class="slot-btn-stop-main" id="slot-btn-stop-${uid}" onclick="slotMainStop(${uid})" disabled>STOP</button>
+    <button class="slot-btn-stop-main idle" id="slot-btn-stop-${uid}" onclick="slotBigBtn(${uid})">
+      <span id="slot-btn-label-${uid}">START</span>
+      <span class="slot-btn-stop-sub" id="slot-btn-sub-${uid}">TIPPEN</span>
+    </button>
   </div>
 
 </div>
@@ -4125,9 +4220,17 @@ function buildSlot(body, uid){
     <thead><tr><th>Wort 1</th><th>Wort 2</th><th>Wort 3</th><th></th></tr></thead>
     <tbody id="slot-edit-body-${uid}"></tbody>
   </table>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;">
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
     <button class="slot-add-row-btn" onclick="slotAddRow(${uid})">+ Zeile</button>
     <button class="wbtn primary" style="font-size:.92em;padding:.4em 1em;" onclick="slotApplyWords(${uid})">&#10004; Übernehmen</button>
+  </div>
+  <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;margin-top:2px;">
+    <div style="font-size:clamp(11px,1.5vw,13px);color:var(--text2);font-weight:700;margin-bottom:7px;letter-spacing:.5px;">WORTGRUPPEN SPEICHERN &amp; LADEN</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+      <input type="text" id="slot-save-name-${uid}" class="winput" placeholder="Name der Gruppe …" style="flex:1;min-width:100px;font-size:clamp(12px,1.6vw,14px);padding:.35em .65em;">
+      <button class="wbtn primary" style="font-size:.88em;padding:.35em .85em;white-space:nowrap;" onclick="slotSaveGroup(${uid})">💾 Speichern</button>
+    </div>
+    <div id="slot-saved-list-${uid}" style="margin-top:8px;display:flex;flex-direction:column;gap:5px;"></div>
   </div>
 </div>`;
 
@@ -4136,6 +4239,8 @@ function buildSlot(body, uid){
   requestAnimationFrame(()=>{
     slotSizeReels(uid);
     slotInitReels(uid);
+    // Second pass after layout has fully settled
+    setTimeout(()=>slotSizeReels(uid), 120);
     const reelOuter = document.getElementById('slot-reels-outer-'+uid);
     if(reelOuter && window.ResizeObserver){
       const ro = new ResizeObserver(()=>{ slotSizeReels(uid); });
@@ -4159,17 +4264,21 @@ function slotSizeReels(uid){
     slotRenderPos(c, uid);
   }
 
-  // Size STOP button circle to match button-row height
-  const btnRow = document.getElementById('slot-btn-row-'+uid);
-  if(btnRow){
-    const bh    = btnRow.clientHeight;
-    const stopD = Math.round(bh * 0.90);
-    const bStop = document.getElementById('slot-btn-stop-'+uid);
-    if(bStop){
-      bStop.style.width    = stopD+'px';
-      bStop.style.height   = stopD+'px';
-      bStop.style.fontSize = Math.round(stopD*0.25)+'px';
-    }
+  // Size STOP button — derive size from the machine height, not the btn-row
+  // (btn-row can report near-zero during first layout pass)
+  const machine = document.getElementById('slot-play-'+uid);
+  const btnRow  = document.getElementById('slot-btn-row-'+uid);
+  const bStop   = document.getElementById('slot-btn-stop-'+uid);
+  if(bStop && machine){
+    // Use btn-row clientHeight if it's large enough, otherwise fall back to 15% of machine
+    const rowH   = btnRow ? btnRow.clientHeight : 0;
+    const machH  = machine.clientHeight || 0;
+    const base   = rowH >= 50 ? rowH : Math.max(72, Math.round(machH * 0.15));
+    const stopD  = Math.round(base * 0.90);
+    const safeD  = Math.max(60, stopD);          // never smaller than 60px
+    bStop.style.width    = safeD+'px';
+    bStop.style.height   = safeD+'px';
+    bStop.style.fontSize = Math.round(safeD * 0.20)+'px';
   }
 
   // Compute hard minimum widget size so words are always legible (minFS=18px)
@@ -4205,7 +4314,7 @@ function slotShowTab(tab, uid){
   edit.classList.toggle('open', tab==='edit');
   document.getElementById('slot-tab-play-'+uid).classList.toggle('active-tmode', tab==='play');
   document.getElementById('slot-tab-edit-'+uid).classList.toggle('active-tmode', tab==='edit');
-  if(tab==='edit') slotRebuildEditTable(uid);
+  if(tab==='edit'){ slotRebuildEditTable(uid); slotRenderSavedList(uid); }
   if(tab==='play') requestAnimationFrame(()=>slotSizeReels(uid));
 }
 
@@ -4239,6 +4348,66 @@ function slotApplyWords(uid){
   slotShowTab('play',uid);
 }
 
+// ── WORTGRUPPEN: Speichern & Laden ──
+function slotGetStorageKey(){ return 'slot_wortgruppen_v1'; }
+function slotLoadAllGroups(){
+  try{ return JSON.parse(localStorage.getItem(slotGetStorageKey()))||{}; }catch(e){ return {}; }
+}
+function slotSaveAllGroups(groups){
+  localStorage.setItem(slotGetStorageKey(), JSON.stringify(groups));
+}
+
+function slotSaveGroup(uid){
+  const nameEl = document.getElementById('slot-save-name-'+uid);
+  const name = (nameEl?.value||'').trim();
+  if(!name){ nameEl?.focus(); return; }
+  const s = slotState[uid];
+  const rows = s.rows.filter(r=>r.some(w=>w.trim()));
+  if(!rows.length) return;
+  const groups = slotLoadAllGroups();
+  groups[name] = rows;
+  slotSaveAllGroups(groups);
+  if(nameEl) nameEl.value='';
+  slotRenderSavedList(uid);
+  // Flash feedback
+  const btn = nameEl?.nextElementSibling;
+  if(btn){ const orig=btn.textContent; btn.textContent='✓ Gespeichert!'; setTimeout(()=>btn.textContent=orig,1400); }
+}
+
+function slotLoadGroup(uid, name){
+  const groups = slotLoadAllGroups();
+  const rows = groups[name];
+  if(!rows||!rows.length) return;
+  slotState[uid].rows = rows.map(r=>[...r]);
+  slotRebuildEditTable(uid);
+  slotApplyWords(uid);
+}
+
+function slotDeleteGroup(uid, name){
+  const groups = slotLoadAllGroups();
+  delete groups[name];
+  slotSaveAllGroups(groups);
+  slotRenderSavedList(uid);
+}
+
+function slotRenderSavedList(uid){
+  const container = document.getElementById('slot-saved-list-'+uid);
+  if(!container) return;
+  const groups = slotLoadAllGroups();
+  const names = Object.keys(groups);
+  if(!names.length){
+    container.innerHTML='<div style="font-size:11px;color:var(--text2);opacity:.6;">Noch keine Gruppen gespeichert.</div>';
+    return;
+  }
+  container.innerHTML = names.map(name=>`
+    <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 8px;">
+      <span style="flex:1;font-size:clamp(12px,1.6vw,14px);font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(name)}">${escHtml(name)}</span>
+      <span style="font-size:10px;color:var(--text2);">${(groups[name]||[]).length} Sätze</span>
+      <button class="slot-add-row-btn" style="padding:3px 10px;font-size:11px;color:var(--accent);border-color:rgba(108,143,255,0.35);" onclick="slotLoadGroup(${uid},${JSON.stringify(name)})">Laden</button>
+      <button class="slot-del-row-btn" style="background:none;border:none;font-size:13px;padding:2px 5px;cursor:pointer;" title="Löschen" onclick="slotDeleteGroup(${uid},${JSON.stringify(name)})">&#x2715;</button>
+    </div>`).join('');
+}
+
 function slotInitReels(uid){
   const s = slotState[uid];
   s.currentWords=[s.rows.map(r=>r[0]||'—'),s.rows.map(r=>r[1]||'—'),s.rows.map(r=>r[2]||'—')];
@@ -4260,8 +4429,8 @@ function slotBuildStrip(col, uid){
   if(!el) return;
 
   const cellH    = s.cellH || 100;
-  const symH     = Math.round(cellH * 0.55);
-  const symFS    = Math.round(cellH * 0.48);
+  const symH     = Math.round(cellH * 0.36);
+  const symFS    = Math.round(cellH * 0.30);
   const padPx    = 10;
   const reelW    = (wrap && wrap.clientWidth > 0) ? wrap.clientWidth : 9999;
   const maxAvail = reelW - padPx * 2;
@@ -4305,20 +4474,29 @@ function slotRenderPos(col, uid){
   if(s.centerIdx[col]<0) s.centerIdx[col]+=n;
 }
 
+function slotBigBtn(uid){
+  const s = slotState[uid];
+  if(s.phase==='idle') slotMainStart(uid);
+  else if(s.phase==='spinning') slotMainStop(uid);
+}
+
 function slotMainStart(uid){
   const s = slotState[uid];
   if(s.phase!=='idle') return;
   s.phase='spinning'; s.nextStopReel=0;
   s.stoppedReels=[false,false,false]; s.stoppedCount=0;
-  const btnStart = document.getElementById('slot-btn-start-'+uid);
-  btnStart.disabled=true; btnStart.textContent='START';
-  document.getElementById('slot-btn-stop-'+uid).disabled=false;
+  const btnStop = document.getElementById('slot-btn-stop-'+uid);
+  const btnLabel = document.getElementById('slot-btn-label-'+uid);
+  const btnSub = document.getElementById('slot-btn-sub-'+uid);
+  if(btnStop){ btnStop.classList.remove('idle'); btnStop.disabled=false; }
+  if(btnLabel) btnLabel.textContent='STOP';
+  if(btnSub) btnSub.textContent='ANHALTEN';
   for(let c=0;c<3;c++) document.getElementById('slot-reel-wrap-'+c+'-'+uid)?.classList.remove('reel-win');
   ['l','r'].forEach(side=>{
     const el=document.getElementById('slot-star-'+side+'-'+uid);
     if(el){el.innerHTML='&#9733;';el.classList.remove('win');}
   });
-  const speeds=[1.8,2.1,1.6];
+  const speeds=[3.2,3.8,2.9];
   for(let c=0;c<3;c++) slotAnimReel(c,uid,speeds[c]);
   playSound('Piano', 0.85);
 }
@@ -4330,7 +4508,14 @@ function slotMainStop(uid){
   if(c>=3) return;
   slotStopReel(c,uid);
   s.nextStopReel++;
-  if(s.nextStopReel>=3) document.getElementById('slot-btn-stop-'+uid).disabled=true;
+  if(s.nextStopReel>=3){
+    const btnStop = document.getElementById('slot-btn-stop-'+uid);
+    const btnLabel = document.getElementById('slot-btn-label-'+uid);
+    const btnSub = document.getElementById('slot-btn-sub-'+uid);
+    if(btnStop){ btnStop.disabled=true; }
+    if(btnLabel) btnLabel.textContent='…';
+    if(btnSub) btnSub.textContent='';
+  }
 }
 
 function slotAnimReel(col, uid, speed){
@@ -4387,9 +4572,12 @@ function slotCheckResult(uid){
   s.points+=gained;
   const ptsEl=document.getElementById('slot-pts-'+uid);
   if(ptsEl) ptsEl.textContent=s.points+' PKT';
-  const btnStart=document.getElementById('slot-btn-start-'+uid);
-  btnStart.disabled=false; btnStart.textContent='NEUES SPIEL';
-  document.getElementById('slot-btn-stop-'+uid).disabled=true;
+  const btnStop=document.getElementById('slot-btn-stop-'+uid);
+  const btnLabel=document.getElementById('slot-btn-label-'+uid);
+  const btnSub=document.getElementById('slot-btn-sub-'+uid);
+  if(btnStop){ btnStop.disabled=false; btnStop.classList.add('idle'); }
+  if(btnLabel) btnLabel.textContent='NEUES SPIEL';
+  if(btnSub) btnSub.textContent='TIPPEN';
   s.phase='idle'; s.nextStopReel=0;
 }
 
@@ -4462,7 +4650,10 @@ function spieleShowTab(tab, uid){
     if(panel) panel.style.display = t===tab ? 'flex' : 'none';
     if(btn)   btn.classList.toggle('active-tmode', t===tab);
   });
-  if(tab==='slot') requestAnimationFrame(()=>slotSizeReels(uid*1000+2));
+  if(tab==='slot'){
+    requestAnimationFrame(()=>slotSizeReels(uid*1000+2));
+    setTimeout(()=>slotSizeReels(uid*1000+2), 120);
+  }
 }
 
 // ════════════════════════════════════════════════
