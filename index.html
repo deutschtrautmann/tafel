@@ -947,47 +947,47 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 
   <button class="tool-btn" onclick="spawnWidget('names')">
     <span class="tb-icon material-symbols-rounded">groups</span>
-    <span>Namen</span>
+    <span id="lbl-namen">Namen</span>
   </button>
 
   <button class="tool-btn" onclick="spawnWidget('draw')">
     <span class="tb-icon material-symbols-rounded">edit</span>
-    <span>Zeichnen</span>
+    <span id="lbl-zeichnen">Zeichnen</span>
   </button>
 
   <button class="tool-btn" onclick="spawnWidget('textpad')">
     <span class="tb-icon material-symbols-rounded">description</span>
-    <span>Text</span>
+    <span id="lbl-text">Text</span>
   </button>
 
   <button class="tool-btn" onclick="spawnWidget('dice')">
     <span class="tb-icon material-symbols-rounded">casino</span>
-    <span>Würfel</span>
+    <span id="lbl-wuerfel">Würfel</span>
   </button>
 
   <button class="tool-btn" onclick="spawnWidget('was')">
     <span class="tb-icon material-symbols-rounded">help</span>
-    <span>Was?</span>
+    <span id="lbl-was">Was?</span>
   </button>
 
   <button class="tool-btn" onclick="spawnWidget('timer')">
     <span class="tb-icon material-symbols-rounded">timer</span>
-    <span>Timer</span>
+    <span id="lbl-timer">Timer</span>
   </button>
 
   <button class="tool-btn" onclick="spawnWidget('clock')">
     <span class="tb-icon material-symbols-rounded">schedule</span>
-    <span>Uhr</span>
+    <span id="lbl-uhr">Uhr</span>
   </button>
 
   <button class="tool-btn" onclick="spawnWidget('qr')">
     <span class="tb-icon material-symbols-rounded">qr_code</span>
-    <span>QR</span>
+    <span id="lbl-qr">QR</span>
   </button>
 
   <button class="tool-btn" onclick="spawnWidget('spiele')">
     <span class="tb-icon material-symbols-rounded">sports_esports</span>
-    <span>Spiele</span>
+    <span id="lbl-spiele">Spiele</span>
   </button>
 
 </div>
@@ -1008,12 +1008,17 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 
     <!-- Design -->
     <button class="tool-btn" onclick="toggleBgPanel()">
-      <span class="tb-icon material-symbols-rounded">palette</span>Design
+      <span class="tb-icon material-symbols-rounded">palette</span><span id="design-label">Design</span>
+    </button>
+
+    <!-- Sprache -->
+    <button class="tool-btn" id="lang-btn" onclick="toggleLanguage()">
+      <span class="tb-icon material-symbols-rounded">language</span>Sprache
     </button>
 
     <!-- Fullscreen -->
-    <button class="tool-btn" onclick="toggleFullscreen()">
-      <span class="tb-icon" style="font-size:22px;">⛶</span>Vollbild
+    <button class="tool-btn" id="fullscreen-btn" onclick="toggleFullscreen()">
+      <span class="tb-icon" style="font-size:22px;">⛶</span><span id="fullscreen-label">Vollbild</span>
     </button>
 
   </div>
@@ -1034,8 +1039,8 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
       <rect x="44" y="37" width="11" height="5" rx="2.5" fill="currentColor" opacity=".5"/>
       <rect x="20" y="46" width="40" height="5" rx="2.5" fill="currentColor" opacity=".35"/>
     </svg>
-    <p>Kein Element geöffnet</p>
-    <small>Wähle oben ein Element aus dem Menü</small>
+    <p id="empty-title">Kein Element geöffnet</p>
+    <small id="empty-sub">Wähle oben ein Element aus dem Menü</small>
   </div>
 </div>
 
@@ -1134,8 +1139,194 @@ window.addEventListener('resize', ()=>{ setDesktopTop(); document.querySelectorA
 if(window.visualViewport){ window.visualViewport.addEventListener('resize', setDesktopTop); }
 document.fonts.ready.then(setDesktopTop);
 setTimeout(setDesktopTop, 200);
+setTimeout(()=>applyLanguage('de'),100);
 
 // Empty hint
+
+let currentLanguage = 'de';
+
+const LANG = {
+  de: {
+    namen:'Namen',
+    zeichnen:'Zeichnen',
+    text:'Text',
+    wuerfel:'Würfel',
+    was:'Was?',
+    timer:'Timer',
+    uhr:'Uhr',
+    qr:'QR',
+    spiele:'Spiele',
+    design:'Design',
+    fullscreen:'Vollbild',
+    language:'日本語',
+    emptyTitle:'Kein Element geöffnet',
+    emptySub:'Wähle oben ein Element aus dem Menü',
+    zumpad:'Pad-Name?',
+    los:'Los!',
+    audio:'Audio ▾',
+    photo:'Foto hochladen',
+    noConnection:'Warte auf Verbindung …',
+    room:'✏️ Schreibraum',
+    board:'Tafel',
+    together:'Hier gemeinsam schreiben …',
+    liveHelp:'Hinweis: Echte Live-Synchronisation mit zwei Handys funktioniert erst, wenn Firebase-Daten in der HTML-Datei eingetragen sind.',
+    noElement:'Kein Element geöffnet',
+    chooseTop:'Wähle oben ein Element aus dem Menü'
+  },
+  ja: {
+    namen:'名前',
+    zeichnen:'描画',
+    text:'テキスト',
+    wuerfel:'サイコロ',
+    was:'なに？',
+    timer:'タイマー',
+    uhr:'時計',
+    qr:'QR',
+    spiele:'ゲーム',
+    design:'デザイン',
+    fullscreen:'全画面',
+    language:'Deutsch',
+    emptyTitle:'要素が開かれていません',
+    emptySub:'上のメニューから選択してください',
+    zumpad:'パッド名',
+    los:'開始',
+    audio:'音声 ▾',
+    photo:'写真をアップロード',
+    noConnection:'接続待機中…',
+    room:'✏️ 共有ノート',
+    board:'ボード',
+    together:'ここに入力してください…',
+    liveHelp:'Firebaseデータを入力すると、リアルタイム同期が使えます。',
+    noElement:'要素が開かれていません',
+    chooseTop:'上のメニューから選択してください'
+  }
+};
+
+function applyLanguage(lang){
+  currentLanguage = lang;
+  const t = LANG[lang];
+
+  const setTxt = (id,val)=>{
+    const el=document.getElementById(id);
+    if(el) el.textContent=val;
+  };
+
+  setTxt('lbl-namen', t.namen);
+  setTxt('lbl-zeichnen', t.zeichnen);
+  setTxt('lbl-text', t.text);
+  setTxt('lbl-wuerfel', t.wuerfel);
+  setTxt('lbl-was', t.was);
+  setTxt('lbl-timer', t.timer);
+  setTxt('lbl-uhr', t.uhr);
+  setTxt('lbl-qr', t.qr);
+  setTxt('lbl-spiele', t.spiele);
+  setTxt('design-label', t.design);
+  setTxt('fullscreen-label', t.fullscreen);
+  setTxt('empty-title', t.emptyTitle);
+  setTxt('empty-sub', t.emptySub);
+
+  const langBtn = document.getElementById('lang-btn');
+  if(langBtn){
+    langBtn.innerHTML = '<span class="tb-icon material-symbols-rounded">language</span>' + t.language;
+  }
+
+  const zp = document.getElementById('zumpad-input');
+  if(zp) zp.placeholder = t.zumpad;
+
+  const los = document.querySelector('.zumpad-los-btn');
+  if(los) los.textContent = t.los;
+
+  const soundBtn = document.getElementById('sound-btn');
+  if(soundBtn){
+    const icon = soundEnabled ? 'volume_up' : 'volume_off';
+    soundBtn.innerHTML = '<span class="tb-icon material-symbols-rounded">'+icon+'</span>' + t.audio;
+  }
+
+  const uploadZone = document.querySelector('.bg-upload-zone div:last-child');
+  if(uploadZone) uploadZone.textContent = t.photo;
+
+  const roomTitle = document.getElementById('live-room-title');
+  if(roomTitle) roomTitle.textContent = t.room;
+
+  const roomStatus = document.getElementById('live-room-status');
+  if(roomStatus) roomStatus.textContent = t.noConnection;
+
+  const roomText = document.getElementById('live-room-text');
+  if(roomText) roomText.placeholder = t.together;
+
+  const roomHelp = document.getElementById('live-room-help');
+  if(roomHelp) roomHelp.textContent = t.liveHelp;
+
+  document.querySelectorAll('.live-room-btn').forEach(btn=>{
+    btn.textContent = t.board;
+  });
+
+  // Hintergrund / Menüs
+  document.querySelectorAll('.bg-upload-zone .font-bold, .bg-upload-zone div:last-child').forEach(el=>{
+    if(el.textContent.includes('Foto') || el.textContent.includes('写真')){
+      el.textContent = t.photo;
+    }
+  });
+
+  // Sound menu neu aufbauen
+  if(document.getElementById('sound-menu')?.classList.contains('open')){
+    buildSoundMenu();
+  }
+
+  // Häufige Widgettitel übersetzen
+  const titleMap = {
+    de:{
+      'NAMEN':'NAMEN','ZEICHNEN':'ZEICHNEN','TEXT':'TEXT','WÜRFEL':'WÜRFEL',
+      'WAS?':'WAS?','TIMER':'TIMER','UHR':'UHR','SPIELE':'SPIELE','QR':'QR'
+    },
+    ja:{
+      'NAMEN':'名前','ZEICHNEN':'描画','TEXT':'テキスト','WÜRFEL':'サイコロ',
+      'WAS?':'なに？','TIMER':'タイマー','UHR':'時計','SPIELE':'ゲーム','QR':'QR'
+    }
+  };
+
+  document.querySelectorAll('.widget-title').forEach(el=>{
+    const txt = el.textContent.trim().toUpperCase();
+    if(titleMap[lang][txt]) el.textContent = titleMap[lang][txt];
+  });
+
+  
+  // Allgemeine Buttons übersetzen
+  const replacements = currentLanguage === 'ja' ? {
+    'Foto entfernen':'写真を削除',
+    'Größe':'サイズ',
+    'Position X':'位置 X',
+    'Position Y':'位置 Y',
+    'Abdunkeln':'暗さ',
+    'Unschärfe':'ぼかし',
+    'Fenster-Transparenz':'透明度',
+    'Kein Element geöffnet':'要素が開かれていません',
+    'Wähle oben ein Element aus dem Menü':'上のメニューから選択してください'
+  } : {
+    '写真を削除':'Foto entfernen',
+    'サイズ':'Größe',
+    '位置 X':'Position X',
+    '位置 Y':'Position Y',
+    '暗さ':'Abdunkeln',
+    'ぼかし':'Unschärfe',
+    '透明度':'Fenster-Transparenz',
+    '要素が開かれていません':'Kein Element geöffnet',
+    '上のメニューから選択してください':'Wähle oben ein Element aus dem Menü'
+  };
+
+  document.querySelectorAll('button,label,p,small,div,span').forEach(el=>{
+    const txt = el.textContent.trim();
+    if(replacements[txt]) el.textContent = replacements[txt];
+  });
+
+  document.documentElement.lang = lang === 'ja' ? 'ja' : 'de';
+}
+
+function toggleLanguage(){
+  applyLanguage(currentLanguage === 'de' ? 'ja' : 'de');
+}
+
+
 function updateEmptyHint(){
   const h = document.getElementById('empty-hint');
   if(h) h.style.display = desktop.querySelectorAll('.widget').length ? 'none' : 'block';
@@ -1183,11 +1374,31 @@ function buildSoundMenu(){
     </span>`;
   container.appendChild(ctrl);
 
+  const soundLabels = {
+    ja:{
+      '👏 Applaus':'👏 拍手',
+      '🌀 Boing':'🌀 ボヨン',
+      '❌ Buzzer':'❌ ブザー',
+      '🎆 Feuerwerk':'🎆 花火',
+      '🔔 Glocke':'🔔 ベル',
+      '🐓 Hahn':'🐓 ニワトリ',
+      '🐶 Hund':'🐶 犬',
+      '🚗 Hupe':'🚗 クラクション',
+      '💥 Knall':'💥 爆発',
+      '🐱 Katze':'🐱 ネコ',
+      '🎹 Piano':'🎹 ピアノ',
+      '🐑 Schaf':'🐑 ヒツジ',
+      '🐦 Vogel':'🐦 鳥',
+      '🎲 Würfel':'🎲 サイコロ'
+    }
+  };
+
   SOUNDS.forEach(s => {
     const d = document.createElement('div');
     d.className = 'sound-opt' + (s.id===currentSound?' active':'');
     d.id = 'sopt-'+s.id;
-    d.innerHTML = `<div onclick="selectAndPreview('${s.id}')" style="flex:1;cursor:pointer">${s.label}</div>`;
+    const label = currentLanguage==='ja' ? (soundLabels.ja[s.label] || s.label) : s.label;
+    d.innerHTML = `<div onclick="selectAndPreview('${s.id}')" style="flex:1;cursor:pointer">${label}</div>`;
     container.appendChild(d);
   });
 }
@@ -1246,7 +1457,8 @@ function setSoundEnabled(val){
   // Toolbar button icon
   const btn = document.getElementById('sound-btn');
   if(btn){
-    btn.innerHTML = `<span class="tb-icon material-symbols-rounded">${soundEnabled ? 'volume_up' : 'volume_off'}</span>Audio ▾`;
+    const audioLabel = currentLanguage === 'ja' ? '音声 ▾' : 'Audio ▾';
+    btn.innerHTML = `<span class="tb-icon material-symbols-rounded">${soundEnabled ? 'volume_up' : 'volume_off'}</span>${audioLabel}`;
     btn.classList.toggle('muted', !soundEnabled);
   }
   // Update mute button in open menu
