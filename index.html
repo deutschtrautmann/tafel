@@ -2693,6 +2693,13 @@ function buildDice(body,uid){
   <button class="jein-mode-btn" id="dtbtn-jein-color-${uid}"  onclick="selectDiceType('jein-color',${uid})"  title="Farbe">🎨</button>
   <button class="jein-mode-btn" id="dtbtn-zufall-${uid}" onclick="toggleDiceZufall(${uid})" title="Zufall an/aus" style="font-size:.75em;padding:.3em .6em;">Zufall an</button>
 </div>
+<div id="ampel-config-${uid}" style="display:none;align-items:center;gap:.4em;justify-content:center;flex-wrap:wrap;padding:.15em 0 .3em;font-size:.8em;color:var(--text2);">
+  <span>🟢 Grün-Dauer:</span>
+  <input type="number" id="ampel-min-${uid}" value="10" min="1" max="600" style="width:52px;padding:.2em .35em;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:inherit;font-size:1em;text-align:center;" title="Minimum Sekunden Grün">
+  <span>–</span>
+  <input type="number" id="ampel-max-${uid}" value="30" min="1" max="600" style="width:52px;padding:.2em .35em;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:inherit;font-size:1em;text-align:center;" title="Maximum Sekunden Grün">
+  <span>Sek.</span>
+</div>
 <input type="hidden" id="dicetype-${uid}" value="6">
 <input type="hidden" id="dicecount-${uid}" value="1">`;
 }
@@ -2750,6 +2757,9 @@ function selectDiceType(sides, uid){
     stopSmileyAutoRotate(uid);
 
     // Show mode-specific idle display immediately
+    // Show/hide ampel config inputs
+    const acfg=document.getElementById('ampel-config-'+uid);
+    if(acfg) acfg.style.display=(mode==='ampel')?'flex':'none';
     if(wrap){
       if(mode==='text'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(1.6em,6vw,3em);font-weight:900;color:var(--text2);opacity:.5;">JA / NEIN</span></div>`;
@@ -2776,6 +2786,8 @@ function selectDiceType(sides, uid){
     // Normal dice mode — stop any ampel, show dice graphic
     if(ampelTimers[uid]){clearTimeout(ampelTimers[uid]);delete ampelTimers[uid];}
     stopSmileyAutoRotate(uid);
+    const acfg2=document.getElementById('ampel-config-'+uid);
+    if(acfg2) acfg2.style.display='none';
     updateDiceGraphic(uid);
     if(res) res.textContent='Hier klicken zum Würfeln';
   }
@@ -2951,30 +2963,11 @@ function rollJeinInDice(uid){
 }
 
 function rollJeinAmpelInDice(uid){
-  const wrap=document.getElementById('dicewrap-'+uid);
-  if(!wrap) return;
-  const prev=jeinState[uid]?.ampelState;
-  let next;
-  do{ next=['rot','gelb','gruen'][Math.floor(Math.random()*3)]; }while(next===prev&&Math.random()<0.7);
-  if(jeinState[uid]) jeinState[uid].ampelState=next;
-  // Big colored circle: red/yellow/green — no frame, no text
-  const circles={
-    rot:  {bg:'#1a0000', dot:'#ef4444', empty:'rgba(80,0,0,0.4)'},
-    gelb: {bg:'#1a1400', dot:'#eab308', empty:'rgba(80,70,0,0.4)'},
-    gruen:{bg:'#001a00', dot:'#22c55e', empty:'rgba(0,80,0,0.4)'},
-  };
-  const col=circles[next];
-  wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:${col.bg};border-radius:16px;">
-    <svg viewBox="0 0 60 180" width="33%" height="90%" xmlns="http://www.w3.org/2000/svg">
-      <rect x="5" y="5" width="50" height="170" rx="12" fill="#222" stroke="#444" stroke-width="2"/>
-      <circle cx="30" cy="35"  r="18" fill="${next==='rot'  ? col.dot : col.empty}"/>
-      <circle cx="30" cy="90"  r="18" fill="${next==='gelb' ? col.dot : col.empty}"/>
-      <circle cx="30" cy="145" r="18" fill="${next==='gruen'? col.dot : col.empty}"/>
-    </svg>
-  </div>`;
-  const res=document.getElementById('diceres-'+uid);
-  const labels={rot:'Rot',gelb:'Gelb',gruen:'Grün'};
-  if(res) res.textContent=labels[next];
+  // Manual click in ampel mode: restart the green→yellow→red cycle
+  if(ampelTimers[uid]){clearTimeout(ampelTimers[uid]);delete ampelTimers[uid];}
+  if(!jeinState[uid]) jeinState[uid]={mode:'ampel',result:null};
+  jeinState[uid].mode='ampel';
+  scheduleAmpelSwitch(uid);
 }
 
 function toggleColorName(uid){
@@ -3819,18 +3812,62 @@ function setJeinMode(mode,uid){
 }
 
 function scheduleAmpelSwitch(uid){
-  const delay=(5+Math.random()*15)*1000;
+  // Read min/max from config inputs (default 10–30 s)
+  const minEl=document.getElementById('ampel-min-'+uid);
+  const maxEl=document.getElementById('ampel-max-'+uid);
+  let minS=parseFloat(minEl?.value)||10;
+  let maxS=parseFloat(maxEl?.value)||30;
+  if(minS<1) minS=1; if(maxS<minS) maxS=minS;
+  const greenMs=(minS+Math.random()*(maxS-minS))*1000;
+
+  // Phase 1: show GREEN
+  showAmpelState(uid,'gruen');
+  if(jeinState[uid]) jeinState[uid].ampelState='gruen';
+
+  // Phase 2: after greenMs → show YELLOW for 1 s
   ampelTimers[uid]=setTimeout(()=>{
     if(jeinState[uid]?.mode!=='ampel') return;
-    // Route to dice widget or jein widget depending on which exists
-    if(document.getElementById('dicewrap-'+uid)){
-      rollJeinAmpelInDice(uid);
-    } else {
-      rollJein(uid);
-    }
-    try{const ac=new (window.AudioContext||window.webkitAudioContext)();playCarHorn(ac,0.7);setTimeout(()=>{try{const ac2=new (window.AudioContext||window.webkitAudioContext)();playCarHorn(ac2,0.7);}catch(e){}},600);}catch(e){}
-    scheduleAmpelSwitch(uid);
-  },delay);
+    showAmpelState(uid,'gelb');
+    if(jeinState[uid]) jeinState[uid].ampelState='gelb';
+
+    // Phase 3: after 1 s → show RED, play horn, stay
+    ampelTimers[uid]=setTimeout(()=>{
+      if(jeinState[uid]?.mode!=='ampel') return;
+      showAmpelState(uid,'rot');
+      if(jeinState[uid]) jeinState[uid].ampelState='rot';
+      // Play horn only at red
+      try{const ac=new (window.AudioContext||window.webkitAudioContext)();playCarHorn(ac,0.7);
+        setTimeout(()=>{try{const ac2=new (window.AudioContext||window.webkitAudioContext)();playCarHorn(ac2,0.7);}catch(e){}},600);
+      }catch(e){}
+      // Do NOT auto-reschedule — red stays until widget is reactivated
+      delete ampelTimers[uid];
+    },1000);
+  },greenMs);
+}
+
+function showAmpelState(uid, state){
+  // Works for both dice widget (dicewrap) and jein widget (jein-display)
+  const wrap=document.getElementById('dicewrap-'+uid);
+  const disp=document.getElementById('jein-display-'+uid);
+  const res =document.getElementById('diceres-'+uid);
+  const circles={
+    rot:  {bg:'#1a0000', dot:'#ef4444', empty:'rgba(80,0,0,0.4)'},
+    gelb: {bg:'#1a1400', dot:'#eab308', empty:'rgba(80,70,0,0.4)'},
+    gruen:{bg:'#001a00', dot:'#22c55e', empty:'rgba(0,80,0,0.4)'},
+  };
+  const col=circles[state];
+  const svgHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:${col.bg};border-radius:16px;">
+    <svg viewBox="0 0 60 180" width="33%" height="90%" xmlns="http://www.w3.org/2000/svg">
+      <rect x="5" y="5" width="50" height="170" rx="12" fill="#222" stroke="#444" stroke-width="2"/>
+      <circle cx="30" cy="35"  r="18" fill="${state==='rot'  ? col.dot : col.empty}"/>
+      <circle cx="30" cy="90"  r="18" fill="${state==='gelb' ? col.dot : col.empty}"/>
+      <circle cx="30" cy="145" r="18" fill="${state==='gruen'? col.dot : col.empty}"/>
+    </svg>
+  </div>`;
+  if(wrap) wrap.innerHTML=svgHTML;
+  if(disp){ disp.style.background='rgba(0,0,0,0.3)'; disp.innerHTML=svgHTML; }
+  const labels={rot:'Rot',gelb:'Gelb',gruen:'Grün'};
+  if(res) res.textContent=labels[state]||state;
 }
 
 function startSmileyAutoRotate(uid){
@@ -3893,32 +3930,9 @@ disp.style.transform='scale(0.8)';disp.style.opacity='0';
       // Restart auto-rotate so next change is 5s after manual roll
       startSmileyAutoRotate(uid);
     } else if(mode==='ampel'){
-      disp.style.background='rgba(0,0,0,0.3)';
-      // Determine: if currently red → go green, if currently green → go red, if not set → random
-      const currentState=jeinState[uid].ampelState||null;
-      let nextState;
-      if(currentState===null) nextState=yes?'green':'red';
-      else if(currentState==='green') nextState='red';
-      else nextState='green';
-      jeinState[uid].ampelState=nextState;
-
-      const offLight={col:'#333',glow:'none'};
-      const redOn={col:'#f87171',glow:'0 0 20px #f87171'};
-      const yellowOn={col:'#fbbf24',glow:'0 0 16px #fbbf24'};
-      const greenOn={col:'#4ade80',glow:'0 0 20px #4ade80'};
-      // Ampel layout: top=red, mid=yellow, bottom=green
-      const renderLights=([r,y,g])=>`<div style="display:flex;flex-direction:column;gap:8px;background:#222;border-radius:16px;padding:14px 20px;border:2px solid #444;">
-        <div style="width:44px;height:44px;border-radius:50%;background:${r.col};box-shadow:${r.glow};transition:all .3s;"></div>
-        <div style="width:44px;height:44px;border-radius:50%;background:${y.col};box-shadow:${y.glow};transition:all .3s;"></div>
-        <div style="width:44px;height:44px;border-radius:50%;background:${g.col};box-shadow:${g.glow};transition:all .3s;"></div>
-      </div>`;
-      // Show yellow briefly, then settle on target
-      disp.innerHTML=renderLights([offLight,yellowOn,offLight]);
-      setTimeout(()=>{
-        if(!disp) return;
-        if(nextState==='green') disp.innerHTML=renderLights([offLight,offLight,greenOn]);
-        else disp.innerHTML=renderLights([redOn,offLight,offLight]);
-      }, 500);
+      // Restart the green→yellow→red cycle
+      if(ampelTimers[uid]){clearTimeout(ampelTimers[uid]);delete ampelTimers[uid];}
+      scheduleAmpelSwitch(uid);
     } else if(mode==='color'){
       // Clear, unambiguous colors - randomly chosen regardless of yes/no
       const clearColors=['#22c55e','#eab308','#ef4444','#f97316','#ffffff','#9ca3af','#111111','#8b5cf6','#ec4899','#92400e','#3b82f6'];
