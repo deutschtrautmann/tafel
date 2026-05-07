@@ -2702,6 +2702,7 @@ const diceZufallOff = {}; // uid -> true if "Zufall aus" mode active
 const diceBag = {};       // uid -> {sides: [...remaining values]}
 
 function toggleDiceZufall(uid){
+  try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
   diceZufallOff[uid] = !diceZufallOff[uid];
   // Reset bag when toggling
   if(diceBag[uid]) diceBag[uid]={};
@@ -2722,6 +2723,7 @@ function toggleDiceZufall(uid){
 }
 
 function selectDiceType(sides, uid){
+  try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
   document.getElementById('dicetype-'+uid).value=sides;
 
   // Update active states
@@ -2744,6 +2746,8 @@ function selectDiceType(sides, uid){
 
     // Stop ampel timer if switching away
     if(ampelTimers[uid]){clearTimeout(ampelTimers[uid]);delete ampelTimers[uid];}
+    // Stop smiley timer if switching away
+    stopSmileyAutoRotate(uid);
 
     // Show mode-specific idle display immediately
     if(wrap){
@@ -2751,6 +2755,7 @@ function selectDiceType(sides, uid){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(1.6em,6vw,3em);font-weight:900;color:var(--text2);opacity:.5;">JA / NEIN</span></div>`;
       } else if(mode==='smiley'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"><span style="font-size:clamp(4em,18vw,9em);opacity:.35;">😊</span></div>`;
+        startSmileyAutoRotate(uid);
       } else if(mode==='ampel'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#1a1a1a;border-radius:16px;">
           <svg viewBox="0 0 60 180" width="33%" height="90%" xmlns="http://www.w3.org/2000/svg">
@@ -2770,6 +2775,7 @@ function selectDiceType(sides, uid){
   } else {
     // Normal dice mode — stop any ampel, show dice graphic
     if(ampelTimers[uid]){clearTimeout(ampelTimers[uid]);delete ampelTimers[uid];}
+    stopSmileyAutoRotate(uid);
     updateDiceGraphic(uid);
     if(res) res.textContent='Hier klicken zum Würfeln';
   }
@@ -2923,8 +2929,10 @@ function rollJeinInDice(uid){
   } else if(mode==='smiley'){
     // Kein Ton, kein Label
     const s=BEFINDEN_SMILEYS[Math.floor(Math.random()*BEFINDEN_SMILEYS.length)];
-    wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"><span style="font-size:clamp(4em,18vw,9em);line-height:1;">${s.emoji}</span></div>`;
+    wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"><span data-smiley-active="1" style="font-size:clamp(4em,18vw,9em);line-height:1;">${s.emoji}</span></div>`;
     if(res) res.textContent='';
+    // Restart auto-rotate timer so next change is 5s after manual roll
+    startSmileyAutoRotate(uid);
 
   } else if(mode==='color'){
     // Kein Ton
@@ -3751,6 +3759,7 @@ function handleTPKeydown(e,uid){
 const JEIN_MODES=['text','smiley','ampel','color','janken'];
 const jeinState={};
 const ampelTimers={}; // uid -> timeout id
+const smileyTimers={}; // uid -> interval id (auto-cycle smiley every 5s)
 
 function buildJein(body,uid){
   jeinState[uid]={mode:'text',result:null};
@@ -3804,6 +3813,9 @@ function setJeinMode(mode,uid){
     if(jeinState[uid]) jeinState[uid].ampelState=null;
     scheduleAmpelSwitch(uid);
   }
+  // Start/stop auto-cycle for smiley mode
+  stopSmileyAutoRotate(uid);
+  if(mode==='smiley') startSmileyAutoRotate(uid);
 }
 
 function scheduleAmpelSwitch(uid){
@@ -3819,6 +3831,44 @@ function scheduleAmpelSwitch(uid){
     try{const ac=new (window.AudioContext||window.webkitAudioContext)();playCarHorn(ac,0.7);setTimeout(()=>{try{const ac2=new (window.AudioContext||window.webkitAudioContext)();playCarHorn(ac2,0.7);}catch(e){}},600);}catch(e){}
     scheduleAmpelSwitch(uid);
   },delay);
+}
+
+function startSmileyAutoRotate(uid){
+  stopSmileyAutoRotate(uid);
+  smileyTimers[uid]=setInterval(()=>{
+    if(jeinState[uid]?.mode!=='smiley') { stopSmileyAutoRotate(uid); return; }
+    // Pick a different smiley than the currently shown one
+    const disp=document.getElementById('jein-display-'+uid);
+    const wrap=document.getElementById('dicewrap-'+uid);
+    if(disp && disp.querySelector('span[data-smiley-active]')){
+      const current=disp.querySelector('span[data-smiley-active]')?.textContent;
+      const pool=BEFINDEN_SMILEYS.map(s=>s.emoji).filter(e=>e!==current);
+      const next=(pool.length?pool:BEFINDEN_SMILEYS.map(s=>s.emoji))[Math.floor(Math.random()*(pool.length||BEFINDEN_SMILEYS.length))];
+      disp.style.transform='scale(0.82)';disp.style.opacity='0.3';
+      setTimeout(()=>{
+        disp.style.transition='transform .25s cubic-bezier(.34,1.56,.64,1), opacity .2s';
+        disp.style.transform='scale(1)';disp.style.opacity='1';
+        disp.style.background='rgba(255,255,255,0.05)';
+        disp.innerHTML=`<span data-smiley-active="1" style="font-size:5em;line-height:1;">${next}</span>`;
+        try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
+      },150);
+    } else if(wrap){
+      // Dice widget smiley auto-rotate
+      const current=wrap.querySelector('span')?.textContent;
+      const pool=BEFINDEN_SMILEYS.map(s=>s.emoji).filter(e=>e!==current);
+      const next=(pool.length?pool:BEFINDEN_SMILEYS.map(s=>s.emoji))[Math.floor(Math.random()*(pool.length||BEFINDEN_SMILEYS.length))];
+      wrap.style.transition='transform .12s ease-in';wrap.style.transform='scale(0.82)';
+      setTimeout(()=>{
+        wrap.style.transition='transform .25s cubic-bezier(.34,1.56,.64,1)';wrap.style.transform='scale(1)';
+        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"><span style="font-size:clamp(4em,18vw,9em);line-height:1;">${next}</span></div>`;
+        try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
+      },130);
+    }
+  },5000);
+}
+
+function stopSmileyAutoRotate(uid){
+  if(smileyTimers[uid]){clearInterval(smileyTimers[uid]);delete smileyTimers[uid];}
 }
 
 function rollJein(uid){
@@ -3839,7 +3889,9 @@ disp.style.transform='scale(0.8)';disp.style.opacity='0';
       const allSmileys=BEFINDEN_SMILEYS.map(s=>s.emoji);
       const s=allSmileys[Math.floor(Math.random()*allSmileys.length)];
       disp.style.background='rgba(255,255,255,0.05)';
-      disp.innerHTML=`<span style="font-size:5em;line-height:1;">${s}</span>`;
+      disp.innerHTML=`<span data-smiley-active="1" style="font-size:5em;line-height:1;">${s}</span>`;
+      // Restart auto-rotate so next change is 5s after manual roll
+      startSmileyAutoRotate(uid);
     } else if(mode==='ampel'){
       disp.style.background='rgba(0,0,0,0.3)';
       // Determine: if currently red → go green, if currently green → go red, if not set → random
