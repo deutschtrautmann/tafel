@@ -807,8 +807,26 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 
 /* EDIT PANEL */
 .slot-edit-panel{display:none;flex:1;overflow-y:auto;padding:12px;box-sizing:border-box;}
-.slot-edit-panel.open{display:block;}
-.slot-edit-hint{font-size:clamp(12px,1.6vw,15px);color:var(--text2);margin-bottom:8px;line-height:1.5;}
+.slot-edit-panel.open{display:flex;flex-direction:column;gap:10px;}
+.slot-edit-hint{font-size:clamp(11px,1.5vw,13px);color:var(--text2);line-height:1.5;}
+.slot-edit-textarea{
+  width:100%;flex:1;min-height:160px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.18);
+  border-radius:10px;
+  color:var(--text);
+  font-size:clamp(13px,1.7vw,15px);
+  font-family:'Arial',sans-serif;
+  font-weight:600;
+  line-height:1.8;
+  padding:10px 13px;
+  resize:vertical;
+  box-sizing:border-box;
+  outline:none;
+  transition:border-color .15s;
+}
+.slot-edit-textarea:focus{border-color:var(--accent);}
+.slot-edit-textarea::placeholder{color:var(--text2);opacity:.5;font-weight:400;}
 .slot-edit-table{width:100%;border-collapse:collapse;margin-bottom:10px;}
 .slot-edit-table th{
   font-size:clamp(11px,1.5vw,14px);font-weight:800;text-transform:uppercase;
@@ -2216,11 +2234,13 @@ function buildTimer(body,uid){
     <!-- Haus / Halbzeit -->
     <rect x="340" y="78" width="110" height="47" fill="#fef3c7" stroke="#d1c04a" stroke-width="1.5"/>
     <polygon points="330,78 460,78 395,50" fill="#e74c3c" stroke="#c0392b" stroke-width="1.5"/>
-    <!-- Tür -->
-    <rect x="378" y="96" width="18" height="29" rx="2" fill="#a0522d" stroke="#7a3b1e" stroke-width="1"/>
-    <circle cx="393" cy="111" r="1.5" fill="#fbbf24"/>
-    <!-- Animierter Hund vor der Tür -->
-    <g id="lauf-dog-${uid}">
+    <!-- Tür (animierbar: transform-origin an linker Kante) -->
+    <g id="lauf-door-${uid}">
+      <rect x="378" y="96" width="18" height="29" rx="2" fill="#a0522d" stroke="#7a3b1e" stroke-width="1"/>
+      <circle cx="393" cy="111" r="1.5" fill="#fbbf24"/>
+    </g>
+    <!-- Hund — startet unsichtbar, erscheint bei Halbzeit -->
+    <g id="lauf-dog-${uid}" visibility="hidden">
       <!-- Körper -->
       <ellipse cx="362" cy="121" rx="9" ry="5" fill="#c8a87a"/>
       <!-- Kopf -->
@@ -2381,6 +2401,13 @@ function resetTimer(uid){
   if(lauferRaf[uid]){cancelAnimationFrame(lauferRaf[uid]);lauferRaf[uid]=null;}
   lauferPos[uid]=0;
   if(typeof lauferDogPlayed!=='undefined') lauferDogPlayed[uid]=false;
+  if(typeof lauferDogActive!=='undefined') lauferDogActive[uid]=false;
+  if(typeof lauferDogX!=='undefined') lauferDogX[uid]=0;
+  if(typeof lauferDoorAngle!=='undefined') lauferDoorAngle[uid]=0;
+  const dog=document.getElementById('lauf-dog-'+uid);
+  if(dog){ dog.setAttribute('visibility','hidden'); dog.setAttribute('transform','translate(0,0)'); }
+  const door=document.getElementById('lauf-door-'+uid);
+  if(door){ door.setAttribute('transform',''); }
   updateAllTimerDisplays();
 }
 
@@ -2412,23 +2439,76 @@ function lauferStartRaf(uid){
   lauferRaf[uid]=requestAnimationFrame(frame);
 }
 
-const lauferDogPlayed={};  // uid → last tx-zone when dog sound was played
+const lauferDogPlayed={};   // uid → true when bark was played this run
+const lauferDogActive={};   // uid → true once dog has been revealed
+const lauferDogX={};        // uid → current dog x offset (follows runner after halfpoint)
+const lauferDoorAngle={};   // uid → current door open angle 0..1
 
 function lauferDrawFrame(uid){
   const runner=document.getElementById('lauf-runner-'+uid);
   if(!runner) return;
   const total=timerTotalMap[uid]||300;
   const tx=lauferPos[uid]||0;
-  // Hund-Sound: einmal abspielen wenn Läufer am Haus vorbeiläuft
-  // Haus bei SVG-x=340, Läufer-Basis cx=20 → tx ≈ 320 beim Passieren
-  if(tx >= 310 && tx < 360){
-    if(!lauferDogPlayed[uid]){
-      lauferDogPlayed[uid]=true;
-      playSound('Hundebellen', 0.85);
+  const ratio = total>0 ? (1 - (lauferPos[uid]||0)/750) : 1; // 1=start, 0=end
+  const elapsed = total * (1-ratio); // seconds elapsed (approx via position)
+
+  // ── Halbzeit-Schwelle: tx ≥ 375 (Mitte der 750px-Strecke) ──
+  const halfPassed = (tx >= 375);
+
+  // Tür-Animation: öffnet sich wenn Läufer die Halbzeit erreicht
+  const doorEl = document.getElementById('lauf-door-'+uid);
+  if(doorEl){
+    if(!halfPassed){
+      lauferDoorAngle[uid] = 0;
+    } else {
+      // Tür öffnet sich weich bis Winkel 1.0 (= -45° skew)
+      const prev = lauferDoorAngle[uid] || 0;
+      lauferDoorAngle[uid] = Math.min(1, prev + 0.04);
     }
-  } else if(tx < 50){
-    lauferDogPlayed[uid]=false; // zurücksetzen für nächsten Durchgang
+    const ang = lauferDoorAngle[uid] || 0;
+    // Tür dreht sich links (Angelpunkt x=378): skewX-Effekt via transform
+    const skew = ang * -45;
+    const scaleX = 1 - ang * 0.7;
+    doorEl.setAttribute('transform', `translate(378,96) scale(${scaleX.toFixed(3)},1) translate(-378,-96)`);
+    // Türinnenraum-Dunkel anzeigen wenn geöffnet
+    const inner = document.getElementById('lauf-door-inner-'+uid);
+    if(inner) inner.setAttribute('opacity', (ang * 0.8).toFixed(2));
   }
+
+  // Hund erscheint wenn Halbzeit erreicht
+  const dog = document.getElementById('lauf-dog-'+uid);
+  if(dog){
+    if(!halfPassed){
+      dog.setAttribute('visibility','hidden');
+      lauferDogActive[uid] = false;
+      lauferDogX[uid] = 0; // Hund-Offset relativ zur Hausposition (362)
+    } else {
+      dog.setAttribute('visibility','visible');
+
+      // Einmaliges Bellen beim ersten Erscheinen
+      if(!lauferDogActive[uid]){
+        lauferDogActive[uid] = true;
+        if(!lauferDogPlayed[uid]){
+          lauferDogPlayed[uid] = true;
+          setTimeout(()=>{ playSound('Hundebellen', 0.85); }, 300);
+        }
+      }
+
+      // Hund folgt dem Läufer: der Läufer ist bei tx, Hund-Basis bei 362
+      // Hund läuft hinter dem Läufer her, mit etwas Versatz (~25px hinter dem Läufer)
+      const runnerAbsX = 20 + tx; // absolute SVG-x des Läufers
+      const dogBaseX   = 362;     // Start-x des Hundes (vor Haus)
+      const targetDogOffset = Math.max(0, runnerAbsX - dogBaseX - 25);
+      const prevDogX = lauferDogX[uid] || 0;
+      // smooth follow (lerp)
+      lauferDogX[uid] = timerRunning
+        ? prevDogX + (targetDogOffset - prevDogX) * 0.06
+        : targetDogOffset;
+
+      dog.setAttribute('transform', `translate(${lauferDogX[uid].toFixed(1)},0)`);
+    }
+  }
+
   // Bounce: smooth vertical sine based on accumulated time
   const t=(lauferPhase[uid]||0)/1000; // seconds
   const ty=timerRunning ? Math.sin(t*Math.PI*4)*3 : 0; // 2 bounces/sec
@@ -2445,21 +2525,20 @@ function lauferDrawFrame(uid){
   if(arm1) arm1.setAttribute('d',`M20,116 L${13+s},${121-Math.abs(s)*0.4}`);
   if(arm2) arm2.setAttribute('d',`M20,116 L${27-s},${121-Math.abs(s)*0.4}`);
 
-  // ── Hund-Animation ──
-  const dog = document.getElementById('lauf-dog-'+uid);
-  if(dog){
+  // ── Hund-Bein/Schwanz-Animation (läuft nur wenn sichtbar) ──
+  if(dog && halfPassed){
     const running = timerRunning;
-    const dogT = t * (running ? 1 : 0); // nur animieren wenn läuft
-    // Läufer in der Nähe? (tx 280–420) → Hund aufgeregt
-    const dogExcited = (tx >= 280 && tx <= 420);
-    const dogFreq = dogExcited ? 10 : 6; // schnellere Beinbewegung wenn aufgeregt
+    const dogT = t * (running ? 1 : 0);
+    const dogExcited = true; // Hund ist immer aufgeregt wenn er folgt
+    const dogFreq = 10;
     const dogPhase = Math.sin(dogT * Math.PI * dogFreq);
-    const dogBob   = running ? Math.sin(dogT * Math.PI * dogFreq) * (dogExcited ? 2 : 1.2) : 0;
+    const dogBob   = running ? Math.sin(dogT * Math.PI * dogFreq) * 2 : 0;
 
-    // Vertikaler Versatz des ganzen Hundes
-    dog.setAttribute('transform', `translate(0,${dogBob.toFixed(2)})`);
+    // Vertikaler Bounce des Hundes (zusätzlich zur translate-Y durch dog.transform)
+    // Kombiniere mit x-offset: transform enthält bereits x-translate
+    const curDogX = lauferDogX[uid] || 0;
+    dog.setAttribute('transform', `translate(${curDogX.toFixed(1)},${dogBob.toFixed(2)})`);
 
-    // Beine wechselseitig schwingen (wie echter Vierbeiner: 1+3 vs 2+4)
     const dLeg = dogPhase * 3.5;
     const dl1 = document.getElementById('lauf-dog-leg1-'+uid);
     const dl2 = document.getElementById('lauf-dog-leg2-'+uid);
@@ -2470,20 +2549,14 @@ function lauferDrawFrame(uid){
     if(dl3) dl3.setAttribute('x2', (363 + dLeg).toFixed(1));
     if(dl4) dl4.setAttribute('x2', (367 - dLeg).toFixed(1));
 
-    // Schwanz wedeln (schnell, aufgeregt)
-    const tailWag = running
-      ? Math.sin(dogT * Math.PI * (dogExcited ? 14 : 8)) * (dogExcited ? 12 : 7)
-      : Math.sin(dogT * Math.PI * 2) * 3;
+    const tailWag = running ? Math.sin(dogT * Math.PI * 14) * 12 : 0;
     const tailEl = document.getElementById('lauf-dog-tail-'+uid);
     if(tailEl){
-      const ty1 = 108 + tailWag;
-      tailEl.setAttribute('d', `M353,120 Q347,${(112+tailWag*0.5).toFixed(1)} 350,${ty1.toFixed(1)}`);
+      tailEl.setAttribute('d', `M353,120 Q347,${(112+tailWag*0.5).toFixed(1)} 350,${(108+tailWag).toFixed(1)}`);
     }
-
-    // Ohr wippt leicht
     const earEl = document.getElementById('lauf-dog-ear-'+uid);
     if(earEl){
-      const earRot = -15 + dogPhase * (running ? 8 : 4);
+      const earRot = -15 + dogPhase * 8;
       earEl.setAttribute('transform', `rotate(${earRot.toFixed(1)},369,113)`);
     }
   }
@@ -2618,10 +2691,34 @@ function buildDice(body,uid){
   <button class="jein-mode-btn" id="dtbtn-jein-smiley-${uid}" onclick="selectDiceType('jein-smiley',${uid})" title="Smiley">😊</button>
   <button class="jein-mode-btn" id="dtbtn-jein-ampel-${uid}"  onclick="selectDiceType('jein-ampel',${uid})"  title="Ampel">🚦</button>
   <button class="jein-mode-btn" id="dtbtn-jein-color-${uid}"  onclick="selectDiceType('jein-color',${uid})"  title="Farbe">🎨</button>
-  <button class="jein-mode-btn" id="dtbtn-colorname-${uid}" onclick="toggleColorName(${uid})" title="Farbname ein/aus" style="font-size:.75em;padding:.3em .6em;opacity:.4;">Name</button>
+  <button class="jein-mode-btn" id="dtbtn-zufall-${uid}" onclick="toggleDiceZufall(${uid})" title="Zufall an/aus" style="font-size:.75em;padding:.3em .6em;">Zufall an</button>
 </div>
 <input type="hidden" id="dicetype-${uid}" value="6">
 <input type="hidden" id="dicecount-${uid}" value="1">`;
+}
+
+// Zufall-aus (bag shuffle) state
+const diceZufallOff = {}; // uid -> true if "Zufall aus" mode active
+const diceBag = {};       // uid -> {sides: [...remaining values]}
+
+function toggleDiceZufall(uid){
+  diceZufallOff[uid] = !diceZufallOff[uid];
+  // Reset bag when toggling
+  if(diceBag[uid]) diceBag[uid]={};
+  const btn=document.getElementById('dtbtn-zufall-'+uid);
+  if(btn){
+    if(diceZufallOff[uid]){
+      btn.textContent='Zufall aus';
+      btn.style.background='rgba(108,143,255,0.25)';
+      btn.style.borderColor='var(--accent)';
+      btn.style.color='var(--accent)';
+    } else {
+      btn.textContent='Zufall an';
+      btn.style.background='';
+      btn.style.borderColor='';
+      btn.style.color='';
+    }
+  }
 }
 
 function selectDiceType(sides, uid){
@@ -2772,7 +2869,21 @@ function rollDice(uid){
     return;
   }
   const tnum=parseInt(type||6);
-  const results=[Math.floor(Math.random()*tnum)+1];
+  // Zufall-aus (bag) mode: ensure all values appear before repeating
+  let rolledVal;
+  if([6,12,20].includes(tnum) && diceZufallOff[uid]){
+    if(!diceBag[uid]) diceBag[uid]={};
+    if(!diceBag[uid][tnum] || diceBag[uid][tnum].length===0){
+      // Refill bag with all values 1..tnum in shuffled order
+      const arr=Array.from({length:tnum},(_,i)=>i+1);
+      for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+      diceBag[uid][tnum]=arr;
+    }
+    rolledVal=diceBag[uid][tnum].pop();
+  } else {
+    rolledVal=Math.floor(Math.random()*tnum)+1;
+  }
+  const results=[rolledVal];
   if(wrap){
     wrap.style.transform='scale(0.75) rotate(20deg)';
     wrap.style.transition='transform .1s ease-in';
@@ -4215,26 +4326,22 @@ function buildSlot(body, uid){
 </div>
 
 <div id="slot-edit-${uid}" class="slot-edit-panel">
-  <div class="slot-edit-hint">Trage je Zeile drei Wörter ein (Wort 1 · Wort 2 · Wort 3).<br>Eine Zeile = ein passender Satz.</div>
-  <table class="slot-edit-table">
-    <thead><tr><th>Wort 1</th><th>Wort 2</th><th>Wort 3</th><th></th></tr></thead>
-    <tbody id="slot-edit-body-${uid}"></tbody>
-  </table>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
-    <button class="slot-add-row-btn" onclick="slotAddRow(${uid})">+ Zeile</button>
-    <button class="wbtn primary" style="font-size:.92em;padding:.4em 1em;" onclick="slotApplyWords(${uid})">&#10004; Übernehmen</button>
-  </div>
-  <div style="border-top:1px solid rgba(255,255,255,0.1);padding-top:10px;margin-top:2px;">
-    <div style="font-size:clamp(11px,1.5vw,13px);color:var(--text2);font-weight:700;margin-bottom:7px;letter-spacing:.5px;">WORTGRUPPEN SPEICHERN &amp; LADEN</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
-      <input type="text" id="slot-save-name-${uid}" class="winput" placeholder="Name der Gruppe …" style="flex:1;min-width:100px;font-size:clamp(12px,1.6vw,14px);padding:.35em .65em;">
-      <button class="wbtn primary" style="font-size:.88em;padding:.35em .85em;white-space:nowrap;" onclick="slotSaveGroup(${uid})">💾 Speichern</button>
-    </div>
-    <div id="slot-saved-list-${uid}" style="margin-top:8px;display:flex;flex-direction:column;gap:5px;"></div>
+  <div class="slot-edit-hint">Je Zeile drei Wörter eingeben, getrennt durch <b style="color:var(--text);">Tab</b>, <b style="color:var(--text);">Komma</b>, <b style="color:var(--text);">Semikolon</b> oder <b style="color:var(--text);">Leerzeichen</b>.<br>Eine Zeile = eine Kombination im Slot.</div>
+  <textarea
+    class="slot-edit-textarea"
+    id="slot-textarea-${uid}"
+    spellcheck="false"
+    placeholder="Ich        komme      aus&#10;Wo         wohnst     du?&#10;Mein       Name       ist"></textarea>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+    <button class="wbtn primary" style="font-size:.92em;padding:.45em 1.2em;" onclick="slotApplyTextarea(${uid})">&#10004; Übernehmen</button>
+    <label title="TXT-Datei laden (3 Wörter pro Zeile)" style="cursor:pointer;display:contents;">
+      <span class="wbtn" style="font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;">📂 TXT laden</span>
+      <input type="file" accept=".txt,text/plain" style="display:none" onchange="slotLoadTxtToTextarea(${uid},this)">
+    </label>
   </div>
 </div>`;
 
-  slotRebuildEditTable(uid);
+  slotFillTextarea(uid);
 
   requestAnimationFrame(()=>{
     slotSizeReels(uid);
@@ -4314,33 +4421,70 @@ function slotShowTab(tab, uid){
   edit.classList.toggle('open', tab==='edit');
   document.getElementById('slot-tab-play-'+uid).classList.toggle('active-tmode', tab==='play');
   document.getElementById('slot-tab-edit-'+uid).classList.toggle('active-tmode', tab==='edit');
-  if(tab==='edit'){ slotRebuildEditTable(uid); slotRenderSavedList(uid); }
+  if(tab==='edit'){ slotFillTextarea(uid); }
   if(tab==='play') requestAnimationFrame(()=>slotSizeReels(uid));
 }
 
-function slotRebuildEditTable(uid){
-  const s = slotState[uid];
-  const tbody = document.getElementById('slot-edit-body-'+uid);
-  if(!tbody) return;
-  tbody.innerHTML = '';
-  s.rows.forEach((row,ri)=>{
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><input type="text" value="${escHtml(row[0])}" oninput="slotState[${uid}].rows[${ri}][0]=this.value"></td>
-      <td><input type="text" value="${escHtml(row[1])}" oninput="slotState[${uid}].rows[${ri}][1]=this.value"></td>
-      <td><input type="text" value="${escHtml(row[2])}" oninput="slotState[${uid}].rows[${ri}][2]=this.value"></td>
-      <td><button class="slot-del-row-btn" onclick="slotDelRow(${uid},${ri})">&#x2715;</button></td>`;
-    tbody.appendChild(tr);
+// ── Textarea ↔ rows Hilfsfunktionen ──
+function slotRowsToText(rows){
+  return rows.map(r=>r.map(w=>(w||'').trim()).join('\t')).join('\n');
+}
+function slotTextToRows(text){
+  const rows=[];
+  text.split(/\r?\n/).forEach(line=>{
+    const t=line.trim(); if(!t) return;
+    let parts=t.split(/\t/);
+    if(parts.length<3) parts=t.split(/;/);
+    if(parts.length<3) parts=t.split(/,/);
+    if(parts.length<3) parts=t.split(/\s{2,}/);
+    if(parts.length<3) parts=t.split(/\s+/);
+    const w1=(parts[0]||'').trim();
+    const w2=(parts[1]||'').trim();
+    const w3=(parts[2]||'').trim();
+    if(w1||w2||w3) rows.push([w1,w2,w3]);
   });
+  return rows;
 }
 
+function slotFillTextarea(uid){
+  const ta=document.getElementById('slot-textarea-'+uid);
+  if(!ta) return;
+  ta.value=slotRowsToText(slotState[uid].rows);
+}
+
+function slotApplyTextarea(uid){
+  const ta=document.getElementById('slot-textarea-'+uid);
+  const text=ta?ta.value:'';
+  let rows=slotTextToRows(text);
+  if(!rows.length) rows=[['Wort 1','Wort 2','Wort 3']];
+  const s=slotState[uid];
+  s.rows=rows;
+  s.currentWords=[rows.map(r=>r[0]||'—'),rows.map(r=>r[1]||'—'),rows.map(r=>r[2]||'—')];
+  slotInitReels(uid);
+  requestAnimationFrame(()=>slotSizeReels(uid));
+  slotShowTab('play',uid);
+}
+
+function slotLoadTxtToTextarea(uid, inputEl){
+  const file=inputEl?.files?.[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const ta=document.getElementById('slot-textarea-'+uid);
+    if(ta){ ta.value=(e.target.result||'').replace(/\r\n/g,'\n'); }
+    inputEl.value='';
+  };
+  reader.readAsText(file,'UTF-8');
+}
+
+// ── Alte Funktionen (werden nicht mehr im UI benutzt, aber für eventuelle Aufrufe erhalten) ──
 function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function slotAddRow(uid){ slotState[uid].rows.push(['','','']); slotRebuildEditTable(uid); }
-function slotDelRow(uid,ri){ if(slotState[uid].rows.length<=1)return; slotState[uid].rows.splice(ri,1); slotRebuildEditTable(uid); }
+function slotRebuildEditTable(uid){ slotFillTextarea(uid); }
+function slotAddRow(uid){ slotState[uid].rows.push(['','','']); slotFillTextarea(uid); }
+function slotDelRow(uid,ri){ if(slotState[uid].rows.length<=1)return; slotState[uid].rows.splice(ri,1); slotFillTextarea(uid); }
 
 function slotApplyWords(uid){
-  const s = slotState[uid];
-  s.rows = s.rows.filter(r=>r.some(w=>w.trim()));
+  const s=slotState[uid];
+  s.rows=s.rows.filter(r=>r.some(w=>w.trim()));
   if(!s.rows.length) s.rows=[['Wort 1','Wort 2','Wort 3']];
   s.currentWords=[s.rows.map(r=>r[0]||'—'),s.rows.map(r=>r[1]||'—'),s.rows.map(r=>r[2]||'—')];
   slotInitReels(uid);
@@ -4348,65 +4492,14 @@ function slotApplyWords(uid){
   slotShowTab('play',uid);
 }
 
-// ── WORTGRUPPEN: Speichern & Laden ──
+// ── WORTGRUPPEN: nicht mehr benötigt, Stubs um Fehler zu vermeiden ──
 function slotGetStorageKey(){ return 'slot_wortgruppen_v1'; }
-function slotLoadAllGroups(){
-  try{ return JSON.parse(localStorage.getItem(slotGetStorageKey()))||{}; }catch(e){ return {}; }
-}
-function slotSaveAllGroups(groups){
-  localStorage.setItem(slotGetStorageKey(), JSON.stringify(groups));
-}
-
-function slotSaveGroup(uid){
-  const nameEl = document.getElementById('slot-save-name-'+uid);
-  const name = (nameEl?.value||'').trim();
-  if(!name){ nameEl?.focus(); return; }
-  const s = slotState[uid];
-  const rows = s.rows.filter(r=>r.some(w=>w.trim()));
-  if(!rows.length) return;
-  const groups = slotLoadAllGroups();
-  groups[name] = rows;
-  slotSaveAllGroups(groups);
-  if(nameEl) nameEl.value='';
-  slotRenderSavedList(uid);
-  // Flash feedback
-  const btn = nameEl?.nextElementSibling;
-  if(btn){ const orig=btn.textContent; btn.textContent='✓ Gespeichert!'; setTimeout(()=>btn.textContent=orig,1400); }
-}
-
-function slotLoadGroup(uid, name){
-  const groups = slotLoadAllGroups();
-  const rows = groups[name];
-  if(!rows||!rows.length) return;
-  slotState[uid].rows = rows.map(r=>[...r]);
-  slotRebuildEditTable(uid);
-  slotApplyWords(uid);
-}
-
-function slotDeleteGroup(uid, name){
-  const groups = slotLoadAllGroups();
-  delete groups[name];
-  slotSaveAllGroups(groups);
-  slotRenderSavedList(uid);
-}
-
-function slotRenderSavedList(uid){
-  const container = document.getElementById('slot-saved-list-'+uid);
-  if(!container) return;
-  const groups = slotLoadAllGroups();
-  const names = Object.keys(groups);
-  if(!names.length){
-    container.innerHTML='<div style="font-size:11px;color:var(--text2);opacity:.6;">Noch keine Gruppen gespeichert.</div>';
-    return;
-  }
-  container.innerHTML = names.map(name=>`
-    <div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:5px 8px;">
-      <span style="flex:1;font-size:clamp(12px,1.6vw,14px);font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${escHtml(name)}">${escHtml(name)}</span>
-      <span style="font-size:10px;color:var(--text2);">${(groups[name]||[]).length} Sätze</span>
-      <button class="slot-add-row-btn" style="padding:3px 10px;font-size:11px;color:var(--accent);border-color:rgba(108,143,255,0.35);" onclick="slotLoadGroup(${uid},${JSON.stringify(name)})">Laden</button>
-      <button class="slot-del-row-btn" style="background:none;border:none;font-size:13px;padding:2px 5px;cursor:pointer;" title="Löschen" onclick="slotDeleteGroup(${uid},${JSON.stringify(name)})">&#x2715;</button>
-    </div>`).join('');
-}
+function slotLoadAllGroups(){ try{ return JSON.parse(localStorage.getItem(slotGetStorageKey()))||{}; }catch(e){ return {}; } }
+function slotSaveAllGroups(groups){ localStorage.setItem(slotGetStorageKey(),JSON.stringify(groups)); }
+function slotSaveGroup(uid){}
+function slotLoadGroup(uid,name){}
+function slotDeleteGroup(uid,name){}
+function slotRenderSavedList(uid){}
 
 function slotInitReels(uid){
   const s = slotState[uid];
