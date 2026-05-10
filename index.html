@@ -1061,28 +1061,28 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   <div class="bg-upload-zone" id="bg-dropzone" onclick="document.getElementById('bg-file-input').click()" ondragover="event.preventDefault()" ondrop="handleBgDrop(event)">
     <input type="file" id="bg-file-input" accept="image/*" onchange="handleBgFile(this.files[0])">
     <div style="font-size:22px;margin-bottom:3px;">📁</div>
-    <div style="font-weight:700;font-size:.85em;">Foto hochladen</div>
+    <div style="font-weight:700;font-size:.85em;" id="bg-upload-label">Foto hochladen</div>
   </div>
 
   <div id="bg-photo-controls" style="display:none;">
     <div class="bg-dim-row">
-      <label>Größe: <span id="bgsize-val">100</span>%</label>
+      <label id="bg-label-groesse">Größe: <span id="bgsize-val">100</span>%</label>
       <input type="range" min="20" max="300" value="100" id="bgsize-slider" oninput="setBgSize(this.value)">
     </div>
     <div class="bg-dim-row" style="margin-top:6px;">
-      <label>Position X: <span id="bgposx-val">50</span>%</label>
+      <label id="bg-label-posx">Position X: <span id="bgposx-val">50</span>%</label>
       <input type="range" min="0" max="100" value="50" id="bgposx-slider" oninput="setBgPos()">
     </div>
     <div class="bg-dim-row" style="margin-top:6px;">
-      <label>Position Y: <span id="bgposy-val">50</span>%</label>
+      <label id="bg-label-posy">Position Y: <span id="bgposy-val">50</span>%</label>
       <input type="range" min="0" max="100" value="50" id="bgposy-slider" oninput="setBgPos()">
     </div>
     <div class="bg-dim-row" style="margin-top:6px;">
-      <label>Abdunkeln: <span id="dim-val">30</span>%</label>
+      <label id="bg-label-dim">Abdunkeln: <span id="dim-val">30</span>%</label>
       <input type="range" min="0" max="85" value="30" id="dim-slider" oninput="setBgDim(this.value)">
     </div>
     <div class="bg-dim-row" style="margin-top:6px;">
-      <label>Unschärfe: <span id="blur-val">0</span>px</label>
+      <label id="bg-label-blur">Unschärfe: <span id="blur-val">0</span>px</label>
       <input type="range" min="0" max="20" value="0" id="blur-slider" oninput="setBgBlur(this.value)">
     </div>
     <button class="wbtn" style="margin-top:6px;width:100%;font-size:.82em;" onclick="removeBgPhoto()">✕ Foto entfernen</button>
@@ -1090,7 +1090,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 
   <div class="sound-divider"></div>
   <div class="bg-dim-row">
-    <label>Fenster-Transparenz: <span id="widget-alpha-val">88</span>%</label>
+    <label id="bg-label-alpha">Fenster-Transparenz: <span id="widget-alpha-val">88</span>%</label>
     <input type="range" min="40" max="100" value="88" id="widget-alpha-slider" oninput="setWidgetAlpha(this.value)">
   </div>
   <div id="bg-panel-resize" title="Größe ändern">
@@ -1171,7 +1171,127 @@ const LANG = {
     together:'Hier gemeinsam schreiben …',
     liveHelp:'Hinweis: Echte Live-Synchronisation mit zwei Handys funktioniert erst, wenn Firebase-Daten in der HTML-Datei eingetragen sind.',
     noElement:'Kein Element geöffnet',
-    chooseTop:'Wähle oben ein Element aus dem Menü'
+    chooseTop:'Wähle oben ein Element aus dem Menü',
+    // Timer widget
+    timerKreis:'⭕ Kreis',
+    timerDigital:'🔢 Digital',
+    timerLaufer:'🏃 Läufer',
+    timerStart:'▶ Start',
+    timerPause:'⏸ Pause',
+    timerReset:'↺ Reset',
+    timerMin:'Min',
+    timerSek:'Sek',
+    timerHalbzeit:'HALBZEIT',
+    // Clock widget
+    clockRandom:'🎲 Zufällige Uhrzeit',
+    clockReset:'↺ Echtzeit',
+    clockRandomLabel:'Zufällige Uhrzeit (5-Min-Raster)',
+    // Dice widget
+    diceClickHint:'Hier klicken zum Würfeln',
+    diceErgebnis:'Ergebnis',
+    diceJaNein:'Ja/Nein',
+    diceZufallAn:'Zufall an',
+    diceZufallAus:'Zufall aus',
+    diceGruenDauer:'🟢 Grün-Dauer:',
+    diceSek:'Sek.',
+    // Names widget
+    namesZiehen:'🎲 Ziehen',
+    namesReset:'↺ Reset',
+    namesPlaceholder:'Namen (je eine Zeile)',
+    namesNeuRunde:'🔄 Neue Runde!',
+    namesVerbleibend:'von',
+    namesVerbleibend2:'verbleibend',
+    namesHierKlicken:'Hier klicken',
+    namesListe:'Liste',
+    namesResetKurz:'Reset',
+    // Draw widget
+    drawKlicken:'Auf Zeichenfläche klicken → tippen',
+    // Text widget
+    textKlein:'Klein',
+    textNormal:'Normal',
+    textGross:'Groß',
+    textSehrGross:'Sehr groß',
+    textRiesig:'Riesig',
+    textWoerter:'Wort',
+    textWoerterPl:'Wörter',
+    textZeichen:'Zeichen',
+    textPlaceholder:'Text hier eingeben oder einfügen…',
+    // QR widget
+    qrCreate:'📱 QR-Code erstellen',
+    qrHint:'Schüler*innen können den Code scannen',
+    qrPlaceholder:'URL oder Text...',
+    // Was widget
+    wasMosaik:'🔲 Mosaik',
+    wasVerschwommen:'🌫 Verschwommen',
+    wasKaese:'🧀 Käse',
+    wasUploadHint:'Fotos hier hochladen',
+    wasUploadSub:'Mehrere Fotos möglich – werden schrittweise enthüllt',
+    wasFeiner:'🔍 Feiner',
+    wasSchaerfer:'🔍 Schärfer',
+    wasMehrZeigen:'🧀 Mehr zeigen',
+    wasEnthuellung:'✓ Enthüllt',
+    wasVollstaendig:'Vollständig enthüllt!',
+    wasSchritt:'Schritt',
+    wasSchaerfe:'Schärfe',
+    wasFoto:'Foto',
+    wasWeiter:'Weiter ▶',
+    wasFertig:'✓ Fertig',
+    // Jein widget
+    jeinText:'Text',
+    jeinSmiley:'😊 Smiley',
+    jeinAmpel:'🚦 Ampel',
+    jeinFarbe:'🎨 Farbe',
+    jeinJanken:'✂️ Janken',
+    jeinRoll:'🎲 Auswählen',
+    jeinUnentschieden:'Unentschieden! 🤝',
+    jeinGewinnt:'Du gewinnst! 🎉',
+    jeinVerliert:'Computer gewinnt 😅',
+    jeinDu:'Du',
+    // Wheel widget
+    wheelTitle:'🎡 Frage-Rad',
+    wheelHelp:'Drehen → eine Frage erscheint groß. Alles funktioniert offline.',
+    wheelNochNicht:'Noch nicht gedreht.',
+    wheelDrehen:'🎡 Drehen',
+    wheelFragen:'✏️ Fragen',
+    wheelUebernehmen:'Übernehmen',
+    wheelUebernommen:'Fragen übernommen.',
+    // Slot widget
+    slotSpielen:'▶ Spielen',
+    slotWoerter:'✏ Wörter',
+    slotSpielpunkt:'SPIELSTAND',
+    slotNeuesSpiel:'NEUES SPIEL',
+    slotTippen:'TIPPEN',
+    slotAnhalten:'ANHALTEN',
+    slotStop:'STOP',
+    // Spiele widget (tab labels)
+    spieleRad:'Rad',
+    spieleSlot:'Slot',
+    spieleJanken:'Janken',
+    // Karten-Mixer
+    kartenMixerTitle:'🎴 Karten-Mixer offline',
+    kartenMixerDesc:'20 Karten sind vorbereitet. In der heutigen Klasse werden nur die Karten 1 bis zur eingestellten Zahl benutzt.',
+    kartenHeuteBenutzt:'Heute benutzt',
+    kartenAnzahl:'Anzahl Karten / Schüler',
+    kartenAktiv:'Aktiv: ',
+    kartenBis:'Karten 1–',
+    kartenMischen:'Mischen',
+    kartenPaare:'🤝 Paare mischen',
+    kartenGruppen3:'3er-Gruppen',
+    kartenNeuMischen:'🔀 Neu mischen',
+    kartenVollbild:'📺 Vollbild',
+    kartenOdd:'Bei ungerader Zahl wird beim Paar-Modus automatisch eine Dreiergruppe gebildet.',
+    kartenErgebnis:'Ergebnis für die Tafel',
+    kartenNochNicht:'Noch nicht gemischt.',
+    kartenAlle:'Alle 20 Karten anzeigen',
+    // Design panel
+    designFotoEntfernen:'✕ Foto entfernen',
+    designGroesse:'Größe',
+    designPosX:'Position X',
+    designPosY:'Position Y',
+    designAbdunkeln:'Abdunkeln',
+    designUnschaerfe:'Unschärfe',
+    designTransparenz:'Fenster-Transparenz',
+    designFotoHochladen:'Foto hochladen',
   },
   ja: {
     namen:'名前',
@@ -1198,9 +1318,132 @@ const LANG = {
     together:'ここに入力してください…',
     liveHelp:'Firebaseデータを入力すると、リアルタイム同期が使えます。',
     noElement:'要素が開かれていません',
-    chooseTop:'上のメニューから選択してください'
+    chooseTop:'上のメニューから選択してください',
+    // Timer widget
+    timerKreis:'⭕ 円',
+    timerDigital:'🔢 デジタル',
+    timerLaufer:'🏃 ランナー',
+    timerStart:'▶ スタート',
+    timerPause:'⏸ 一時停止',
+    timerReset:'↺ リセット',
+    timerMin:'分',
+    timerSek:'秒',
+    timerHalbzeit:'ハーフタイム',
+    // Clock widget
+    clockRandom:'🎲 ランダム時刻',
+    clockReset:'↺ 現在時刻',
+    clockRandomLabel:'ランダム時刻（5分刻み）',
+    // Dice widget
+    diceClickHint:'クリックしてサイコロを振る',
+    diceErgebnis:'結果',
+    diceJaNein:'はい/いいえ',
+    diceZufallAn:'ランダム：オン',
+    diceZufallAus:'ランダム：オフ',
+    diceGruenDauer:'🟢 青信号の時間:',
+    diceSek:'秒',
+    // Names widget
+    namesZiehen:'🎲 引く',
+    namesReset:'↺ リセット',
+    namesPlaceholder:'名前（1行に1つ）',
+    namesNeuRunde:'🔄 新しいラウンド！',
+    namesVerbleibend:'残り',
+    namesVerbleibend2:'／',
+    namesHierKlicken:'ここをクリック',
+    namesListe:'リスト',
+    namesResetKurz:'リセット',
+    // Draw widget
+    drawKlicken:'キャンバスをクリックして入力',
+    // Text widget
+    textKlein:'小',
+    textNormal:'普通',
+    textGross:'大',
+    textSehrGross:'特大',
+    textRiesig:'超大',
+    textWoerter:'単語',
+    textWoerterPl:'単語',
+    textZeichen:'文字',
+    textPlaceholder:'テキストを入力または貼り付け…',
+    // QR widget
+    qrCreate:'📱 QRコードを作成',
+    qrHint:'生徒はコードをスキャンできます',
+    qrPlaceholder:'URLまたはテキスト...',
+    // Was widget
+    wasMosaik:'🔲 モザイク',
+    wasVerschwommen:'🌫 ぼかし',
+    wasKaese:'🧀 チーズ',
+    wasUploadHint:'写真をここにアップロード',
+    wasUploadSub:'複数の写真が可能 – 段階的に公開されます',
+    wasFeiner:'🔍 細かく',
+    wasSchaerfer:'🔍 鮮明に',
+    wasMehrZeigen:'🧀 もっと見せる',
+    wasEnthuellung:'✓ 公開済み',
+    wasVollstaendig:'完全に公開されました！',
+    wasSchritt:'ステップ',
+    wasSchaerfe:'鮮明度',
+    wasFoto:'写真',
+    wasWeiter:'次へ ▶',
+    wasFertig:'✓ 完了',
+    // Jein widget
+    jeinText:'テキスト',
+    jeinSmiley:'😊 スマイリー',
+    jeinAmpel:'🚦 信号機',
+    jeinFarbe:'🎨 色',
+    jeinJanken:'✂️ じゃんけん',
+    jeinRoll:'🎲 選ぶ',
+    jeinUnentschieden:'引き分け！ 🤝',
+    jeinGewinnt:'あなたの勝ち！ 🎉',
+    jeinVerliert:'コンピューターの勝ち 😅',
+    jeinDu:'あなた',
+    // Wheel widget
+    wheelTitle:'🎡 質問ルーレット',
+    wheelHelp:'回す → 質問が大きく表示されます。オフラインで動作します。',
+    wheelNochNicht:'まだ回していません。',
+    wheelDrehen:'🎡 回す',
+    wheelFragen:'✏️ 質問',
+    wheelUebernehmen:'保存',
+    wheelUebernommen:'質問を保存しました。',
+    // Slot widget
+    slotSpielen:'▶ プレイ',
+    slotWoerter:'✏ 単語',
+    slotSpielpunkt:'スコア',
+    slotNeuesSpiel:'新しいゲーム',
+    slotTippen:'タップ',
+    slotAnhalten:'停止',
+    slotStop:'ストップ',
+    // Spiele widget (tab labels)
+    spieleRad:'ルーレット',
+    spieleSlot:'スロット',
+    spieleJanken:'じゃんけん',
+    // Karten-Mixer
+    kartenMixerTitle:'🎴 カードミキサー（オフライン）',
+    kartenMixerDesc:'20枚のカードが用意されています。今日の授業では設定した枚数だけ使います。',
+    kartenHeuteBenutzt:'今日使用',
+    kartenAnzahl:'カード枚数 / 生徒数',
+    kartenAktiv:'使用中: ',
+    kartenBis:'カード 1〜',
+    kartenMischen:'シャッフル',
+    kartenPaare:'🤝 ペアにする',
+    kartenGruppen3:'3人グループ',
+    kartenNeuMischen:'🔀 再シャッフル',
+    kartenVollbild:'📺 全画面',
+    kartenOdd:'奇数の場合、ペアモードでは自動的に3人グループが作られます。',
+    kartenErgebnis:'黒板用の結果',
+    kartenNochNicht:'まだシャッフルしていません。',
+    kartenAlle:'全20枚のカードを表示',
+    // Design panel
+    designFotoEntfernen:'✕ 写真を削除',
+    designGroesse:'サイズ',
+    designPosX:'位置 X',
+    designPosY:'位置 Y',
+    designAbdunkeln:'暗さ',
+    designUnschaerfe:'ぼかし',
+    designTransparenz:'透明度',
+    designFotoHochladen:'写真をアップロード',
   }
 };
+
+// Translation helper — always returns text for current language
+function T(key){ return (LANG[currentLanguage]||LANG['de'])[key] || (LANG['de'][key] || key); }
 
 function applyLanguage(lang){
   currentLanguage = lang;
@@ -1291,39 +1534,327 @@ function applyLanguage(lang){
   });
 
   
-  // Allgemeine Buttons übersetzen
-  const replacements = currentLanguage === 'ja' ? {
-    'Foto entfernen':'写真を削除',
-    'Größe':'サイズ',
-    'Position X':'位置 X',
-    'Position Y':'位置 Y',
-    'Abdunkeln':'暗さ',
-    'Unschärfe':'ぼかし',
-    'Fenster-Transparenz':'透明度',
-    'Kein Element geöffnet':'要素が開かれていません',
-    'Wähle oben ein Element aus dem Menü':'上のメニューから選択してください'
-  } : {
-    '写真を削除':'Foto entfernen',
-    'サイズ':'Größe',
-    '位置 X':'Position X',
-    '位置 Y':'Position Y',
-    '暗さ':'Abdunkeln',
-    'ぼかし':'Unschärfe',
-    '透明度':'Fenster-Transparenz',
-    '要素が開かれていません':'Kein Element geöffnet',
-    '上のメニューから選択してください':'Wähle oben ein Element aus dem Menü'
+  // ── Design panel static labels ──
+  const _updLabel=(id, prefix, spanId, suffix)=>{
+    const lbl=document.getElementById(id); if(!lbl) return;
+    const span=document.getElementById(spanId);
+    const spanVal=span?span.outerHTML:'';
+    lbl.innerHTML=prefix+spanVal+(suffix||'');
   };
+  _updLabel('bg-label-groesse', t.designGroesse+': ', 'bgsize-val', '%');
+  _updLabel('bg-label-posx',    t.designPosX+': ',    'bgposx-val', '%');
+  _updLabel('bg-label-posy',    t.designPosY+': ',    'bgposy-val', '%');
+  _updLabel('bg-label-dim',     t.designAbdunkeln+': ','dim-val',   '%');
+  _updLabel('bg-label-blur',    t.designUnschaerfe+': ','blur-val', 'px');
+  _updLabel('bg-label-alpha',   t.designTransparenz+': ','widget-alpha-val','%');
+  const bgUploadLbl=document.getElementById('bg-upload-label');
+  if(bgUploadLbl) bgUploadLbl.textContent=t.designFotoHochladen;
+  const removeFotoBtn=document.querySelector('#bg-photo-controls .wbtn');
+  if(removeFotoBtn) removeFotoBtn.textContent=t.designFotoEntfernen;
 
-  document.querySelectorAll('button,label,p,small,div,span').forEach(el=>{
-    const txt = el.textContent.trim();
-    if(replacements[txt]) el.textContent = replacements[txt];
-  });
+  // ── Translate open widgets ──
+  _translateOpenWidgets(lang);
 
   document.documentElement.lang = lang === 'ja' ? 'ja' : 'de';
 }
 
 function toggleLanguage(){
   applyLanguage(currentLanguage === 'de' ? 'ja' : 'de');
+}
+
+// Translate all open widget interiors when language switches
+function _translateOpenWidgets(lang){
+  document.querySelectorAll('.widget').forEach(w=>{
+    const type = w.dataset.type;
+    const uid  = w.id.replace('widget-','');
+    switch(type){
+      case 'timer':   _trTimer(uid);   break;
+      case 'clock':   _trClock(uid);   break;
+      case 'dice':    _trDice(uid);    break;
+      case 'names':   _trNames(uid);   break;
+      case 'draw':    _trDraw(uid);    break;
+      case 'textpad': _trTextpad(uid); break;
+      case 'qr':      _trQR(uid);      break;
+      case 'was':     _trWas(uid);     break;
+      case 'jein':    _trJein(uid);    break;
+      case 'wheel':   _trWheel(uid);   break;
+      case 'slot':    _trSlot(uid);    break;
+      case 'spiele':  _trSpiele(uid);  break;
+    }
+  });
+}
+
+function _setTxt(id,val){ const el=document.getElementById(id); if(el) el.textContent=val; }
+function _setHTML(id,val){ const el=document.getElementById(id); if(el) el.innerHTML=val; }
+
+function _trTimer(uid){
+  const _q=(s)=>document.getElementById(s+'-'+uid);
+  const b=e=>e&&(e.textContent=e.textContent.trim());
+  if(_q('tbtn-ring'))  _q('tbtn-ring').textContent  = T('timerKreis');
+  if(_q('tbtn-digi'))  _q('tbtn-digi').textContent  = T('timerDigital');
+  if(_q('tbtn-lauf'))  _q('tbtn-lauf').textContent  = T('timerLaufer');
+  // start/pause/reset buttons are in .row inside timer body
+  const body = document.getElementById('body-'+uid);
+  if(!body) return;
+  body.querySelectorAll('.wbtn').forEach(btn=>{
+    const t=btn.textContent.trim();
+    if(/▶|Start/.test(t)||/スタート/.test(t))  btn.textContent=T('timerStart');
+    if(/⏸|Pause/.test(t)||/一時停止/.test(t)) btn.textContent=T('timerPause');
+    if(/↺|Reset/.test(t)||/リセット/.test(t)) btn.textContent=T('timerReset');
+  });
+  // Min/Sek labels
+  body.querySelectorAll('span').forEach(s=>{
+    if(s.textContent.trim()==='Min'||s.textContent.trim()==='分') s.textContent=T('timerMin');
+    if(s.textContent.trim()==='Sek'||s.textContent.trim()==='秒') s.textContent=T('timerSek');
+  });
+  // SVG texts HALBZEIT/ハーフタイム
+  const svg=document.getElementById('lauf-svg-'+uid);
+  if(svg){
+    svg.querySelectorAll('text').forEach(tx=>{
+      if(/HALBZEIT|ハーフタイム/.test(tx.textContent)) tx.textContent=T('timerHalbzeit');
+    });
+  }
+}
+
+function _trClock(uid){
+  const body=document.getElementById('body-'+uid); if(!body) return;
+  body.querySelectorAll('.wbtn').forEach(btn=>{
+    const t=btn.textContent.trim();
+    if(/Zufällige|ランダム時刻/.test(t))  btn.textContent=T('clockRandom');
+    if(/Echtzeit|現在時刻/.test(t))       btn.textContent=T('clockReset');
+  });
+  const dtEl=document.getElementById('wcdate-'+uid);
+  if(dtEl && /5-Min|5分/.test(dtEl.textContent)) dtEl.textContent=T('clockRandomLabel');
+}
+
+function _trDice(uid){
+  const body=document.getElementById('body-'+uid); if(!body) return;
+  const res=document.getElementById('diceres-'+uid);
+  if(res && /Hier klicken|クリックして/.test(res.textContent)) res.textContent=T('diceClickHint');
+  // Ja/Nein button
+  const jnBtn=document.getElementById('dtbtn-jein-text-'+uid);
+  if(jnBtn) jnBtn.textContent=T('diceJaNein');
+  // Zufall button
+  const zBtn=document.getElementById('dtbtn-zufall-'+uid);
+  if(zBtn){
+    if(/aus|オフ/.test(zBtn.textContent)) zBtn.textContent=T('diceZufallAus');
+    else zBtn.textContent=T('diceZufallAn');
+  }
+  // Ampel label
+  const acfg=document.getElementById('ampel-config-'+uid);
+  if(acfg){
+    acfg.querySelectorAll('span').forEach(sp=>{
+      if(/Grün-Dauer|青信号/.test(sp.textContent)) sp.textContent=T('diceGruenDauer');
+      if(sp.textContent.trim()==='Sek.'||sp.textContent.trim()==='秒') sp.textContent=T('diceSek');
+    });
+  }
+}
+
+function _trNames(uid){
+  const body=document.getElementById('body-'+uid); if(!body) return;
+  body.querySelectorAll('.wbtn').forEach(btn=>{
+    const t=btn.textContent.trim();
+    if(/Ziehen|引く/.test(t))  btn.textContent=T('namesZiehen');
+    if(/Reset|リセット/.test(t) && !/↺/.test(t.replace(/(リセット|Reset)/,''))) btn.textContent=T('namesReset');
+  });
+  // Reset specifically
+  body.querySelectorAll('.wbtn').forEach(btn=>{
+    if(btn.textContent.trim()==='↺ Reset'||btn.textContent.trim()==='↺ リセット') btn.textContent=T('namesReset');
+  });
+  const ta=document.getElementById('namelist-'+uid);
+  if(ta) ta.placeholder=T('namesPlaceholder');
+}
+
+function _trDraw(uid){
+  const body=document.getElementById('body-'+uid); if(!body) return;
+  body.querySelectorAll('span').forEach(sp=>{
+    if(/Auf Zeichenfläche|キャンバスをクリック/.test(sp.textContent)) sp.textContent=T('drawKlicken');
+  });
+}
+
+function _trTextpad(uid){
+  const body=document.getElementById('body-'+uid); if(!body) return;
+  // Font size select options
+  const szSel=body.querySelector('select:nth-of-type(2)');
+  if(szSel){
+    const opts=szSel.options;
+    const map={Klein:T('textKlein'),Normal:T('textNormal'),'Groß':T('textGross'),'Sehr groß':T('textSehrGross'),'Riesig':T('textRiesig'),
+               小:T('textKlein'),普通:T('textNormal'),大:T('textGross'),特大:T('textSehrGross'),超大:T('textRiesig')};
+    for(let i=0;i<opts.length;i++){ if(map[opts[i].text]) opts[i].text=map[opts[i].text]; }
+  }
+  const pad=document.getElementById('textpad-'+uid);
+  if(pad) pad.dataset.placeholder=T('textPlaceholder');
+  // word counter
+  const ctr=document.getElementById('tp-counter-'+uid);
+  if(ctr){
+    const txt=(document.getElementById('textpad-'+uid)||{}).innerText||'';
+    const chars=txt.length;
+    const words=txt.trim()===''?0:txt.trim().split(/\s+/).length;
+    ctr.textContent=`${words} ${words!==1?T('textWoerterPl'):T('textWoerter')} · ${chars} ${T('textZeichen')}`;
+  }
+}
+
+function _trQR(uid){
+  const body=document.getElementById('body-'+uid); if(!body) return;
+  body.querySelectorAll('.wbtn').forEach(btn=>{
+    if(/QR-Code erstellen|QRコード/.test(btn.textContent)) btn.textContent=T('qrCreate');
+  });
+  body.querySelectorAll('div').forEach(d=>{
+    if(/Schüler|生徒/.test(d.textContent)&&d.children.length===0) d.textContent=T('qrHint');
+  });
+  const inp=document.getElementById('qrurl-'+uid);
+  if(inp) inp.placeholder=T('qrPlaceholder');
+}
+
+function _trWas(uid){
+  const body=document.getElementById('body-'+uid); if(!body) return;
+  const mosaik=document.getElementById('wastab-mosaic-'+uid);
+  const blur=document.getElementById('wastab-blur-'+uid);
+  const kaese=document.getElementById('wastab-kaese-'+uid);
+  if(mosaik) mosaik.textContent=T('wasMosaik');
+  if(blur) blur.textContent=T('wasVerschwommen');
+  if(kaese) kaese.textContent=T('wasKaese');
+  // Upload hint texts
+  const upZone=document.getElementById('was-upload-'+uid);
+  if(upZone){
+    upZone.querySelectorAll('div').forEach(d=>{
+      if(/Fotos hier|写真をここ/.test(d.textContent)&&d.children.length===0) d.textContent=T('wasUploadHint');
+      if(/Mehrere Fotos|複数の写真/.test(d.textContent)&&d.children.length===0) d.textContent=T('wasUploadSub');
+    });
+  }
+  const btn=document.getElementById('was-btn-'+uid);
+  if(btn&&!btn.disabled){
+    const s=wasState[uid]?.mode;
+    if(s==='blur') btn.textContent=T('wasSchaerfer');
+    else if(s==='kaese') btn.textContent=T('wasMehrZeigen');
+    else btn.textContent=T('wasFeiner');
+  }
+  if(btn&&btn.disabled) btn.textContent=T('wasEnthuellung');
+  // Navigation
+  const nextBtn=document.getElementById('was-next-'+uid);
+  if(nextBtn){
+    if(/Fertig|完了/.test(nextBtn.textContent)) nextBtn.textContent=T('wasFertig');
+    else nextBtn.textContent=T('wasWeiter');
+  }
+  // Schritt display
+  const stepEl=document.getElementById('was-step-'+uid);
+  if(stepEl){
+    const txt=stepEl.textContent;
+    if(/Vollständig|完全に/.test(txt)) stepEl.textContent=T('wasVollstaendig');
+    else if(/Schritt|ステップ/.test(txt)){
+      const m=txt.match(/(\d+)\s*\/\s*(\d+)/);
+      if(m) stepEl.textContent=`${T('wasSchritt')} ${m[1]} / ${m[2]}`;
+    } else if(/Schärfe|鮮明度/.test(txt)){
+      const m=txt.match(/(\d+)\s*\/\s*(\d+)/);
+      if(m) stepEl.textContent=`${T('wasSchaerfe')} ${m[1]} / ${m[2]}`;
+    }
+  }
+  // nav label
+  const navLabel=document.getElementById('was-nav-label-'+uid);
+  if(navLabel){
+    const m=navLabel.textContent.match(/(\d+)\s*\/\s*(\d+)/);
+    if(m) navLabel.textContent=`${T('wasFoto')} ${m[1]} / ${m[2]}`;
+  }
+}
+
+function _trJein(uid){
+  const body=document.getElementById('body-'+uid); if(!body) return;
+  body.querySelectorAll('.jein-mode-btn').forEach(btn=>{
+    const t=btn.textContent.trim();
+    if(/^Text$|^テキスト$/.test(t))          btn.textContent=T('jeinText');
+    if(/Smiley|スマイリー/.test(t))           btn.textContent=T('jeinSmiley');
+    if(/Ampel|信号機/.test(t))               btn.textContent=T('jeinAmpel');
+    if(/Farbe|色/.test(t)&&/🎨/.test(t))    btn.textContent=T('jeinFarbe');
+    if(/Janken|じゃんけん/.test(t)||/✂️/.test(t)) btn.textContent=T('jeinJanken');
+  });
+  body.querySelectorAll('.wbtn').forEach(btn=>{
+    if(/Auswählen|選ぶ/.test(btn.textContent)||/🎲/.test(btn.textContent)) btn.textContent=T('jeinRoll');
+  });
+}
+
+function _trWheel(uid){
+  const body=document.getElementById('body-'+uid); if(!body) return;
+  const title=body.querySelector('.wheel-title');
+  if(title) title.textContent=T('wheelTitle');
+  const help=body.querySelector('.wheel-help');
+  if(help) help.textContent=T('wheelHelp');
+  const res=document.getElementById('wheel-result-'+uid);
+  if(res&&/Noch nicht gedreht|まだ回していません/.test(res.textContent)) res.textContent=T('wheelNochNicht');
+  const controls=body.querySelector('.wheel-controls');
+  if(controls){
+    controls.querySelectorAll('.wbtn').forEach(btn=>{
+      if(/Drehen|回す/.test(btn.textContent)) btn.textContent=T('wheelDrehen');
+      if(/Fragen|質問/.test(btn.textContent)) btn.textContent=T('wheelFragen');
+    });
+  }
+  const editDiv=document.getElementById('wheel-edit-'+uid);
+  if(editDiv){
+    editDiv.querySelectorAll('.wbtn').forEach(btn=>{
+      if(/Übernehmen|保存/.test(btn.textContent)) btn.textContent=T('wheelUebernehmen');
+    });
+  }
+}
+
+function _trSlot(uid){
+  // Slot widget is embedded in Spiele, use uid*1000+2
+  const slotUid=uid;
+  _trSlotInner(slotUid);
+}
+function _trSlotInner(uid){
+  const tabPlay=document.getElementById('slot-tab-play-'+uid);
+  const tabEdit=document.getElementById('slot-tab-edit-'+uid);
+  if(tabPlay) tabPlay.innerHTML='&#9654; '+T('slotSpielen').replace('▶ ','');
+  if(tabEdit) tabEdit.innerHTML='&#9999; '+T('slotWoerter').replace('✏ ','');
+  // Score bar title
+  const scoreTitle=document.querySelector('#slot-play-'+uid+' .slot-scorebar-title');
+  if(scoreTitle){
+    // Keep the star elements, update text node
+    scoreTitle.childNodes.forEach(n=>{ if(n.nodeType===3&&n.textContent.trim()) n.textContent=' '+T('slotSpielpunkt')+' '; });
+  }
+  // Big button label and sub
+  const btnLabel=document.getElementById('slot-btn-label-'+uid);
+  const btnSub=document.getElementById('slot-btn-sub-'+uid);
+  const phase=slotState[uid]?.phase;
+  if(btnLabel){
+    if(phase==='spinning') btnLabel.textContent=T('slotStop');
+    else if(phase==='idle'||phase==='done') btnLabel.textContent=T('slotNeuesSpiel');
+  }
+  if(btnSub){
+    if(phase==='spinning') btnSub.textContent=T('slotAnhalten');
+    else if(phase==='idle'||phase==='done') btnSub.textContent=T('slotTippen');
+  }
+  // Points
+  const ptsEl=document.getElementById('slot-pts-'+uid);
+  if(ptsEl){
+    const m=ptsEl.textContent.match(/(\d+)/);
+    if(m) ptsEl.textContent=m[1]+' PKT';
+  }
+}
+
+function _trSpiele(uid){
+  // Tab buttons
+  ['rad','slot','janken'].forEach(tab=>{
+    const btn=document.getElementById(`spiele-tab-${tab}-${uid}`);
+    if(!btn) return;
+    const icons={rad:'🎡',slot:'🎰',janken:'✂️'};
+    const labels={rad:T('spieleRad'),slot:T('spieleSlot'),janken:T('spieleJanken')};
+    btn.textContent=icons[tab]+' '+labels[tab];
+  });
+  // Wheel panel uses uid*1000+1, Slot uses uid*1000+2
+  _trWheel(uid*1000+1);
+  _trSlotInner(uid*1000+2);
+  // Janken panel
+  const jankenPanel=document.getElementById(`spiele-panel-janken-${uid}`);
+  if(jankenPanel){
+    jankenPanel.querySelectorAll('.jein-mode-btn').forEach(btn=>{
+      const t=btn.textContent.trim();
+      if(/^Text$|^テキスト$/.test(t))    btn.textContent=T('jeinText');
+      if(/Smiley|スマイリー/.test(t))     btn.textContent=T('jeinSmiley');
+      if(/Ampel|信号機/.test(t))         btn.textContent=T('jeinAmpel');
+      if(/Farbe|色/.test(t))            btn.textContent=T('jeinFarbe');
+      if(/Janken|じゃんけん/.test(t)||/✂️/.test(t)) btn.textContent=T('jeinJanken');
+    });
+  }
 }
 
 
@@ -2243,8 +2774,8 @@ function buildClock(body, uid){
 <div id="wctime-txt-${uid}" style="font-size:1.8em;font-weight:400;text-align:center;margin-top:8px;color:var(--accent);min-height:1.3em;font-variant-numeric:tabular-nums;letter-spacing:.04em;"></div>
 <div class="wclock-date" id="wcdate-${uid}" style="margin-top:3px;font-size:.82em;"></div>
 <div style="margin-top:10px;display:flex;gap:.4em;justify-content:center;">
-  <button class="wbtn" style="font-size:.78em;padding:.3em .7em;" onclick="randomClockTime(${uid})">🎲 Zufällige Uhrzeit</button>
-  <button class="wbtn" style="font-size:.78em;padding:.3em .7em;" onclick="resetClockTime(${uid})">⟳ Echtzeit</button>
+  <button class="wbtn" style="font-size:.78em;padding:.3em .7em;" onclick="randomClockTime(${uid})">${T('clockRandom')}</button>
+  <button class="wbtn" style="font-size:.78em;padding:.3em .7em;" onclick="resetClockTime(${uid})">${T('clockReset')}</button>
 </div>`;
   clockOverrides[uid] = null;
 
@@ -2358,7 +2889,7 @@ function drawAnalogClock(uid){
     const d=new Date();
     dtEl.textContent=DAYS[d.getDay()]+', '+d.getDate()+'. '+MONTHS[d.getMonth()]+' '+d.getFullYear();
   } else if(dtEl && isRandom){
-    dtEl.textContent='Zufällige Uhrzeit (5-Min-Raster)';
+    dtEl.textContent=T('clockRandomLabel');
   }
 }
 
@@ -2397,9 +2928,9 @@ function buildTimer(body,uid){
   const ticks=Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180;const r1=72,r2=i%3===0?80:76;const x1=80+r1*Math.sin(a),y1=80-r1*Math.cos(a),x2=80+r2*Math.sin(a),y2=80-r2*Math.cos(a);return`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,0.22)" stroke-width="${i%3===0?2:1}" stroke-linecap="round"/>`;}).join('');
   body.innerHTML=`
 <div style="display:flex;gap:calc(var(--uiscale,1)*3px);margin-bottom:.4em;background:rgba(0,0,0,0.25);border-radius:calc(var(--uiscale,1)*8px);padding:calc(var(--uiscale,1)*3px);">
-  <button id="tbtn-ring-${uid}" class="timer-mode-btn active-tmode" onclick="setTimerMode('ring',${uid})">⭕ Kreis</button>
-  <button id="tbtn-digi-${uid}" class="timer-mode-btn" onclick="setTimerMode('digital',${uid})">🔢 Digital</button>
-  <button id="tbtn-lauf-${uid}" class="timer-mode-btn" onclick="setTimerMode('laufer',${uid})">🏃 Läufer</button>
+  <button id="tbtn-ring-${uid}" class="timer-mode-btn active-tmode" onclick="setTimerMode('ring',${uid})">${T('timerKreis')}</button>
+  <button id="tbtn-digi-${uid}" class="timer-mode-btn" onclick="setTimerMode('digital',${uid})">${T('timerDigital')}</button>
+  <button id="tbtn-lauf-${uid}" class="timer-mode-btn" onclick="setTimerMode('laufer',${uid})">${T('timerLaufer')}</button>
 </div>
 <div id="tview-ring-${uid}" style="position:relative;width:100%;flex:1;min-height:100px;display:flex;align-items:center;justify-content:center;margin:.1em auto .2em;">
   <svg id="timer-svg-${uid}" viewBox="0 0 160 160" style="width:100%;height:100%;max-width:100%;max-height:100%;display:block;cursor:pointer;" onclick="startTimer(${uid})" title="Klicken zum Starten / Pausieren">
@@ -2478,8 +3009,6 @@ function buildTimer(body,uid){
     <rect x="408" y="86" width="22" height="18" rx="2" fill="#bde0f7" stroke="#d1c04a" stroke-width="1"/>
     <line x1="419" y1="86" x2="419" y2="104" stroke="#d1c04a" stroke-width="0.8"/>
     <line x1="408" y1="95" x2="430" y2="95" stroke="#d1c04a" stroke-width="0.8"/>
-    <!-- Halbzeit-Text über dem Haus -->
-    <text x="395" y="46" text-anchor="middle" font-family="Arial,sans-serif" font-size="13" font-weight="bold" fill="white" stroke="#555" stroke-width="2" paint-order="stroke">HALBZEIT</text>
     <!-- Baum neben Haus -->
     <rect x="465" y="83" width="8" height="42" fill="#795548"/>
     <circle cx="469" cy="72" r="22" fill="#2ecc71"/>
@@ -2505,16 +3034,16 @@ function buildTimer(body,uid){
   </svg>
 </div>
 <div class="row" style="justify-content:center;">
-  <button class="wbtn primary" onclick="startTimer(${uid})">▶ Start</button>
-  <button class="wbtn" onclick="pauseTimer()">⏸ Pause</button>
-  <button class="wbtn" onclick="resetTimer(${uid})">↺ Reset</button>
+  <button class="wbtn primary" onclick="startTimer(${uid})">${T('timerStart')}</button>
+  <button class="wbtn" onclick="pauseTimer()">${T('timerPause')}</button>
+  <button class="wbtn" onclick="resetTimer(${uid})">${T('timerReset')}</button>
 </div>
 <div style="margin-top:.7em;border-top:1px solid rgba(255,255,255,0.07);padding-top:.5em;width:100%;">
   <div style="display:flex;gap:.4em;align-items:center;justify-content:center;margin-bottom:.3em;" id="timer-inputs-${uid}">
     <input class="winput" type="number" id="tmin-${uid}" value="5" min="0" max="99" style="width:calc(var(--uiscale,1)*3em);text-align:center;font-size:calc(var(--uiscale,1)*.78em);padding:.2em .3em;">
-    <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);">Min</span>
+    <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);">${T('timerMin')}</span>
     <input class="winput" type="number" id="tsec-${uid}" value="0" min="0" max="59" style="width:calc(var(--uiscale,1)*3em);text-align:center;font-size:calc(var(--uiscale,1)*.78em);padding:.2em .3em;">
-    <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);">Sek</span>
+    <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);">${T('timerSek')}</span>
   </div>
   <div style="display:flex;gap:.25em;flex-wrap:wrap;justify-content:center;">
     <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(1,0,${uid})">1 Min</button>
@@ -2878,7 +3407,7 @@ function buildDice(body,uid){
 <div class="dice-wrap" id="dicewrap-${uid}" onclick="rollDice(${uid})" title="Hier klicken zum Würfeln">
   ${diceD6svg(6)}
 </div>
-<div class="dice-result" id="diceres-${uid}">Hier klicken zum Würfeln</div>
+<div class="dice-result" id="diceres-${uid}">${T('diceClickHint')}</div>
 <div class="row" style="justify-content:center;flex-wrap:wrap;gap:.4em;margin:.3em 0;">
   <div style="display:flex;gap:.4em;align-items:center;justify-content:center;flex-wrap:wrap;">
     <button class="dice-type-btn active-dice" id="dtbtn-6-${uid}" onclick="selectDiceType(6,${uid})" title="W6">
@@ -2899,18 +3428,18 @@ function buildDice(body,uid){
   </div>
 </div>
 <div style="display:flex;gap:.4em;justify-content:center;flex-wrap:wrap;padding:.2em 0 .4em;">
-  <button class="jein-mode-btn" id="dtbtn-jein-text-${uid}"   onclick="selectDiceType('jein-text',${uid})"   title="Ja/Nein">Ja/Nein</button>
+  <button class="jein-mode-btn" id="dtbtn-jein-text-${uid}"   onclick="selectDiceType('jein-text',${uid})"   title="Ja/Nein">${T('diceJaNein')}</button>
   <button class="jein-mode-btn" id="dtbtn-jein-smiley-${uid}" onclick="selectDiceType('jein-smiley',${uid})" title="Smiley">😊</button>
   <button class="jein-mode-btn" id="dtbtn-jein-ampel-${uid}"  onclick="selectDiceType('jein-ampel',${uid})"  title="Ampel">🚦</button>
   <button class="jein-mode-btn" id="dtbtn-jein-color-${uid}"  onclick="selectDiceType('jein-color',${uid})"  title="Farbe">🎨</button>
-  <button class="jein-mode-btn" id="dtbtn-zufall-${uid}" onclick="toggleDiceZufall(${uid})" title="Zufall an/aus" style="font-size:.75em;padding:.3em .6em;">Zufall an</button>
+  <button class="jein-mode-btn" id="dtbtn-zufall-${uid}" onclick="toggleDiceZufall(${uid})" title="Zufall an/aus" style="font-size:.75em;padding:.3em .6em;">${T('diceZufallAn')}</button>
 </div>
 <div id="ampel-config-${uid}" style="display:none;align-items:center;gap:.4em;justify-content:center;flex-wrap:wrap;padding:.15em 0 .3em;font-size:.8em;color:var(--text2);">
-  <span>🟢 Grün-Dauer:</span>
+  <span>${T('diceGruenDauer')}</span>
   <input type="number" id="ampel-min-${uid}" value="10" min="1" max="600" style="width:52px;padding:.2em .35em;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:inherit;font-size:1em;text-align:center;" title="Minimum Sekunden Grün">
   <span>–</span>
   <input type="number" id="ampel-max-${uid}" value="30" min="1" max="600" style="width:52px;padding:.2em .35em;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:inherit;font-size:1em;text-align:center;" title="Maximum Sekunden Grün">
-  <span>Sek.</span>
+  <span>${T('diceSek')}</span>
 </div>
 <input type="hidden" id="dicetype-${uid}" value="6">
 <input type="hidden" id="dicecount-${uid}" value="1">`;
@@ -2928,12 +3457,12 @@ function toggleDiceZufall(uid){
   const btn=document.getElementById('dtbtn-zufall-'+uid);
   if(btn){
     if(diceZufallOff[uid]){
-      btn.textContent='Zufall aus';
+      btn.textContent=T('diceZufallAus');
       btn.style.background='rgba(108,143,255,0.25)';
       btn.style.borderColor='var(--accent)';
       btn.style.color='var(--accent)';
     } else {
-      btn.textContent='Zufall an';
+      btn.textContent=T('diceZufallAn');
       btn.style.background='';
       btn.style.borderColor='';
       btn.style.color='';
@@ -2974,7 +3503,7 @@ function selectDiceType(sides, uid){
     if(acfg) acfg.style.display=(mode==='ampel')?'flex':'none';
     if(wrap){
       if(mode==='text'){
-        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(1.6em,6vw,3em);font-weight:900;color:var(--text2);opacity:.5;">JA / NEIN</span></div>`;
+        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(1.6em,6vw,3em);font-weight:900;color:var(--text2);opacity:.5;">${T('diceJaNein')}</span></div>`;
       } else if(mode==='smiley'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"><span style="font-size:clamp(4em,18vw,9em);opacity:.35;">😊</span></div>`;
         startSmileyAutoRotate(uid);
@@ -2992,7 +3521,7 @@ function selectDiceType(sides, uid){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(2.5em,10vw,5em);opacity:.5;">🎨</span></div>`;
       }
     }
-    if(res) res.textContent='Hier klicken zum Würfeln';
+    if(res) res.textContent=T('diceClickHint');
 
   } else {
     // Normal dice mode — stop any ampel, show dice graphic
@@ -3001,7 +3530,7 @@ function selectDiceType(sides, uid){
     const acfg2=document.getElementById('ampel-config-'+uid);
     if(acfg2) acfg2.style.display='none';
     updateDiceGraphic(uid);
-    if(res) res.textContent='Hier klicken zum Würfeln';
+    if(res) res.textContent=T('diceClickHint');
   }
 }
 
@@ -3022,7 +3551,7 @@ function updateDiceGraphic(uid){
       <text x="23" y="58" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="900" font-size="26" fill="rgba(255,255,255,0.85)">€</text>
       <line x1="46" y1="18" x2="210" y2="18" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
       <line x1="46" y1="92" x2="210" y2="92" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-      <text x="130" y="55" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="700" font-size="16" fill="rgba(255,255,255,0.5)">Klicken zum Würfeln</text>
+      <text x="130" y="55" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="700" font-size="16" fill="rgba(255,255,255,0.5)">${T('diceClickHint')}</text>
       <text x="50" y="24" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,0.4)">★</text>
       <text x="198" y="24" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,0.4)">★</text>
     </svg>`;
@@ -3095,7 +3624,7 @@ function rollDice(uid){
         setTimeout(()=>{wrap.style.transform='';},180);
       },130);
     }
-    if(res) res.textContent=`Ergebnis: ${euros} €`;
+    if(res) res.textContent=`${T('diceErgebnis')}: ${euros} €`;
     return;
   }
   const tnum=parseInt(type||6);
@@ -3125,7 +3654,7 @@ function rollDice(uid){
       setTimeout(()=>{wrap.style.transform='';},180);
     },130);
   }
-  if(res) res.textContent=`Ergebnis: ${results[0]}`;
+  if(res) res.textContent=`${T('diceErgebnis')}: ${results[0]}`;
 }
 
 // Roll Jein-mode result and show it in the dice widget's display area
@@ -3145,7 +3674,9 @@ function rollJeinInDice(uid){
   if(mode==='text'){
     // Ja/Nein: kein Ton
     const ja=Math.random()<0.5;
-    const txt=ja?'JA':'NEIN';
+    const jaLabel = currentLanguage==='ja' ? 'はい' : 'JA';
+    const neinLabel = currentLanguage==='ja' ? 'いいえ' : 'NEIN';
+    const txt=ja?jaLabel:neinLabel;
     const col=ja?'#4ade80':'#f87171';
     wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:${col}20;border:3px solid ${col};"><span style="font-size:clamp(2em,8vw,4em);font-weight:900;color:${col};">${txt}</span></div>`;
     if(res) res.textContent=txt;
@@ -3160,7 +3691,9 @@ function rollJeinInDice(uid){
 
   } else if(mode==='color'){
     // Kein Ton
-    const COLORS=[{name:'Rot',hex:'#ef4444'},{name:'Grün',hex:'#22c55e'},{name:'Blau',hex:'#3b82f6'},{name:'Gelb',hex:'#eab308'},{name:'Orange',hex:'#f97316'},{name:'Lila',hex:'#a855f7'},{name:'Rosa',hex:'#ec4899'},{name:'Türkis',hex:'#06b6d4'},{name:'Weiß',hex:'#f8fafc'},{name:'Schwarz',hex:'#1e293b'}];
+    const COLOR_DE=[{name:'Rot',hex:'#ef4444'},{name:'Grün',hex:'#22c55e'},{name:'Blau',hex:'#3b82f6'},{name:'Gelb',hex:'#eab308'},{name:'Orange',hex:'#f97316'},{name:'Lila',hex:'#a855f7'},{name:'Rosa',hex:'#ec4899'},{name:'Türkis',hex:'#06b6d4'},{name:'Weiß',hex:'#f8fafc'},{name:'Schwarz',hex:'#1e293b'}];
+    const COLOR_JA=[{name:'赤',hex:'#ef4444'},{name:'緑',hex:'#22c55e'},{name:'青',hex:'#3b82f6'},{name:'黄',hex:'#eab308'},{name:'橙',hex:'#f97316'},{name:'紫',hex:'#a855f7'},{name:'ピンク',hex:'#ec4899'},{name:'水色',hex:'#06b6d4'},{name:'白',hex:'#f8fafc'},{name:'黒',hex:'#1e293b'}];
+    const COLORS=currentLanguage==='ja'?COLOR_JA:COLOR_DE;
     const c=COLORS[Math.floor(Math.random()*COLORS.length)];
     const showName=jeinState[uid]?.colorShowName===true; // default: versteckt
     const textColor=c.hex==='#f8fafc'||c.hex==='#eab308'?'#1e293b':'#fff';
@@ -3212,9 +3745,9 @@ const pickedMap={};
 function buildNames(body,uid){
   pickedMap[uid]=[];
   body.innerHTML=`
-<div class="name-disp" id="namedisp-${uid}" onclick="pickName(${uid})" title="Klicken zum Ziehen" style="font-size:2.8em;font-weight:400;text-align:center;color:#ffffff;min-height:1.2em;transition:all .25s;margin:.2em 0 .5em;line-height:1.1;font-family:'Arial',sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer;">–</div>
+<div class="name-disp" id="namedisp-${uid}" onclick="pickName(${uid})" title="Klicken zum Ziehen" style="font-size:2.8em;font-weight:400;text-align:center;color:rgba(255,255,255,0.35);min-height:1.2em;transition:all .25s;margin:.2em 0 .5em;line-height:1.1;font-family:'Arial',sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer;">${T('namesHierKlicken')}</div>
 <div id="namelist-wrap-${uid}">
-<textarea id="namelist-${uid}" rows="5" placeholder="Namen (je eine Zeile)"
+<textarea id="namelist-${uid}" rows="5" placeholder="${T('namesPlaceholder')}"
   style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.45em .75em;font-size:13px;font-family:'Arial',sans-serif;width:100%;resize:vertical;">Anna
 Ben
 Clara
@@ -3226,20 +3759,42 @@ Hannah
 Jonas
 Lea</textarea>
 </div>
-<div style="display:flex;gap:.6em;align-items:center;flex-wrap:wrap;margin-top:.6em;">
-  <button class="wbtn primary" style="flex:1;font-size:13px;" onclick="pickName(${uid})">🎲 Ziehen</button>
-  <button class="wbtn" style="font-size:13px;" onclick="resetNames(${uid})">↺ Reset</button>
-  <button class="wbtn" style="font-size:13px;" id="togglelist-${uid}" onclick="toggleNameList(${uid})" title="Liste ein-/ausblenden">👁</button>
-</div>
 <div id="namesleft-${uid}" style="font-size:12px;color:var(--text2);text-align:center;margin-top:.4em;"></div>`;
+
+  // "Liste"- und "Reset"-Button in den Widget-Header einfuegen (vor den Standard-Buttons)
+  const widget=body.closest('.widget');
+  if(widget){
+    // Namen-Widget immer auf Inhalt-Hoehe schrumpfen
+    widget.classList.add('fit-content');
+    widget.style.height='';
+    const whBtns=widget.querySelector('.wh-btns');
+    if(whBtns){
+      const resetBtn=document.createElement('button');
+      resetBtn.className='wh-btn';
+      resetBtn.style.color='#ffffff';
+      resetBtn.title='Zurücksetzen';
+      resetBtn.textContent=T('namesResetKurz');
+      resetBtn.onclick=()=>resetNames(uid);
+      whBtns.insertBefore(resetBtn,whBtns.firstChild);
+
+      const listBtn=document.createElement('button');
+      listBtn.className='wh-btn';
+      listBtn.style.color='#ffffff';
+      listBtn.id='togglelist-'+uid;
+      listBtn.title='Liste ein-/ausblenden';
+      listBtn.textContent=T('namesListe');
+      listBtn.onclick=()=>toggleNameList(uid);
+      whBtns.insertBefore(listBtn,whBtns.firstChild);
+    }
+  }
 }
 function toggleNameList(uid){
   const wrap=document.getElementById('namelist-wrap-'+uid);
-  const btn=document.getElementById('togglelist-'+uid);
   if(!wrap)return;
   const hidden=wrap.style.display==='none';
   wrap.style.display=hidden?'':'none';
-  if(btn) btn.textContent=hidden?'👁':'🙈';
+  const btn=document.getElementById('togglelist-'+uid);
+  if(btn) btn.textContent=T('namesListe');
 }
 function pickName(uid){
   try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
@@ -3248,7 +3803,6 @@ function pickName(uid){
   const btn=document.getElementById('togglelist-'+uid);
   if(wrap && wrap.style.display!=='none'){
     wrap.style.display='none';
-    if(btn) btn.textContent='🙈';
   }
   const list=document.getElementById('namelist-'+uid)?.value.split('\n').map(s=>s.trim()).filter(Boolean)||[];
   if(!list.length) return;
@@ -3260,11 +3814,12 @@ function pickName(uid){
     pickedMap[uid]=[];
     picked=[];
     rem=[...list];
-    if(left) left.textContent='🔄 Neue Runde!';
+    if(left) left.textContent=T('namesNeuRunde');
   }
   const name=rem[Math.floor(Math.random()*rem.length)];
   (pickedMap[uid]=pickedMap[uid]||[]).push(name);
   if(disp){
+    disp.style.color='#ffffff';
     disp.style.opacity='0';disp.style.transform='scale(.8)';
     // Scale font based on widget width AND name length so full name always fits
     const widget=document.getElementById('body-'+uid)?.closest?.('.widget');
@@ -3284,8 +3839,8 @@ function pickName(uid){
     disp.style.transition='all .2s';
   }
   const remAfter=list.filter(n=>!(pickedMap[uid]||[]).includes(n));
-  if(left && left.textContent!=='🔄 Neue Runde!') left.textContent=`${remAfter.length} von ${list.length} verbleibend`;
-  else if(left && left.textContent==='🔄 Neue Runde!') setTimeout(()=>{if(left) left.textContent=`${remAfter.length} von ${list.length} verbleibend`;},1200);
+  if(left && left.textContent!==T('namesNeuRunde')) left.textContent=`${T('namesVerbleibend')} ${remAfter.length} ${T('namesVerbleibend2')} ${list.length}`;
+  else if(left && left.textContent===T('namesNeuRunde')) setTimeout(()=>{if(left) left.textContent=`${T('namesVerbleibend')} ${remAfter.length} ${T('namesVerbleibend2')} ${list.length}`;},1200);
 }
 function resetNames(uid){
   pickedMap[uid]=[];
@@ -3342,7 +3897,7 @@ function buildDraw(body,uid){
       <option value="60">60</option>
     </select>
     <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
-    <span style="font-size:10px;color:var(--text2);">Auf Zeichenfläche klicken → tippen</span>
+    <span style="font-size:10px;color:var(--text2);">${T('drawKlicken')}</span>
   </div>
   <!-- Size (pen/marker) -->
   <select id="dtool-sz-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:12px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" onchange="drawStates[${uid}].sz=parseInt(this.value)" title="Stiftgröße">
@@ -3591,39 +4146,39 @@ function buildCardMixer(body,uid){
   body.style.flexDirection='column';
   body.style.gap='8px';
   body.innerHTML=`
-    <div style="font-weight:900;font-size:1.08em;color:var(--accent);">🎴 Karten-Mixer offline</div>
-    <div style="font-size:.86em;color:var(--text2);line-height:1.45;">20 Karten sind vorbereitet. In der heutigen Klasse werden nur die Karten 1 bis zur eingestellten Zahl benutzt.</div>
+    <div style="font-weight:900;font-size:1.08em;color:var(--accent);">${T('kartenMixerTitle')}</div>
+    <div style="font-size:.86em;color:var(--text2);line-height:1.45;">${T('kartenMixerDesc')}</div>
 
     <div class="classroom-box">
-      <div style="font-weight:900;margin-bottom:6px;">Heute benutzt</div>
+      <div style="font-weight:900;margin-bottom:6px;">${T('kartenHeuteBenutzt')}</div>
       <div class="row" style="margin-top:0;align-items:center;">
-        <label style="font-size:.88em;color:var(--text2);font-weight:800;">Anzahl Karten / Schüler</label>
+        <label style="font-size:.88em;color:var(--text2);font-weight:800;">${T('kartenAnzahl')}</label>
         <input class="winput" id="cardmixer-count-${uid}" type="number" min="1" max="20" value="6" inputmode="numeric" style="width:92px;text-align:center;font-size:1.35em;font-weight:900;" oninput="cardMixerSetCount(${uid})">
         <button class="wbtn" onclick="cardMixerMinus(${uid})">−</button>
         <button class="wbtn" onclick="cardMixerPlus(${uid})">＋</button>
       </div>
-      <div style="margin-top:8px;font-size:.82em;color:var(--text2);">Aktiv: <b>Karten 1–<span id="cardmixer-active-max-${uid}">6</span></b></div>
+      <div style="margin-top:8px;font-size:.82em;color:var(--text2);">${T('kartenAktiv')}<b>${T('kartenBis')}<span id="cardmixer-active-max-${uid}">6</span></b></div>
       <div id="cardmixer-active-${uid}" style="margin-top:6px;"></div>
     </div>
 
     <div class="classroom-box">
-      <div style="font-weight:900;margin-bottom:6px;">Mischen</div>
+      <div style="font-weight:900;margin-bottom:6px;">${T('kartenMischen')}</div>
       <div class="row" style="margin-top:0;">
-        <button id="cardmixer-pairs-${uid}" class="wbtn primary" onclick="cardMixerPairs(${uid})">🤝 Paare mischen</button>
-        <button id="cardmixer-groups3-${uid}" class="wbtn" onclick="cardMixerGroups3(${uid})">3er-Gruppen</button>
-        <button id="cardmixer-repeat-${uid}" class="wbtn" onclick="cardMixerRepeat(${uid})">🔀 Neu mischen</button>
-        <button id="cardmixer-full-${uid}" class="wbtn primary cardmixer-full-btn" onclick="showCardMixerFullscreen(${uid})">📺 Vollbild</button>
+        <button id="cardmixer-pairs-${uid}" class="wbtn primary" onclick="cardMixerPairs(${uid})">${T('kartenPaare')}</button>
+        <button id="cardmixer-groups3-${uid}" class="wbtn" onclick="cardMixerGroups3(${uid})">${T('kartenGruppen3')}</button>
+        <button id="cardmixer-repeat-${uid}" class="wbtn" onclick="cardMixerRepeat(${uid})">${T('kartenNeuMischen')}</button>
+        <button id="cardmixer-full-${uid}" class="wbtn primary cardmixer-full-btn" onclick="showCardMixerFullscreen(${uid})">${T('kartenVollbild')}</button>
       </div>
-      <div style="font-size:.8em;color:var(--text2);margin-top:7px;line-height:1.45;">Bei ungerader Zahl wird beim Paar-Modus automatisch eine Dreiergruppe gebildet.</div>
+      <div style="font-size:.8em;color:var(--text2);margin-top:7px;line-height:1.45;">${T('kartenOdd')}</div>
     </div>
 
     <div class="classroom-box">
-      <div style="font-weight:900;margin-bottom:6px;">Ergebnis für die Tafel</div>
-      <div id="cardmixer-result-${uid}" class="cardmixer-result" style="margin-top:6px;color:var(--text);">Noch nicht gemischt.</div>
+      <div style="font-weight:900;margin-bottom:6px;">${T('kartenErgebnis')}</div>
+      <div id="cardmixer-result-${uid}" class="cardmixer-result" style="margin-top:6px;color:var(--text);">${T('kartenNochNicht')}</div>
     </div>
 
     <details class="classroom-box">
-      <summary style="cursor:pointer;font-weight:900;">Alle 20 Karten anzeigen</summary>
+      <summary style="cursor:pointer;font-weight:900;">${T('kartenAlle')}</summary>
       <div id="cardmixer-all-${uid}" style="margin-top:8px;"></div>
     </details>`;
   cardMixerRender(uid);
@@ -3791,10 +4346,10 @@ setTimeout(liveRoomStart,100);
 // ════════════════════════════════════════════════
 function buildQR(body,uid){
   body.innerHTML=`
-<input class="winput" type="text" id="qrurl-${uid}" value="https://deutschtrautmann.github.io/tafel/" placeholder="URL oder Text...">
-<div class="row"><button class="wbtn primary" style="flex:1" onclick="genQR(${uid})">📱 QR-Code erstellen</button></div>
+<input class="winput" type="text" id="qrurl-${uid}" value="https://deutschtrautmann.github.io/tafel/" placeholder="${T('qrPlaceholder')}">
+<div class="row"><button class="wbtn primary" style="flex:1" onclick="genQR(${uid})">${T('qrCreate')}</button></div>
 <canvas class="qr-canvas" id="qrcanvas-${uid}" width="180" height="180"></canvas>
-<div style="font-size:.8em;color:var(--text2);text-align:center;margin-top:.3em;">Schüler*innen können den Code scannen</div>`;
+<div style="font-size:.8em;color:var(--text2);text-align:center;margin-top:.3em;">${T('qrHint')}</div>`;
   loadQRious(()=>setTimeout(()=>genQR(uid),60));
 }
 function loadQRious(cb){
@@ -3824,11 +4379,11 @@ function buildTextpad(body,uid){
     <option value="'Courier New',monospace">Monospace</option>
   </select>
   <select style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;" onchange="setTPSize(${uid},this.value)">
-    <option value="13px">Klein</option>
-    <option value="16px" selected>Normal</option>
-    <option value="20px">Groß</option>
-    <option value="26px">Sehr groß</option>
-    <option value="36px">Riesig</option>
+    <option value="13px">${T('textKlein')}</option>
+    <option value="16px" selected>${T('textNormal')}</option>
+    <option value="20px">${T('textGross')}</option>
+    <option value="26px">${T('textSehrGross')}</option>
+    <option value="36px">${T('textRiesig')}</option>
   </select>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
   <button id="tp-bold-${uid}" onmousedown="tpFormat(event,${uid},'bold')"
@@ -3841,13 +4396,14 @@ function buildTextpad(body,uid){
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Löschen" onclick="document.getElementById('textpad-${uid}').innerHTML='';updateTPCounter(${uid})">🗑</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Kopieren" onclick="navigator.clipboard?.writeText(document.getElementById('textpad-${uid}').innerText)">📋</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Als RTF speichern" onclick="saveTPasRtf(${uid})">💾 RTF</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Als TXT speichern" onclick="saveTPasTxt(${uid})">💾 TXT</button>
 </div>
 <div style="font-size:11px;color:var(--text2);text-align:right;" id="tp-counter-${uid}">0 Wörter · 0 Zeichen</div>
 <div
   id="textpad-${uid}"
   contenteditable="true"
   spellcheck="true"
-  data-placeholder="Text hier eingeben oder einfügen…"
+  data-placeholder="${T('textPlaceholder')}"
   style="flex:1;min-height:120px;background:#ffffff;border:1px solid rgba(0,0,0,0.15);color:#111111;border-radius:10px;padding:.7em;font-size:16px;font-family:'Arial',sans-serif;font-weight:normal;line-height:1.6;overflow-y:auto;outline:none;cursor:text;white-space:pre-wrap;"
   oninput="updateTPCounter(${uid})"
   onkeydown="handleTPKeydown(event,${uid})"
@@ -3887,7 +4443,7 @@ function updateTPCounter(uid){
   const txt=el.innerText||'';
   const chars=txt.length;
   const words=txt.trim()===''?0:txt.trim().split(/\s+/).length;
-  ctr.textContent=`${words} Wort${words!==1?'e':''} · ${chars} Zeichen`;
+  ctr.textContent=`${words} ${words!==1?T('textWoerterPl'):T('textWoerter')} · ${chars} ${T('textZeichen')}`;
 }
 function saveTPasRtf(uid){
   const el=document.getElementById('textpad-'+uid);
@@ -3951,6 +4507,17 @@ ${body}
   a.click();
   URL.revokeObjectURL(a.href);
 }
+function saveTPasTxt(uid){
+  const el=document.getElementById('textpad-'+uid);
+  if(!el) return;
+  const text=el.innerText||'';
+  const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
+  const a=document.createElement('a');
+  a.download='text.txt';
+  a.href=URL.createObjectURL(blob);
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
 function handleTPKeydown(e,uid){
   if((e.ctrlKey||e.metaKey)&&(e.key==='b'||e.key==='B')){e.preventDefault();document.execCommand('bold',false,null);updateTPBtnStates(uid);}
   if((e.ctrlKey||e.metaKey)&&(e.key==='i'||e.key==='I')){e.preventDefault();document.execCommand('italic',false,null);updateTPBtnStates(uid);}
@@ -3974,11 +4541,11 @@ function buildJein(body,uid){
   <span style="font-size:2em;color:var(--text2);opacity:.4;">?</span>
 </div>
 <div style="display:flex;gap:.35em;justify-content:center;margin-bottom:.6em;flex-wrap:wrap;">
-  <button class="jein-mode-btn active-jmode" id="jmbtn-text-${uid}" onclick="setJeinMode('text',${uid})" title="Ja/Nein Text">Ja/Nein</button>
-  <button class="jein-mode-btn" id="jmbtn-smiley-${uid}" onclick="setJeinMode('smiley',${uid})" title="Smiley">😊</button>
-  <button class="jein-mode-btn" id="jmbtn-ampel-${uid}" onclick="setJeinMode('ampel',${uid})" title="Ampel">🚦</button>
-  <button class="jein-mode-btn" id="jmbtn-color-${uid}" onclick="setJeinMode('color',${uid})" title="Farbe">🎨</button>
-  <button class="jein-mode-btn" id="jmbtn-janken-${uid}" onclick="setJeinMode('janken',${uid})" title="Janken">✂️</button>
+  <button class="jein-mode-btn active-jmode" id="jmbtn-text-${uid}" onclick="setJeinMode('text',${uid})" title="Ja/Nein">${T('jeinText')}</button>
+  <button class="jein-mode-btn" id="jmbtn-smiley-${uid}" onclick="setJeinMode('smiley',${uid})" title="Smiley">${T('jeinSmiley')}</button>
+  <button class="jein-mode-btn" id="jmbtn-ampel-${uid}" onclick="setJeinMode('ampel',${uid})" title="Ampel">${T('jeinAmpel')}</button>
+  <button class="jein-mode-btn" id="jmbtn-color-${uid}" onclick="setJeinMode('color',${uid})" title="Farbe">${T('jeinFarbe')}</button>
+  <button class="jein-mode-btn" id="jmbtn-janken-${uid}" onclick="setJeinMode('janken',${uid})" title="Janken">${T('jeinJanken')}</button>
 </div>
 <div id="jein-janken-btns-${uid}" style="display:none;justify-content:center;gap:.4em;margin-bottom:.5em;">
   ${SSP_CHOICES.map(c=>`<button onclick="playJanken('${c.id}',${uid})" style="background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:.45em .7em;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.15em;" onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(108,143,255,0.15)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.background='rgba(255,255,255,0.07)'">
@@ -3986,7 +4553,7 @@ function buildJein(body,uid){
     <span style="font-size:.65em;font-weight:700;color:var(--text2);">${c.label}</span>
   </button>`).join('')}
 </div>
-<button class="wbtn primary" id="jein-roll-btn-${uid}" style="width:100%;font-size:1.1em;padding:.5em;" onclick="rollJein(${uid})">🎲 Entscheiden!</button>`;
+<button class="wbtn primary" id="jein-roll-btn-${uid}" style="width:100%;font-size:1.1em;padding:.5em;" onclick="rollJein(${uid})">${T('jeinRoll')}</button>`;
 }
 
 // Smiley-Modus: nur die Gesichter aus „Befinden"
@@ -4078,7 +4645,7 @@ function showAmpelState(uid, state){
   </div>`;
   if(wrap) wrap.innerHTML=svgHTML;
   if(disp){ disp.style.background='rgba(0,0,0,0.3)'; disp.innerHTML=svgHTML; }
-  const labels={rot:'Rot',gelb:'Gelb',gruen:'Grün'};
+  const labels=currentLanguage==='ja'?{rot:'赤',gelb:'黄',gruen:'緑'}:{rot:'Rot',gelb:'Gelb',gruen:'Grün'};
   if(res) res.textContent=labels[state]||state;
 }
 
@@ -4132,7 +4699,7 @@ disp.style.transform='scale(0.8)';disp.style.opacity='0';
     if(mode==='text'){
       try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
       disp.style.background=yes?'rgba(74,222,128,0.15)':'rgba(248,113,113,0.15)';
-      disp.innerHTML=`<span style="font-size:3.5em;font-weight:900;color:${yes?'#4ade80':'#f87171'};letter-spacing:2px;">${yes?'JA':'NEIN'}</span>`;
+      disp.innerHTML=`<span style="font-size:3.5em;font-weight:900;color:${yes?'#4ade80':'#f87171'};letter-spacing:2px;">${yes?(currentLanguage==='ja'?'はい':'JA'):(currentLanguage==='ja'?'いいえ':'NEIN')}</span>`;
     } else if(mode==='smiley'){
       try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
       const allSmileys=BEFINDEN_SMILEYS.map(s=>s.emoji);
@@ -4166,29 +4733,29 @@ function buildWas(body,uid){
   body.innerHTML=`
 <!-- Mode tabs -->
 <div style="display:flex;gap:3px;margin-bottom:.5em;background:rgba(0,0,0,0.25);border-radius:8px;padding:3px;">
-  <button id="wastab-mosaic-${uid}" class="timer-mode-btn active-tmode" onclick="setWasMode('mosaic',${uid})">🔲 Mosaik</button>
-  <button id="wastab-blur-${uid}" class="timer-mode-btn" onclick="setWasMode('blur',${uid})">🌫 Verschwommen</button>
-  <button id="wastab-kaese-${uid}" class="timer-mode-btn" onclick="setWasMode('kaese',${uid})">🧀 Käse</button>
+  <button id="wastab-mosaic-${uid}" class="timer-mode-btn active-tmode" onclick="setWasMode('mosaic',${uid})">${T('wasMosaik')}</button>
+  <button id="wastab-blur-${uid}" class="timer-mode-btn" onclick="setWasMode('blur',${uid})">${T('wasVerschwommen')}</button>
+  <button id="wastab-kaese-${uid}" class="timer-mode-btn" onclick="setWasMode('kaese',${uid})">${T('wasKaese')}</button>
 </div>
 <div id="was-upload-${uid}" style="text-align:center;">
   <div class="bg-upload-zone" onclick="document.getElementById('was-file-${uid}').click()" style="padding:20px 10px;">
     <input type="file" id="was-file-${uid}" accept="image/*" multiple style="display:none" onchange="loadWasImages(${uid},this.files)">
     <div style="font-size:32px;margin-bottom:6px;">🖼</div>
-    <div style="font-weight:700;font-size:.9em;">Fotos hier hochladen</div>
-    <div style="font-size:11px;margin-top:3px;color:var(--text2);">Mehrere Fotos möglich – werden schrittweise enthüllt</div>
+    <div style="font-weight:700;font-size:.9em;">${T('wasUploadHint')}</div>
+    <div style="font-size:11px;margin-top:3px;color:var(--text2);">${T('wasUploadSub')}</div>
   </div>
 </div>
 <div id="was-canvas-wrap-${uid}" style="display:none;flex:1;flex-direction:column;gap:6px;">
   <!-- Photo nav bar (visible only when >1 photo) -->
   <div id="was-nav-${uid}" style="display:none;align-items:center;gap:6px;background:rgba(0,0,0,0.25);border-radius:8px;padding:4px 8px;">
     <button class="wbtn" onclick="wasGoPrev(${uid})" id="was-prev-${uid}" style="padding:.3em .7em;font-size:.85em;">◀</button>
-    <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;">Foto 1 / 1</div>
-    <button class="wbtn primary" onclick="wasGoNext(${uid})" id="was-next-${uid}" style="padding:.3em .9em;font-size:.85em;">Weiter ▶</button>
+    <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;">${T('wasFoto')} 1 / 1</div>
+    <button class="wbtn primary" onclick="wasGoNext(${uid})" id="was-next-${uid}" style="padding:.3em .9em;font-size:.85em;">${T('wasWeiter')}</button>
   </div>
   <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasRevealMore(${uid})" title="Klicken zum Enthüllen"></canvas>
   <div style="display:flex;gap:.4em;align-items:center;">
-    <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;">Schritt 1 / 8</div>
-    <button class="wbtn" onclick="wasRevealMore(${uid})" id="was-btn-${uid}">🔍 Feiner</button>
+    <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;">${T('wasSchritt')} 1 / 8</div>
+    <button class="wbtn" onclick="wasRevealMore(${uid})" id="was-btn-${uid}">${T('wasFeiner')}</button>
     <button class="wbtn" onclick="wasReset(${uid})">↺</button>
   </div>
 </div>`;
@@ -4258,9 +4825,9 @@ function wasActivatePhoto(uid, index){
   // Update reveal button label
   const btn=document.getElementById('was-btn-'+uid);
   if(btn){
-    if(s.mode==='blur') btn.textContent='🔍 Schärfer';
-    else if(s.mode==='kaese') btn.textContent='🧀 Mehr zeigen';
-    else btn.textContent='🔍 Feiner';
+    if(s.mode==='blur') btn.textContent=T('wasSchaerfer');
+    else if(s.mode==='kaese') btn.textContent=T('wasMehrZeigen');
+    else btn.textContent=T('wasFeiner');
     btn.disabled=false;
   }
   // Nav bar
@@ -4270,17 +4837,56 @@ function wasActivatePhoto(uid, index){
   const nextBtn=document.getElementById('was-next-'+uid);
   if(s.imgs.length>1){
     nav.style.display='flex';
-    navLabel.textContent=`Foto ${index+1} / ${s.imgs.length}`;
+    navLabel.textContent=`${T('wasFoto')} ${index+1} / ${s.imgs.length}`;
     prevBtn.disabled=(index===0);
     prevBtn.style.opacity=(index===0)?'0.35':'1';
     nextBtn.disabled=(index===s.imgs.length-1);
     nextBtn.style.opacity=(index===s.imgs.length-1)?'0.35':'1';
-    nextBtn.textContent=index===s.imgs.length-1?'✓ Fertig':'Weiter ▶';
+    nextBtn.textContent=index===s.imgs.length-1?T('wasFertig'):T('wasWeiter');
   } else {
     nav.style.display='none';
   }
   // Erst nach dem nächsten Render-Frame messen (wrap ist gerade erst auf display:flex gesetzt)
   requestAnimationFrame(()=>{ _wasSetCanvasSize(); wasRenderStep(uid); });
+
+  // ResizeObserver: Canvas bei Widget-Größenänderung neu berechnen
+  if(!s._resizeObs && window.ResizeObserver){
+    const widget = cv.closest('.widget');
+    if(widget){
+      s._resizeObs = new ResizeObserver(()=>{
+        const st=wasState[uid];
+        if(st&&st.imgs&&st.imgs.length&&st.canvas){
+          wasResizeCanvas(uid);
+          wasRenderStep(uid);
+        }
+      });
+      s._resizeObs.observe(widget);
+    }
+  }
+}
+
+function wasResizeCanvas(uid){
+  const s=wasState[uid];
+  if(!s||!s.imgs||!s.imgs.length||!s.canvas)return;
+  const cv=s.canvas;
+  const img=s.imgs[s.imgIndex]||s.imgs[0];
+  if(!img)return;
+  const bodyEl=cv.closest('.widget-body');
+  const widget=cv.closest('.widget');
+  const topbarH=(document.getElementById('topbar')?.offsetHeight)||68;
+  const bodyW=bodyEl?bodyEl.clientWidth:0;
+  const availW=Math.max(120,bodyW>0?bodyW-16:(widget?widget.offsetWidth-32:400));
+  const hasNav=s.imgs.length>1;
+  const reserved=36+32+(hasNav?42:0)+38+24;
+  const widgetH=widget?widget.offsetHeight:(window.innerHeight-topbarH);
+  const availH=Math.max(80,widgetH-reserved);
+  const scaleW=availW/img.width;
+  const scaleH=availH/img.height;
+  const scale=Math.min(scaleW,scaleH,1);
+  const cw=Math.round(img.width*scale);
+  const ch=Math.round(img.height*scale);
+  cv.width=cw; cv.height=ch;
+  cv.style.width=cw+'px'; cv.style.height=ch+'px';
 }
 
 function wasGoNext(uid){
@@ -4302,9 +4908,9 @@ function setWasMode(mode, uid){
   // Update button label
   const btn = document.getElementById('was-btn-'+uid);
   if(btn && !wasState[uid].revealed){
-    if(mode==='blur') btn.textContent='🔍 Schärfer';
-    else if(mode==='kaese') btn.textContent='🧀 Mehr zeigen';
-    else btn.textContent='🔍 Feiner';
+    if(mode==='blur') btn.textContent=T('wasSchaerfer');
+    else if(mode==='kaese') btn.textContent=T('wasMehrZeigen');
+    else btn.textContent=T('wasFeiner');
     btn.disabled = false;
   }
   if(wasState[uid].imgs&&wasState[uid].imgs.length) wasRenderStep(uid);
@@ -4329,8 +4935,8 @@ function wasRenderStep(uid){
       ctx.drawImage(s.img,0,0,cv.width,cv.height);
       s.revealed=true;
       const btn=document.getElementById('was-btn-'+uid);
-      if(btn){btn.textContent='✓ Enthüllt';btn.disabled=true;}
-      document.getElementById('was-step-'+uid).textContent='Vollständig enthüllt!';
+      if(btn){btn.textContent=T('wasEnthuellung');btn.disabled=true;}
+      document.getElementById('was-step-'+uid).textContent=T('wasVollstaendig');
       return;
     }
 
@@ -4370,7 +4976,7 @@ function wasRenderStep(uid){
     ctx.drawImage(mask,0,0);
 
     const stepDisp=document.getElementById('was-step-'+uid);
-    if(stepDisp) stepDisp.textContent=`Schritt ${s.step+1} / ${s.maxSteps}`;
+    if(stepDisp) stepDisp.textContent=T('wasSchritt')+' '+(s.step+1)+' / '+s.maxSteps;
     return;
   }
 
@@ -4384,12 +4990,12 @@ function wasRenderStep(uid){
     if(blurPx===0){
       s.revealed=true;
       const btn=document.getElementById('was-btn-'+uid);
-      if(btn){btn.textContent='✓ Enthüllt';btn.disabled=true;}
-      document.getElementById('was-step-'+uid).textContent='Vollständig enthüllt!';
+      if(btn){btn.textContent=T('wasEnthuellung');btn.disabled=true;}
+      document.getElementById('was-step-'+uid).textContent=T('wasVollstaendig');
       return;
     }
     const stepDisp=document.getElementById('was-step-'+uid);
-    if(stepDisp) stepDisp.textContent=`Schärfe ${s.step+1} / ${s.maxSteps}`;
+    if(stepDisp) stepDisp.textContent=T('wasSchaerfe')+' '+(s.step+1)+' / '+s.maxSteps;
     return;
   }
 
@@ -4401,8 +5007,8 @@ function wasRenderStep(uid){
     ctx.drawImage(s.img,0,0,cv.width,cv.height);
     s.revealed=true;
     const btn=document.getElementById('was-btn-'+uid);
-    if(btn){btn.textContent='✓ Enthüllt';btn.disabled=true;}
-    document.getElementById('was-step-'+uid).textContent='Vollständig enthüllt!';
+    if(btn){btn.textContent=T('wasEnthuellung');btn.disabled=true;}
+    document.getElementById('was-step-'+uid).textContent=T('wasVollstaendig');
     return;
   }
 
@@ -4417,7 +5023,7 @@ function wasRenderStep(uid){
   ctx.imageSmoothingEnabled=true;
 
   const stepDisp=document.getElementById('was-step-'+uid);
-  if(stepDisp) stepDisp.textContent=`Schritt ${s.step+1} / ${s.maxSteps}`;
+  if(stepDisp) stepDisp.textContent=T('wasSchritt')+' '+(s.step+1)+' / '+s.maxSteps;
 }
 
 function wasRevealMore(uid){
@@ -4432,9 +5038,9 @@ function wasReset(uid){
   s.step=0; s.revealed=false;
   const btn=document.getElementById('was-btn-'+uid);
   if(btn){
-    if(s.mode==='blur') btn.textContent='🔍 Schärfer';
-    else if(s.mode==='kaese') btn.textContent='🧀 Mehr zeigen';
-    else btn.textContent='🔍 Feiner';
+    if(s.mode==='blur') btn.textContent=T('wasSchaerfer');
+    else if(s.mode==='kaese') btn.textContent=T('wasMehrZeigen');
+    else btn.textContent=T('wasFeiner');
     btn.disabled=false;
   }
   // Reset to first photo
@@ -4481,6 +5087,69 @@ function showBefinden(uid, idx){
 // ════════════════════════════════════════════════
 // JANKEN (Schere Stein Papier) – integriert in Jein
 // ════════════════════════════════════════════════
+
+function playDrumRoll(durationMs){
+  try{
+    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    const totalSec=durationMs/1000;
+    // Snare-like noise bursts, accelerating
+    let t=ac.currentTime+0.02;
+    let interval=0.18;
+    while(t<ac.currentTime+totalSec){
+      const buf=ac.createBuffer(1,ac.sampleRate*0.04,ac.sampleRate);
+      const data=buf.getChannelData(0);
+      for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.exp(-i/(ac.sampleRate*0.015));
+      const src=ac.createBufferSource();
+      src.buffer=buf;
+      const g=ac.createGain();
+      g.gain.setValueAtTime(0.45,t);
+      g.gain.linearRampToValueAtTime(0,t+0.04);
+      src.connect(g);g.connect(ac.destination);
+      src.start(t);
+      // accelerate: reduce interval toward end
+      const progress=((t-ac.currentTime)/totalSec);
+      interval=Math.max(0.04,0.18-progress*0.14);
+      t+=interval;
+    }
+    // Final bass drum hit
+    const osc=ac.createOscillator();
+    const gFinal=ac.createGain();
+    osc.frequency.setValueAtTime(150,t);
+    osc.frequency.exponentialRampToValueAtTime(40,t+0.2);
+    gFinal.gain.setValueAtTime(0.7,t);
+    gFinal.gain.linearRampToValueAtTime(0,t+0.25);
+    osc.connect(gFinal);gFinal.connect(ac.destination);
+    osc.start(t);osc.stop(t+0.3);
+  }catch(e){}
+}
+
+function playBoing(){
+  try{
+    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    const t=ac.currentTime;
+    const osc=ac.createOscillator();
+    const g=ac.createGain();
+    osc.type='sine';
+    osc.frequency.setValueAtTime(300,t);
+    osc.frequency.exponentialRampToValueAtTime(80,t+0.5);
+    osc.frequency.exponentialRampToValueAtTime(220,t+0.9);
+    osc.frequency.exponentialRampToValueAtTime(100,t+1.2);
+    g.gain.setValueAtTime(0.6,t);
+    g.gain.setValueAtTime(0.5,t+0.3);
+    g.gain.linearRampToValueAtTime(0,t+1.3);
+    osc.connect(g);g.connect(ac.destination);
+    osc.start(t);osc.stop(t+1.4);
+    // Add slight vibrato for boing effect
+    const lfo=ac.createOscillator();
+    const lfoG=ac.createGain();
+    lfo.frequency.value=8;
+    lfoG.gain.setValueAtTime(0,t);
+    lfoG.gain.linearRampToValueAtTime(30,t+0.2);
+    lfo.connect(lfoG);lfoG.connect(osc.frequency);
+    lfo.start(t);lfo.stop(t+1.4);
+  }catch(e){}
+}
+
 const SSP_CHOICES=[
   {id:'schere',label:'Schere',icon:'✂️',beats:'papier'},
   {id:'stein',label:'Stein',icon:'🪨',beats:'schere'},
@@ -4493,37 +5162,82 @@ function playJanken(playerChoice, uid){
   const disp=document.getElementById('jein-display-'+uid);
   if(!disp||!player)return;
   let outcome, color;
-  if(player.id===comp.id){outcome='Unentschieden!';color='var(--yellow)';}
-  else if(player.beats===comp.id){outcome='Du gewinnst! 🎉';color='var(--green)';}
-  else{outcome='Computer gewinnt 😅';color='var(--red)';}
+  if(player.id===comp.id){outcome=T('jeinUnentschieden');color='var(--yellow)';}
+  else if(player.beats===comp.id){outcome=T('jeinGewinnt');color='var(--green)';}
+  else{outcome=T('jeinVerliert');color='var(--red)';}
 
-  if(outcome.includes('gewinnst')){
-    playSound('Applaus',0.8);
-  } else if(outcome.includes('Computer gewinnt')){
-    playSound('Buzzer',0.8);
-  }
-  
-disp.style.transform='scale(0.8)';disp.style.opacity='0';
+  // Disable buttons during suspense
+  disp.closest('div[style]') && null;
+  const btns=document.querySelectorAll(`[onclick^="playJanken"][onclick*="${uid}"]`);
+  btns.forEach(b=>{b.disabled=true;b.style.opacity='0.4';b.style.pointerEvents='none';});
+
+  // Show suspense screen with question marks
+  disp.style.transform='scale(0.92)';disp.style.opacity='0.7';
   setTimeout(()=>{
     disp.style.transform='scale(1)';disp.style.opacity='1';
-    disp.style.transition='all .25s cubic-bezier(.34,1.56,.64,1)';
-    disp.style.background='rgba(0,0,0,0.2)';
-    disp.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:.3em;">
-      <div style="display:flex;gap:.6em;align-items:center;font-size:2.6em;line-height:1;">
-        <div style="display:flex;flex-direction:column;align-items:center;gap:.1em;">
-          <span title="Du">${player.icon}</span>
-          <span style="font-size:.3em;color:var(--accent);font-weight:700;">Du</span>
-        </div>
-        <span style="font-size:.35em;color:var(--text2);">vs</span>
-        <div style="display:flex;flex-direction:column;align-items:center;gap:.1em;">
-          <span title="Computer">${comp.icon}</span>
-          <span style="font-size:.3em;color:var(--text2);font-weight:700;">PC</span>
+    disp.style.transition='all .2s ease';
+    disp.style.background='rgba(0,0,0,0.22)';
+    disp.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:.5em;">
+      <div style="display:flex;gap:.8em;align-items:center;font-size:3.4em;line-height:1;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.15em;">
+          <span style="font-size:1em;">${player.icon}</span>
+          <span style="font-size:.28em;color:var(--accent);font-weight:700;">${T('jeinDu')}</span>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.15em;">
+          <span style="font-size:1em;animation:jk-spin 0.18s steps(1) infinite" id="jk-q-${uid}">❓</span>
+          <span style="font-size:.28em;color:var(--text2);font-weight:700;">PC</span>
         </div>
       </div>
-      <div style="font-size:.7em;color:var(--text2);">${player.label} vs ${comp.label}</div>
-      <div style="font-size:1em;font-weight:900;color:${color};">${outcome}</div>
+      <div style="font-size:.9em;color:var(--text2);letter-spacing:1px;animation:jk-pulse 0.3s ease infinite alternate;">🥁 ...</div>
     </div>`;
-  },150);
+  }, 80);
+
+  // Add CSS animations if not present
+  if(!document.getElementById('jk-styles')){
+    const s=document.createElement('style');
+    s.id='jk-styles';
+    s.textContent=`
+      @keyframes jk-spin{0%{content:'❓'}25%{content:'✂️'}50%{content:'🪨'}75%{content:'📄'}}
+      @keyframes jk-pulse{from{opacity:.5;transform:scale(0.96)}to{opacity:1;transform:scale(1.04)}}
+      @keyframes jk-reveal{0%{transform:scale(0.5) rotate(-8deg);opacity:0}60%{transform:scale(1.12) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+      @keyframes jk-result{0%{transform:translateY(12px);opacity:0}100%{transform:translateY(0);opacity:1}}
+    `;
+    document.head.appendChild(s);
+  }
+
+  // Play drum roll
+  playDrumRoll(1400);
+
+  // After delay: reveal result
+  setTimeout(()=>{
+    // Play result sound
+    if(outcome===T('jeinUnentschieden')){
+      playBoing();
+    } else if(outcome===T('jeinGewinnt')){
+      playSound('Applaus',0.8);
+    } else {
+      playSound('Buzzer',0.8);
+    }
+
+    disp.style.transition='all .3s cubic-bezier(.34,1.56,.64,1)';
+    disp.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:.55em;">
+      <div style="display:flex;gap:.9em;align-items:center;font-size:3.6em;line-height:1;animation:jk-reveal .4s cubic-bezier(.34,1.56,.64,1) both;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.15em;">
+          <span title="${T('jeinDu')}">${player.icon}</span>
+          <span style="font-size:.28em;color:var(--accent);font-weight:700;">${T('jeinDu')}</span>
+        </div>
+        <span style="font-size:.32em;color:var(--text2);">vs</span>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:.15em;">
+          <span title="Computer" style="animation:jk-reveal .4s .08s cubic-bezier(.34,1.56,.64,1) both;display:inline-block;">${comp.icon}</span>
+          <span style="font-size:.28em;color:var(--text2);font-weight:700;">PC</span>
+        </div>
+      </div>
+      <div style="font-size:.85em;color:var(--text2);animation:jk-result .3s .2s ease both;">${player.label} vs ${comp.label}</div>
+      <div style="font-size:1.25em;font-weight:900;color:${color};animation:jk-result .35s .3s ease both;">${outcome}</div>
+    </div>`;
+
+    // Re-enable buttons
+    btns.forEach(b=>{b.disabled=false;b.style.opacity='';b.style.pointerEvents='';});
+  }, 1500);
 }
 
 // ════════════════════════════════════════════════
@@ -4562,8 +5276,8 @@ function buildSlot(body, uid){
 
   body.innerHTML = `
 <div class="slot-tabbar">
-  <button class="timer-mode-btn active-tmode" id="slot-tab-play-${uid}" onclick="slotShowTab('play',${uid})">&#9654; Spielen</button>
-  <button class="timer-mode-btn" id="slot-tab-edit-${uid}" onclick="slotShowTab('edit',${uid})">&#9999; Wörter</button>
+  <button class="timer-mode-btn active-tmode" id="slot-tab-play-${uid}" onclick="slotShowTab('play',${uid})">&#9654; ${T('slotSpielen').replace('▶ ','')}</button>
+  <button class="timer-mode-btn" id="slot-tab-edit-${uid}" onclick="slotShowTab('edit',${uid})">&#9999; ${T('slotWoerter').replace('✏ ','')}</button>
 </div>
 
 <div id="slot-play-${uid}" class="slot-machine">
@@ -4571,7 +5285,7 @@ function buildSlot(body, uid){
   <div class="slot-scorebar">
     <div class="slot-scorebar-title">
       <span class="slot-score-star" id="slot-star-l-${uid}">&#9733;</span>
-      SPIELSTAND
+      ${T('slotSpielpunkt')}
     </div>
     <div class="slot-score-val" id="slot-pts-${uid}">0 PKT</div>
     <span class="slot-score-star" id="slot-star-r-${uid}">&#9733;</span>
@@ -4597,7 +5311,7 @@ function buildSlot(body, uid){
   <div class="slot-btn-row" id="slot-btn-row-${uid}">
     <button class="slot-btn-stop-main idle" id="slot-btn-stop-${uid}" onclick="slotBigBtn(${uid})">
       <span id="slot-btn-label-${uid}">START</span>
-      <span class="slot-btn-stop-sub" id="slot-btn-sub-${uid}">TIPPEN</span>
+      <span class="slot-btn-stop-sub" id="slot-btn-sub-${uid}">${T('slotTippen')}</span>
     </button>
   </div>
 
@@ -4860,8 +5574,8 @@ function slotMainStart(uid){
   const btnLabel = document.getElementById('slot-btn-label-'+uid);
   const btnSub = document.getElementById('slot-btn-sub-'+uid);
   if(btnStop){ btnStop.classList.remove('idle'); btnStop.disabled=false; }
-  if(btnLabel) btnLabel.textContent='STOP';
-  if(btnSub) btnSub.textContent='ANHALTEN';
+  if(btnLabel) btnLabel.textContent=T('slotStop');
+  if(btnSub) btnSub.textContent=T('slotAnhalten');
   for(let c=0;c<3;c++) document.getElementById('slot-reel-wrap-'+c+'-'+uid)?.classList.remove('reel-win');
   ['l','r'].forEach(side=>{
     const el=document.getElementById('slot-star-'+side+'-'+uid);
@@ -4885,7 +5599,6 @@ function slotMainStop(uid){
     const btnSub = document.getElementById('slot-btn-sub-'+uid);
     if(btnStop){ btnStop.disabled=true; }
     if(btnLabel) btnLabel.textContent='…';
-    if(btnSub) btnSub.textContent='';
   }
 }
 
@@ -4947,8 +5660,8 @@ function slotCheckResult(uid){
   const btnLabel=document.getElementById('slot-btn-label-'+uid);
   const btnSub=document.getElementById('slot-btn-sub-'+uid);
   if(btnStop){ btnStop.disabled=false; btnStop.classList.add('idle'); }
-  if(btnLabel) btnLabel.textContent='NEUES SPIEL';
-  if(btnSub) btnSub.textContent='TIPPEN';
+  if(btnLabel) btnLabel.textContent=T('slotNeuesSpiel');
+  if(btnSub) btnSub.textContent=T('slotTippen');
   s.phase='idle'; s.nextStopReel=0;
 }
 
@@ -4963,11 +5676,11 @@ function buildSpiele(body, uid){
   tabBar.style.cssText='display:flex;gap:6px;align-items:center;padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;';
   ['rad','slot','janken'].forEach((tab,i)=>{
     const icons={rad:'🎡',slot:'🎰',janken:'✂️'};
-    const labels={rad:'Rad',slot:'Slot',janken:'Janken'};
+    const labelKeys={rad:'spieleRad',slot:'spieleSlot',janken:'spieleJanken'};
     const btn=document.createElement('button');
     btn.className='timer-mode-btn'+(i===0?' active-tmode':'');
     btn.id=`spiele-tab-${tab}-${uid}`;
-    btn.textContent=icons[tab]+' '+labels[tab];
+    btn.textContent=icons[tab]+' '+T(labelKeys[tab]);
     btn.onclick=()=>spieleShowTab(tab,uid);
     tabBar.appendChild(btn);
   });
@@ -5003,8 +5716,8 @@ function buildSpiele(body, uid){
   jankenPanel.style.overflow='hidden';
   // display stays 'none' (set by panel creation loop above)
   jankenPanel.innerHTML=`
-<div id="jein-display-${juid}" style="min-height:120px;width:100%;max-width:320px;display:flex;align-items:center;justify-content:center;border-radius:12px;transition:all .3s;background:rgba(0,0,0,0.15);">
-  <span style="font-size:2em;color:var(--text2);opacity:.4;">?</span>
+<div id="jein-display-${juid}" style="min-height:200px;width:100%;max-width:440px;display:flex;align-items:center;justify-content:center;border-radius:16px;transition:all .3s;background:rgba(0,0,0,0.18);">
+  <span style="font-size:3em;color:var(--text2);opacity:.4;">?</span>
 </div>
 <div style="display:flex;gap:.5em;justify-content:center;flex-wrap:wrap;">
   ${SSP_CHOICES.map(c=>`<button onclick="playJanken('${c.id}',${juid})" style="background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.15);border-radius:12px;padding:.6em 1em;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.2em;" onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(108,143,255,0.15)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.background='rgba(255,255,255,0.07)'">
@@ -5090,21 +5803,21 @@ const wheelStates = {};
 function buildWheel(body, uid){
   body.innerHTML = `
     <div class="wheel-box">
-      <div class="wheel-title">🎡 Frage-Rad</div>
-      <div class="wheel-help">Drehen → eine Frage erscheint groß. Alles funktioniert offline.</div>
+      <div class="wheel-title">${T('wheelTitle')}</div>
+      <div class="wheel-help">${T('wheelHelp')}</div>
       <div class="wheel-stage">
         <div class="wheel-pointer" id="wheel-pointer-${uid}" onclick="stopQuestionWheel(${uid})" title="Stoppen"><svg viewBox="0 0 28 36" width="40" height="52" xmlns="http://www.w3.org/2000/svg"><polygon points="14,36 0,0 28,0" fill="#ffffff" filter="url(#ps)"/><defs><filter id="ps" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="rgba(0,0,0,0.55)"/></filter></defs></svg></div>
         <canvas id="wheel-canvas-${uid}" class="wheel-canvas" onclick="spinQuestionWheel(${uid})" style="cursor:pointer;" title="Klicken zum Drehen"></canvas>
       </div>
-      <div id="wheel-result-${uid}" class="wheel-result">Noch nicht gedreht.</div>
+      <div id="wheel-result-${uid}" class="wheel-result">${T('wheelNochNicht')}</div>
       <div class="wheel-controls">
-        <button class="wbtn primary" onclick="spinQuestionWheel(${uid})">🎡 Drehen</button>
-        <button class="wbtn" onclick="toggleWheelEdit(${uid})">✏️ Fragen</button>
+        <button class="wbtn primary" onclick="spinQuestionWheel(${uid})">${T('wheelDrehen')}</button>
+        <button class="wbtn" onclick="toggleWheelEdit(${uid})">${T('wheelFragen')}</button>
       </div>
       <div id="wheel-edit-${uid}" class="wheel-edit">
         <textarea id="wheel-text-${uid}" class="winput" style="height:180px;line-height:1.35;">${WHEEL_QUESTIONS_DEFAULT.join('\n')}</textarea>
         <div class="row" style="justify-content:center;">
-          <button class="wbtn primary" onclick="saveWheelQuestions(${uid})">Übernehmen</button>
+          <button class="wbtn primary" onclick="saveWheelQuestions(${uid})">${T('wheelUebernehmen')}</button>
         </div>
       </div>
     </div>`;
@@ -5153,7 +5866,7 @@ function saveWheelQuestions(uid){
   if(qs.length < 2) return;
   wheelStates[uid].questions = qs;
   wheelStates[uid].selected = -1;
-  document.getElementById('wheel-result-'+uid).textContent = 'Fragen übernommen.';
+  document.getElementById('wheel-result-'+uid).textContent = T('wheelUebernommen');
   drawQuestionWheel(uid);
 }
 
