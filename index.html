@@ -3764,14 +3764,10 @@ Lea</textarea>
   // "Liste"- und "Reset"-Button in den Widget-Header einfuegen (vor den Standard-Buttons)
   const widget=body.closest('.widget');
   if(widget){
-    // Namen-Widget immer auf Inhalt-Hoehe schrumpfen
-    widget.classList.add('fit-content');
-    widget.style.height='';
     const whBtns=widget.querySelector('.wh-btns');
     if(whBtns){
       const resetBtn=document.createElement('button');
       resetBtn.className='wh-btn';
-      resetBtn.style.color='#ffffff';
       resetBtn.title='Zurücksetzen';
       resetBtn.textContent=T('namesResetKurz');
       resetBtn.onclick=()=>resetNames(uid);
@@ -3779,7 +3775,6 @@ Lea</textarea>
 
       const listBtn=document.createElement('button');
       listBtn.className='wh-btn';
-      listBtn.style.color='#ffffff';
       listBtn.id='togglelist-'+uid;
       listBtn.title='Liste ein-/ausblenden';
       listBtn.textContent=T('namesListe');
@@ -3790,10 +3785,24 @@ Lea</textarea>
 }
 function toggleNameList(uid){
   const wrap=document.getElementById('namelist-wrap-'+uid);
+  const btn=document.getElementById('togglelist-'+uid);
   if(!wrap)return;
   const hidden=wrap.style.display==='none';
-  wrap.style.display=hidden?'':'none';
-  const btn=document.getElementById('togglelist-'+uid);
+  const widget=wrap.closest('.widget');
+  if(hidden){
+    // Liste einblenden: gespeicherte Höhe wiederherstellen
+    wrap.style.display='';
+    if(widget){
+      widget.classList.remove('fit-content');
+      const saved=widget.dataset.savedH;
+      if(saved) widget.style.height=saved;
+    }
+  } else {
+    // Liste ausblenden: aktuelle Höhe merken, dann auf Inhalt schrumpfen
+    if(widget) widget.dataset.savedH=widget.style.height||widget.offsetHeight+'px';
+    wrap.style.display='none';
+    if(widget) widget.classList.add('fit-content');
+  }
   if(btn) btn.textContent=T('namesListe');
 }
 function pickName(uid){
@@ -3802,7 +3811,10 @@ function pickName(uid){
   const wrap=document.getElementById('namelist-wrap-'+uid);
   const btn=document.getElementById('togglelist-'+uid);
   if(wrap && wrap.style.display!=='none'){
+    const widget=wrap.closest('.widget');
+    if(widget) widget.dataset.savedH=widget.style.height||widget.offsetHeight+'px';
     wrap.style.display='none';
+    if(widget) widget.classList.add('fit-content');
   }
   const list=document.getElementById('namelist-'+uid)?.value.split('\n').map(s=>s.trim()).filter(Boolean)||[];
   if(!list.length) return;
