@@ -14,6 +14,182 @@
   --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;
   --radius:14px;--shadow:0 8px 32px rgba(0,0,0,0.5);
 }
+body.light-mode{
+  --bg:#f0f2fa;--bg2:#e8ebf7;--bg3:#d8dcef;
+  --card:#ffffff;--card2:#e2e6f8;
+  --accent:#3a6aff;--accent2:#7c5ce8;
+  --text:#1a1f3a;--text2:#5a6390;
+  --shadow:0 8px 32px rgba(0,0,0,0.15);
+}
+body.light-mode #bg-layer{background:var(--bg);background-image:radial-gradient(rgba(58,106,255,0.07) 1px,transparent 1px);background-size:28px 28px;}
+body.light-mode #topbar{background:rgba(240,242,250,0.94);border-bottom:1px solid rgba(0,0,0,0.1);}
+body.light-mode .widget{background:rgba(255,255,255,0.92);border:1px solid rgba(0,0,0,0.1);}
+body.light-mode .widget-header{background:rgba(0,0,0,0.05);border-bottom:1px solid rgba(0,0,0,0.07);}
+body.light-mode .wh-btn{color:var(--text2);}
+body.light-mode .wh-btn:hover{background:rgba(0,0,0,0.07);color:var(--text);}
+body.light-mode .sound-menu{background:var(--card);border-color:rgba(0,0,0,0.1);}
+body.light-mode .sound-opt:hover{background:var(--bg3);}
+body.light-mode #bg-panel{background:var(--card);border-color:rgba(0,0,0,0.1);}
+body.light-mode .bg-upload-zone{border-color:rgba(0,0,0,0.2);color:var(--text2);}
+body.light-mode .bg-upload-zone:hover{border-color:var(--accent);background:rgba(58,106,255,0.05);}
+body.light-mode .sound-divider{background:rgba(0,0,0,0.1);}
+body.light-mode .textpad{background:#fff;color:#111;border-color:rgba(0,0,0,0.15);}
+body.light-mode .winput{background:var(--bg3);border-color:rgba(0,0,0,0.15);color:var(--text);}
+body.light-mode .wbtn{background:var(--bg3);border-color:rgba(0,0,0,0.12);color:var(--text);}
+body.light-mode .wbtn:hover{background:var(--card2);}
+body.light-mode .wbtn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+body.light-mode .tool-btn{background:rgba(0,0,0,0.06);border-color:rgba(0,0,0,0.12);color:var(--text);}
+body.light-mode .tool-btn:hover{background:rgba(0,0,0,0.12);}
+body.light-mode .sound-btn,.light-mode .bg-btn,.light-mode .zumpad-inline{background:var(--bg3);border-color:rgba(0,0,0,0.12);color:var(--text);}
+body.light-mode .sound-btn:hover,.light-mode .bg-btn:hover{background:var(--card2);}
+body.light-mode .sound-preview{background:var(--bg3);color:var(--text2);}
+body.light-mode .sound-preview:hover{background:var(--card2);color:var(--text);}
+body.light-mode .slot-tabbar{background:rgba(0,0,0,0.08);}
+body.light-mode .timer-mode-btn{color:var(--text2);}
+body.light-mode .timer-mode-btn.active-tmode{background:var(--accent);color:#fff;}
+body.light-mode .bg-panel-close{color:var(--text2);}
+body.light-mode .bg-panel-close:hover{background:rgba(0,0,0,0.07);color:var(--text);}
+body.light-mode #empty-hint{color:var(--text2);}
+
+/* ══════════════════════════════════════════════
+   LIGHT MODE — vollständige Überschreibung
+   ══════════════════════════════════════════════ */
+
+/* Widget-Rahmen & Header */
+body.light-mode .widget{
+  background:rgba(255,255,255,0.96)!important;
+  border:1px solid rgba(0,0,0,0.12)!important;
+  box-shadow:0 4px 24px rgba(0,0,0,0.12)!important;
+}
+body.light-mode .widget-header{
+  background:rgba(0,0,0,0.04)!important;
+  border-bottom:1px solid rgba(0,0,0,0.08)!important;
+}
+body.light-mode .widget-title{color:var(--text)!important;}
+body.light-mode .wh-btn{color:var(--text2)!important;}
+body.light-mode .wh-btn:hover{background:rgba(0,0,0,0.07)!important;color:var(--text)!important;}
+body.light-mode .widget-body{color:var(--text)!important;}
+body.light-mode .widget-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15)!important;}
+body.light-mode .resize-handle svg{filter:invert(0.7);}
+
+/* Buttons & Inputs */
+body.light-mode .wbtn{background:var(--bg3)!important;border-color:rgba(0,0,0,0.12)!important;color:var(--text)!important;}
+body.light-mode .wbtn:hover{background:var(--card2)!important;}
+body.light-mode .wbtn.primary{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important;}
+body.light-mode .wbtn.primary:hover{background:#2a5aee!important;}
+body.light-mode .winput{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
+body.light-mode .preset-btn{background:var(--bg3)!important;border-color:rgba(0,0,0,0.1)!important;color:var(--text2)!important;}
+body.light-mode .preset-btn:hover{background:var(--card2)!important;color:var(--text)!important;}
+body.light-mode .timer-mode-btn{color:var(--text2)!important;}
+body.light-mode .timer-mode-btn.active-tmode{background:var(--accent)!important;color:#fff!important;}
+
+/* Namen */
+body.light-mode .name-disp{color:var(--text)!important;text-shadow:none!important;}
+
+/* Timer */
+body.light-mode .timer-disp{color:var(--text)!important;text-shadow:none!important;}
+
+/* Uhr */
+body.light-mode .wclock-time{color:var(--text)!important;}
+body.light-mode .wclock-date{color:var(--text2)!important;}
+
+/* Würfel */
+body.light-mode .dice-result{color:var(--text2)!important;}
+body.light-mode .dice-type-btn{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text2)!important;}
+body.light-mode .dice-type-btn:hover{background:var(--card2)!important;color:var(--text)!important;}
+body.light-mode .dice-type-btn.active-dice{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important;}
+
+/* Zeichnen */
+body.light-mode .draw-tool-btn{background:rgba(0,0,0,0.06)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
+body.light-mode .draw-tool-btn:hover{background:rgba(0,0,0,0.12)!important;}
+body.light-mode .draw-tool-btn.active-tool{background:rgba(58,106,255,0.2)!important;border-color:var(--accent)!important;}
+body.light-mode .color-dot.selected{border-color:#333!important;}
+
+/* Jein */
+body.light-mode .jein-mode-btn{background:var(--bg3)!important;border-color:rgba(0,0,0,0.12)!important;color:var(--text2)!important;}
+body.light-mode .jein-mode-btn:hover{background:var(--card2)!important;color:var(--text)!important;}
+body.light-mode .jein-mode-btn.active-jmode{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important;}
+
+/* Was? */
+body.light-mode [id^="was-step-"]{color:var(--text2)!important;}
+
+/* Slot */
+body.light-mode .slot-tabbar{background:rgba(0,0,0,0.06)!important;}
+body.light-mode [class*="slot-reel"]{background:var(--bg3)!important;border-color:rgba(0,0,0,0.12)!important;color:var(--text)!important;}
+body.light-mode [id^="slot-result"]{color:var(--text)!important;}
+
+/* Spiele */
+body.light-mode .spiele-tab-btn{color:var(--text2)!important;}
+body.light-mode .spiele-tab-btn.active-tmode{background:var(--accent)!important;color:#fff!important;}
+
+/* Wheel */
+body.light-mode .wheel-result{background:var(--bg3)!important;color:var(--text)!important;border-color:rgba(0,0,0,0.12)!important;}
+
+/* Timer ring in light mode */
+body.light-mode [id^="timer-svg-"] circle:first-child{stroke:rgba(0,0,0,0.1)!important;}
+body.light-mode [id^="td-svg-"]{fill:#1a1f3a!important;}
+body.light-mode [id^="timer-svg-"] line{stroke:rgba(0,0,0,0.2)!important;}
+body.light-mode .timer-disp{color:var(--text)!important;text-shadow:none!important;}
+/* Timer mode-bar background */
+body.light-mode [id^="tbtn-ring-"],
+body.light-mode [id^="tbtn-digi-"],
+body.light-mode [id^="tbtn-lauf-"]{color:var(--text2)!important;}
+body.light-mode div[style*="background:rgba(0,0,0,0.25)"]{background:rgba(0,0,0,0.07)!important;}
+
+/* ── Würfel Ampel: Inputs hell ── */
+body.light-mode [id^="ampel-min-"],
+body.light-mode [id^="ampel-max-"]{
+  background:var(--bg3)!important;
+  border-color:rgba(0,0,0,0.15)!important;
+  color:var(--text)!important;
+}
+body.light-mode [id^="ampel-config-"]{color:var(--text2)!important;}
+
+/* ── Slot: nur Gehäuse-Hintergrund hell ── */
+body.light-mode .slot-machine{
+  background:
+    linear-gradient(180deg,rgba(0,0,0,0.1) 0%,transparent 18%,transparent 82%,rgba(0,0,0,0.15) 100%),
+    linear-gradient(160deg,#7a5030 0%,#5e3a18 40%,#523010 70%,#6a4220 100%)!important;
+}
+body.light-mode .slot-btn-row{
+  background:linear-gradient(90deg,#f5e8b0 0%,#fdf3c8 30%,#fff8d6 50%,#fdf3c8 70%,#f5e8b0 100%)!important;
+  border-color:#c8a840!important;
+  box-shadow:
+    0 1px 0 rgba(255,220,100,0.7),
+    0 -1px 0 rgba(180,140,0,0.3),
+    inset 0 2px 6px rgba(200,160,0,0.15),
+    inset 0 -1px 3px rgba(255,200,40,0.2)!important;
+}
+body.light-mode .slot-reels-outer{
+  background:linear-gradient(180deg,#f5e8b0 0%,#fdf3c8 15%,#fff8d6 85%,#f0e090 100%)!important;
+  border-color:#c8a840!important;
+  box-shadow:
+    0 2px 0 rgba(255,220,100,0.6),
+    0 -2px 0 rgba(180,140,0,0.2),
+    inset 0 3px 12px rgba(200,160,0,0.1),
+    inset 0 -3px 10px rgba(200,160,0,0.08)!important;
+}
+body.light-mode .slot-center-line{
+  background:linear-gradient(90deg,transparent,rgba(80,120,220,0.45) 20%,rgba(80,120,220,0.6) 50%,rgba(80,120,220,0.45) 80%,transparent)!important;
+}
+body.light-mode .slot-reel-wrap{background:#c8955a!important;border-color:rgba(120,60,10,0.5)!important;}
+body.light-mode .slot-reel-cell{background:#c8955a!important;color:#fff8e8!important;}
+body.light-mode .slot-reel-sym{background:linear-gradient(135deg,#d4a870,#c8955a,#b87c3a)!important;border-color:rgba(140,80,20,0.4)!important;}
+body.light-mode .slot-edit-textarea{
+  background:var(--bg3)!important;
+  border-color:rgba(0,0,0,0.12)!important;
+  color:var(--text)!important;
+}
+body.light-mode .wheel-edit{background:transparent!important;}
+
+/* Smileys */
+body.light-mode [class*="smiley"]{color:var(--text)!important;}
+
+/* Allgemein Text */
+body.light-mode .widget-body *{color:inherit;}
+body.light-mode .widget .row{color:var(--text)!important;}
+body.light-mode [id^="namesleft-"]{color:var(--text2)!important;}
+body.light-mode [id^="was-step-"]{color:var(--text2)!important;}
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100%;height:100%;min-height:100dvh;overflow:hidden;font-family:'Arial',sans-serif;color:var(--text);}
 
@@ -344,7 +520,7 @@ html,body{width:100%;height:100%;min-height:100dvh;overflow:hidden;font-family:'
   flex-shrink:0;
 }
 .widget-header:active{cursor:grabbing;}
-.widget-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.2px;color:var(--text2);}
+.widget-title{font-size:12px;font-weight:700;text-transform:none;letter-spacing:normal;color:var(--text);font-family:'Arial',sans-serif;}
 .wh-btns{display:flex;gap:3px;}
 .wh-btn{background:none;border:none;color:var(--text2);cursor:pointer;font-size:14px;padding:1px 5px;border-radius:4px;line-height:1;transition:color .15s,background .15s;font-family:'Arial',sans-serif;}
 .wh-btn:hover{color:var(--text);background:rgba(255,255,255,0.1);}
@@ -418,6 +594,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   cursor:pointer;transition:all .15s;
 }
 .timer-mode-btn.active-tmode{background:var(--accent);color:#fff;}
+.spiele-tab-btn{font-size:13px!important;padding:6px 18px!important;border-radius:8px!important;}
 
 
 /* Better resize scaling on phone/tablet */
@@ -546,11 +723,15 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .wheel-box{display:flex!important;flex-direction:column!important;gap:8px!important;height:100%!important;min-height:0!important;}
 .wheel-title{font-size:1.05em!important;font-weight:900!important;color:var(--accent)!important;flex:0 0 auto!important;}
 .wheel-help{font-size:.78em!important;color:var(--text2)!important;line-height:1.25!important;flex:0 0 auto!important;}
-.wheel-stage{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;min-height:0!important;flex:1 1 auto!important;max-height:calc(100% - 170px)!important;}
-.wheel-canvas{width:auto!important;height:auto!important;max-width:100%!important;max-height:100%!important;aspect-ratio:1/1!important;display:block!important;}
+.wheel-title{display:none!important;}
+.wheel-help{display:none!important;}
+.wheel-stage{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;min-height:0!important;flex:1 1 auto!important;max-height:calc(100% - 120px)!important;}
+.wheel-canvas{width:auto!important;height:auto!important;max-width:min(100%,380px)!important;max-height:100%!important;aspect-ratio:1/1!important;display:block!important;}
 .wheel-pointer{left:50%!important;top:-14px!important;transform:translateX(-50%)!important;cursor:pointer!important;user-select:none!important;transition:transform .15s, filter .15s!important;}
 .wheel-pointer.active{transform:translateX(-50%) scale(1.15)!important;filter:brightness(1.45) drop-shadow(0 0 10px rgba(108,143,255,.9))!important;}
-.wheel-result{font-size:1.55em!important;min-height:2.05em!important;padding:.45em!important;flex:0 0 auto!important;}
+.wheel-result{font-size:1.55em!important;min-height:2.05em!important;padding:.45em!important;flex:1 1 auto!important;}
+.wheel-bottom-row{display:flex!important;gap:.5em!important;align-items:stretch!important;flex:0 0 auto!important;}
+.wheel-fragen-btn{flex-shrink:0!important;font-size:1.05em!important;padding:.62em 1.05em!important;}
 .wheel-controls{gap:.5em!important;flex:0 0 auto!important;}
 .wheel-controls .wbtn{font-size:1.05em!important;padding:.62em 1.05em!important;}
 .wheel-edit{flex:0 0 auto!important;}
@@ -593,8 +774,8 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .slot-machine{
   flex:1;min-height:0;
   background:
-    linear-gradient(180deg,rgba(0,0,0,0.35) 0%,transparent 18%,transparent 82%,rgba(0,0,0,0.45) 100%),
-    linear-gradient(160deg,#4a3320 0%,#2e1c08 40%,#261507 70%,#3a2610 100%);
+    linear-gradient(180deg,rgba(0,0,0,0.25) 0%,transparent 18%,transparent 82%,rgba(0,0,0,0.35) 100%),
+    linear-gradient(160deg,#5a3d20 0%,#3e2208 40%,#321a07 70%,#4a3010 100%);
   display:flex;flex-direction:column;
   padding:3% 4% 3%;
   gap:3%;
@@ -613,12 +794,19 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   padding:2% 4%;
   overflow:hidden;
   min-width:0;
-  /* 3D-Rahmen: helle Oberkante, dunkle Unterkante */
   box-shadow:
     0 1px 0 rgba(255,220,100,0.45),
     0 -1px 0 rgba(0,0,0,0.7),
     inset 0 2px 6px rgba(0,0,0,0.6),
     inset 0 -1px 3px rgba(255,180,40,0.12);
+}
+body.light-mode .slot-scorebar{
+  background:linear-gradient(90deg,#f5e8b0 0%,#fdf3c8 30%,#fff8d6 50%,#fdf3c8 70%,#f5e8b0 100%)!important;
+  box-shadow:
+    0 1px 0 rgba(255,220,100,0.7),
+    0 -1px 0 rgba(180,140,0,0.3),
+    inset 0 2px 6px rgba(200,160,0,0.15),
+    inset 0 -1px 3px rgba(255,200,40,0.2)!important;
 }
 .slot-scorebar-title{
   font-weight:900;color:#c8a840;letter-spacing:2px;text-transform:uppercase;
@@ -638,6 +826,15 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   margin-left:6px;
   text-shadow:0 0 10px rgba(240,192,64,0.6),0 1px 3px rgba(0,0,0,0.9);
   box-shadow:inset 0 2px 5px rgba(0,0,0,0.7),inset 0 -1px 2px rgba(255,200,64,0.15),0 1px 0 rgba(255,200,64,0.3);
+}
+body.light-mode .slot-score-val{
+  background:linear-gradient(180deg,#fff8d0,#ffeea0)!important;
+  color:#8a6800!important;
+  border-color:#c8a840!important;
+}
+body.light-mode .slot-scorebar-title{
+  color:#8a6800!important;
+  text-shadow:0 1px 2px rgba(200,160,0,0.3)!important;
 }
 
 /* ── ROLLEN-GEHÄUSE ── */
@@ -660,7 +857,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 /* ── EINZELNE ROLLE — 3D-Look ── */
 .slot-reel-wrap{
   flex:1;min-width:0;
-  background:#f5f5f0;
+  background:#c8955a;
   border-radius:8px;overflow:hidden;
   position:relative;
   /* Außenschatten: Vertiefung im Gehäuse */
@@ -714,8 +911,8 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .slot-reel-cell{
   width:100%;box-sizing:border-box;
   display:flex;align-items:center;justify-content:center;
-  font-weight:900;color:#111;text-align:center;
-  background:#f5f5f0;line-height:1;
+  font-weight:900;color:#fff8e8;text-align:center;
+  background:#c8955a;line-height:1;
   white-space:nowrap;
   overflow:hidden;
   word-break:normal;
@@ -734,10 +931,17 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .slot-btn-row{
   flex-shrink:0;
   display:flex;align-items:center;justify-content:center;gap:4%;
-  /* Feste Mindesthöhe damit der Knopf immer sichtbar groß ist */
   min-height:clamp(72px, 17%, 130px);
   height:clamp(72px, 17%, 130px);
   padding:4px 0;
+  background:linear-gradient(90deg,#111 0%,#1e1e1e 30%,#242424 50%,#1e1e1e 70%,#111 100%);
+  border-radius:12px;
+  border:3px solid #c8a840;
+  box-shadow:
+    0 1px 0 rgba(255,220,100,0.45),
+    0 -1px 0 rgba(0,0,0,0.7),
+    inset 0 2px 6px rgba(0,0,0,0.6),
+    inset 0 -1px 3px rgba(255,180,40,0.12);
 }
 
 /* ── Einheitlicher Knopf: rund, altes Maß (0.90), 3D-Look ── */
@@ -751,57 +955,57 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   transition:box-shadow .12s, transform .1s, filter .1s;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
 
-  /* Roter Grundzustand */
+  /* Rot STOP-Zustand, goldener Rand */
   background:
     radial-gradient(circle at 38% 28%, #ff9090 0%, #e80000 45%, #7a0000 100%);
-  border:none;
-  /* Äußerer Metallring + tiefer Knopf-Schatten */
+  border:3px solid #c8a840;
   box-shadow:
-    0 0 0 5px #3a0000,               /* dunkler Ring */
-    0 0 0 7px rgba(200,60,60,0.35),  /* Leuchtring */
-    0 8px 22px rgba(0,0,0,0.7),      /* Tiefenschatten */
-    inset 0 3px 7px rgba(255,160,160,0.45),  /* helles Highlight oben */
-    inset 0 -4px 8px rgba(0,0,0,0.55);       /* dunkle Basis unten */
+    0 0 0 4px #7a6010,
+    0 0 0 7px rgba(200,168,64,0.5),
+    0 8px 22px rgba(0,0,0,0.6),
+    inset 0 3px 7px rgba(255,160,160,0.45),
+    inset 0 -4px 8px rgba(0,0,0,0.5);
 }
 .slot-btn-stop-main:hover:not(:disabled){
   filter:brightness(1.15);transform:translateY(-3px);
   box-shadow:
-    0 0 0 5px #3a0000,
-    0 0 0 7px rgba(200,60,60,0.5),
-    0 12px 28px rgba(0,0,0,0.65),
+    0 0 0 4px #7a6010,
+    0 0 0 7px rgba(200,168,64,0.7),
+    0 12px 28px rgba(0,0,0,0.55),
     inset 0 3px 7px rgba(255,160,160,0.45),
-    inset 0 -4px 8px rgba(0,0,0,0.55);
+    inset 0 -4px 8px rgba(0,0,0,0.5);
 }
 .slot-btn-stop-main:active:not(:disabled){
   transform:translateY(3px);filter:brightness(0.82);
   box-shadow:
-    0 0 0 5px #3a0000,
-    0 0 0 6px rgba(200,60,60,0.25),
-    0 4px 10px rgba(0,0,0,0.7),
-    inset 0 5px 12px rgba(0,0,0,0.5),
+    0 0 0 4px #7a6010,
+    0 0 0 6px rgba(200,168,64,0.3),
+    0 4px 10px rgba(0,0,0,0.6),
+    inset 0 5px 12px rgba(0,0,0,0.4),
     inset 0 -2px 4px rgba(255,140,140,0.2);
 }
 .slot-btn-stop-main:disabled{filter:brightness(0.38);cursor:not-allowed;transform:none;}
 
-/* Grüner Idle/Neues-Spiel-Zustand */
+/* Rot Idle/START/NEUES SPIEL-Zustand, goldener Rand */
 .slot-btn-stop-main.idle{
   background:
     radial-gradient(circle at 38% 28%, #80ff70 0%, #18bb00 45%, #095500 100%);
+  border:3px solid #c8a840;
   box-shadow:
-    0 0 0 5px #042800,
-    0 0 0 7px rgba(30,160,30,0.35),
-    0 8px 22px rgba(0,0,0,0.7),
+    0 0 0 4px #7a6010,
+    0 0 0 7px rgba(200,168,64,0.5),
+    0 8px 22px rgba(0,0,0,0.6),
     inset 0 3px 7px rgba(160,255,130,0.45),
-    inset 0 -4px 8px rgba(0,0,0,0.55);
+    inset 0 -4px 8px rgba(0,0,0,0.5);
 }
 .slot-btn-stop-main.idle:hover:not(:disabled){
   filter:brightness(1.15);transform:translateY(-3px);
   box-shadow:
-    0 0 0 5px #042800,
-    0 0 0 7px rgba(30,180,30,0.5),
-    0 12px 28px rgba(0,0,0,0.65),
+    0 0 0 4px #7a6010,
+    0 0 0 7px rgba(200,168,64,0.7),
+    0 12px 28px rgba(0,0,0,0.55),
     inset 0 3px 7px rgba(160,255,130,0.45),
-    inset 0 -4px 8px rgba(0,0,0,0.55);
+    inset 0 -4px 8px rgba(0,0,0,0.5);
 }
 .slot-btn-stop-sub{font-size:0.42em;letter-spacing:2px;opacity:0.82;margin-top:1px;}
 
@@ -967,7 +1171,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 
   <button class="tool-btn" onclick="spawnWidget('was')">
     <span class="tb-icon material-symbols-rounded">help</span>
-    <span id="lbl-was">Was?</span>
+    <span id="lbl-was">Fotos</span>
   </button>
 
   <button class="tool-btn" onclick="spawnWidget('timer')">
@@ -1046,6 +1250,9 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 
 <!-- BG PANEL -->
 <div id="bg-panel">
+  <!-- Hell/Dunkel-Schalter -->
+  <button id="light-mode-btn" onclick="toggleLightMode()" style="width:100%;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--bg3);border:1px solid rgba(255,255,255,0.13);color:var(--text);border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s;font-family:Arial,sans-serif;">Helle Oberfläche</button>
+  <div class="sound-divider" style="margin-bottom:10px;"></div>
   <!-- Farb-Picker + Swatches kompakt ohne Titel/Labels -->
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
     <input type="color" id="bg-color-picker" value="#1a1f3a"
@@ -1151,7 +1358,9 @@ const LANG = {
     zeichnen:'Zeichnen',
     text:'Text',
     wuerfel:'Würfel',
-    was:'Was?',
+    was:'Fotos',
+    wasDiashow:'▶ Diashow',
+    wasPause:'⏸ Pause',
     timer:'Timer',
     uhr:'Uhr',
     qr:'QR',
@@ -1298,7 +1507,9 @@ const LANG = {
     zeichnen:'描画',
     text:'テキスト',
     wuerfel:'サイコロ',
-    was:'なに？',
+    was:'画像',
+    wasDiashow:'▶ スライドショー',
+    wasPause:'⏸ 一時停止',
     timer:'タイマー',
     uhr:'時計',
     qr:'QR',
@@ -1780,10 +1991,9 @@ function _trWheel(uid){
   if(help) help.textContent=T('wheelHelp');
   const res=document.getElementById('wheel-result-'+uid);
   if(res&&/Noch nicht gedreht|まだ回していません/.test(res.textContent)) res.textContent=T('wheelNochNicht');
-  const controls=body.querySelector('.wheel-controls');
+  const controls=body.querySelector('.wheel-controls, .wheel-bottom-row');
   if(controls){
     controls.querySelectorAll('.wbtn').forEach(btn=>{
-      if(/Drehen|回す/.test(btn.textContent)) btn.textContent=T('wheelDrehen');
       if(/Fragen|質問/.test(btn.textContent)) btn.textContent=T('wheelFragen');
     });
   }
@@ -2240,6 +2450,41 @@ function buildBgSwatches(){
 
 let bgPhotoData = null;
 
+function toggleLightMode(){
+  const isLight = document.body.classList.toggle('light-mode');
+  const btn = document.getElementById('light-mode-btn');
+  if(btn){
+    btn.textContent = isLight ? 'Dunkle Oberfläche' : 'Helle Oberfläche';
+    btn.style.background = isLight ? 'var(--accent)' : 'var(--bg3)';
+    btn.style.color = isLight ? '#fff' : 'var(--text)';
+    btn.style.borderColor = isLight ? 'var(--accent)' : 'rgba(0,0,0,0.12)';
+  }
+  // Redraw analog clocks so they pick up light/dark colours
+  document.querySelectorAll('.widget[data-type="clock"]').forEach(w=>{
+    const uid = w.dataset.uid;
+    if(uid) try{ drawAnalogClock(uid); }catch(_){}
+  });
+  // Update timer mode-tab bar background and SVG tick colours
+  document.querySelectorAll('.widget[data-type="timer"]').forEach(w=>{
+    const uid = w.dataset.uid;
+    if(!uid) return;
+    // mode tab bar
+    const tabBar = w.querySelector('[style*="rgba(0,0,0,0.25)"]');
+    if(tabBar) tabBar.style.background = isLight ? 'rgba(0,0,0,0.07)' : 'rgba(0,0,0,0.25)';
+    // SVG tick lines
+    const svg = document.getElementById('timer-svg-'+uid);
+    if(svg) svg.querySelectorAll('line').forEach(l=>{
+      l.setAttribute('stroke', isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.22)');
+    });
+    // background ring circle
+    const bgCircle = svg && svg.querySelector('circle:first-child');
+    if(bgCircle) bgCircle.setAttribute('stroke', isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
+    // time text inside SVG
+    const svgText = document.getElementById('td-svg-'+uid);
+    if(svgText) svgText.setAttribute('fill', isLight ? '#1a1f3a' : '#ffffff');
+  });
+}
+
 function toggleBgPanel(){
   const p = document.getElementById('bg-panel');
   // Move to body so it's not clipped by topbar overflow
@@ -2425,7 +2670,7 @@ const WIDGET_DEFS={
   qr:     {title:'QR-Code',             icon:'📱', w:260,h:310, fitContent:true},
   textpad:{title:'Textfeld',            icon:'📝', w:340,h:310, fitContent:true},
   jein:   {title:'Jein',                icon:'🤔', w:310,h:355, fitContent:true},
-  was:    {title:'Was?',                icon:'🖼', w:420,h:400, fitContent:false},
+  was:    {title:'Fotos',                icon:'🖼', w:420,h:400, fitContent:false},
   wheel:  {title:'Frage-Rad',           icon:'🎡', w:820,h:900, fitContent:false},
   slot:   {title:'Slot-Maschine',       icon:'🎰', w:560,h:580, fitContent:false, minw:400, minh:380},
   spiele: {title:'Spiele',              icon:'🎮', w:580,h:640, fitContent:false, minw:420, minh:400},
@@ -2504,7 +2749,7 @@ function spawnWidget(type){
   // Header
   const hdr=document.createElement('div');
   hdr.className='widget-header';
-  hdr.innerHTML=`<span class="widget-title">${def.icon} ${def.title}</span>
+  hdr.innerHTML=`<span class="widget-title">${def.title}</span>
     <div class="wh-btns">
       <button class="wh-btn" title="Minimieren"  onclick="minimizeWidget('${id}')">−</button>
       <button class="wh-btn" title="Maximieren"  onclick="maximizeWidget('${id}')">⛶</button>
@@ -2633,6 +2878,11 @@ function updateWidgetScale(el){
   requestAnimationFrame(()=>{
     el.querySelectorAll('canvas.draw-canvas').forEach(cv=>{ try{ resizeDrawCanvas(cv); }catch(_){ } });
     el.querySelectorAll('[id^="aclock-"]').forEach(cv=>{ const uid=cv.id.replace('aclock-',''); try{ drawAnalogClock(uid); }catch(_){ } });
+    // Namen-Widget: Schriftgröße bei Fensterwechsel anpassen
+    if(el.dataset.type==='names'){
+      const disp=el.querySelector('[id^="namedisp-"]');
+      if(disp){ const uid=disp.id.replace('namedisp-',''); try{ calcNameFontSize(uid); }catch(_){} }
+    }
     // Was?-Widget: Canvas nach Fenstergrößenänderung neu berechnen
     if(el.dataset.type==='was'){
       const wrap=el.querySelector('[id^="was-canvas-wrap-"]');
@@ -2820,12 +3070,19 @@ function drawAnalogClock(uid){
 
   ctx.clearRect(0,0,W,H);
 
+  const isLight = document.body.classList.contains('light-mode');
+
   // Face
   const grad=ctx.createRadialGradient(cx,cy,R*0.1,cx,cy,R);
-  grad.addColorStop(0,'#2e3870'); grad.addColorStop(1,'#1a1f3a');
+  if(isLight){
+    grad.addColorStop(0,'#f4f6ff'); grad.addColorStop(1,'#e0e4f5');
+  } else {
+    grad.addColorStop(0,'#2e3870'); grad.addColorStop(1,'#1a1f3a');
+  }
   ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2);
   ctx.fillStyle=grad; ctx.fill();
-  ctx.strokeStyle='rgba(108,143,255,0.5)'; ctx.lineWidth=Math.max(1.5,R*0.025); ctx.stroke();
+  ctx.strokeStyle=isLight?'rgba(58,106,255,0.35)':'rgba(108,143,255,0.5)';
+  ctx.lineWidth=Math.max(1.5,R*0.025); ctx.stroke();
 
   // Hour ticks
   for(let i=0;i<12;i++){
@@ -2835,14 +3092,15 @@ function drawAnalogClock(uid){
     ctx.beginPath();
     ctx.moveTo(cx+Math.sin(a)*r1, cy-Math.cos(a)*r1);
     ctx.lineTo(cx+Math.sin(a)*r2, cy-Math.cos(a)*r2);
-    ctx.strokeStyle=big?'rgba(255,255,255,0.7)':'rgba(255,255,255,0.3)';
+    ctx.strokeStyle=isLight?(big?'rgba(0,0,0,0.6)':'rgba(0,0,0,0.25)'):(big?'rgba(255,255,255,0.7)':'rgba(255,255,255,0.3)');
     ctx.lineWidth=big?Math.max(1.5,R*0.022):Math.max(1,R*0.012); ctx.stroke();
   }
 
   // Hour numbers – font scales with radius
   const fontSize = Math.max(9, Math.round(R*0.13));
   ctx.font=`bold ${fontSize}px Arial,sans-serif`;
-  ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle=isLight?'rgba(30,40,80,0.8)':'rgba(255,255,255,0.7)';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
   for(let i=1;i<=12;i++){
     const a=(i-3)*Math.PI/6;
     const nr=R*0.70;
@@ -2851,7 +3109,7 @@ function drawAnalogClock(uid){
 
   // Hands
   const drawHand=(angle,len,width,color,shadow=false)=>{
-    if(shadow){ctx.shadowColor='rgba(0,0,0,0.5)';ctx.shadowBlur=4;}
+    if(shadow){ctx.shadowColor=isLight?'rgba(0,0,0,0.2)':'rgba(0,0,0,0.5)';ctx.shadowBlur=4;}
     ctx.beginPath();
     ctx.moveTo(cx - Math.sin(angle)*len*0.18, cy + Math.cos(angle)*len*0.18);
     ctx.lineTo(cx + Math.sin(angle)*len, cy - Math.cos(angle)*len);
@@ -2863,14 +3121,16 @@ function drawAnalogClock(uid){
   const mAngle=(now.m+now.s/60)*Math.PI/30;
   const sAngle=now.s*Math.PI/30;
 
-  drawHand(hAngle, R*0.54, Math.max(3,R*0.055), '#eef0ff', true);
-  drawHand(mAngle, R*0.75, Math.max(2,R*0.035), '#a0b4ff', true);
+  drawHand(hAngle, R*0.54, Math.max(3,R*0.055), isLight?'#1a1f3a':'#eef0ff', true);
+  drawHand(mAngle, R*0.75, Math.max(2,R*0.035), isLight?'#3a6aff':'#a0b4ff', true);
   if(!isRandom) drawHand(sAngle, R*0.82, Math.max(1,R*0.018), '#f87171', true);
 
   // Center dot
   const dotR = Math.max(3, R*0.05);
   ctx.beginPath(); ctx.arc(cx,cy,dotR,0,Math.PI*2);
-  ctx.fillStyle='#eef0ff'; ctx.shadowColor='rgba(0,0,0,0.4)'; ctx.shadowBlur=4; ctx.fill();
+  ctx.fillStyle=isLight?'#3a6aff':'#eef0ff';
+  ctx.shadowColor=isLight?'rgba(58,106,255,0.4)':'rgba(0,0,0,0.4)';
+  ctx.shadowBlur=4; ctx.fill();
   ctx.shadowBlur=0;
 
   // Update text label
@@ -3746,7 +4006,7 @@ function buildNames(body,uid){
   pickedMap[uid]=[];
   body.innerHTML=`
 <div class="name-disp" id="namedisp-${uid}" onclick="pickName(${uid})" title="Klicken zum Ziehen" style="font-size:2.8em;font-weight:400;text-align:center;color:rgba(255,255,255,0.35);min-height:1.2em;transition:all .25s;margin:.2em 0 .5em;line-height:1.1;font-family:'Arial',sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer;">${T('namesHierKlicken')}</div>
-<div id="namelist-wrap-${uid}">
+<div id="namelist-wrap-${uid}" style="display:none;">
 <textarea id="namelist-${uid}" rows="5" placeholder="${T('namesPlaceholder')}"
   style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.45em .75em;font-size:13px;font-family:'Arial',sans-serif;width:100%;resize:vertical;">Anna
 Ben
@@ -3759,7 +4019,7 @@ Hannah
 Jonas
 Lea</textarea>
 </div>
-<div id="namesleft-${uid}" style="font-size:12px;color:var(--text2);text-align:center;margin-top:.4em;"></div>`;
+`;
 
   // "Liste"- und "Reset"-Button in den Widget-Header einfuegen (vor den Standard-Buttons)
   const widget=body.closest('.widget');
@@ -3780,42 +4040,70 @@ Lea</textarea>
       listBtn.textContent=T('namesListe');
       listBtn.onclick=()=>toggleNameList(uid);
       whBtns.insertBefore(listBtn,whBtns.firstChild);
+
+      // Insert "verbleibend" info between widget-title and wh-btns
+      const hdr=widget.querySelector('.widget-header');
+      if(hdr){
+        const infoSpan=document.createElement('span');
+        infoSpan.id='namesleft-'+uid;
+        infoSpan.style.cssText='font-size:11px;color:var(--text2);flex:1;text-align:center;padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+        hdr.insertBefore(infoSpan, whBtns);
+      }
     }
   }
 }
 function toggleNameList(uid){
-  const wrap=document.getElementById('namelist-wrap-'+uid);
-  const btn=document.getElementById('togglelist-'+uid);
-  if(!wrap)return;
-  const hidden=wrap.style.display==='none';
-  const widget=wrap.closest('.widget');
-  if(hidden){
-    // Liste einblenden: gespeicherte Höhe wiederherstellen
-    wrap.style.display='';
-    if(widget){
-      widget.classList.remove('fit-content');
-      const saved=widget.dataset.savedH;
-      if(saved) widget.style.height=saved;
-    }
-  } else {
-    // Liste ausblenden: aktuelle Höhe merken, dann auf Inhalt schrumpfen
-    if(widget) widget.dataset.savedH=widget.style.height||widget.offsetHeight+'px';
-    wrap.style.display='none';
-    if(widget) widget.classList.add('fit-content');
-  }
-  if(btn) btn.textContent=T('namesListe');
+  // Open a floating modal dialog with the name list
+  const existingModal = document.getElementById('namelist-modal-'+uid);
+  if(existingModal){ existingModal.remove(); return; }
+
+  const ta = document.getElementById('namelist-'+uid);
+  if(!ta) return;
+
+  // Overlay backdrop
+  const overlay = document.createElement('div');
+  overlay.id = 'namelist-modal-'+uid;
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:50000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);';
+  overlay.addEventListener('mousedown', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  // Dialog box
+  const box = document.createElement('div');
+  box.style.cssText = 'background:var(--card);border:1px solid rgba(255,255,255,0.14);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.6);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:260px;width:340px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 80px);';
+
+  // Header row
+  const hdrRow = document.createElement('div');
+  hdrRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
+  const ttl = document.createElement('span');
+  ttl.style.cssText = 'font-size:13px;font-weight:700;color:var(--text);';
+  ttl.textContent = T('namesListe');
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'background:none;border:none;color:var(--text2);font-size:15px;cursor:pointer;padding:2px 6px;border-radius:6px;';
+  closeBtn.onmouseenter = ()=>{ closeBtn.style.background='rgba(255,255,255,0.1)'; closeBtn.style.color='var(--text)'; };
+  closeBtn.onmouseleave = ()=>{ closeBtn.style.background='none'; closeBtn.style.color='var(--text2)'; };
+  closeBtn.onclick = ()=>overlay.remove();
+  hdrRow.appendChild(ttl);
+  hdrRow.appendChild(closeBtn);
+
+  // Textarea (shared — move into modal, restore on close)
+  const taClone = document.createElement('textarea');
+  taClone.style.cssText = 'background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.5em .75em;font-size:13px;font-family:Arial,sans-serif;width:100%;resize:vertical;min-height:200px;flex:1;outline:none;';
+  taClone.value = ta.value;
+  taClone.placeholder = ta.placeholder;
+  // Sync changes back to original hidden textarea
+  taClone.addEventListener('input', ()=>{ ta.value = taClone.value; });
+
+  box.appendChild(hdrRow);
+  box.appendChild(taClone);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  taClone.focus();
 }
 function pickName(uid){
   try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
-  // Auto-hide list on first draw
-  const wrap=document.getElementById('namelist-wrap-'+uid);
-  const btn=document.getElementById('togglelist-'+uid);
-  if(wrap && wrap.style.display!=='none'){
-    const widget=wrap.closest('.widget');
-    if(widget) widget.dataset.savedH=widget.style.height||widget.offsetHeight+'px';
-    wrap.style.display='none';
-    if(widget) widget.classList.add('fit-content');
-  }
+  // Close the list modal if open when a name is picked
+  const modal=document.getElementById('namelist-modal-'+uid);
+  if(modal) modal.remove();
   const list=document.getElementById('namelist-'+uid)?.value.split('\n').map(s=>s.trim()).filter(Boolean)||[];
   if(!list.length) return;
   let picked=pickedMap[uid]||[];
@@ -3833,22 +4121,10 @@ function pickName(uid){
   if(disp){
     disp.style.color='#ffffff';
     disp.style.opacity='0';disp.style.transform='scale(.8)';
-    // Scale font based on widget width AND name length so full name always fits
-    const widget=document.getElementById('body-'+uid)?.closest?.('.widget');
-    const ww = widget ? widget.offsetWidth : 290;
-    const baseFontPx = ww * 0.85; // use ~85% of widget width as available text width
-    const charsEm = Math.max(1, name.length);
-    // Each character is roughly 0.6em wide; compute em so name fills width
-    const fsByLen = baseFontPx / (charsEm * 0.6 * 16); // 16px baseline
-    const fsByHeight = Math.min(6, ww / 60);
-    const fs = Math.max(1.2, Math.min(fsByHeight, fsByLen));
-    disp.style.fontSize=fs+'em';
-    disp.style.whiteSpace='nowrap';
-    disp.style.overflow='hidden';
-    disp.style.textOverflow='clip';
-    disp.style.maxWidth='100%';
     setTimeout(()=>{disp.textContent=name;disp.style.opacity='1';disp.style.transform='scale(1)';},150);
     disp.style.transition='all .2s';
+    // Apply initial font size; resize will recalculate on window change
+    requestAnimationFrame(()=>calcNameFontSize(uid));
   }
   const remAfter=list.filter(n=>!(pickedMap[uid]||[]).includes(n));
   if(left && left.textContent!==T('namesNeuRunde')) left.textContent=`${T('namesVerbleibend')} ${remAfter.length} ${T('namesVerbleibend2')} ${list.length}`;
@@ -3858,6 +4134,31 @@ function resetNames(uid){
   pickedMap[uid]=[];
   const d=document.getElementById('namedisp-'+uid);if(d)d.textContent='–';
   const l=document.getElementById('namesleft-'+uid);if(l)l.textContent='';
+}
+
+// Recalculates the font size of the name display to optimally fill the widget
+function calcNameFontSize(uid){
+  const disp=document.getElementById('namedisp-'+uid);
+  if(!disp||!disp.textContent||disp.textContent===T('namesHierKlicken')||disp.textContent==='–') return;
+  const widget=disp.closest('.widget');
+  if(!widget) return;
+  const ww=widget.offsetWidth||290;
+  const wh=widget.offsetHeight||330;
+  // Available area: subtract header (~38px), padding, left/right padding
+  const availW = ww * 0.88;
+  const availH = Math.max(80, wh * 0.38);
+  const text = disp.textContent;
+  const chars = Math.max(1, text.length);
+  // Fit by width: each char ≈ 0.58× font-size in px
+  const fsByWidth = availW / (chars * 0.58);
+  // Fit by height: cap at ~40% of available height
+  const fsByHeight = availH;
+  const fs = Math.max(18, Math.min(fsByWidth, fsByHeight));
+  disp.style.fontSize = fs + 'px';
+  disp.style.whiteSpace = 'nowrap';
+  disp.style.overflow = 'hidden';
+  disp.style.textOverflow = 'clip';
+  disp.style.maxWidth = '100%';
 }
 
 // ════════════════════════════════════════════════
@@ -4585,7 +4886,7 @@ function setJeinMode(mode,uid){
   });
   // reset display
   const disp=document.getElementById('jein-display-'+uid);
-  if(disp){disp.innerHTML='<span style="font-size:2em;color:var(--text2);opacity:.4;">?</span>';disp.style.background='rgba(0,0,0,0.15)';}
+  if(disp){disp.innerHTML='<span style="font-size:2em;color:var(--text2);opacity:.4;">?</span>';disp.style.background=document.body.classList.contains('light-mode')?'rgba(0,0,0,0.04)':'rgba(0,0,0,0.15)';}
   // Show/hide choice buttons and roll button
   const jankenBtns=document.getElementById('jein-janken-btns-'+uid);
   const rollBtn=document.getElementById('jein-roll-btn-'+uid);
@@ -4641,22 +4942,25 @@ function showAmpelState(uid, state){
   const wrap=document.getElementById('dicewrap-'+uid);
   const disp=document.getElementById('jein-display-'+uid);
   const res =document.getElementById('diceres-'+uid);
+  const isLM = document.body.classList.contains('light-mode');
   const circles={
-    rot:  {bg:'#1a0000', dot:'#ef4444', empty:'rgba(80,0,0,0.4)'},
-    gelb: {bg:'#1a1400', dot:'#eab308', empty:'rgba(80,70,0,0.4)'},
-    gruen:{bg:'#001a00', dot:'#22c55e', empty:'rgba(0,80,0,0.4)'},
+    rot:  {bg: isLM?'#fff0f0':'#1a0000', dot:'#ef4444', empty: isLM?'rgba(220,0,0,0.12)':'rgba(80,0,0,0.4)'},
+    gelb: {bg: isLM?'#fffbea':'#1a1400', dot:'#eab308', empty: isLM?'rgba(200,160,0,0.15)':'rgba(80,70,0,0.4)'},
+    gruen:{bg: isLM?'#f0fff4':'#001a00', dot:'#22c55e', empty: isLM?'rgba(0,160,0,0.12)':'rgba(0,80,0,0.4)'},
   };
   const col=circles[state];
+  const hsgColor = isLM ? '#555' : '#444';
+  const rectFill = isLM ? '#ddd' : '#222';
   const svgHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:${col.bg};border-radius:16px;">
     <svg viewBox="0 0 60 180" width="33%" height="90%" xmlns="http://www.w3.org/2000/svg">
-      <rect x="5" y="5" width="50" height="170" rx="12" fill="#222" stroke="#444" stroke-width="2"/>
+      <rect x="5" y="5" width="50" height="170" rx="12" fill="${rectFill}" stroke="${hsgColor}" stroke-width="2"/>
       <circle cx="30" cy="35"  r="18" fill="${state==='rot'  ? col.dot : col.empty}"/>
       <circle cx="30" cy="90"  r="18" fill="${state==='gelb' ? col.dot : col.empty}"/>
       <circle cx="30" cy="145" r="18" fill="${state==='gruen'? col.dot : col.empty}"/>
     </svg>
   </div>`;
   if(wrap) wrap.innerHTML=svgHTML;
-  if(disp){ disp.style.background='rgba(0,0,0,0.3)'; disp.innerHTML=svgHTML; }
+  if(disp){ disp.style.background=document.body.classList.contains('light-mode')?'rgba(0,0,0,0.06)':'rgba(0,0,0,0.3)'; disp.innerHTML=svgHTML; }
   const labels=currentLanguage==='ja'?{rot:'赤',gelb:'黄',gruen:'緑'}:{rot:'Rot',gelb:'Gelb',gruen:'Grün'};
   if(res) res.textContent=labels[state]||state;
 }
@@ -4740,12 +5044,13 @@ disp.style.transform='scale(0.8)';disp.style.opacity='0';
 const wasState={};
 
 function buildWas(body,uid){
-  wasState[uid]={imgs:[],imgIndex:0,step:0,maxSteps:8,canvas:null,revealed:false,mode:'mosaic',blurInterval:null};
+  wasState[uid]={imgs:[],imgIndex:0,step:0,maxSteps:8,canvas:null,revealed:false,mode:'diashow',blurInterval:null,diashowActive:false,diashowTimer:null,diashowRandom:false};
   body.style.display='flex';body.style.flexDirection='column';body.style.padding='8px';
   body.innerHTML=`
 <!-- Mode tabs -->
 <div style="display:flex;gap:3px;margin-bottom:.5em;background:rgba(0,0,0,0.25);border-radius:8px;padding:3px;">
-  <button id="wastab-mosaic-${uid}" class="timer-mode-btn active-tmode" onclick="setWasMode('mosaic',${uid})">${T('wasMosaik')}</button>
+  <button id="wastab-diashow-${uid}" class="timer-mode-btn active-tmode" onclick="wasDiashowToggle(${uid})">${T('wasDiashow')}</button>
+  <button id="wastab-mosaic-${uid}" class="timer-mode-btn" onclick="setWasMode('mosaic',${uid})">${T('wasMosaik')}</button>
   <button id="wastab-blur-${uid}" class="timer-mode-btn" onclick="setWasMode('blur',${uid})">${T('wasVerschwommen')}</button>
   <button id="wastab-kaese-${uid}" class="timer-mode-btn" onclick="setWasMode('kaese',${uid})">${T('wasKaese')}</button>
 </div>
@@ -4767,6 +5072,7 @@ function buildWas(body,uid){
   <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasRevealMore(${uid})" title="Klicken zum Enthüllen"></canvas>
   <div style="display:flex;gap:.4em;align-items:center;">
     <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;">${T('wasSchritt')} 1 / 8</div>
+    <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="display:none;">🔀 Zufall an</button>
     <button class="wbtn" onclick="wasRevealMore(${uid})" id="was-btn-${uid}">${T('wasFeiner')}</button>
     <button class="wbtn" onclick="wasReset(${uid})">↺</button>
   </div>
@@ -4837,10 +5143,14 @@ function wasActivatePhoto(uid, index){
   // Update reveal button label
   const btn=document.getElementById('was-btn-'+uid);
   if(btn){
-    if(s.mode==='blur') btn.textContent=T('wasSchaerfer');
-    else if(s.mode==='kaese') btn.textContent=T('wasMehrZeigen');
-    else btn.textContent=T('wasFeiner');
-    btn.disabled=false;
+    if(s.mode==='diashow'){ btn.style.visibility='hidden'; }
+    else {
+      btn.style.visibility='';
+      if(s.mode==='blur') btn.textContent=T('wasSchaerfer');
+      else if(s.mode==='kaese') btn.textContent=T('wasMehrZeigen');
+      else btn.textContent=T('wasFeiner');
+      btn.disabled=false;
+    }
   }
   // Nav bar
   const nav=document.getElementById('was-nav-'+uid);
@@ -4859,7 +5169,20 @@ function wasActivatePhoto(uid, index){
     nav.style.display='none';
   }
   // Erst nach dem nächsten Render-Frame messen (wrap ist gerade erst auf display:flex gesetzt)
-  requestAnimationFrame(()=>{ _wasSetCanvasSize(); wasRenderStep(uid); });
+  requestAnimationFrame(()=>{
+    _wasSetCanvasSize();
+    if(s.mode==='diashow'){
+      // Diashow: show photo fully, hide puzzle controls
+      const ctx=cv.getContext('2d');
+      ctx.drawImage(img,0,0,cv.width,cv.height);
+      const stepEl=document.getElementById('was-step-'+uid);
+      if(stepEl) stepEl.textContent='';
+      if(btn) btn.style.visibility='hidden';
+    } else {
+      if(btn) btn.style.visibility='';
+      wasRenderStep(uid);
+    }
+  });
 
   // ResizeObserver: Canvas bei Widget-Größenänderung neu berechnen
   if(!s._resizeObs && window.ResizeObserver){
@@ -4869,7 +5192,12 @@ function wasActivatePhoto(uid, index){
         const st=wasState[uid];
         if(st&&st.imgs&&st.imgs.length&&st.canvas){
           wasResizeCanvas(uid);
-          wasRenderStep(uid);
+          if(st.mode!=='diashow') wasRenderStep(uid);
+          else{
+            const ctx=st.canvas.getContext('2d');
+            const img=st.imgs[st.imgIndex];
+            if(img) ctx.drawImage(img,0,0,st.canvas.width,st.canvas.height);
+          }
         }
       });
       s._resizeObs.observe(widget);
@@ -4913,6 +5241,7 @@ function wasGoPrev(uid){
 }
 
 function setWasMode(mode, uid){
+  wasDiashowStop(uid);
   wasState[uid].mode = mode;
   document.getElementById('wastab-mosaic-'+uid)?.classList.toggle('active-tmode', mode==='mosaic');
   document.getElementById('wastab-blur-'+uid)?.classList.toggle('active-tmode', mode==='blur');
@@ -5061,6 +5390,86 @@ function wasReset(uid){
 }
 
 // ════════════════════════════════════════════════
+// DIASHOW für Was?-Widget
+function wasDiashowToggle(uid){
+  const s=wasState[uid]; if(!s)return;
+  const btn=document.getElementById('wastab-diashow-'+uid);
+  if(s.diashowActive){
+    // Pause
+    s.diashowActive=false;
+    if(s.diashowTimer){clearTimeout(s.diashowTimer);s.diashowTimer=null;}
+    if(btn) btn.textContent=T('wasDiashow');
+    btn && btn.classList.remove('active-tmode');
+    const zBtnP=document.getElementById('was-zufall-btn-'+uid);
+    if(zBtnP) zBtnP.style.display='none';
+  } else {
+    // Start – mind. 1 Bild muss geladen sein
+    if(!s.imgs||!s.imgs.length){alert('Bitte zuerst Fotos hochladen.');return;}
+    s.diashowActive=true;
+    if(btn){btn.textContent=T('wasPause');btn.classList.add('active-tmode');}
+    // Show Zufall button
+    const zBtn=document.getElementById('was-zufall-btn-'+uid);
+    if(zBtn) zBtn.style.display='';
+    // Shuffle-Reihenfolge erstellen
+    if(!s.diashowQueue||!s.diashowQueue.length) s.diashowQueue=wasDiashowShuffle(s.imgs.length);
+    wasDiashowStep(uid);
+  }
+}
+function wasDiashowShuffle(n){
+  const arr=Array.from({length:n},(_,i)=>i);
+  for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+function wasDiashowStep(uid){
+  const s=wasState[uid]; if(!s||!s.diashowActive)return;
+  let nextIdx;
+  if(s.diashowRandom){
+    if(!s.diashowQueue||!s.diashowQueue.length) s.diashowQueue=wasDiashowShuffle(s.imgs.length);
+    nextIdx=s.diashowQueue.shift();
+  } else {
+    nextIdx=(s.imgIndex+1) % s.imgs.length;
+  }
+  // Reveal the photo fully (skip puzzle mode — show image directly)
+  s.step=s.maxSteps; s.revealed=false;
+  wasActivatePhoto(uid, nextIdx);
+  // After canvas is ready, draw full image
+  requestAnimationFrame(()=>{
+    const cv=s.canvas; if(!cv)return;
+    const ctx=cv.getContext('2d');
+    const img=s.imgs[nextIdx];
+    if(img) ctx.drawImage(img,0,0,cv.width,cv.height);
+    // Hide step info and reveal button during diashow
+    const stepEl=document.getElementById('was-step-'+uid);
+    if(stepEl) stepEl.textContent='';
+    const revealBtn=document.getElementById('was-btn-'+uid);
+    if(revealBtn) revealBtn.style.visibility='hidden';
+  });
+  s.diashowTimer=setTimeout(()=>wasDiashowStep(uid), 5000);
+}
+function wasDiashowStop(uid){
+  const s=wasState[uid]; if(!s)return;
+  s.diashowActive=false;
+  if(s.diashowTimer){clearTimeout(s.diashowTimer);s.diashowTimer=null;}
+  const btn=document.getElementById('wastab-diashow-'+uid);
+  if(btn){btn.textContent=T('wasDiashow');btn.classList.remove('active-tmode');}
+  const revealBtn=document.getElementById('was-btn-'+uid);
+  if(revealBtn) revealBtn.style.visibility='';
+  const zBtnS=document.getElementById('was-zufall-btn-'+uid);
+  if(zBtnS) zBtnS.style.display='none';
+}
+
+function wasDiashowToggleZufall(uid){
+  const s=wasState[uid]; if(!s)return;
+  s.diashowRandom=!s.diashowRandom;
+  s.diashowQueue=[];  // reset queue so new mode takes effect immediately
+  const btn=document.getElementById('was-zufall-btn-'+uid);
+  if(btn){
+    btn.textContent=s.diashowRandom ? '🔀 Zufall an' : '➡️ Zufall aus';
+    btn.classList.toggle('primary', s.diashowRandom);
+  }
+}
+
+// ════════════════════════════════════════════════
 // WIDGET: SMILEYS (Befinden)
 // ════════════════════════════════════════════════
 function buildSmileys(body,uid){
@@ -5104,34 +5513,88 @@ function playDrumRoll(durationMs){
   try{
     const ac=new(window.AudioContext||window.webkitAudioContext)();
     const totalSec=durationMs/1000;
-    // Snare-like noise bursts, accelerating
-    let t=ac.currentTime+0.02;
-    let interval=0.18;
-    while(t<ac.currentTime+totalSec){
-      const buf=ac.createBuffer(1,ac.sampleRate*0.04,ac.sampleRate);
-      const data=buf.getChannelData(0);
-      for(let i=0;i<data.length;i++) data[i]=(Math.random()*2-1)*Math.exp(-i/(ac.sampleRate*0.015));
-      const src=ac.createBufferSource();
-      src.buffer=buf;
-      const g=ac.createGain();
-      g.gain.setValueAtTime(0.45,t);
-      g.gain.linearRampToValueAtTime(0,t+0.04);
-      src.connect(g);g.connect(ac.destination);
-      src.start(t);
-      // accelerate: reduce interval toward end
-      const progress=((t-ac.currentTime)/totalSec);
-      interval=Math.max(0.04,0.18-progress*0.14);
+    const now=ac.currentTime+0.02;
+
+    // Master compressor for punch
+    const comp=ac.createDynamicsCompressor();
+    comp.threshold.value=-18; comp.knee.value=6;
+    comp.ratio.value=4; comp.attack.value=0.003; comp.release.value=0.12;
+    comp.connect(ac.destination);
+
+    // Helper: single snare hit at time t with given volume
+    function snareHit(t, vol){
+      const hitLen=0.055;
+      const sr=ac.sampleRate;
+
+      // Layer 1: noise burst (snare wires)
+      const nBuf=ac.createBuffer(1,Math.ceil(sr*hitLen),sr);
+      const nd=nBuf.getChannelData(0);
+      for(let i=0;i<nd.length;i++) nd[i]=(Math.random()*2-1);
+      const nSrc=ac.createBufferSource(); nSrc.buffer=nBuf;
+      const hp=ac.createBiquadFilter(); hp.type='highpass'; hp.frequency.value=1800; hp.Q.value=0.7;
+      const pEq=ac.createBiquadFilter(); pEq.type='peaking'; pEq.frequency.value=5000; pEq.gain.value=7; pEq.Q.value=1.2;
+      const nGain=ac.createGain();
+      nGain.gain.setValueAtTime(vol*0.9,t);
+      nGain.gain.exponentialRampToValueAtTime(0.0001,t+hitLen*0.9);
+      nSrc.connect(hp); hp.connect(pEq); pEq.connect(nGain); nGain.connect(comp);
+      nSrc.start(t); nSrc.stop(t+hitLen+0.01);
+
+      // Layer 2: drum body tone
+      const bodyOsc=ac.createOscillator(); bodyOsc.type='triangle';
+      bodyOsc.frequency.setValueAtTime(200,t);
+      bodyOsc.frequency.exponentialRampToValueAtTime(80,t+0.03);
+      const bodyGain=ac.createGain();
+      bodyGain.gain.setValueAtTime(vol*0.55,t);
+      bodyGain.gain.exponentialRampToValueAtTime(0.0001,t+0.04);
+      bodyOsc.connect(bodyGain); bodyGain.connect(comp);
+      bodyOsc.start(t); bodyOsc.stop(t+0.05);
+
+      // Layer 3: click transient
+      const cBuf=ac.createBuffer(1,Math.ceil(sr*0.004),sr);
+      const cd=cBuf.getChannelData(0);
+      for(let i=0;i<cd.length;i++) cd[i]=(Math.random()*2-1)*Math.exp(-i/(sr*0.001));
+      const cSrc=ac.createBufferSource(); cSrc.buffer=cBuf;
+      const cGain=ac.createGain(); cGain.gain.setValueAtTime(vol*0.5,t);
+      cSrc.connect(cGain); cGain.connect(comp);
+      cSrc.start(t); cSrc.stop(t+0.006);
+    }
+
+    // Accelerating roll with crescendo
+    let t=now;
+    let interval=0.20;
+    const minInterval=0.038;
+    while(t < now+totalSec-0.18){
+      const progress=(t-now)/totalSec;
+      const vol=0.28+progress*0.55;
+      snareHit(t, vol);
+      interval=Math.max(minInterval, 0.20-progress*0.165);
       t+=interval;
     }
-    // Final bass drum hit
-    const osc=ac.createOscillator();
-    const gFinal=ac.createGain();
-    osc.frequency.setValueAtTime(150,t);
-    osc.frequency.exponentialRampToValueAtTime(40,t+0.2);
-    gFinal.gain.setValueAtTime(0.7,t);
-    gFinal.gain.linearRampToValueAtTime(0,t+0.25);
-    osc.connect(gFinal);gFinal.connect(ac.destination);
-    osc.start(t);osc.stop(t+0.3);
+
+    // Final rimshot
+    const rimT=now+totalSec-0.12;
+    snareHit(rimT, 1.0);
+
+    // Bass drum boom
+    const bdOsc=ac.createOscillator(); bdOsc.type='sine';
+    bdOsc.frequency.setValueAtTime(180,rimT);
+    bdOsc.frequency.exponentialRampToValueAtTime(38,rimT+0.25);
+    const bdGain=ac.createGain();
+    bdGain.gain.setValueAtTime(1.1,rimT);
+    bdGain.gain.exponentialRampToValueAtTime(0.0001,rimT+0.28);
+    bdOsc.connect(bdGain); bdGain.connect(comp);
+    bdOsc.start(rimT); bdOsc.stop(rimT+0.32);
+
+    // Overtone on final hit
+    const bdOsc2=ac.createOscillator(); bdOsc2.type='sine';
+    bdOsc2.frequency.setValueAtTime(320,rimT);
+    bdOsc2.frequency.exponentialRampToValueAtTime(90,rimT+0.15);
+    const bdGain2=ac.createGain();
+    bdGain2.gain.setValueAtTime(0.4,rimT);
+    bdGain2.gain.exponentialRampToValueAtTime(0.0001,rimT+0.18);
+    bdOsc2.connect(bdGain2); bdGain2.connect(comp);
+    bdOsc2.start(rimT); bdOsc2.stop(rimT+0.2);
+
   }catch(e){}
 }
 
@@ -5195,11 +5658,11 @@ function playJanken(playerChoice, uid){
           <span style="font-size:1em;">${player.icon}</span>
           <span style="font-size:.28em;color:var(--accent);font-weight:700;">${T('jeinDu')}</span>
         <div style="display:flex;flex-direction:column;align-items:center;gap:.15em;">
-          <span style="font-size:1em;animation:jk-spin 0.18s steps(1) infinite" id="jk-q-${uid}">❓</span>
+          <span style="font-size:1em;animation:jk-spin 0.18s steps(1) infinite" id="jk-q-${uid}">　</span>
           <span style="font-size:.28em;color:var(--text2);font-weight:700;">PC</span>
         </div>
       </div>
-      <div style="font-size:.9em;color:var(--text2);letter-spacing:1px;animation:jk-pulse 0.3s ease infinite alternate;">🥁 ...</div>
+      <div style="font-size:.9em;color:var(--text2);letter-spacing:1px;animation:jk-pulse 0.3s ease infinite alternate;">...</div>
     </div>`;
   }, 80);
 
@@ -5208,7 +5671,7 @@ function playJanken(playerChoice, uid){
     const s=document.createElement('style');
     s.id='jk-styles';
     s.textContent=`
-      @keyframes jk-spin{0%{content:'❓'}25%{content:'✂️'}50%{content:'🪨'}75%{content:'📄'}}
+      @keyframes jk-spin{0%{content:'✂️'}33%{content:'🪨'}66%{content:'📄'}}
       @keyframes jk-pulse{from{opacity:.5;transform:scale(0.96)}to{opacity:1;transform:scale(1.04)}}
       @keyframes jk-reveal{0%{transform:scale(0.5) rotate(-8deg);opacity:0}60%{transform:scale(1.12) rotate(2deg)}100%{transform:scale(1) rotate(0);opacity:1}}
       @keyframes jk-result{0%{transform:translateY(12px);opacity:0}100%{transform:translateY(0);opacity:1}}
@@ -5687,10 +6150,10 @@ function buildSpiele(body, uid){
   const tabBar=document.createElement('div');
   tabBar.style.cssText='display:flex;gap:6px;align-items:center;padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;';
   ['rad','slot','janken'].forEach((tab,i)=>{
-    const icons={rad:'🎡',slot:'🎰',janken:'✂️'};
     const labelKeys={rad:'spieleRad',slot:'spieleSlot',janken:'spieleJanken'};
+    const icons={rad:'🎡',slot:'🎰',janken:'✂️'};
     const btn=document.createElement('button');
-    btn.className='timer-mode-btn'+(i===0?' active-tmode':'');
+    btn.className='timer-mode-btn spiele-tab-btn'+(i===0?' active-tmode':'');
     btn.id=`spiele-tab-${tab}-${uid}`;
     btn.textContent=icons[tab]+' '+T(labelKeys[tab]);
     btn.onclick=()=>spieleShowTab(tab,uid);
@@ -5729,7 +6192,6 @@ function buildSpiele(body, uid){
   // display stays 'none' (set by panel creation loop above)
   jankenPanel.innerHTML=`
 <div id="jein-display-${juid}" style="min-height:200px;width:100%;max-width:440px;display:flex;align-items:center;justify-content:center;border-radius:16px;transition:all .3s;background:rgba(0,0,0,0.18);">
-  <span style="font-size:3em;color:var(--text2);opacity:.4;">?</span>
 </div>
 <div style="display:flex;gap:.5em;justify-content:center;flex-wrap:wrap;">
   ${SSP_CHOICES.map(c=>`<button onclick="playJanken('${c.id}',${juid})" style="background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.15);border-radius:12px;padding:.6em 1em;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.2em;" onmouseover="this.style.borderColor='var(--accent)';this.style.background='rgba(108,143,255,0.15)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.background='rgba(255,255,255,0.07)'">
@@ -5815,16 +6277,13 @@ const wheelStates = {};
 function buildWheel(body, uid){
   body.innerHTML = `
     <div class="wheel-box">
-      <div class="wheel-title">${T('wheelTitle')}</div>
-      <div class="wheel-help">${T('wheelHelp')}</div>
       <div class="wheel-stage">
         <div class="wheel-pointer" id="wheel-pointer-${uid}" onclick="stopQuestionWheel(${uid})" title="Stoppen"><svg viewBox="0 0 28 36" width="40" height="52" xmlns="http://www.w3.org/2000/svg"><polygon points="14,36 0,0 28,0" fill="#ffffff" filter="url(#ps)"/><defs><filter id="ps" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="rgba(0,0,0,0.55)"/></filter></defs></svg></div>
         <canvas id="wheel-canvas-${uid}" class="wheel-canvas" onclick="spinQuestionWheel(${uid})" style="cursor:pointer;" title="Klicken zum Drehen"></canvas>
       </div>
-      <div id="wheel-result-${uid}" class="wheel-result">${T('wheelNochNicht')}</div>
-      <div class="wheel-controls">
-        <button class="wbtn primary" onclick="spinQuestionWheel(${uid})">${T('wheelDrehen')}</button>
-        <button class="wbtn" onclick="toggleWheelEdit(${uid})">${T('wheelFragen')}</button>
+      <div class="wheel-bottom-row">
+        <div id="wheel-result-${uid}" class="wheel-result">${T('wheelNochNicht')}</div>
+        <button class="wbtn wheel-fragen-btn" onclick="toggleWheelEdit(${uid})">${T('wheelFragen')}</button>
       </div>
       <div id="wheel-edit-${uid}" class="wheel-edit">
         <textarea id="wheel-text-${uid}" class="winput" style="height:180px;line-height:1.35;">${WHEEL_QUESTIONS_DEFAULT.join('\n')}</textarea>
