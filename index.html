@@ -172,9 +172,9 @@ body.light-mode .slot-reels-outer{
 body.light-mode .slot-center-line{
   background:linear-gradient(90deg,transparent,rgba(80,120,220,0.45) 20%,rgba(80,120,220,0.6) 50%,rgba(80,120,220,0.45) 80%,transparent)!important;
 }
-body.light-mode .slot-reel-wrap{background:#c8955a!important;border-color:rgba(120,60,10,0.5)!important;}
-body.light-mode .slot-reel-cell{background:#c8955a!important;color:#fff8e8!important;}
-body.light-mode .slot-reel-sym{background:linear-gradient(135deg,#d4a870,#c8955a,#b87c3a)!important;border-color:rgba(140,80,20,0.4)!important;}
+body.light-mode .slot-reel-wrap{background:#ffffff!important;border-color:rgba(120,60,10,0.5)!important;}
+body.light-mode .slot-reel-cell{background:#ffffff!important;color:#000000!important;}
+body.light-mode .slot-reel-sym{background:#ffffff!important;border-color:rgba(140,80,20,0.4)!important;}
 body.light-mode .slot-edit-textarea{
   background:var(--bg3)!important;
   border-color:rgba(0,0,0,0.12)!important;
@@ -857,7 +857,7 @@ body.light-mode .slot-scorebar-title{
 /* ── EINZELNE ROLLE — 3D-Look ── */
 .slot-reel-wrap{
   flex:1;min-width:0;
-  background:#c8955a;
+  background:#ffffff;
   border-radius:8px;overflow:hidden;
   position:relative;
   /* Außenschatten: Vertiefung im Gehäuse */
@@ -886,12 +886,12 @@ body.light-mode .slot-scorebar-title{
   pointer-events:none;z-index:8;
   background:
     linear-gradient(180deg,
-      rgba(0,0,0,0.42) 0%,
-      rgba(0,0,0,0.12) 22%,
-      rgba(255,255,255,0.06) 44%,
-      rgba(255,255,255,0.06) 56%,
-      rgba(0,0,0,0.12) 78%,
-      rgba(0,0,0,0.48) 100%
+      rgba(0,0,0,0.70) 0%,
+      rgba(0,0,0,0.22) 20%,
+      rgba(0,0,0,0.04) 38%,
+      rgba(0,0,0,0.04) 62%,
+      rgba(0,0,0,0.22) 80%,
+      rgba(0,0,0,0.75) 100%
     );
 }
 
@@ -911,15 +911,15 @@ body.light-mode .slot-scorebar-title{
 .slot-reel-cell{
   width:100%;box-sizing:border-box;
   display:flex;align-items:center;justify-content:center;
-  font-weight:900;color:#fff8e8;text-align:center;
-  background:#c8955a;line-height:1;
+  font-weight:900;color:#000000;text-align:center;
+  background:#ffffff;line-height:1;
   white-space:nowrap;
   overflow:hidden;
   word-break:normal;
   hyphens:none;
 }
 .slot-reel-sym{
-  background:linear-gradient(135deg,#fffbe6,#fff3cc,#ffeaa0) !important;
+  background:#ffffff !important;
   border-top:1px solid rgba(200,168,64,0.4);
   border-bottom:1px solid rgba(200,168,64,0.4);
   letter-spacing:3px;
@@ -1106,6 +1106,23 @@ body.light-mode .slot-scorebar-title{
 #sound-btn .tb-icon {
   color: #f87171 !important;
 }
+
+
+/* ── Wörter-Puzzle (Spiele-Tab) ── */
+.pz-container{min-height:calc(var(--uiscale,1)*60px);border:3px dashed #90c0f0;border-radius:14px;padding:calc(var(--uiscale,1)*12px);display:flex;flex-wrap:wrap;gap:calc(var(--uiscale,1)*8px);background:rgba(108,143,255,0.08);align-content:flex-start;}
+.pz-container.drag-over{border-color:#4ade80;background:rgba(74,222,128,0.08);}
+.pz-word{background:var(--card);padding:calc(var(--uiscale,1)*10px) calc(var(--uiscale,1)*18px);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.25);cursor:grab;user-select:none;-webkit-user-select:none;border:1px solid rgba(255,255,255,0.1);font-size:calc(var(--uiscale,1)*22px);display:inline-block;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;color:var(--text);}
+.pz-word:active{cursor:grabbing;}
+.pz-group{display:flex;gap:calc(var(--uiscale,1)*5px);border:2px solid #4ade80;border-radius:14px;padding:calc(var(--uiscale,1)*6px) calc(var(--uiscale,1)*8px);background:rgba(74,222,128,0.08);align-items:center;flex-wrap:wrap;cursor:grab;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;}
+.pz-ghost{position:fixed;z-index:9999;pointer-events:none;opacity:0.85;transform:scale(1.08);box-shadow:0 8px 24px rgba(0,0,0,0.4);border-radius:10px;}
+.pz-progress{font-size:calc(var(--uiscale,1)*12px);color:var(--text2);margin-bottom:calc(var(--uiscale,1)*3px);}
+.pz-label{font-size:calc(var(--uiscale,1)*13px);font-weight:600;color:var(--text2);display:block;margin-bottom:calc(var(--uiscale,1)*4px);}
+.pz-btn{margin-top:calc(var(--uiscale,1)*4px);width:100%;padding:calc(var(--uiscale,1)*12px);font-size:calc(var(--uiscale,1)*16px);border:none;border-radius:12px;background:var(--accent);color:#fff;cursor:pointer;touch-action:manipulation;}
+.pz-btn:active{filter:brightness(0.88);}
+.pz-file-label{display:inline-block;background:rgba(108,143,255,0.15);border:1.5px solid var(--accent);border-radius:9px;padding:calc(var(--uiscale,1)*7px) calc(var(--uiscale,1)*14px);font-size:calc(var(--uiscale,1)*13px);cursor:pointer;margin-bottom:calc(var(--uiscale,1)*8px);color:var(--text);touch-action:manipulation;}
+body.light-mode .pz-word{background:#fff;border-color:rgba(0,0,0,0.12);color:#1a1f3a;}
+body.light-mode .pz-container{background:rgba(58,106,255,0.05);}
+body.light-mode .pz-file-label{background:#e8f0fe;border-color:#3a6aff;color:#1a1f3a;}
 
 </style>
 
@@ -1476,6 +1493,15 @@ const LANG = {
     spieleRad:'Rad',
     spieleSlot:'Slot',
     spieleJanken:'Janken',
+    spielePuzzle:'Puzzle',
+    // Puzzle widget
+    pzDateiLaden:'📄 Textdatei laden (.txt)',
+    pzSatz:'Satz',
+    pzVon:'von',
+    pzInstruktion:'Wörter in die richtige Reihenfolge bringen:',
+    pzPruefen:'Prüfen ✔',
+    pzPerfekt:'Perfekt! Alle Sätze gelöst!',
+    pzNochmal:'Nochmal spielen',
     // Karten-Mixer
     kartenMixerTitle:'🎴 Karten-Mixer offline',
     kartenMixerDesc:'20 Karten sind vorbereitet. In der heutigen Klasse werden nur die Karten 1 bis zur eingestellten Zahl benutzt.',
@@ -1625,6 +1651,15 @@ const LANG = {
     spieleRad:'ルーレット',
     spieleSlot:'スロット',
     spieleJanken:'じゃんけん',
+    spielePuzzle:'パズル',
+    // Puzzle widget
+    pzDateiLaden:'📄 テキストファイルを読み込む (.txt)',
+    pzSatz:'文',
+    pzVon:'／',
+    pzInstruktion:'正しい順番に並べてください：',
+    pzPruefen:'確認 ✔',
+    pzPerfekt:'完璧！全問正解！',
+    pzNochmal:'もう一度プレイ',
     // Karten-Mixer
     kartenMixerTitle:'🎴 カードミキサー（オフライン）',
     kartenMixerDesc:'20枚のカードが用意されています。今日の授業では設定した枚数だけ使います。',
@@ -2042,14 +2077,21 @@ function _trSlotInner(uid){
 }
 
 function _trSpiele(uid){
-  // Tab buttons
-  ['rad','slot','janken'].forEach(tab=>{
+  // Tab buttons (including Puzzle)
+  ['rad','slot','janken','puzzle'].forEach(tab=>{
     const btn=document.getElementById(`spiele-tab-${tab}-${uid}`);
     if(!btn) return;
-    const icons={rad:'🎡',slot:'🎰',janken:'✂️'};
-    const labels={rad:T('spieleRad'),slot:T('spieleSlot'),janken:T('spieleJanken')};
+    const icons={rad:'🎡',slot:'🎰',janken:'✂️',puzzle:'🧩'};
+    const labels={rad:T('spieleRad'),slot:T('spieleSlot'),janken:T('spieleJanken'),puzzle:T('spielePuzzle')};
     btn.textContent=icons[tab]+' '+labels[tab];
   });
+  // Rebuild puzzle panel so all strings use the new language
+  const puzzlePanel=document.getElementById(`spiele-panel-puzzle-${uid}`);
+  if(puzzlePanel && typeof pzState!=='undefined' && pzState[uid]){
+    pzShowSentence(uid);
+    const fileLabel=puzzlePanel.querySelector('.pz-file-label');
+    if(fileLabel) fileLabel.textContent=T('pzDateiLaden');
+  }
   // Wheel panel uses uid*1000+1, Slot uses uid*1000+2
   _trWheel(uid*1000+1);
   _trSlotInner(uid*1000+2);
@@ -4223,11 +4265,12 @@ function buildDraw(body,uid){
     <input type="file" accept="image/*" style="display:none;" onchange="insertDrawPhoto(${uid},this.files[0]);this.value=''">
   </label>
   <!-- Actions -->
+  <button id="dbtn-undo-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;opacity:0.4;" onclick="undoDraw(${uid})" title="Rückgängig (Strg+Z)">↩</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="clearDraw(${uid})" title="Löschen">🗑</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="saveDraw(${uid})" title="Speichern">💾</button>
 </div>
 <canvas class="draw-canvas" id="dcanvas-${uid}" style="flex:1;min-height:180px;"></canvas>`;
-  drawStates[uid]={color:'#000000',sz:5,tool:'pen',drawing:false,lx:0,ly:0};
+  drawStates[uid]={color:'#000000',sz:5,tool:'pen',drawing:false,lx:0,ly:0,undoStack:[]};
   setTimeout(()=>initDraw(uid),60);
 }
 function insertDrawPhoto(uid, file){
@@ -4305,6 +4348,7 @@ function initDraw(uid){
   function commitText(){
     if(!st.textActive) return;
     stopCursorBlink();
+    pushDrawUndo(uid,cv);
     if(st.textStr.trim()!==''){
       // Draw final text without cursor onto snapshot, then apply
       ctx.putImageData(st.textSnapshot,0,0);
@@ -4340,6 +4384,7 @@ function initDraw(uid){
       cv.focus();
       return;
     }
+    pushDrawUndo(uid,cv);
     st.drawing=true;st.lx=p.x;st.ly=p.y;
   });
   cv.addEventListener('mousemove',e=>{if(!st.drawing)return;const p=getP(e);stroke(st.lx,st.ly,p.x,p.y);st.lx=p.x;st.ly=p.y;});
@@ -4355,6 +4400,7 @@ function initDraw(uid){
       st.cursorVis=true; renderTextCursor(); startCursorBlink();
       cv.focus(); return;
     }
+    pushDrawUndo(uid,cv);
     st.drawing=true;st.lx=p.x;st.ly=p.y;
   },{passive:false});
   cv.addEventListener('touchmove',e=>{e.preventDefault();if(!st.drawing)return;const p=getP(e);stroke(st.lx,st.ly,p.x,p.y);st.lx=p.x;st.ly=p.y;},{passive:false});
@@ -4364,6 +4410,7 @@ function initDraw(uid){
   cv.setAttribute('tabindex','0');
   cv.style.outline='none';
   cv.addEventListener('keydown',e=>{
+    if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){e.preventDefault();undoDraw(uid);return;}
     if(!st.textActive) return;
     e.preventDefault();
     if(e.key==='Escape'||e.key==='Enter'){
@@ -4376,6 +4423,25 @@ function initDraw(uid){
     }
     renderTextCursor();
   });
+}
+function pushDrawUndo(uid,cv){
+  const st=drawStates[uid]; if(!st||!cv)return;
+  const ctx=cv.getContext('2d');
+  const snap=ctx.getImageData(0,0,cv.width,cv.height);
+  st.undoStack.push(snap);
+  if(st.undoStack.length>40) st.undoStack.shift(); // limit memory
+  const btn=document.getElementById('dbtn-undo-'+uid);
+  if(btn) btn.style.opacity='1';
+}
+function undoDraw(uid){
+  const st=drawStates[uid]; if(!st)return;
+  const cv=document.getElementById('dcanvas-'+uid); if(!cv)return;
+  if(st.undoStack.length===0)return;
+  const snap=st.undoStack.pop();
+  const ctx=cv.getContext('2d');
+  ctx.putImageData(snap,0,0);
+  const btn=document.getElementById('dbtn-undo-'+uid);
+  if(btn) btn.style.opacity=st.undoStack.length===0?'0.4':'1';
 }
 function resizeDrawCanvas(cv){
   if(!cv)return;
@@ -4691,7 +4757,7 @@ function buildTextpad(body,uid){
     <option value="'Georgia',serif">Georgia</option>
     <option value="'Courier New',monospace">Monospace</option>
   </select>
-  <select style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;" onchange="setTPSize(${uid},this.value)">
+  <select style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;" onchange="setTPSize(${uid},this.value)" title="Standard-Schriftgröße für das gesamte Feld">
     <option value="13px">${T('textKlein')}</option>
     <option value="16px" selected>${T('textNormal')}</option>
     <option value="20px">${T('textGross')}</option>
@@ -4705,6 +4771,22 @@ function buildTextpad(body,uid){
   <button id="tp-italic-${uid}" onmousedown="tpFormat(event,${uid},'italic')"
     style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;cursor:pointer;font-family:'Georgia',serif;font-style:italic;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;"
     title="Kursiv (Strg+I)"><i>K</i></button>
+  <select id="tp-inlinesize-${uid}"
+    style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;"
+    title="Schriftgröße für Auswahl / nächste Eingabe"
+    onmousedown="tpSaveSel(${uid})"
+    onchange="tpInlineSize(${uid},this.value);this.value=''">
+    <option value="" disabled selected>Größe ▾</option>
+    <option value="10">10 px</option>
+    <option value="13">13 px – Klein</option>
+    <option value="16">16 px – Normal</option>
+    <option value="20">20 px – Groß</option>
+    <option value="26">26 px – Sehr groß</option>
+    <option value="36">36 px – Riesig</option>
+    <option value="48">48 px – Riesig+</option>
+    <option value="64">64 px – XXL</option>
+    <option value="80">80 px – Maxi</option>
+  </select>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Löschen" onclick="document.getElementById('textpad-${uid}').innerHTML='';updateTPCounter(${uid})">🗑</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Kopieren" onclick="navigator.clipboard?.writeText(document.getElementById('textpad-${uid}').innerText)">📋</button>
@@ -4749,6 +4831,63 @@ function setTPSize(uid,s){
   const el=document.getElementById('textpad-'+uid);
   if(el){el.style.fontSize=s; el.focus();}
 }
+// Save selection before the dropdown steals focus
+const _tpSavedSel={};
+function tpSaveSel(uid){
+  const sel=window.getSelection();
+  if(sel&&sel.rangeCount>0) _tpSavedSel[uid]=sel.getRangeAt(0).cloneRange();
+}
+// Apply inline font-size to current selection or at caret via a <span>
+function tpInlineSize(uid,px){
+  const el=document.getElementById('textpad-'+uid);
+  if(!el) return;
+  el.focus();
+  // Restore saved selection if any
+  const saved=_tpSavedSel[uid];
+  if(saved){
+    const sel=window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(saved);
+    delete _tpSavedSel[uid];
+  }
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount) return;
+  const range=sel.getRangeAt(0);
+  if(!range.collapsed){
+    // Text is selected → wrap selection in a span with the desired font-size
+    const span=document.createElement('span');
+    span.style.fontSize=px+'px';
+    try{ range.surroundContents(span); }catch(e){
+      // surroundContents fails when selection crosses elements – use execCommand fallback
+      document.execCommand('fontSize',false,'7');
+      el.querySelectorAll('font[size="7"]').forEach(f=>{
+        const s=document.createElement('span');
+        s.style.fontSize=px+'px';
+        while(f.firstChild) s.appendChild(f.firstChild);
+        f.parentNode.replaceChild(s,f);
+      });
+    }
+    // Collapse selection to end of inserted span
+    const newRange=document.createRange();
+    newRange.selectNodeContents(span);
+    newRange.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+  } else {
+    // No selection → insert a zero-width span; next typed characters inherit its size
+    const span=document.createElement('span');
+    span.style.fontSize=px+'px';
+    span.appendChild(document.createTextNode('​')); // zero-width space as anchor
+    range.insertNode(span);
+    // Place caret inside span after the ZWS
+    const newRange=document.createRange();
+    newRange.setStart(span.firstChild,1);
+    newRange.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(newRange);
+  }
+  updateTPCounter(uid);
+}
 function updateTPCounter(uid){
   const el=document.getElementById('textpad-'+uid);
   const ctr=document.getElementById('tp-counter-'+uid);
@@ -4781,26 +4920,36 @@ function saveTPasRtf(uid){
     return out;
   }
   // Walk the DOM and convert to RTF tokens
-  function nodeToRtf(node){
-    if(node.nodeType===3){ return escRtf(node.textContent); }
+  // parentHp = inherited half-point size from parent (emit \fsN only on change)
+  function nodeToRtf(node, parentHp){
+    if(parentHp===undefined) parentHp=containerHalfPts;
+    if(node.nodeType===3){
+      const t=node.textContent.replace(/\u200B/g,'');
+      return t ? escRtf(t) : '';
+    }
     if(node.nodeType!==1) return '';
     const tag=node.tagName.toUpperCase();
     if(tag==='BR') return '\\line ';
     const cs=window.getComputedStyle(node);
     const isBold= parseInt(cs.fontWeight)>=600 || tag==='B' || tag==='STRONG';
     const isItalic= cs.fontStyle==='italic' || tag==='I' || tag==='EM';
+    const nodePx=parseFloat(cs.fontSize)||0;
+    const nodeHp=nodePx>0 ? Math.round(nodePx*1.5) : 0;
+    const sizeChanged=nodeHp>0 && nodeHp!==parentHp;
     let inner='';
-    node.childNodes.forEach(n=>{ inner+=nodeToRtf(n); });
+    node.childNodes.forEach(n=>{ inner+=nodeToRtf(n, sizeChanged ? nodeHp : parentHp); });
     if(tag==='P'||tag==='DIV') inner+=inner.length ? '\\par ' : '';
     if(isItalic) inner=`{\\i ${inner}}`;
     if(isBold)   inner=`{\\b ${inner}}`;
+    if(sizeChanged) inner=`{\\fs${nodeHp} ${inner}}`;
     return inner;
   }
 
   // Detect base font from container style
   const containerFont=(el.style.fontFamily||'Arial').replace(/['"]/g,'').split(',')[0].trim();
   const containerSizePx=parseFloat(window.getComputedStyle(el).fontSize)||16;
-  const halfPts=Math.round(containerSizePx*1.5); // px → half-points (1pt=1.333px)
+  const containerHalfPts=Math.round(containerSizePx*1.5);
+  const halfPts=containerHalfPts; // px -> half-points (1pt=1.333px) // px → half-points (1pt=1.333px)
 
   const fontTable=`{\\fonttbl{\\f0\\froman\\fcharset0 ${containerFont};}}`; 
   const colorTable=`{\\colortbl ;\\red17\\green17\\blue17;}`;
@@ -6149,9 +6298,9 @@ function buildSpiele(body, uid){
   // Tab bar
   const tabBar=document.createElement('div');
   tabBar.style.cssText='display:flex;gap:6px;align-items:center;padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;';
-  ['rad','slot','janken'].forEach((tab,i)=>{
-    const labelKeys={rad:'spieleRad',slot:'spieleSlot',janken:'spieleJanken'};
-    const icons={rad:'🎡',slot:'🎰',janken:'✂️'};
+  ['rad','slot','janken','puzzle'].forEach((tab,i)=>{
+    const labelKeys={rad:'spieleRad',slot:'spieleSlot',janken:'spieleJanken',puzzle:'spielePuzzle'};
+    const icons={rad:'🎡',slot:'🎰',janken:'✂️',puzzle:'🧩'};
     const btn=document.createElement('button');
     btn.className='timer-mode-btn spiele-tab-btn'+(i===0?' active-tmode':'');
     btn.id=`spiele-tab-${tab}-${uid}`;
@@ -6162,7 +6311,7 @@ function buildSpiele(body, uid){
   body.appendChild(tabBar);
 
   // Panels
-  ['rad','slot','janken'].forEach((tab,i)=>{
+  ['rad','slot','janken','puzzle'].forEach((tab,i)=>{
     const panel=document.createElement('div');
     panel.id=`spiele-panel-${tab}-${uid}`;
     panel.style.cssText=`flex:1;min-height:0;overflow:hidden;display:${i===0?'flex':'none'};flex-direction:column;`;
@@ -6199,10 +6348,17 @@ function buildSpiele(body, uid){
     <span style="font-size:.75em;font-weight:700;color:var(--text2);">${c.label}</span>
   </button>`).join('')}
 </div>`;
+
+  // ── Puzzle panel ──
+  const puzzlePanel = document.getElementById(`spiele-panel-puzzle-${uid}`);
+  // Nur Layout-Eigenschaften setzen, display bleibt 'none' (von panel-Erstellungs-Loop)
+  puzzlePanel.style.flexDirection = 'column';
+  puzzlePanel.style.overflow = 'hidden';
+  buildPuzzlePanel(puzzlePanel, uid);
 }
 
 function spieleShowTab(tab, uid){
-  ['rad','slot','janken'].forEach(t=>{
+  ['rad','slot','janken','puzzle'].forEach(t=>{
     const panel=document.getElementById(`spiele-panel-${t}-${uid}`);
     const btn  =document.getElementById(`spiele-tab-${t}-${uid}`);
     if(panel) panel.style.display = t===tab ? 'flex' : 'none';
@@ -6212,6 +6368,306 @@ function spieleShowTab(tab, uid){
     requestAnimationFrame(()=>slotSizeReels(uid*1000+2));
     setTimeout(()=>slotSizeReels(uid*1000+2), 120);
   }
+  // Refresh scale for any tab switch so --uiscale is propagated
+  const widgetEl = document.getElementById(`spiele-panel-rad-${uid}`)?.closest('.widget');
+  if(widgetEl) updateWidgetScale(widgetEl);
+}
+
+
+// ════════════════════════════════════════════════
+// WÖRTER-PUZZLE (Spiele-Tab)
+// ════════════════════════════════════════════════
+const pzState = {};
+let pzMouseSource = null;
+
+let _pzOwnCtx = null;
+function pzCtx(){
+  // Prefer the shared context from the main app (exposed by IIFE)
+  let c = window._pzAudioCtx;
+  if(!c){
+    // IIFE not yet run or unavailable — create our own, cache it
+    if(!_pzOwnCtx) _pzOwnCtx = new (window.AudioContext || window.webkitAudioContext)();
+    c = _pzOwnCtx;
+  }
+  if(c && c.state === 'suspended') c.resume();
+  return c;
+}
+
+function pzBeep(freq, type, dur, vol, delayMs){
+  setTimeout(() => {
+    const c = pzCtx(); if(!c) return;
+    const osc = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    osc.frequency.exponentialRampToValueAtTime(freq * 0.25, t + dur);
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(g); g.connect(c.destination);
+    osc.start(t); osc.stop(t + dur);
+  }, delayMs || 0);
+}
+
+function pzPlayDing()    { pzBeep(660, 'sine', 0.35, 0.18, 0); }
+function pzPlayWin()     { [523.25,659.25,783.99,1046.5].forEach((f,i) => pzBeep(f,'sine',0.4,0.12,80+i*120)); }
+function pzPlayPartial() { pzBeep(440,'sine',0.28,0.13,80); pzBeep(550,'sine',0.28,0.13,240); }
+function pzPlayWrong()   { pzBeep(360,'sine',0.22,0.15,80); pzBeep(270,'sine',0.22,0.15,260); }
+
+function buildPuzzlePanel(panel, uid){
+  pzState[uid] = {
+    sentences: ["eins zwei drei vier f\xFCnf sechs sieben acht neun zehn"],
+    current: 0,
+    lastData: "eins zwei drei vier f\xFCnf sechs sieben acht neun zehn"
+  };
+
+  // Panel-Layout: nur Flex-Richtung und Overflow setzen, display wird von spieleShowTab gesteuert
+  panel.style.flexDirection = 'column';
+  panel.style.overflow = 'hidden';
+  panel.style.padding = '0';
+
+  // ── Scroll area (file button + game + check button) ──
+  const scrollArea = document.createElement('div');
+  scrollArea.style.cssText = 'flex:1 1 0;min-height:0;height:0;overflow-y:auto;overflow-x:hidden;padding:10px 10px 10px;display:flex;flex-direction:column;gap:6px;';
+  panel.appendChild(scrollArea);
+
+  // File button — compact, not full width
+  const fileLabel = document.createElement('label');
+  fileLabel.className = 'pz-file-label';
+  fileLabel.textContent = T('pzDateiLaden');
+  fileLabel.htmlFor = `pz-file-${uid}`;
+  fileLabel.style.cssText += ';align-self:flex-start;';
+  scrollArea.appendChild(fileLabel);
+
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file'; fileInput.accept = '.txt'; fileInput.id = `pz-file-${uid}`;
+  fileInput.style.display = 'none';
+  fileInput.addEventListener('change', function(e){
+    const file = e.target.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => { pzState[uid].lastData = ev.target.result; pzProcessData(uid, ev.target.result); };
+    reader.readAsText(file, 'UTF-8');
+  });
+  scrollArea.appendChild(fileInput);
+
+  const game = document.createElement('div');
+  game.id = `pz-game-${uid}`;
+  game.style.cssText = 'display:flex;flex-direction:column;gap:6px;flex-shrink:0;';
+  scrollArea.appendChild(game);
+
+  pzShowSentence(uid);
+}
+
+function pzProcessData(uid, data){
+  const st = pzState[uid];
+  st.sentences = data.split(/\r?\n/).map(t=>t.trim()).filter(t=>t.length>0);
+  st.current = 0;
+  pzShowSentence(uid);
+}
+
+function pzShuffle(arr){ return arr.sort(()=>Math.random()-0.5); }
+
+function pzShowSentence(uid){
+  const st = pzState[uid];
+  const game = document.getElementById(`pz-game-${uid}`);
+  if(!game) return;
+  game.innerHTML = '';
+
+  if(st.current >= st.sentences.length){
+    const done = document.createElement('div');
+    done.style.cssText = 'font-weight:700;color:var(--green);padding:8px 0;';
+    done.textContent = T('pzPerfekt');
+    game.appendChild(done);
+    const btn = document.createElement('button');
+    btn.className = 'pz-btn'; btn.style.background = 'var(--accent2)';
+    btn.textContent = T('pzNochmal');
+    btn.onclick = () => { st.current = 0; pzProcessData(uid, st.lastData); };
+    game.appendChild(btn);
+    return;
+  }
+
+  const correct = st.sentences[st.current];
+  const words   = pzShuffle(correct.split(/\s+/));
+
+  const prog = document.createElement('div');
+  prog.className = 'pz-progress';
+  prog.textContent = `${T('pzSatz')} ${st.current+1} ${T('pzVon')} ${st.sentences.length}`;
+  game.appendChild(prog);
+
+  const lbl = document.createElement('span');
+  lbl.className = 'pz-label';
+  lbl.textContent = T('pzInstruktion');
+  game.appendChild(lbl);
+
+  const pool = pzCreateZone(uid);
+  pool.dataset.correct = correct;
+  pool.style.flexShrink = '0';
+  words.forEach(w => pool.appendChild(pzCreateWord(w, uid)));
+  game.appendChild(pool);
+
+  // ── Prüfen button directly below the word box ──
+  const checkBtn = document.createElement('button');
+  checkBtn.className = 'pz-btn';
+  checkBtn.id = `pz-check-${uid}`;
+  checkBtn.textContent = T('pzPruefen');
+  checkBtn.onclick = () => pzCheck(uid);
+  game.appendChild(checkBtn);
+}
+
+function pzCreateWord(text, uid){
+  const el = document.createElement('div');
+  el.className = 'pz-word';
+  el.textContent = text;
+  pzAddDragEvents(el, uid);
+  return el;
+}
+
+function pzCreateZone(uid){
+  const zone = document.createElement('div');
+  zone.className = 'pz-container';
+  zone.addEventListener('dragover', e=>{
+    e.preventDefault(); zone.classList.add('drag-over');
+    if(!pzMouseSource) return;
+    pzFlipInsert(zone, pzGetMovable(pzMouseSource), pzGetAfterElement(zone, e.clientX, e.clientY));
+  });
+  zone.addEventListener('dragleave', ()=>zone.classList.remove('drag-over'));
+  zone.addEventListener('drop', e=>{ e.preventDefault(); zone.classList.remove('drag-over'); pzMouseSource=null; });
+  return zone;
+}
+
+function pzAddDragEvents(el, uid){
+  el.draggable = true;
+  el.addEventListener('dragstart', ()=>{
+    pzMouseSource = el;
+    setTimeout(()=>pzGetMovable(el).classList.add('pz-dragging'), 0);
+  });
+  el.addEventListener('dragend', ()=>{
+    if(pzMouseSource) pzGetMovable(pzMouseSource).classList.remove('pz-dragging');
+    pzMouseSource = null;
+    try{const _ac=new(window.AudioContext||window.webkitAudioContext)();playPop(_ac,0.55);}catch(_e){}
+  });
+  pzAddTouchDrag(el);
+}
+
+function pzAddTouchDrag(el){
+  let ghost=null, src=null, ox=0, oy=0;
+  el.addEventListener('touchstart', e=>{
+    src = el;
+    const mov = pzGetMovable(el), t = e.touches[0], r = mov.getBoundingClientRect();
+    ox = t.clientX - r.left; oy = t.clientY - r.top;
+    ghost = mov.cloneNode(true);
+    ghost.className = 'pz-ghost';
+    ghost.style.width = r.width+'px';
+    ghost.style.left  = (t.clientX-ox)+'px';
+    ghost.style.top   = (t.clientY-oy)+'px';
+    document.body.appendChild(ghost);
+    mov.classList.add('pz-dragging');
+  },{passive:true});
+  el.addEventListener('touchmove', e=>{
+    if(!src||!ghost) return;
+    e.preventDefault();
+    const t = e.touches[0];
+    ghost.style.left=(t.clientX-ox)+'px'; ghost.style.top=(t.clientY-oy)+'px';
+    ghost.style.visibility='hidden';
+    const target = document.elementFromPoint(t.clientX, t.clientY);
+    ghost.style.visibility='visible';
+    const zone = target && target.closest('.pz-container');
+    if(!zone) return;
+    document.querySelectorAll('.pz-container').forEach(z=>z.classList.remove('drag-over'));
+    zone.classList.add('drag-over');
+    pzFlipInsert(zone, pzGetMovable(src), pzGetAfterElement(zone, t.clientX, t.clientY));
+  },{passive:false});
+  const end = ()=>{
+    if(ghost){ghost.remove();ghost=null;}
+    if(src){pzGetMovable(src).classList.remove('pz-dragging');src=null;}
+    document.querySelectorAll('.pz-container').forEach(z=>z.classList.remove('drag-over'));
+    try{const _ac=new(window.AudioContext||window.webkitAudioContext)();playPop(_ac,0.55);}catch(_e){}
+  };
+  el.addEventListener('touchend', end); el.addEventListener('touchcancel', end);
+}
+
+function pzGetMovable(el){
+  const p = el.parentElement;
+  return (p && p.classList.contains('pz-group')) ? p : el;
+}
+
+function pzFlipInsert(container, toMove, after){
+  const children = [...container.querySelectorAll('.pz-word:not(.pz-group .pz-word), .pz-group')].filter(el=>el!==toMove);
+  const first = new Map();
+  children.forEach(el=>{ const r=el.getBoundingClientRect(); first.set(el,{x:r.left,y:r.top}); });
+  if(after==null) container.appendChild(toMove); else container.insertBefore(toMove, after);
+  children.forEach(el=>{
+    const f=first.get(el); if(!f) return;
+    const l=el.getBoundingClientRect();
+    const dx=f.x-l.left, dy=f.y-l.top;
+    if(Math.abs(dx)<1&&Math.abs(dy)<1) return;
+    el.style.transition='none'; el.style.transform=`translate(${dx}px,${dy}px)`;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{ el.style.transition=''; el.style.transform=''; }));
+  });
+}
+
+function pzGetAfterElement(container, x, y){
+  const items=[...container.querySelectorAll('.pz-word:not(.pz-group .pz-word), .pz-group:not(.pz-dragging)')];
+  if(!items.length) return null;
+  const rows=[];
+  items.forEach(el=>{
+    const box=el.getBoundingClientRect(), mid=box.top+box.height/2;
+    let row=rows.find(r=>Math.abs(r.mid-mid)<box.height*0.6);
+    if(!row){row={mid,els:[]};rows.push(row);}
+    row.els.push(el);
+  });
+  rows.sort((a,b)=>a.mid-b.mid);
+  let best=rows[0], bestD=Infinity;
+  rows.forEach(r=>{ const d=Math.abs(r.mid-y); if(d<bestD){bestD=d;best=r;} });
+  const sorted=best.els.slice().sort((a,b)=>a.getBoundingClientRect().left-b.getBoundingClientRect().left);
+  for(const el of sorted){ const box=el.getBoundingClientRect(); if(x<box.left+box.width/2) return el; }
+  const idx=rows.indexOf(best);
+  if(idx<rows.length-1){
+    return rows[idx+1].els.slice().sort((a,b)=>a.getBoundingClientRect().left-b.getBoundingClientRect().left)[0];
+  }
+  return null;
+}
+
+function pzNorm(text){ return text.replace(/[.,!?;:]/g,'').replace(/\s+/g,' ').trim().toLowerCase(); }
+
+function pzCheck(uid){
+  pzPlayDing();
+  const pool = document.querySelector(`#pz-game-${uid} .pz-container`);
+  if(!pool) return;
+  const wordsInOrder = [...pool.querySelectorAll('.pz-word')].map(w=>w.textContent);
+  const correctStr   = pool.dataset.correct;
+  if(pzNorm(wordsInOrder.join(' ')) === pzNorm(correctStr)){
+    pzPlayWin();
+    setTimeout(()=>{ pzState[uid].current++; pzShowSentence(uid); }, 2000);
+  } else {
+    let anyMatch=false;
+    while(pzUpdateGroups(pool, correctStr)){ anyMatch=true; }
+    if(anyMatch) pzPlayPartial(); else pzPlayWrong();
+  }
+}
+
+function pzUpdateGroups(answer, correctStr){
+  const cw=correctStr.split(/\s+/);
+  const ws=[...answer.querySelectorAll('.pz-word')];
+  for(let i=0;i<ws.length-1;i++){
+    const a=ws[i], b=ws[i+1];
+    let match=false;
+    for(let j=0;j<cw.length-1;j++){ if(cw[j]===a.textContent&&cw[j+1]===b.textContent){match=true;break;} }
+    if(match&&(a.parentElement!==b.parentElement||!a.parentElement.classList.contains('pz-group'))){
+      const grp=document.createElement('div');
+      grp.className='pz-group';
+      pzAddTouchDrag(grp);
+      grp.draggable=true;
+      grp.addEventListener('dragstart',()=>{ pzMouseSource=grp.querySelector('.pz-word'); setTimeout(()=>grp.classList.add('pz-dragging'),0); });
+      grp.addEventListener('dragend',()=>{ grp.classList.remove('pz-dragging'); pzMouseSource=null; });
+      const ref=a.parentElement.classList.contains('pz-group')?a.parentElement:a;
+      answer.insertBefore(grp,ref);
+      const toMove=[];
+      [a,b].forEach(el=>{ if(el.parentElement.classList.contains('pz-group')) toMove.push(...el.parentElement.querySelectorAll('.pz-word')); else toMove.push(el); });
+      toMove.forEach(w=>grp.appendChild(w));
+      [...answer.querySelectorAll('.pz-group')].forEach(g=>{if(g.children.length===0)g.remove();});
+      return true;
+    }
+  }
+  return false;
 }
 
 // ════════════════════════════════════════════════
@@ -6573,6 +7029,7 @@ function spinQuestionWheel(uid){
   });
 
   // Override playSound to use Web Audio API when buffer is ready
+  window._pzAudioCtx = _audioCtx;   // expose for Puzzle
   window._waPlaySound = function(id, vol) {
     if(_audioCtx.state === 'suspended') _audioCtx.resume();
     const buf = _buffers[id];
