@@ -23,6 +23,7 @@ body.light-mode{
 }
 body.light-mode #bg-layer{background:var(--bg);background-image:radial-gradient(rgba(58,106,255,0.07) 1px,transparent 1px);background-size:28px 28px;}
 body.light-mode #topbar{background:rgba(240,242,250,0.94);border-bottom:1px solid rgba(0,0,0,0.1);}
+body.light-mode #launcher{background:rgba(180,190,220,0.55);}
 body.light-mode .widget{background:rgba(255,255,255,0.92);border:1px solid rgba(0,0,0,0.1);}
 body.light-mode .widget-header{background:rgba(0,0,0,0.05);border-bottom:1px solid rgba(0,0,0,0.07);}
 body.light-mode .wh-btn{color:var(--text2);}
@@ -251,7 +252,10 @@ html,body{width:100%;height:100%;min-height:100dvh;overflow:hidden;font-family:'
   flex:0 0 auto;
   min-width:max-content;
   overflow:visible;
-  padding:0 2px 2px 0;
+  padding:4px 10px 4px 4px;
+  background:rgba(60,70,120,0.55);
+  border-radius:12px;
+  margin:4px 0;
 }
 #launcher::-webkit-scrollbar{display:none;}
 #launcher{scrollbar-width:none;}
@@ -1109,19 +1113,19 @@ body.light-mode .slot-scorebar-title{
 
 
 /* ── Wörter-Puzzle (Spiele-Tab) ── */
-.pz-container{min-height:calc(var(--uiscale,1)*60px);border:3px dashed #90c0f0;border-radius:14px;padding:calc(var(--uiscale,1)*12px);display:flex;flex-wrap:wrap;gap:calc(var(--uiscale,1)*8px);background:rgba(108,143,255,0.08);align-content:flex-start;}
-.pz-container.drag-over{border-color:#4ade80;background:rgba(74,222,128,0.08);}
-.pz-word{background:var(--card);padding:calc(var(--uiscale,1)*10px) calc(var(--uiscale,1)*18px);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.25);cursor:grab;user-select:none;-webkit-user-select:none;border:1px solid rgba(255,255,255,0.1);font-size:calc(var(--uiscale,1)*22px);display:inline-block;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;color:var(--text);}
+.pz-container{min-height:calc(var(--uiscale,1)*60px);border:none;border-radius:14px;padding:calc(var(--uiscale,1)*12px);display:flex;flex-wrap:wrap;gap:calc(var(--uiscale,1)*8px);background:rgba(30,40,80,0.55);align-content:flex-start;}
+.pz-container.drag-over{background:rgba(74,222,128,0.15);}
+.pz-word{background:#e8edf8;padding:calc(var(--uiscale,1)*10px) calc(var(--uiscale,1)*18px);border-radius:10px;box-shadow:0 2px 6px rgba(0,0,0,0.35);cursor:grab;user-select:none;-webkit-user-select:none;border:1px solid rgba(255,255,255,0.15);font-size:calc(var(--uiscale,1)*22px);display:inline-block;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;color:#1a1f3a;}
 .pz-word:active{cursor:grabbing;}
 .pz-group{display:flex;gap:calc(var(--uiscale,1)*5px);border:2px solid #4ade80;border-radius:14px;padding:calc(var(--uiscale,1)*6px) calc(var(--uiscale,1)*8px);background:rgba(74,222,128,0.08);align-items:center;flex-wrap:wrap;cursor:grab;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;}
 .pz-ghost{position:fixed;z-index:9999;pointer-events:none;opacity:0.85;transform:scale(1.08);box-shadow:0 8px 24px rgba(0,0,0,0.4);border-radius:10px;}
 .pz-progress{font-size:calc(var(--uiscale,1)*12px);color:var(--text2);margin-bottom:calc(var(--uiscale,1)*3px);}
 .pz-label{font-size:calc(var(--uiscale,1)*13px);font-weight:600;color:var(--text2);display:block;margin-bottom:calc(var(--uiscale,1)*4px);}
-.pz-btn{margin-top:calc(var(--uiscale,1)*4px);width:100%;padding:calc(var(--uiscale,1)*12px);font-size:calc(var(--uiscale,1)*16px);border:none;border-radius:12px;background:var(--accent);color:#fff;cursor:pointer;touch-action:manipulation;}
+.pz-btn{margin-top:calc(var(--uiscale,1)*4px);width:auto;align-self:flex-start;padding:calc(var(--uiscale,1)*10px) calc(var(--uiscale,1)*28px);font-size:calc(var(--uiscale,1)*16px);border:none;border-radius:12px;background:var(--accent);color:#fff;cursor:pointer;touch-action:manipulation;}
 .pz-btn:active{filter:brightness(0.88);}
 .pz-file-label{display:inline-block;background:rgba(108,143,255,0.15);border:1.5px solid var(--accent);border-radius:9px;padding:calc(var(--uiscale,1)*7px) calc(var(--uiscale,1)*14px);font-size:calc(var(--uiscale,1)*13px);cursor:pointer;margin-bottom:calc(var(--uiscale,1)*8px);color:var(--text);touch-action:manipulation;}
 body.light-mode .pz-word{background:#fff;border-color:rgba(0,0,0,0.12);color:#1a1f3a;}
-body.light-mode .pz-container{background:rgba(58,106,255,0.05);}
+body.light-mode .pz-container{background:rgba(58,106,255,0.12);}
 body.light-mode .pz-file-label{background:#e8f0fe;border-color:#3a6aff;color:#1a1f3a;}
 
 </style>
@@ -1270,17 +1274,9 @@ body.light-mode .pz-file-label{background:#e8f0fe;border-color:#3a6aff;color:#1a
   <!-- Hell/Dunkel-Schalter -->
   <button id="light-mode-btn" onclick="toggleLightMode()" style="width:100%;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--bg3);border:1px solid rgba(255,255,255,0.13);color:var(--text);border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s;font-family:Arial,sans-serif;">Helle Oberfläche</button>
   <div class="sound-divider" style="margin-bottom:10px;"></div>
-  <!-- Farb-Picker + Swatches kompakt ohne Titel/Labels -->
-  <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-    <input type="color" id="bg-color-picker" value="#1a1f3a"
-      style="width:40px;height:40px;border:2px solid rgba(255,255,255,0.2);border-radius:10px;cursor:pointer;background:none;padding:2px;flex-shrink:0;"
-      oninput="applyBgColor(this.value)">
-    <div style="flex:1;">
-      <div style="display:flex;gap:4px;flex-wrap:wrap;" id="bg-swatches"></div>
-    </div>
-  </div>
-
-  <div class="sound-divider"></div>
+  <!-- Theme picker -->
+  <div id="theme-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;"></div>
+  <div class="sound-divider" style="margin-bottom:10px;"></div>
 
   <div class="bg-upload-zone" id="bg-dropzone" onclick="document.getElementById('bg-file-input').click()" ondragover="event.preventDefault()" ondrop="handleBgDrop(event)">
     <input type="file" id="bg-file-input" accept="image/*" onchange="handleBgFile(this.files[0])">
@@ -1363,7 +1359,7 @@ window.addEventListener('resize', ()=>{ setDesktopTop(); document.querySelectorA
 if(window.visualViewport){ window.visualViewport.addEventListener('resize', setDesktopTop); }
 document.fonts.ready.then(setDesktopTop);
 setTimeout(setDesktopTop, 200);
-setTimeout(()=>applyLanguage('de'),100);
+setTimeout(()=>{ applyLanguage('de'); applyTheme('midnight','dark'); },120);
 
 // Empty hint
 
@@ -2443,88 +2439,153 @@ function playPop(ac, vol){
 // ════════════════════════════════════════════════
 // BACKGROUND SYSTEM
 // ════════════════════════════════════════════════
-const BG_SWATCHES_DARK=[
-  '#1a1f3a','#0d2a45','#0e2618','#2a1408',
+// ── FULL COLOUR THEMES ──
+const THEMES = [
+  { id:'midnight', label:'Mitternacht',
+    dark:{  bg:'#1a1f3a',bg2:'#1d2347',bg3:'#2e3560',card:'#242c56',card2:'#2e3870',accent:'#6c8fff',accent2:'#a78bfa',text:'#eef0ff',text2:'#8892bb',topbar:'rgba(29,35,71,0.92)',launcher:'rgba(60,70,120,0.55)',dotColor:'rgba(255,255,255,0.05)'},
+    light:{ bg:'#f0f2fa',bg2:'#e8ebf7',bg3:'#d8dcef',card:'#ffffff',card2:'#e2e6f8',accent:'#3a6aff',accent2:'#7c5ce8',text:'#1a1f3a',text2:'#5a6390',topbar:'rgba(240,242,250,0.94)',launcher:'rgba(180,190,220,0.55)',dotColor:'rgba(58,106,255,0.07)'}
+  },
+  { id:'forest', label:'Wald',
+    dark:{  bg:'#0e2618',bg2:'#122e1c',bg3:'#1e4a2c',card:'#163522',card2:'#1f4a2f',accent:'#4ade80',accent2:'#86efac',text:'#e8fdf0',text2:'#7db98f',topbar:'rgba(14,38,24,0.94)',launcher:'rgba(30,74,44,0.6)',dotColor:'rgba(74,222,128,0.05)'},
+    light:{ bg:'#edf7f0',bg2:'#ddf0e4',bg3:'#c8e6d0',card:'#ffffff',card2:'#d8f0de',accent:'#16a34a',accent2:'#15803d',text:'#0d2618',text2:'#4a7a5a',topbar:'rgba(237,247,240,0.96)',launcher:'rgba(160,210,175,0.55)',dotColor:'rgba(22,163,74,0.07)'}
+  },
+  { id:'sunset', label:'Sonnenuntergang',
+    dark:{  bg:'#2a1408',bg2:'#32180a',bg3:'#4a2510',card:'#3a1c0c',card2:'#4e2a14',accent:'#fb923c',accent2:'#f472b6',text:'#fff4ee',text2:'#c08060',topbar:'rgba(42,20,8,0.94)',launcher:'rgba(74,37,16,0.6)',dotColor:'rgba(251,146,60,0.06)'},
+    light:{ bg:'#fff4ee',bg2:'#ffe8d6',bg3:'#fdd5b4',card:'#ffffff',card2:'#ffe4cc',accent:'#ea580c',accent2:'#db2777',text:'#2a1408',text2:'#885533',topbar:'rgba(255,244,238,0.96)',launcher:'rgba(253,213,180,0.6)',dotColor:'rgba(234,88,12,0.07)'}
+  },
+  { id:'ocean', label:'Ozean',
+    dark:{  bg:'#0d2a45',bg2:'#0f3255',bg3:'#1a4a72',card:'#143660',card2:'#1e4878',accent:'#38bdf8',accent2:'#818cf8',text:'#e8f6ff',text2:'#6a9ab8',topbar:'rgba(13,42,69,0.94)',launcher:'rgba(26,74,114,0.6)',dotColor:'rgba(56,189,248,0.05)'},
+    light:{ bg:'#eef8ff',bg2:'#daeefa',bg3:'#bcdff5',card:'#ffffff',card2:'#d4eefb',accent:'#0284c7',accent2:'#4f46e5',text:'#0d2a45',text2:'#3a6a90',topbar:'rgba(238,248,255,0.96)',launcher:'rgba(188,223,245,0.6)',dotColor:'rgba(2,132,199,0.07)'}
+  },
+  { id:'berry', label:'Beere',
+    dark:{  bg:'#1e0a2e',bg2:'#260d38',bg3:'#3a1455',card:'#2e1045',card2:'#3e185c',accent:'#c084fc',accent2:'#f472b6',text:'#f5eeff',text2:'#9a70c0',topbar:'rgba(30,10,46,0.94)',launcher:'rgba(58,20,85,0.6)',dotColor:'rgba(192,132,252,0.06)'},
+    light:{ bg:'#faf5ff',bg2:'#f3e8ff',bg3:'#e9d5ff',card:'#ffffff',card2:'#ede9fe',accent:'#9333ea',accent2:'#db2777',text:'#1e0a2e',text2:'#6b35a0',topbar:'rgba(250,245,255,0.96)',launcher:'rgba(233,213,255,0.6)',dotColor:'rgba(147,51,234,0.07)'}
+  },
+  { id:'slate', label:'Schiefer',
+    dark:{  bg:'#0f172a',bg2:'#131c30',bg3:'#1e2d45',card:'#1a2540',card2:'#243050',accent:'#64748b',accent2:'#94a3b8',text:'#e2e8f0',text2:'#64748b',topbar:'rgba(15,23,42,0.94)',launcher:'rgba(30,45,69,0.6)',dotColor:'rgba(100,116,139,0.06)'},
+    light:{ bg:'#f1f5f9',bg2:'#e2e8f0',bg3:'#cbd5e1',card:'#ffffff',card2:'#e8edf4',accent:'#475569',accent2:'#6366f1',text:'#0f172a',text2:'#475569',topbar:'rgba(241,245,249,0.96)',launcher:'rgba(203,213,225,0.6)',dotColor:'rgba(71,85,105,0.07)'}
+  },
 ];
-const BG_SWATCHES_MID=[
-  '#3b4b7a','#2e5e4e','#5a3a1a','#4a2060',
-];
-const BG_SWATCHES_LIGHT=[
-  '#f0f4ff','#e8f5e9','#fff8e1','#fce4ec',
-];
-const BG_SWATCHES=[...BG_SWATCHES_DARK,...BG_SWATCHES_MID,...BG_SWATCHES_LIGHT];
 
-function applyBgColor(hex){
-  bgPhotoData=null;
-  const bl=document.getElementById('bg-layer');
-  bl.classList.remove('has-photo');
-  bl.style.backgroundImage='radial-gradient(rgba(255,255,255,0.05) 1px,transparent 1px)';
-  bl.style.backgroundColor=hex;
-  bl.style.backgroundSize='28px 28px';
-  bl.style.filter='';
-  document.getElementById('bg-overlay').style.background='rgba(0,0,0,0)';
-  document.getElementById('bg-photo-controls').style.display='none';
-  document.documentElement.style.setProperty('--bg',hex);
-  const picker=document.getElementById('bg-color-picker');
-  if(picker) picker.value=hex;
-}
+let _activeThemeId = 'midnight';
+let _activeThemeMode = 'dark'; // 'dark' | 'light'
 
-function buildBgSwatches(){
-  const cont=document.getElementById('bg-swatches');
-  if(!cont) return;
-  cont.innerHTML='';
-  // All three rows inline, no labels, tighter gaps
-  const allSwatches=[
-    ...BG_SWATCHES_DARK.map(h=>({hex:h,border:'rgba(255,255,255,0.25)'})),
-    ...BG_SWATCHES_MID .map(h=>({hex:h,border:'rgba(255,255,255,0.2)'})),
-    ...BG_SWATCHES_LIGHT.map(h=>({hex:h,border:'rgba(0,0,0,0.15)'})),
-  ];
-  allSwatches.forEach(({hex,border})=>{
-    const d=document.createElement('div');
-    d.style.cssText=`width:26px;height:26px;border-radius:7px;background:${hex};cursor:pointer;border:2px solid ${border};flex-shrink:0;transition:transform .1s;`;
-    d.title=hex;
-    d.onmouseover=()=>d.style.transform='scale(1.18)';
-    d.onmouseleave=()=>d.style.transform='';
-    d.onclick=()=>applyBgColor(hex);
-    cont.appendChild(d);
-  });
-}
-
-let bgPhotoData = null;
-
-function toggleLightMode(){
-  const isLight = document.body.classList.toggle('light-mode');
+function applyTheme(themeId, mode){
+  const theme = THEMES.find(t=>t.id===themeId);
+  if(!theme) return;
+  _activeThemeId = themeId;
+  _activeThemeMode = mode || (document.body.classList.contains('light-mode') ? 'light' : 'dark');
+  const vars = theme[_activeThemeMode];
+  const r = document.documentElement.style;
+  r.setProperty('--bg',    vars.bg);
+  r.setProperty('--bg2',   vars.bg2);
+  r.setProperty('--bg3',   vars.bg3);
+  r.setProperty('--card',  vars.card);
+  r.setProperty('--card2', vars.card2);
+  r.setProperty('--accent',vars.accent);
+  r.setProperty('--accent2',vars.accent2);
+  r.setProperty('--text',  vars.text);
+  r.setProperty('--text2', vars.text2);
+  // Background layer
+  const bl = document.getElementById('bg-layer');
+  if(bl){
+    bl.classList.remove('has-photo');
+    bl.style.backgroundColor = vars.bg;
+    bl.style.backgroundImage = `radial-gradient(${vars.dotColor} 1px,transparent 1px)`;
+    bl.style.backgroundSize = '28px 28px';
+    bl.style.filter = '';
+  }
+  const bo = document.getElementById('bg-overlay');
+  if(bo) bo.style.background = 'rgba(0,0,0,0)';
+  document.getElementById('bg-photo-controls').style.display = 'none';
+  // Topbar + launcher
+  const tb = document.getElementById('topbar');
+  if(tb) tb.style.background = vars.topbar;
+  const la = document.getElementById('launcher');
+  if(la) la.style.background = vars.launcher;
+  // light-mode class
+  if(_activeThemeMode === 'light') document.body.classList.add('light-mode');
+  else document.body.classList.remove('light-mode');
+  // Sync toggle button label
   const btn = document.getElementById('light-mode-btn');
   if(btn){
+    const isLight = _activeThemeMode === 'light';
     btn.textContent = isLight ? 'Dunkle Oberfläche' : 'Helle Oberfläche';
     btn.style.background = isLight ? 'var(--accent)' : 'var(--bg3)';
     btn.style.color = isLight ? '#fff' : 'var(--text)';
     btn.style.borderColor = isLight ? 'var(--accent)' : 'rgba(0,0,0,0.12)';
   }
-  // Redraw analog clocks so they pick up light/dark colours
+  // Clock redraws
   document.querySelectorAll('.widget[data-type="clock"]').forEach(w=>{
-    const uid = w.dataset.uid;
-    if(uid) try{ drawAnalogClock(uid); }catch(_){}
+    const uid=w.dataset.uid; if(uid) try{drawAnalogClock(uid);}catch(_){}
   });
-  // Update timer mode-tab bar background and SVG tick colours
+  buildThemeGrid();
+  // Re-apply timer colour fixes same as toggleLightMode
+  const isLight = _activeThemeMode==='light';
   document.querySelectorAll('.widget[data-type="timer"]').forEach(w=>{
-    const uid = w.dataset.uid;
-    if(!uid) return;
-    // mode tab bar
-    const tabBar = w.querySelector('[style*="rgba(0,0,0,0.25)"]');
-    if(tabBar) tabBar.style.background = isLight ? 'rgba(0,0,0,0.07)' : 'rgba(0,0,0,0.25)';
-    // SVG tick lines
-    const svg = document.getElementById('timer-svg-'+uid);
-    if(svg) svg.querySelectorAll('line').forEach(l=>{
-      l.setAttribute('stroke', isLight ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.22)');
-    });
-    // background ring circle
-    const bgCircle = svg && svg.querySelector('circle:first-child');
-    if(bgCircle) bgCircle.setAttribute('stroke', isLight ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.1)');
-    // time text inside SVG
-    const svgText = document.getElementById('td-svg-'+uid);
-    if(svgText) svgText.setAttribute('fill', isLight ? '#1a1f3a' : '#ffffff');
+    const uid=w.dataset.uid; if(!uid) return;
+    const tabBar=w.querySelector('[style*="rgba(0,0,0,0.25)"]');
+    if(tabBar) tabBar.style.background=isLight?'rgba(0,0,0,0.07)':'rgba(0,0,0,0.25)';
+    const svg=document.getElementById('timer-svg-'+uid);
+    if(svg) svg.querySelectorAll('line').forEach(l=>l.setAttribute('stroke',isLight?'rgba(0,0,0,0.2)':'rgba(255,255,255,0.22)'));
+    const bgCircle=svg&&svg.querySelector('circle:first-child');
+    if(bgCircle) bgCircle.setAttribute('stroke',isLight?'rgba(0,0,0,0.1)':'rgba(255,255,255,0.1)');
+    const svgText=document.getElementById('td-svg-'+uid);
+    if(svgText) svgText.setAttribute('fill',isLight?'#1a1f3a':'#ffffff');
   });
+}
+
+function buildThemeGrid(){
+  const grid = document.getElementById('theme-grid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  const curMode = document.body.classList.contains('light-mode') ? 'light' : 'dark';
+  THEMES.forEach(theme => {
+    const vars = theme[curMode];
+    const isActive = theme.id === _activeThemeId;
+    const card = document.createElement('div');
+    card.style.cssText = `cursor:pointer;border-radius:10px;overflow:hidden;border:2px solid ${isActive ? vars.accent : 'transparent'};transition:transform .12s,border-color .12s;`;
+    card.onmouseover = ()=>card.style.transform='scale(1.04)';
+    card.onmouseleave = ()=>card.style.transform='';
+    card.onclick = ()=>applyTheme(theme.id, curMode);
+    // Mini preview
+    card.innerHTML = `
+      <div style="height:36px;background:${vars.bg};display:flex;flex-direction:column;justify-content:space-between;padding:4px 5px;">
+        <div style="display:flex;gap:3px;align-items:center;">
+          <div style="width:18px;height:5px;border-radius:2px;background:${vars.launcher};"></div>
+          <div style="width:10px;height:5px;border-radius:2px;background:${vars.accent};"></div>
+          <div style="width:8px;height:5px;border-radius:2px;background:${vars.accent2};"></div>
+        </div>
+        <div style="display:flex;gap:3px;">
+          <div style="width:28px;height:12px;border-radius:3px;background:${vars.card};border:1px solid ${vars.card2};"></div>
+          <div style="width:20px;height:12px;border-radius:3px;background:${vars.accent};opacity:.85;"></div>
+        </div>
+      </div>
+      <div style="background:${vars.card};padding:3px 5px;font-size:10px;font-weight:700;color:${vars.text};font-family:Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${theme.label}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+// Legacy stub so old references don't break
+function applyBgColor(hex){
+  const bl=document.getElementById('bg-layer');
+  if(!bl) return;
+  bl.classList.remove('has-photo');
+  bl.style.backgroundColor=hex;
+  bl.style.backgroundImage='radial-gradient(rgba(255,255,255,0.05) 1px,transparent 1px)';
+  bl.style.backgroundSize='28px 28px';
+  bl.style.filter='';
+  document.getElementById('bg-overlay').style.background='rgba(0,0,0,0)';
+  document.getElementById('bg-photo-controls').style.display='none';
+  document.documentElement.style.setProperty('--bg',hex);
+}
+function buildBgSwatches(){ buildThemeGrid(); }
+
+let bgPhotoData = null;
+
+function toggleLightMode(){
+  const willBeLight = !document.body.classList.contains('light-mode');
+  applyTheme(_activeThemeId, willBeLight ? 'light' : 'dark');
 }
 
 function toggleBgPanel(){
@@ -2533,7 +2594,7 @@ function toggleBgPanel(){
   if(p.parentElement !== document.body) document.body.appendChild(p);
   p.classList.toggle('open');
   if(p.classList.contains('open')){
-    buildBgSwatches();
+    buildThemeGrid();
     // Position below the Design button, clamp within visible desktop area
     const btn = document.querySelector('[onclick="toggleBgPanel()"]');
     if(btn){
@@ -3311,6 +3372,48 @@ function buildTimer(body,uid){
     <rect x="408" y="86" width="22" height="18" rx="2" fill="#bde0f7" stroke="#d1c04a" stroke-width="1"/>
     <line x1="419" y1="86" x2="419" y2="104" stroke="#d1c04a" stroke-width="0.8"/>
     <line x1="408" y1="95" x2="430" y2="95" stroke="#d1c04a" stroke-width="0.8"/>
+    <!-- Katze im Fenster (nur Variante 3, standardmäßig hidden) -->
+    <g id="lauf-cat-${uid}" visibility="hidden">
+      <!-- Katzen-Kopf im Fenster -->
+      <ellipse cx="419" cy="97" rx="7" ry="6" fill="#c9a96e"/>
+      <!-- Ohren -->
+      <polygon points="413,92 415,86 418,91" fill="#c9a96e"/>
+      <polygon points="421,91 424,86 425,92" fill="#c9a96e"/>
+      <polygon points="414,91 415.5,87.5 417.5,91" fill="#e8b4b8"/>
+      <polygon points="421.5,91 423,87.5 424.5,91" fill="#e8b4b8"/>
+      <!-- Augen -->
+      <ellipse cx="416.5" cy="95.5" rx="1.8" ry="2" fill="#2d5a1b"/>
+      <ellipse cx="421.5" cy="95.5" rx="1.8" ry="2" fill="#2d5a1b"/>
+      <ellipse cx="416.5" cy="95.5" rx="0.8" ry="1.3" fill="#111"/>
+      <ellipse cx="421.5" cy="95.5" rx="0.8" ry="1.3" fill="#111"/>
+      <circle cx="417" cy="95.2" r="0.4" fill="white"/>
+      <circle cx="422" cy="95.2" r="0.4" fill="white"/>
+      <!-- Nase + Schnurrbart -->
+      <polygon points="418.5,98 419.5,97.5 420,98.5" fill="#e87d7d"/>
+      <line x1="413" y1="98" x2="416.5" y2="98.5" stroke="#a07040" stroke-width="0.6"/>
+      <line x1="413" y1="99.5" x2="416.5" y2="99" stroke="#a07040" stroke-width="0.6"/>
+      <line x1="422" y1="98.5" x2="425.5" y2="98" stroke="#a07040" stroke-width="0.6"/>
+      <line x1="422" y1="99" x2="425.5" y2="99.5" stroke="#a07040" stroke-width="0.6"/>
+      <!-- Fensterbank Überblendung — untere Hälfte der Katze versteckt -->
+      <rect x="408" y="100" width="22" height="5" fill="#fef3c7"/>
+    </g>
+    <!-- Vogel auf Hausdach (nur Variante 2, standardmäßig hidden) -->
+    <g id="lauf-bird-${uid}" visibility="hidden">
+      <!-- Körper -->
+      <ellipse cx="395" cy="52" rx="8" ry="5" fill="#e74c3c"/>
+      <!-- Kopf -->
+      <circle cx="402" cy="49" r="4.5" fill="#e74c3c"/>
+      <!-- Schnabel -->
+      <polygon points="405.5,49 409,48.5 405.5,50.5" fill="#f39c12"/>
+      <!-- Auge -->
+      <circle cx="403.5" cy="47.8" r="1.2" fill="#222"/>
+      <circle cx="403.8" cy="47.5" r="0.4" fill="white"/>
+      <!-- Flügel (links) -->
+      <path id="lauf-bird-wing-${uid}" d="M393,51 Q387,46 390,56" fill="#c0392b"/>
+      <!-- Schwanz -->
+      <path d="M387,54 Q383,50 385,57" stroke="#c0392b" stroke-width="2" fill="none"/>
+      <path d="M386,56 Q382,53 385,59" stroke="#c0392b" stroke-width="1.5" fill="none"/>
+    </g>
     <!-- Baum neben Haus -->
     <rect x="465" y="83" width="8" height="42" fill="#795548"/>
     <circle cx="469" cy="72" r="22" fill="#2ecc71"/>
@@ -3449,6 +3552,13 @@ function resetTimer(uid){
   if(typeof lauferDoorAngle!=='undefined') lauferDoorAngle[uid]=0;
   const dog=document.getElementById('lauf-dog-'+uid);
   if(dog){ dog.setAttribute('visibility','hidden'); dog.setAttribute('transform','translate(0,0)'); }
+  const bird=document.getElementById('lauf-bird-'+uid);
+  if(bird){ bird.setAttribute('visibility','hidden'); bird.setAttribute('transform',''); }
+  const cat=document.getElementById('lauf-cat-'+uid);
+  if(cat){ cat.setAttribute('visibility','hidden'); }
+  lauferVariant[uid]=0; // reset → new variant chosen at next half-time
+  lauferBirdY[uid]=0;
+  if(lauferCatTimer[uid]){ clearTimeout(lauferCatTimer[uid]); lauferCatTimer[uid]=null; }
   const door=document.getElementById('lauf-door-'+uid);
   if(door){ door.setAttribute('transform',''); }
   updateAllTimerDisplays();
@@ -3458,6 +3568,9 @@ function resetTimer(uid){
 const lauferRaf={};   // uid → raf id
 const lauferPos={};   // uid → current x offset (0‥750)
 const lauferPhase={}; // uid → animation time accumulator
+const lauferVariant={}; // uid → 1=Hund, 2=Vogel, 3=Katze (chosen at half-time)
+const lauferBirdY={};   // uid → bird flight Y offset (animation)
+const lauferCatTimer={}; // uid → cat disappear timeout id
 
 function updateLaufer(uid, sec, total){
   const timeTxt=document.getElementById('lauf-time-'+uid);
@@ -3518,38 +3631,88 @@ function lauferDrawFrame(uid){
     if(inner) inner.setAttribute('opacity', (ang * 0.8).toFixed(2));
   }
 
-  // Hund erscheint wenn Halbzeit erreicht
-  const dog = document.getElementById('lauf-dog-'+uid);
-  if(dog){
-    if(!halfPassed){
-      dog.setAttribute('visibility','hidden');
-      lauferDogActive[uid] = false;
-      lauferDogX[uid] = 0; // Hund-Offset relativ zur Hausposition (362)
-    } else {
-      dog.setAttribute('visibility','visible');
+  // ── Zufalls-Variante beim ersten Halbzeit-Erreichen wählen ──
+  if(halfPassed && !lauferVariant[uid]){
+    lauferVariant[uid] = Math.floor(Math.random()*3)+1; // 1=Hund, 2=Vogel, 3=Katze
+  }
+  const variant = lauferVariant[uid] || 1;
 
-      // Einmaliges Bellen beim ersten Erscheinen
-      if(!lauferDogActive[uid]){
-        lauferDogActive[uid] = true;
-        if(!lauferDogPlayed[uid]){
-          lauferDogPlayed[uid] = true;
-          setTimeout(()=>{ playSound('Hundebellen', 0.85); }, 300);
-        }
+  const dog  = document.getElementById('lauf-dog-'+uid);
+  const bird = document.getElementById('lauf-bird-'+uid);
+  const cat  = document.getElementById('lauf-cat-'+uid);
+
+  // Nur das aktive Tier zeigen
+  if(dog)  dog.setAttribute('visibility',  (halfPassed && variant===1) ? 'visible' : 'hidden');
+  if(bird) bird.setAttribute('visibility', (halfPassed && variant===2) ? 'visible' : 'hidden');
+  if(cat)  cat.setAttribute('visibility',  (halfPassed && variant===3) ? 'visible' : 'hidden');
+
+  // ── Variante 1: Hund ──
+  if(halfPassed && variant===1 && dog){
+    if(!lauferDogActive[uid]){
+      lauferDogActive[uid] = true;
+      if(!lauferDogPlayed[uid]){
+        lauferDogPlayed[uid] = true;
+        setTimeout(()=>{ playSound('Hundebellen', 0.85); }, 300);
       }
-
-      // Hund folgt dem Läufer: der Läufer ist bei tx, Hund-Basis bei 362
-      // Hund läuft hinter dem Läufer her, mit etwas Versatz (~25px hinter dem Läufer)
-      const runnerAbsX = 20 + tx; // absolute SVG-x des Läufers
-      const dogBaseX   = 362;     // Start-x des Hundes (vor Haus)
-      const targetDogOffset = Math.max(0, runnerAbsX - dogBaseX - 25);
-      const prevDogX = lauferDogX[uid] || 0;
-      // smooth follow (lerp)
-      lauferDogX[uid] = timerRunning
-        ? prevDogX + (targetDogOffset - prevDogX) * 0.06
-        : targetDogOffset;
-
-      dog.setAttribute('transform', `translate(${lauferDogX[uid].toFixed(1)},0)`);
     }
+    const runnerAbsX = 20 + tx;
+    const dogBaseX   = 362;
+    const targetDogOffset = Math.max(0, runnerAbsX - dogBaseX - 25);
+    const prevDogX = lauferDogX[uid] || 0;
+    lauferDogX[uid] = timerRunning
+      ? prevDogX + (targetDogOffset - prevDogX) * 0.06
+      : targetDogOffset;
+    dog.setAttribute('transform', `translate(${lauferDogX[uid].toFixed(1)},0)`);
+  } else if(!halfPassed){
+    lauferDogActive[uid] = false;
+    lauferDogX[uid] = 0;
+  }
+
+  // ── Variante 2: Vogel fliegt vom Dach ──
+  if(halfPassed && variant===2 && bird){
+    if(!lauferDogActive[uid]){
+      lauferDogActive[uid] = true;
+      if(!lauferDogPlayed[uid]){
+        lauferDogPlayed[uid] = true;
+        setTimeout(()=>{ playSound('Vogel', 0.85); }, 300);
+      }
+    }
+    // Vogel steigt langsam auf (lauferBirdY geht negativ = nach oben)
+    const bY = lauferBirdY[uid] || 0;
+    const newBY = timerRunning ? Math.max(bY - 0.35, -80) : bY;
+    lauferBirdY[uid] = newBY;
+    // Flügel-Flattern: amplitude größer je höher
+    const t2=(lauferPhase[uid]||0)/1000;
+    const wingFlap = Math.sin(t2*Math.PI*8)*4;
+    const wingEl = document.getElementById('lauf-bird-wing-'+uid);
+    if(wingEl){
+      const wBase = -newBY/80; // 0 → 1 as bird rises
+      const wAmp = 4 + wBase*6;
+      wingEl.setAttribute('d',`M393,${51+wingFlap*0.3} Q${387-wBase*8},${46+wingFlap} ${390+wBase*3},${56-wingFlap}`);
+    }
+    // Seitliches Abdriften nach rechts und nach oben
+    const bX = Math.min((-newBY)/80 * 60, 60);
+    bird.setAttribute('transform', `translate(${bX.toFixed(1)},${newBY.toFixed(1)})`);
+  } else if(!halfPassed){
+    lauferBirdY[uid] = 0;
+  }
+
+  // ── Variante 3: Katze schaut aus Fenster, verschwindet nach 5s ──
+  if(halfPassed && variant===3 && cat){
+    if(!lauferDogActive[uid]){
+      lauferDogActive[uid] = true;
+      if(!lauferDogPlayed[uid]){
+        lauferDogPlayed[uid] = true;
+        setTimeout(()=>{ playSound('Miau', 0.85); }, 300);
+        // Katze nach 5 Sekunden verstecken
+        lauferCatTimer[uid] = setTimeout(()=>{
+          const c2=document.getElementById('lauf-cat-'+uid);
+          if(c2) c2.setAttribute('visibility','hidden');
+        }, 5000);
+      }
+    }
+  } else if(!halfPassed){
+    if(lauferCatTimer[uid]){ clearTimeout(lauferCatTimer[uid]); lauferCatTimer[uid]=null; }
   }
 
   // Bounce: smooth vertical sine based on accumulated time
@@ -3568,8 +3731,8 @@ function lauferDrawFrame(uid){
   if(arm1) arm1.setAttribute('d',`M20,116 L${13+s},${121-Math.abs(s)*0.4}`);
   if(arm2) arm2.setAttribute('d',`M20,116 L${27-s},${121-Math.abs(s)*0.4}`);
 
-  // ── Hund-Bein/Schwanz-Animation (läuft nur wenn sichtbar) ──
-  if(dog && halfPassed){
+  // ── Hund-Bein/Schwanz-Animation (nur Variante 1) ──
+  if(dog && halfPassed && variant===1){
     const running = timerRunning;
     const dogT = t * (running ? 1 : 0);
     const dogExcited = true; // Hund ist immer aufgeregt wenn er folgt
@@ -4266,8 +4429,8 @@ function buildDraw(body,uid){
   </label>
   <!-- Actions -->
   <button id="dbtn-undo-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;opacity:0.4;" onclick="undoDraw(${uid})" title="Rückgängig (Strg+Z)">↩</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="clearDraw(${uid})" title="Löschen">🗑</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="saveDraw(${uid})" title="Speichern">💾</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="clearDraw(${uid})" title="Löschen">🗑</button>
 </div>
 <canvas class="draw-canvas" id="dcanvas-${uid}" style="flex:1;min-height:180px;"></canvas>`;
   drawStates[uid]={color:'#000000',sz:5,tool:'pen',drawing:false,lx:0,ly:0,undoStack:[]};
@@ -4757,12 +4920,15 @@ function buildTextpad(body,uid){
     <option value="'Georgia',serif">Georgia</option>
     <option value="'Courier New',monospace">Monospace</option>
   </select>
-  <select style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;" onchange="setTPSize(${uid},this.value)" title="Standard-Schriftgröße für das gesamte Feld">
-    <option value="13px">${T('textKlein')}</option>
-    <option value="16px" selected>${T('textNormal')}</option>
-    <option value="20px">${T('textGross')}</option>
-    <option value="26px">${T('textSehrGross')}</option>
-    <option value="36px">${T('textRiesig')}</option>
+  <select id="tp-sizesel-${uid}"
+    style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;"
+    title="Schriftgröße für Auswahl / nächste Eingabe"
+    onmousedown="tpSaveSel(${uid})"
+    onchange="tpSizeSelectHandler(${uid},this)">
+    <option value="inline:13">Klein (13 px)</option>
+    <option value="inline:16" selected>Normal (16 px)</option>
+    <option value="inline:20">Groß (20 px)</option>
+    <option value="inline:26">Sehr groß (26 px)</option>
   </select>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
   <button id="tp-bold-${uid}" onmousedown="tpFormat(event,${uid},'bold')"
@@ -4771,27 +4937,10 @@ function buildTextpad(body,uid){
   <button id="tp-italic-${uid}" onmousedown="tpFormat(event,${uid},'italic')"
     style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;cursor:pointer;font-family:'Georgia',serif;font-style:italic;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;"
     title="Kursiv (Strg+I)"><i>K</i></button>
-  <select id="tp-inlinesize-${uid}"
-    style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;"
-    title="Schriftgröße für Auswahl / nächste Eingabe"
-    onmousedown="tpSaveSel(${uid})"
-    onchange="tpInlineSize(${uid},this.value);this.value=''">
-    <option value="" disabled selected>Größe ▾</option>
-    <option value="10">10 px</option>
-    <option value="13">13 px – Klein</option>
-    <option value="16">16 px – Normal</option>
-    <option value="20">20 px – Groß</option>
-    <option value="26">26 px – Sehr groß</option>
-    <option value="36">36 px – Riesig</option>
-    <option value="48">48 px – Riesig+</option>
-    <option value="64">64 px – XXL</option>
-    <option value="80">80 px – Maxi</option>
-  </select>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Löschen" onclick="document.getElementById('textpad-${uid}').innerHTML='';updateTPCounter(${uid})">🗑</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Kopieren" onclick="navigator.clipboard?.writeText(document.getElementById('textpad-${uid}').innerText)">📋</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Als RTF speichern" onclick="saveTPasRtf(${uid})">💾 RTF</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Als TXT speichern" onclick="saveTPasTxt(${uid})">💾 TXT</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Löschen" onclick="document.getElementById('textpad-${uid}').innerHTML='';updateTPCounter(${uid})">🗑</button>
 </div>
 <div style="font-size:11px;color:var(--text2);text-align:right;" id="tp-counter-${uid}">0 Wörter · 0 Zeichen</div>
 <div
@@ -4833,6 +4982,16 @@ function setTPSize(uid,s){
 }
 // Save selection before the dropdown steals focus
 const _tpSavedSel={};
+// Inline size dropdown: applies chosen size to current selection or cursor position
+function tpSizeSelectHandler(uid, sel){
+  const val = sel.value;
+  if(!val) return;
+  if(val.startsWith('inline:')){
+    const px = val.replace('inline:','');
+    tpInlineSize(uid, px);
+    // Keep the chosen option visible (do not reset to placeholder)
+  }
+}
 function tpSaveSel(uid){
   const sel=window.getSelection();
   if(sel&&sel.rangeCount>0) _tpSavedSel[uid]=sel.getRangeAt(0).cloneRange();
