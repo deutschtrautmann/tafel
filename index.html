@@ -3316,34 +3316,82 @@ function buildTimer(body,uid){
   <svg id="lauf-svg-${uid}" viewBox="0 0 790 160" width="100%" height="100%" style="display:block;" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
     <!-- Himmel -->
     <rect x="0" y="0" width="790" height="160" fill="#87CEEB"/>
-    <!-- Wolken -->
-    <ellipse cx="120" cy="30" rx="40" ry="18" fill="white" opacity=".85"/>
-    <ellipse cx="150" cy="25" rx="30" ry="15" fill="white" opacity=".85"/>
+    <!-- Wolken — einige mit ID für Bewegungs-Animation -->
+    <g id="lauf-cloud1-${uid}"><ellipse cx="120" cy="30" rx="40" ry="18" fill="white" opacity=".85"/><ellipse cx="150" cy="25" rx="30" ry="15" fill="white" opacity=".85"/><ellipse cx="88" cy="32" rx="22" ry="11" fill="white" opacity=".75"/></g>
+    <g id="lauf-cloud2-${uid}"><ellipse cx="310" cy="18" rx="35" ry="13" fill="white" opacity=".7"/><ellipse cx="340" cy="14" rx="22" ry="10" fill="white" opacity=".7"/></g>
     <ellipse cx="500" cy="22" rx="45" ry="16" fill="white" opacity=".8"/>
-    <ellipse cx="530" cy="17" rx="28" ry="13" fill="white" opacity=".8"/>
+    <g id="lauf-cloud3-${uid}"><ellipse cx="530" cy="17" rx="28" ry="13" fill="white" opacity=".8"/><ellipse cx="470" cy="26" rx="18" ry="9" fill="white" opacity=".65"/></g>
+    <g id="lauf-cloud4-${uid}"><ellipse cx="650" cy="28" rx="38" ry="14" fill="white" opacity=".75"/><ellipse cx="680" cy="23" rx="24" ry="11" fill="white" opacity=".75"/></g>
     <!-- Hügel -->
     <ellipse cx="200" cy="130" rx="160" ry="45" fill="#5a9e5a"/>
     <ellipse cx="600" cy="135" rx="200" ry="40" fill="#4e8f4e"/>
-    <!-- Bäume links -->
-    <rect x="55" y="85" width="6" height="30" fill="#795548"/>
-    <circle cx="58" cy="78" r="18" fill="#2ecc71"/>
-    <rect x="90" y="90" width="5" height="25" fill="#795548"/>
-    <circle cx="92" cy="83" r="14" fill="#27ae60"/>
+    <!-- Bäume links (die 2 ganz links wurden entfernt) -->
+    <rect x="90"  y="90" width="5"  height="25" fill="#795548"/>
+    <circle cx="92"  cy="83"  r="14" fill="#27ae60"/>
+    <rect x="115" y="88" width="5"  height="27" fill="#6d4c41"/>
+    <circle cx="117" cy="80"  r="13" fill="#2ecc71" opacity=".9"/>
+    <!-- Bäume Mitte-links (hinter Haus, weiter weg = kleiner) -->
+    <rect x="245" y="96" width="4"  height="20" fill="#795548"/>
+    <circle cx="247" cy="90"  r="10" fill="#1e8449" opacity=".85"/>
+    <rect x="275" y="93" width="4"  height="23" fill="#6d4c41"/>
+    <circle cx="277" cy="87"  r="11" fill="#27ae60" opacity=".8"/>
+    <!-- Bäume Mitte-rechts -->
+    <rect x="510" y="94" width="4"  height="21" fill="#795548"/>
+    <circle cx="512" cy="88"  r="11" fill="#1e8449" opacity=".85"/>
+    <rect x="535" y="91" width="5"  height="24" fill="#6d4c41"/>
+    <circle cx="537" cy="84"  r="13" fill="#2ecc71" opacity=".8"/>
     <!-- Bäume rechts -->
-    <rect x="700" y="80" width="7" height="35" fill="#795548"/>
-    <circle cx="703" cy="72" r="22" fill="#2ecc71"/>
-    <rect x="735" y="88" width="5" height="26" fill="#795548"/>
-    <circle cx="737" cy="81" r="15" fill="#27ae60"/>
+    <rect x="660" y="86" width="5"  height="29" fill="#795548"/>
+    <circle cx="662" cy="78"  r="16" fill="#27ae60"/>
+    <rect x="700" y="80" width="7"  height="35" fill="#795548"/>
+    <circle cx="703" cy="72"  r="22" fill="#2ecc71"/>
+    <rect x="735" y="88" width="5"  height="26" fill="#795548"/>
+    <circle cx="737" cy="81"  r="15" fill="#27ae60"/>
+    <rect x="758" y="91" width="4"  height="24" fill="#6d4c41"/>
+    <circle cx="760" cy="85"  r="11" fill="#1e8449" opacity=".9"/>
     <!-- Strasse -->
     <rect x="0" y="125" width="790" height="22" fill="#9ca3af"/>
     <line x1="0" y1="136" x2="790" y2="136" stroke="rgba(255,255,255,0.5)" stroke-dasharray="18,12" stroke-width="2"/>
     <!-- Haus / Halbzeit -->
     <rect x="340" y="78" width="110" height="47" fill="#fef3c7" stroke="#d1c04a" stroke-width="1.5"/>
     <polygon points="330,78 460,78 395,50" fill="#e74c3c" stroke="#c0392b" stroke-width="1.5"/>
-    <!-- Tür (animierbar: transform-origin an linker Kante) -->
+    <!-- Hauseingang (dunkler Flur hinter der Tür) — immer vorhanden, Tür verdeckt ihn -->
+    <rect x="378" y="96" width="18" height="29" rx="1" fill="#1a0f0a"/>
+    <!-- dunkle Innenraumandeutung: Flurboden, Wand -->
+    <rect id="lauf-door-inner-${uid}" x="379" y="115" width="16" height="10" fill="#3d1f10" opacity="0"/>
+    <line id="lauf-door-frame-${uid}" x1="382" y1="97" x2="382" y2="124" stroke="#5a3000" stroke-width="0.5" opacity="0"/>
+    <!-- Tür (animierbar) -->
     <g id="lauf-door-${uid}">
       <rect x="378" y="96" width="18" height="29" rx="2" fill="#a0522d" stroke="#7a3b1e" stroke-width="1"/>
       <circle cx="393" cy="111" r="1.5" fill="#fbbf24"/>
+    </g>
+    <!-- Fenster links -->
+    <rect x="348" y="86" width="22" height="18" rx="2" fill="#bde0f7" stroke="#d1c04a" stroke-width="1"/>
+    <line x1="359" y1="86" x2="359" y2="104" stroke="#d1c04a" stroke-width="0.8"/>
+    <line x1="348" y1="95" x2="370" y2="95" stroke="#d1c04a" stroke-width="0.8"/>
+    <!-- Schwarze Katze im linken Fenster (nur Variante 3, 1s Verzögerung, hidden) -->
+    <g id="lauf-cat2-${uid}" visibility="hidden">
+      <ellipse cx="359" cy="97" rx="7" ry="6" fill="#1a1a1a"/>
+      <!-- Ohren -->
+      <polygon points="353,92 355,86 358,91" fill="#1a1a1a"/>
+      <polygon points="361,91 364,86 365,92" fill="#1a1a1a"/>
+      <polygon points="354,91 355.5,87.5 357.5,91" fill="#5a2a2a"/>
+      <polygon points="361.5,91 363,87.5 364.5,91" fill="#5a2a2a"/>
+      <!-- Augen (gelb-grün, auffällig) -->
+      <ellipse cx="356.5" cy="95.5" rx="1.8" ry="2" fill="#c8b400"/>
+      <ellipse cx="361.5" cy="95.5" rx="1.8" ry="2" fill="#c8b400"/>
+      <ellipse cx="356.5" cy="95.5" rx="0.8" ry="1.3" fill="#111"/>
+      <ellipse cx="361.5" cy="95.5" rx="0.8" ry="1.3" fill="#111"/>
+      <circle cx="357" cy="95.2" r="0.4" fill="white"/>
+      <circle cx="362" cy="95.2" r="0.4" fill="white"/>
+      <!-- Nase + Schnurrbart -->
+      <polygon points="358.5,98 359.5,97.5 360,98.5" fill="#c04040"/>
+      <line x1="353" y1="98" x2="356.5" y2="98.5" stroke="#555" stroke-width="0.6"/>
+      <line x1="353" y1="99.5" x2="356.5" y2="99" stroke="#555" stroke-width="0.6"/>
+      <line x1="362" y1="98.5" x2="365.5" y2="98" stroke="#555" stroke-width="0.6"/>
+      <line x1="362" y1="99" x2="365.5" y2="99.5" stroke="#555" stroke-width="0.6"/>
+      <!-- Fensterbank Überblendung -->
+      <rect x="348" y="100" width="22" height="5" fill="#fef3c7"/>
     </g>
     <!-- Baum neben Haus — VOR dem Hund gezeichnet, damit Hund nicht verdeckt wird -->
     <rect x="465" y="83" width="8" height="42" fill="#795548"/>
@@ -3384,9 +3432,9 @@ function buildTimer(body,uid){
       <polygon points="421,91 424,86 425,92" fill="#c9a96e"/>
       <polygon points="414,91 415.5,87.5 417.5,91" fill="#e8b4b8"/>
       <polygon points="421.5,91 423,87.5 424.5,91" fill="#e8b4b8"/>
-      <!-- Augen -->
-      <ellipse cx="416.5" cy="95.5" rx="1.8" ry="2" fill="#2d5a1b"/>
-      <ellipse cx="421.5" cy="95.5" rx="1.8" ry="2" fill="#2d5a1b"/>
+      <!-- Augen — hell grün -->
+      <ellipse cx="416.5" cy="95.5" rx="1.8" ry="2" fill="#39d353"/>
+      <ellipse cx="421.5" cy="95.5" rx="1.8" ry="2" fill="#39d353"/>
       <ellipse cx="416.5" cy="95.5" rx="0.8" ry="1.3" fill="#111"/>
       <ellipse cx="421.5" cy="95.5" rx="0.8" ry="1.3" fill="#111"/>
       <circle cx="417" cy="95.2" r="0.4" fill="white"/>
@@ -3400,26 +3448,29 @@ function buildTimer(body,uid){
       <!-- Fensterbank Überblendung — untere Hälfte der Katze versteckt -->
       <rect x="408" y="100" width="22" height="5" fill="#fef3c7"/>
     </g>
-    <!-- Vogel auf Hausdach (nur Variante 2, standardmäßig hidden) — BLAU -->
+    <!-- Vogel (nur Variante 2, standardmäßig hidden) — BLAU, zentriert bei cx=395,cy=52 -->
+    <!-- Alle Elemente relativ zu Mitte 395: Kopf rechts, Schwanz links, Flügel oben/unten -->
+    <!-- Bei scale(-1,1) um x=395 → Kopf zeigt links = korrekt gespiegelt -->
     <g id="lauf-bird-${uid}" visibility="hidden">
-      <!-- Körper -->
-      <ellipse cx="395" cy="52" rx="9" ry="5.5" fill="#2980b9"/>
+      <!-- Körper (Ellipse, Mitte x=395) -->
+      <ellipse cx="395" cy="52" rx="10" ry="5.5" fill="#2980b9"/>
       <!-- Bauch heller -->
-      <ellipse cx="396" cy="53" rx="5" ry="3.5" fill="#5dade2"/>
-      <!-- Kopf -->
-      <circle cx="403" cy="48" r="5" fill="#2471a3"/>
-      <!-- Schnabel -->
-      <polygon points="407,48 411,47.5 407,50" fill="#f39c12"/>
+      <ellipse cx="395" cy="53" rx="6" ry="3.5" fill="#5dade2"/>
+      <!-- Kopf (rechts vom Körper) -->
+      <circle cx="404" cy="48" r="5" fill="#2471a3"/>
+      <!-- Schnabel (zeigt nach rechts) -->
+      <polygon points="408,47.5 413,48.5 408,50" fill="#f39c12"/>
       <!-- Auge -->
-      <circle cx="405" cy="46.5" r="1.4" fill="#222"/>
-      <circle cx="405.3" cy="46.2" r="0.5" fill="white"/>
-      <!-- Flügel links (animierbar) -->
-      <path id="lauf-bird-wing-${uid}" d="M392,51 Q385,45 389,57" fill="#1a6ea8"/>
-      <!-- Flügel rechts (kleiner, sichtbar) -->
-      <path id="lauf-bird-wing2-${uid}" d="M397,50 Q402,44 400,56" fill="#1f7fc4"/>
-      <!-- Schwanz -->
-      <path id="lauf-bird-tail-${uid}" d="M387,53 Q382,49 384,57" stroke="#1a6ea8" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-      <path d="M386,55 Q381,52 384,60" stroke="#155f8a" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <circle cx="406" cy="47" r="1.4" fill="#111"/>
+      <circle cx="406.4" cy="46.6" r="0.5" fill="white"/>
+      <!-- Schwanz (links vom Körper, 3 Federn) -->
+      <path d="M385,50 L380,46" stroke="#1a5f8a" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+      <path d="M385,52 L379,51" stroke="#1a5f8a" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+      <path d="M385,54 L380,57" stroke="#1a5f8a" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+      <!-- Flügel oben (animierbar) -->
+      <path id="lauf-bird-wing-${uid}"  d="M390,50 Q388,43 396,47" fill="#1a6ea8"/>
+      <!-- Flügel unten -->
+      <path id="lauf-bird-wing2-${uid}" d="M390,53 Q388,60 396,56" fill="#1f7fc4"/>
     </g>
     <!-- START -->
     <rect x="18" y="90" width="3" height="35" fill="#22c55e"/>
@@ -3591,12 +3642,16 @@ function resetTimer(uid){
   if(typeof lauferDogActive!=='undefined') lauferDogActive[uid]=false;
   if(typeof lauferDogX!=='undefined') lauferDogX[uid]=0;
   if(typeof lauferDoorAngle!=='undefined') lauferDoorAngle[uid]=0;
+  if(typeof lauferDoorClosing!=='undefined') lauferDoorClosing[uid]=false;
   const dog=document.getElementById('lauf-dog-'+uid);
   if(dog){ dog.setAttribute('visibility','hidden'); dog.setAttribute('transform','translate(0,0)'); }
   const bird=document.getElementById('lauf-bird-'+uid);
-  if(bird){ bird.setAttribute('visibility','hidden'); bird.setAttribute('transform',''); }
+  if(bird){ bird.setAttribute('visibility','hidden'); bird.setAttribute('transform','translate(0,0)'); }
   const cat=document.getElementById('lauf-cat-'+uid);
   if(cat){ cat.setAttribute('visibility','hidden'); }
+  const cat2=document.getElementById('lauf-cat2-'+uid);
+  if(cat2){ cat2.setAttribute('visibility','hidden'); }
+  if(typeof lauferCat2Shown!=='undefined') lauferCat2Shown[uid]=false;
   lauferVariant[uid]=0; // reset → new variant chosen at next half-time
   lauferBirdY[uid]=0;
   if(lauferCatTimer[uid]){ clearTimeout(lauferCatTimer[uid]); lauferCatTimer[uid]=null; }
@@ -3606,6 +3661,10 @@ function resetTimer(uid){
   if(typeof lauferMouseActive!=='undefined') lauferMouseActive[uid]=false;
   const door=document.getElementById('lauf-door-'+uid);
   if(door){ door.setAttribute('transform',''); }
+  const doorInner=document.getElementById('lauf-door-inner-'+uid);
+  if(doorInner){ doorInner.setAttribute('opacity','0'); }
+  const doorFrame=document.getElementById('lauf-door-frame-'+uid);
+  if(doorFrame){ doorFrame.setAttribute('opacity','0'); }
   updateAllTimerDisplays();
 }
 
@@ -3617,7 +3676,9 @@ const lauferLastTick={}; // uid → performance.now() of last 1s timer tick
 const lauferDt={};    // uid → last frame delta time in seconds
 const lauferVariant={}; // uid → 1=Hund, 2=Vogel, 3=Katze (chosen at half-time)
 const lauferBirdY={};   // uid → bird flight Y offset (animation)
+const lauferBirdDir={}; // uid → +1=rechts, -1=links (Flugrichtung)
 const lauferCatTimer={}; // uid → cat disappear timeout id
+const lauferCloudOff={}; // uid → {c1,c2,c3,c4} cloud x offsets in px
 
 function updateLaufer(uid, sec, total){
   const timeTxt=document.getElementById('lauf-time-'+uid);
@@ -3642,6 +3703,23 @@ function lauferStartRaf(uid){
     lauferPhase[uid]=(lauferPhase[uid]||0)+dt;
     lauferDt[uid] = dt / 1000; // in Sekunden für Physik-Berechnungen
 
+    // ── Wolken-Drift: langsame Bewegung, Wrap-Around ──
+    if(!lauferCloudOff[uid]) lauferCloudOff[uid]={c1:0,c2:0,c3:0,c4:0};
+    const co = lauferCloudOff[uid];
+    const dtS = dt/1000;
+    co.c1 = ((co.c1 - dtS * 7)  % 900) ; // nach links, ~7px/s
+    co.c2 = ((co.c2 + dtS * 4)  % 900) ; // nach rechts, ~4px/s
+    co.c3 = ((co.c3 - dtS * 11) % 900) ; // nach links schneller
+    co.c4 = ((co.c4 + dtS * 6)  % 900) ; // nach rechts
+    const c1el = document.getElementById('lauf-cloud1-'+uid);
+    const c2el = document.getElementById('lauf-cloud2-'+uid);
+    const c3el = document.getElementById('lauf-cloud3-'+uid);
+    const c4el = document.getElementById('lauf-cloud4-'+uid);
+    if(c1el) c1el.setAttribute('transform', `translate(${co.c1.toFixed(1)},0)`);
+    if(c2el) c2el.setAttribute('transform', `translate(${co.c2.toFixed(1)},0)`);
+    if(c3el) c3el.setAttribute('transform', `translate(${co.c3.toFixed(1)},0)`);
+    if(c4el) c4el.setAttribute('transform', `translate(${co.c4.toFixed(1)},0)`);
+
     // ── Echtzeit-X-Position: Sub-Sekunden-Interpolation ──
     // Zwischen dem letzten Sekunden-Tick und dem nächsten fließend interpolieren.
     const total = timerTotalMap[uid]||300;
@@ -3664,8 +3742,10 @@ const lauferDogPlayed={};   // uid → true when bark was played this run
 const lauferDogActive={};   // uid → true once dog has been revealed
 const lauferDogX={};        // uid → current dog x offset (follows runner after halfpoint)
 const lauferDoorAngle={};   // uid → current door open angle 0..1
+const lauferDoorClosing={}; // uid → true once door starts closing again
 const lauferMouseX={};      // uid → current mouse x offset (Katze-Variante)
 const lauferMouseActive={}; // uid → true once mouse has appeared
+const lauferCat2Shown={};   // uid → true once black cat has appeared
 
 function lauferDrawFrame(uid){
   const runner=document.getElementById('lauf-runner-'+uid);
@@ -3681,22 +3761,38 @@ function lauferDrawFrame(uid){
   // Tür-Animation: öffnet sich wenn Läufer die Halbzeit erreicht
   const doorEl = document.getElementById('lauf-door-'+uid);
   if(doorEl){
-    if(!halfPassed){
+    const variant_for_door = lauferVariant[uid] || 0;
+    const doorShouldOpen = halfPassed && variant_for_door !== 2;
+
+    if(!doorShouldOpen){
+      // Kein Öffnen (Vogel oder vor Halbzeit): sofort geschlossen
       lauferDoorAngle[uid] = 0;
+      lauferDoorClosing[uid] = false;
     } else {
-      // Tür öffnet sich weich bis Winkel 1.0 (= -45° skew), dt-basiert
       const dtS2 = lauferDt[uid] || 0.016;
       const prev = lauferDoorAngle[uid] || 0;
-      lauferDoorAngle[uid] = Math.min(1, prev + dtS2 * 0.8); // ~1.25s zum vollen Öffnen
+
+      // Tür schließt sich wieder, sobald Hund/Maus >35px vom Türrahmen entfernt sind
+      const animalOffset = (variant_for_door === 1)
+        ? (lauferDogX[uid] || 0)     // Hund-Offset
+        : (lauferMouseX[uid] || 0);  // Maus-Offset
+      if(animalOffset > 35 && prev >= 0.99){
+        lauferDoorClosing[uid] = true; // Tier hat Tür verlassen → Tür schließt
+      }
+
+      if(lauferDoorClosing[uid]){
+        lauferDoorAngle[uid] = Math.max(0, prev - dtS2 * 0.6); // etwas langsamer schließen
+      } else {
+        lauferDoorAngle[uid] = Math.min(1, prev + dtS2 * 0.8);
+      }
     }
     const ang = lauferDoorAngle[uid] || 0;
-    // Tür dreht sich links (Angelpunkt x=378): skewX-Effekt via transform
-    const skew = ang * -45;
-    const scaleX = 1 - ang * 0.7;
+    const scaleX = 1 - ang * 0.85;
     doorEl.setAttribute('transform', `translate(378,96) scale(${scaleX.toFixed(3)},1) translate(-378,-96)`);
-    // Türinnenraum-Dunkel anzeigen wenn geöffnet
     const inner = document.getElementById('lauf-door-inner-'+uid);
-    if(inner) inner.setAttribute('opacity', (ang * 0.8).toFixed(2));
+    const frame = document.getElementById('lauf-door-frame-'+uid);
+    if(inner) inner.setAttribute('opacity', (ang * 0.9).toFixed(2));
+    if(frame) frame.setAttribute('opacity', (ang * 0.7).toFixed(2));
   }
 
   // ── Zufalls-Variante beim ersten Halbzeit-Erreichen wählen ──
@@ -3712,13 +3808,36 @@ function lauferDrawFrame(uid){
   // Tür-Öffnungsgrad: Hund/Maus erscheinen erst wenn Tür halb offen (ang >= 0.5)
   const doorAng = lauferDoorAngle[uid] || 0;
   const doorOpen = doorAng >= 0.5;
+  // Tier bleibt sichtbar sobald es einmal aktiviert wurde (auch wenn Tür sich wieder schließt)
+  // Für Hund: lauferDogActive; für Maus: lauferMouseActive
+  const dogExited   = !!(lauferDogActive[uid])  && variant===1;
+  const mouseExited = !!(lauferMouseActive[uid]) && variant===3;
 
-  // Nur das aktive Tier zeigen — Hund/Maus erst nach Türöffnung
-  if(dog)  dog.setAttribute('visibility',  (halfPassed && variant===1 && doorOpen) ? 'visible' : 'hidden');
-  if(bird) bird.setAttribute('visibility', (halfPassed && variant===2) ? 'visible' : 'hidden');
+  // Nur das aktive Tier zeigen — erscheinen bei Türöffnung, bleiben dann dauerhaft sichtbar
+  if(dog)  dog.setAttribute('visibility',  (halfPassed && variant===1 && (doorOpen || dogExited))   ? 'visible' : 'hidden');
+  // Vogel: vor Halbzeit auf Dach sitzend sichtbar, nach Halbzeit fliegend
+  if(bird) bird.setAttribute('visibility', (variant===2) ? 'visible' : 'hidden');
   if(cat)  cat.setAttribute('visibility',  (halfPassed && variant===3) ? 'visible' : 'hidden');
   const mouseEl = document.getElementById('lauf-mouse-'+uid);
-  if(mouseEl) mouseEl.setAttribute('visibility', (halfPassed && variant===3 && doorOpen) ? 'visible' : 'hidden');
+  if(mouseEl) mouseEl.setAttribute('visibility', (halfPassed && variant===3 && (doorOpen || mouseExited)) ? 'visible' : 'hidden');
+
+  // Schwarze Katze (cat2) — Variante 3, erscheint 1s nach der braunen Katze
+  const cat2 = document.getElementById('lauf-cat2-'+uid);
+  if(cat2){
+    if(halfPassed && variant===3){
+      if(!lauferCat2Shown[uid]){
+        // Sichtbarkeit per setTimeout nach 1000ms setzen
+        lauferCat2Shown[uid] = true;
+        setTimeout(()=>{
+          const c2=document.getElementById('lauf-cat2-'+uid);
+          if(c2) c2.setAttribute('visibility','visible');
+        }, 1000);
+      }
+    } else {
+      cat2.setAttribute('visibility','hidden');
+      lauferCat2Shown[uid] = false;
+    }
+  }
 
   // ── Variante 1: Hund kommt aus der Tür ──
   if(halfPassed && variant===1 && dog){
@@ -3744,8 +3863,17 @@ function lauferDrawFrame(uid){
     lauferDogX[uid] = 0;
   }
 
-  // ── Variante 2: Blauer Vogel fliegt in Wellenbewegung über dem Läufer ──
-  if(halfPassed && variant===2 && bird){
+  // ── Variante 2: Vogel sitzt bis Halbzeit auf dem Dach, fliegt danach ──
+  if(variant===2 && bird){
+    if(!halfPassed){
+      // Auf dem Dach sitzen — keine Transformation, Originalposition (x=395,y=52 = Dachspitze)
+      bird.setAttribute('transform', 'translate(0,0)');
+      // Flügel in Ruheposition
+      const wingEl  = document.getElementById('lauf-bird-wing-'+uid);
+      const wingEl2 = document.getElementById('lauf-bird-wing2-'+uid);
+      if(wingEl)  wingEl.setAttribute('d',  'M390,50 Q388,43 396,47');
+      if(wingEl2) wingEl2.setAttribute('d', 'M390,53 Q388,60 396,56');
+    } else {
     if(!lauferDogActive[uid]){
       lauferDogActive[uid] = true;
       if(!lauferDogPlayed[uid]){
@@ -3754,44 +3882,65 @@ function lauferDrawFrame(uid){
       }
     }
     const t2=(lauferPhase[uid]||0)/1000;
-    // Vogel fliegt in Wellenbewegung — bleibt innerhalb des Sichtbereichs (y 60–95)
-    // Basishöhe: 20px über dem Läufer (Läufer ist bei y≈108, also Vogel bei y≈88 = offset -20)
     const runnerAbsX = 20 + tx;
     // X: Vogel kreist sanft links/rechts um den Läufer
-    const birdOrbitX = Math.sin(t2 * Math.PI * 0.9) * 40;
-    // Y: Wellenbewegung zwischen y=65 und y=90 relativ zur Startposition (y=52 im SVG)
-    // Vogel-Offset: +15 damit er tiefer startet (52+15=67), Welle ±10
+    const orbitRaw = Math.sin(t2 * Math.PI * 0.9); // -1..+1
+    const birdOrbitX = orbitRaw * 40;
+    // Flugrichtung anhand der Ableitung des Sinus bestimmen
+    // d/dt sin(t·π·0.9) = cos(t·π·0.9)·π·0.9 — positiv = nach rechts
+    const orbitVel = Math.cos(t2 * Math.PI * 0.9);
+    // Gesamtbewegung = Orbit + Runner-Follow; Vorzeichen der Gesamtgeschwindigkeit
+    const followVel = 0.55; // runner-follow ist immer nach rechts (positiv)
+    const totalVelSign = orbitVel * 0.9 + followVel; // grob die Richtung
+    lauferBirdDir[uid] = totalVelSign >= 0 ? 1 : -1;
+    const dir = lauferBirdDir[uid];
+
+    // Y: Wellenbewegung
     const birdWaveOffset = 15 + Math.sin(t2 * Math.PI * 1.8) * 10;
     lauferBirdY[uid] = birdWaveOffset;
-    // Vogel folgt dem Läufer horizontal
     const birdFollowX = (runnerAbsX - 395) * 0.55 + birdOrbitX;
 
-    // Flügel flattern
-    const flapSpeed = 9;
-    const wingFlap = Math.sin(t2 * Math.PI * flapSpeed) * 5;
-    const wingEl = document.getElementById('lauf-bird-wing-'+uid);
+    // Flügel flattern — oben/unten schlagen
+    const wingFlap = Math.sin(t2 * Math.PI * 9) * 6;
+    const wingEl  = document.getElementById('lauf-bird-wing-'+uid);
     const wingEl2 = document.getElementById('lauf-bird-wing2-'+uid);
-    if(wingEl){
-      wingEl.setAttribute('d',`M392,${51+wingFlap*0.3} Q385,${45+wingFlap} 389,${57-wingFlap}`);
+    // Flügel oben: schlägt nach oben (y sinkt) und unten
+    if(wingEl)  wingEl.setAttribute('d',  `M390,50 Q388,${43-wingFlap} 396,${47-wingFlap*0.4}`);
+    // Flügel unten: gegenläufig
+    if(wingEl2) wingEl2.setAttribute('d', `M390,53 Q388,${60+wingFlap} 396,${56+wingFlap*0.4}`);
+
+    // Vogel spiegeln wenn er nach links fliegt:
+    // Spiegelachse = lokaler Mittelpunkt des Vogels (cx=395, cy=52 in SVG-Koordinaten)
+    // translate(birdFollowX, birdWaveOffset) dann ggf. scale(-1,1) um lokalen Mittelpunkt
+    if(dir < 0){
+      bird.setAttribute('transform',
+        `translate(${(birdFollowX + 790).toFixed(1)},${birdWaveOffset.toFixed(1)}) scale(-1,1)`);
+    } else {
+      bird.setAttribute('transform',
+        `translate(${birdFollowX.toFixed(1)},${birdWaveOffset.toFixed(1)})`);
     }
-    if(wingEl2){
-      wingEl2.setAttribute('d',`M397,${50-wingFlap*0.3} Q402,${44-wingFlap} 400,${56+wingFlap}`);
-    }
-    // Schwanz bewegt sich leicht
-    const tailEl2 = document.getElementById('lauf-bird-tail-'+uid);
-    if(tailEl2){
-      const tw = Math.sin(t2 * Math.PI * 2.5) * 1.5;
-      tailEl2.setAttribute('d',`M387,${53+tw} Q382,${49+tw} 384,${57+tw}`);
-    }
-    bird.setAttribute('transform', `translate(${birdFollowX.toFixed(1)},${birdWaveOffset.toFixed(1)})`);
-  } else if(!halfPassed){
-    lauferBirdY[uid] = 0;
-  }
+    } // end else (halfPassed)
+  } // end variant===2
 
   // ── Variante 3: Katze schaut aus Fenster + Maus läuft heraus und überholt den Läufer ──
   const mouse = mouseEl; // already fetched above
   if(halfPassed && variant===3){
     if(cat) cat.setAttribute('visibility','visible');
+    // ── Katzen-Wackeln im Fenster ──
+    const tCat = (lauferPhase[uid]||0)/1000;
+    // Braune Katze: leichtes Kopfwiegen links/rechts
+    if(cat){
+      const catSway = Math.sin(tCat * Math.PI * 1.1) * 1.4; // langsam, ±1.4px
+      const catNod  = Math.abs(Math.sin(tCat * Math.PI * 0.7)) * 0.8; // leichtes Nicken
+      cat.setAttribute('transform', `translate(${catSway.toFixed(2)},${catNod.toFixed(2)})`);
+    }
+    // Schwarze Katze: etwas anderen Rhythmus
+    const cat2El = document.getElementById('lauf-cat2-'+uid);
+    if(cat2El && cat2El.getAttribute('visibility')==='visible'){
+      const cat2Sway = Math.sin(tCat * Math.PI * 0.9 + 1.2) * 1.2;
+      const cat2Nod  = Math.abs(Math.sin(tCat * Math.PI * 0.6 + 0.5)) * 0.9;
+      cat2El.setAttribute('transform', `translate(${cat2Sway.toFixed(2)},${cat2Nod.toFixed(2)})`);
+    }
     if(doorOpen && !lauferDogActive[uid]){
       lauferDogActive[uid] = true;
       if(!lauferDogPlayed[uid]){
@@ -3799,9 +3948,8 @@ function lauferDrawFrame(uid){
         setTimeout(()=>{ playSound('Miau', 0.85); }, 300);
       }
     }
-    // Maus erscheint erst wenn Tür offen ist, läuft dann schneller als der Läufer
-    if(mouse && doorOpen){
-      mouse.setAttribute('visibility','visible');
+    // Maus erscheint erst wenn Tür halb offen, läuft dann dauerhaft (auch wenn Tür wieder zu)
+    if(mouse && (doorOpen || lauferMouseActive[uid])){
       if(!lauferMouseActive[uid]){
         lauferMouseActive[uid] = true;
         lauferMouseX[uid] = 0; // startet an Türposition
