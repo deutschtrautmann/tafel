@@ -1488,6 +1488,7 @@ const LANG = {
     // Spiele widget (tab labels)
     spieleRad:'Rad',
     spieleSlot:'Slot',
+    spieleAmpel:'Ampel',
     spieleJanken:'Janken',
     spielePuzzle:'Puzzle',
     // Puzzle widget
@@ -1646,6 +1647,7 @@ const LANG = {
     // Spiele widget (tab labels)
     spieleRad:'ルーレット',
     spieleSlot:'スロット',
+    spieleAmpel:'信号機',
     spieleJanken:'じゃんけん',
     spielePuzzle:'パズル',
     // Puzzle widget
@@ -2073,12 +2075,12 @@ function _trSlotInner(uid){
 }
 
 function _trSpiele(uid){
-  // Tab buttons (including Puzzle)
-  ['rad','slot','janken','puzzle'].forEach(tab=>{
+  // Tab buttons (including Puzzle and Ampel)
+  ['rad','slot','janken','puzzle','ampel'].forEach(tab=>{
     const btn=document.getElementById(`spiele-tab-${tab}-${uid}`);
     if(!btn) return;
-    const icons={rad:'🎡',slot:'🎰',janken:'✂️',puzzle:'🧩'};
-    const labels={rad:T('spieleRad'),slot:T('spieleSlot'),janken:T('spieleJanken'),puzzle:T('spielePuzzle')};
+    const icons={rad:'🎡',slot:'🎰',janken:'✂️',puzzle:'🧩',ampel:'🚦'};
+    const labels={rad:T('spieleRad'),slot:T('spieleSlot'),janken:T('spieleJanken'),puzzle:T('spielePuzzle'),ampel:T('spieleAmpel')};
     btn.textContent=icons[tab]+' '+labels[tab];
   });
   // Rebuild puzzle panel so all strings use the new language
@@ -4231,16 +4233,8 @@ function buildDice(body,uid){
 <div style="display:flex;gap:.4em;justify-content:center;flex-wrap:wrap;padding:.2em 0 .4em;">
   <button class="jein-mode-btn" id="dtbtn-jein-text-${uid}"   onclick="selectDiceType('jein-text',${uid})"   title="Ja/Nein">${T('diceJaNein')}</button>
   <button class="jein-mode-btn" id="dtbtn-jein-smiley-${uid}" onclick="selectDiceType('jein-smiley',${uid})" title="Smiley">😊</button>
-  <button class="jein-mode-btn" id="dtbtn-jein-ampel-${uid}"  onclick="selectDiceType('jein-ampel',${uid})"  title="Ampel">🚦</button>
   <button class="jein-mode-btn" id="dtbtn-jein-color-${uid}"  onclick="selectDiceType('jein-color',${uid})"  title="Farbe">🎨</button>
   <button class="jein-mode-btn" id="dtbtn-zufall-${uid}" onclick="toggleDiceZufall(${uid})" title="Zufall an/aus" style="font-size:.75em;padding:.3em .6em;">${T('diceZufallAn')}</button>
-</div>
-<div id="ampel-config-${uid}" style="display:none;align-items:center;gap:.4em;justify-content:center;flex-wrap:wrap;padding:.15em 0 .3em;font-size:.8em;color:var(--text2);">
-  <span>${T('diceGruenDauer')}</span>
-  <input type="number" id="ampel-min-${uid}" value="10" min="1" max="600" style="width:52px;padding:.2em .35em;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:inherit;font-size:1em;text-align:center;" title="Minimum Sekunden Grün">
-  <span>–</span>
-  <input type="number" id="ampel-max-${uid}" value="30" min="1" max="600" style="width:52px;padding:.2em .35em;border-radius:6px;border:1px solid rgba(255,255,255,0.2);background:rgba(0,0,0,0.3);color:inherit;font-size:1em;text-align:center;" title="Maximum Sekunden Grün">
-  <span>${T('diceSek')}</span>
 </div>
 <input type="hidden" id="dicetype-${uid}" value="6">
 <input type="hidden" id="dicecount-${uid}" value="1">`;
@@ -4280,7 +4274,7 @@ function selectDiceType(sides, uid){
     const b=document.getElementById('dtbtn-'+s+'-'+uid);
     if(b) b.classList.toggle('active-dice', s===sides);
   });
-  ['text','smiley','ampel','color'].forEach(m=>{
+  ['text','smiley','color'].forEach(m=>{
     const b=document.getElementById('dtbtn-jein-'+m+'-'+uid);
     if(b) b.classList.toggle('active-jmode', sides==='jein-'+m);
   });
@@ -4299,25 +4293,13 @@ function selectDiceType(sides, uid){
     stopSmileyAutoRotate(uid);
 
     // Show mode-specific idle display immediately
-    // Show/hide ampel config inputs
-    const acfg=document.getElementById('ampel-config-'+uid);
-    if(acfg) acfg.style.display=(mode==='ampel')?'flex':'none';
+    stopSmileyAutoRotate(uid);
     if(wrap){
       if(mode==='text'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(1.6em,6vw,3em);font-weight:900;color:var(--text2);opacity:.5;">${T('diceJaNein')}</span></div>`;
       } else if(mode==='smiley'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"><span style="font-size:clamp(4em,18vw,9em);opacity:.35;">😊</span></div>`;
         startSmileyAutoRotate(uid);
-      } else if(mode==='ampel'){
-        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;background:#1a1a1a;border-radius:16px;">
-          <svg viewBox="0 0 60 180" width="33%" height="90%" xmlns="http://www.w3.org/2000/svg">
-            <rect x="5" y="5" width="50" height="170" rx="12" fill="#222" stroke="#444" stroke-width="2"/>
-            <circle cx="30" cy="35"  r="18" fill="rgba(80,0,0,0.4)"/>
-            <circle cx="30" cy="90"  r="18" fill="rgba(80,70,0,0.4)"/>
-            <circle cx="30" cy="145" r="18" fill="rgba(0,80,0,0.4)"/>
-          </svg>
-        </div>`;
-        scheduleAmpelSwitch(uid);
       } else if(mode==='color'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(2.5em,10vw,5em);opacity:.5;">🎨</span></div>`;
       }
@@ -4328,8 +4310,6 @@ function selectDiceType(sides, uid){
     // Normal dice mode — stop any ampel, show dice graphic
     if(ampelTimers[uid]){clearTimeout(ampelTimers[uid]);delete ampelTimers[uid];}
     stopSmileyAutoRotate(uid);
-    const acfg2=document.getElementById('ampel-config-'+uid);
-    if(acfg2) acfg2.style.display='none';
     updateDiceGraphic(uid);
     if(res) res.textContent=T('diceClickHint');
   }
@@ -4342,19 +4322,18 @@ function updateDiceGraphic(uid){
     wrap.innerHTML=`<svg viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
       <defs>
         <linearGradient id="noteGradP" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#4a7c4e"/><stop offset="50%" stop-color="#5a9e60"/><stop offset="100%" stop-color="#3d6b41"/>
+          <stop offset="0%" stop-color="#8ab4d4"/><stop offset="50%" stop-color="#5a8fb8"/><stop offset="100%" stop-color="#3a6a94"/>
         </linearGradient>
       </defs>
-      <rect x="4" y="4" width="212" height="102" rx="7" fill="url(#noteGradP)" stroke="#2d5230" stroke-width="1.5"/>
-      <rect x="10" y="10" width="200" height="90" rx="4" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-      <rect x="4" y="4" width="38" height="102" rx="7" fill="rgba(0,0,0,0.18)"/>
-      <rect x="34" y="4" width="4" height="102" fill="rgba(0,0,0,0.12)"/>
-      <text x="23" y="58" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="900" font-size="26" fill="rgba(255,255,255,0.85)">€</text>
-      <line x1="46" y1="18" x2="210" y2="18" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-      <line x1="46" y1="92" x2="210" y2="92" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-      <text x="130" y="55" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="700" font-size="16" fill="rgba(255,255,255,0.5)">${T('diceClickHint')}</text>
-      <text x="50" y="24" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,0.4)">★</text>
-      <text x="198" y="24" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,0.4)">★</text>
+      <rect x="4" y="4" width="212" height="102" rx="7" fill="url(#noteGradP)" stroke="#2a5070" stroke-width="1.5"/>
+      <rect x="9" y="9" width="202" height="92" rx="5" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/>
+      <rect x="64" y="4" width="3.5" height="102" fill="rgba(0,0,0,0.22)" rx="1"/>
+      <rect x="65" y="4" width="1.5" height="102" fill="rgba(255,255,255,0.13)" rx="1"/>
+      <rect x="150" y="14" width="56" height="82" rx="4" fill="rgba(0,0,0,0.07)"/>
+      <path d="M158,82 L158,42 Q158,26 173,26 Q188,26 188,42 L188,82" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.8"/>
+      <text x="110" y="55" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="700" font-size="13" fill="rgba(255,255,255,0.45)">${T('diceClickHint')}</text>
+      <text x="15" y="20" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.4)">★★★</text>
+      <text x="140" y="20" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.4)">★★★</text>
     </svg>`;
   } else {
     const tnum=parseInt(t||6);
@@ -4380,52 +4359,167 @@ function rollDice(uid){
   const wrap=document.getElementById('dicewrap-'+uid);
   const res=document.getElementById('diceres-'+uid);
   if(type==='euro'){
-    // Random euro amount: 0.10 to 500.00 in realistic denominations
-    const cents=Math.floor(Math.random()*49991)+10; // 10 cent to 500.00
-    const rounded=Math.round(cents/10)*10; // round to 10 cents
-    const euros=(rounded/100).toFixed(2).replace('.',',');
+    // ── Hilfsfunktionen ──
+    const noteValues = [10,20,50,100,200];
+    const centValues = [1,2,5,10,20,50];
+    const noteColors = {
+      10:  ['#e8c87a','#d4a843','#b8891c'],
+      20:  ['#8ab4d4','#5a8fb8','#3a6a94'],
+      50:  ['#e8a06a','#d47438','#b85416'],
+      100: ['#a8c87a','#7aab48','#568a2c'],
+      200: ['#e8da8a','#d4be54','#b89e2c'],
+    };
+
+    // Echte Münzgrößen (mm) → Pixel-Radien (skaliert auf 16–32px)
+    // 1ct=16.25, 2ct=18.75, 5ct=21.25, 10ct=19.75, 20ct=22.25, 50ct=24.25
+    const coinSize = { 1:18, 2:20, 5:23, 10:21, 20:24, 50:27 };
+    // Kupfer: 1,2,5ct — Gold/Messing: 10,20,50ct
+    const coinMetal = {
+      1:  { outer:['#e08838','#c8702a','#9e5018'], inner:['#e8a060','#d4844a','#a85c20'] },
+      2:  { outer:['#e08838','#c8702a','#9e5018'], inner:['#e8a060','#d4844a','#a85c20'] },
+      5:  { outer:['#e08838','#c8702a','#9e5018'], inner:['#e8a060','#d4844a','#a85c20'] },
+      10: { outer:['#e0b83a','#c9a227','#9e7a10'], inner:['#f0d060','#d4b040','#a08010'] },
+      20: { outer:['#e0b83a','#c9a227','#9e7a10'], inner:['#f0d060','#d4b040','#a08010'] },
+      50: { outer:['#e0b83a','#c9a227','#9e7a10'], inner:['#f0d060','#d4b040','#a08010'] },
+    };
+
+    // Baut eine Note (w×h) zentriert bei (cx,cy)
+    function noteSVG(val, cx, cy, w, h){
+      const nc = noteColors[val];
+      const nid = 'n'+Math.random().toString(36).slice(2,6);
+      const x=cx-w/2, y=cy-h/2, r=4;
+      const labelSize = val>=100 ? Math.round(h*0.42) : Math.round(h*0.50);
+      return `
+        <defs>
+          <linearGradient id="ng${nid}" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="${nc[0]}"/><stop offset="50%" stop-color="${nc[1]}"/><stop offset="100%" stop-color="${nc[2]}"/>
+          </linearGradient>
+          <linearGradient id="ns${nid}" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#fff" stop-opacity=".14"/><stop offset="100%" stop-color="#000" stop-opacity=".09"/>
+          </linearGradient>
+        </defs>
+        <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="url(#ng${nid})" stroke="${nc[2]}" stroke-width="1"/>
+        <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="url(#ns${nid})"/>
+        <rect x="${x+3}" y="${y+3}" width="${w-6}" height="${h-6}" rx="2" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.7"/>
+        <rect x="${x+Math.round(w*0.27)}" y="${y}" width="2" height="${h}" fill="rgba(0,0,0,0.20)" rx="1"/>
+        <rect x="${x+Math.round(w*0.27)+0.5}" y="${y}" width="1" height="${h}" fill="rgba(255,255,255,0.14)" rx="1"/>
+        <path d="M${x+w-22},${y+h-4} L${x+w-22},${y+Math.round(h*0.38)} Q${x+w-22},${y+7} ${x+w-11},${y+7} Q${x+w},${y+7} ${x+w},${y+Math.round(h*0.38)} L${x+w},${y+h-4}" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.1"/>
+        <text x="${x+Math.round(w*0.18)}" y="${cy+1}" text-anchor="middle" dominant-baseline="central"
+          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${labelSize}"
+          fill="rgba(0,0,0,0.30)">${val}</text>
+        <text x="${x+Math.round(w*0.18)}" y="${cy+1}" text-anchor="middle" dominant-baseline="central"
+          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${labelSize}"
+          fill="rgba(255,255,255,0.92)">${val}</text>
+        <text x="${x+5}" y="${y+8}" font-family="Arial,sans-serif" font-size="4" fill="rgba(255,255,255,0.38)">★★★</text>
+        <text x="${x+5}" y="${y+h-3}" font-family="Arial,sans-serif" font-size="4" fill="rgba(255,255,255,0.38)">★★★</text>`;
+    }
+
+    // Baut eine Münze, R = Außenradius, zentriert bei (cx,cy)
+    function coinSVG(val, cx, cy){
+      const R  = coinSize[val];
+      const Ri = Math.round(R * 0.78);
+      const m  = coinMetal[val];
+      const cid = 'c'+Math.random().toString(36).slice(2,6);
+      const rimColor = m.outer[2];
+      const nNotches = Math.round(R * 0.9); // mehr Riefen bei größeren Münzen
+      const labelSize = val>=10 ? Math.round(R*0.75) : Math.round(R*0.88);
+      const notches = Array.from({length:nNotches},(_,i)=>{
+        const a=i*(Math.PI*2/nNotches);
+        const r1=R-3, r2=R;
+        return `<line x1="${(cx+Math.cos(a)*r1).toFixed(1)}" y1="${(cy+Math.sin(a)*r1).toFixed(1)}" x2="${(cx+Math.cos(a)*r2).toFixed(1)}" y2="${(cy+Math.sin(a)*r2).toFixed(1)}" stroke="${rimColor}" stroke-width="1.2"/>`;
+      }).join('');
+      const starR = Ri - Math.round(Ri*0.28);
+      const starSize = Math.max(3, Math.round(R*0.14));
+      const stars = Array.from({length:12},(_,i)=>{
+        const a=i*(Math.PI*2/12)-Math.PI/2;
+        return `<text x="${(cx+Math.cos(a)*starR).toFixed(1)}" y="${(cy+Math.sin(a)*starR).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${starSize}" fill="rgba(255,255,255,0.62)">★</text>`;
+      }).join('');
+      const labelY = cy - Math.round(R*0.10);
+      const ctSize = Math.max(5, Math.round(R*0.28));
+      return `
+        <defs>
+          <radialGradient id="cg${cid}" cx="38%" cy="32%" r="62%">
+            <stop offset="0%" stop-color="${m.outer[0]}"/><stop offset="45%" stop-color="${m.outer[1]}"/><stop offset="100%" stop-color="${m.outer[2]}"/>
+          </radialGradient>
+          <radialGradient id="ci${cid}" cx="42%" cy="35%" r="58%">
+            <stop offset="0%" stop-color="${m.inner[0]}"/><stop offset="60%" stop-color="${m.inner[1]}"/><stop offset="100%" stop-color="${m.inner[2]}"/>
+          </radialGradient>
+        </defs>
+        <ellipse cx="${cx+2}" cy="${cy+R-2}" rx="${R-2}" ry="${Math.round(R*0.14)}" fill="rgba(0,0,0,0.14)"/>
+        <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#cg${cid})"/>
+        ${notches}
+        <circle cx="${cx}" cy="${cy}" r="${Ri}" fill="url(#ci${cid})"/>
+        <circle cx="${cx}" cy="${cy}" r="${Ri}" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+        ${stars}
+        <text x="${cx}" y="${labelY}" text-anchor="middle" dominant-baseline="central"
+          font-family="Georgia,serif" font-weight="900" font-size="${labelSize}"
+          fill="rgba(0,0,0,0.48)">${val}</text>
+        <text x="${cx}" y="${labelY}" text-anchor="middle" dominant-baseline="central"
+          font-family="Georgia,serif" font-weight="900" font-size="${labelSize}"
+          fill="rgba(255,255,255,0.86)">${val}</text>
+        <text x="${cx}" y="${cy+Math.round(R*0.42)}" text-anchor="middle" dominant-baseline="central"
+          font-family="Arial,sans-serif" font-weight="700" font-size="${ctSize}"
+          fill="rgba(255,255,255,0.65)">ct</text>
+        <ellipse cx="${cx-Math.round(R*0.28)}" cy="${cy-Math.round(R*0.30)}" rx="${Math.round(R*0.22)}" ry="${Math.round(R*0.13)}" fill="rgba(255,255,255,0.16)" transform="rotate(-30,${cx-Math.round(R*0.28)},${cy-Math.round(R*0.30)})"/>`;
+    }
+
+    // Zufällig: 0=2 Noten, 1=Note+Münze, 2=2 Münzen (gleichverteilt)
+    const combo = Math.floor(Math.random()*3);
+
+    // Zwei UNTERSCHIEDLICHE Notenwerte
+    let v1 = noteValues[Math.floor(Math.random()*noteValues.length)];
+    let v2idx = Math.floor(Math.random()*(noteValues.length-1));
+    if(noteValues[v2idx] >= v1) v2idx++;
+    let v2 = noteValues[v2idx]; // garantiert verschieden von v1
+    // Sortiert: kleinerer Wert vorne links
+    if(v1 > v2){ const tmp=v1; v1=v2; v2=tmp; }
+
+    const c1 = centValues[Math.floor(Math.random()*centValues.length)];
+    let c2idx = Math.floor(Math.random()*(centValues.length-1));
+    if(centValues[c2idx] >= c1) c2idx++;
+    const c2 = centValues[c2idx]; // verschieden von c1
+
+    // Ergebnis-Text
+    let resText = '';
+    if(combo===0){ resText=`${v1} € + ${v2} €`; }
+    else if(combo===1){ resText=`${v1} € + ${c1} Cent`; }
+    else { resText=`${c1} Cent + ${c2} Cent`; }
+
     if(wrap){
       wrap.style.transform='scale(0.75) rotate(20deg)';
       wrap.style.transition='transform .1s ease-in';
       setTimeout(()=>{
         wrap.style.transition='transform .28s cubic-bezier(.34,1.56,.64,1)';
         wrap.style.transform='scale(1) rotate(-5deg)';
-        wrap.innerHTML=`<svg viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
-          <defs>
-            <linearGradient id="noteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#4a7c4e"/>
-              <stop offset="50%" stop-color="#5a9e60"/>
-              <stop offset="100%" stop-color="#3d6b41"/>
-            </linearGradient>
-            <linearGradient id="noteShine" x1="0%" y1="0%" x2="0%" y2="100%">
-              <stop offset="0%" stop-color="#ffffff" stop-opacity=".12"/>
-              <stop offset="100%" stop-color="#000000" stop-opacity=".08"/>
-            </linearGradient>
-          </defs>
-          <!-- Note body -->
-          <rect x="4" y="4" width="212" height="102" rx="7" fill="url(#noteGrad)" stroke="#2d5230" stroke-width="1.5"/>
-          <rect x="4" y="4" width="212" height="102" rx="7" fill="url(#noteShine)"/>
-          <!-- Inner border frame -->
-          <rect x="10" y="10" width="200" height="90" rx="4" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1"/>
-          <!-- Left strip with euro sign -->
-          <rect x="4" y="4" width="38" height="102" rx="7" fill="rgba(0,0,0,0.18)"/>
-          <rect x="34" y="4" width="4" height="102" fill="rgba(0,0,0,0.12)"/>
-          <text x="23" y="58" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="900" font-size="26" fill="rgba(255,255,255,0.85)">€</text>
-          <!-- Decorative lines -->
-          <line x1="46" y1="18" x2="210" y2="18" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-          <line x1="46" y1="92" x2="210" y2="92" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
-          <!-- Amount -->
-          <text x="130" y="52" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="900" font-size="${euros.length>6?24:28}" fill="#ffffff" letter-spacing="1">${euros} €</text>
-          <!-- Small decorative corner stars -->
-          <text x="50" y="24" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,0.4)">★</text>
-          <text x="198" y="24" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,0.4)">★</text>
-          <text x="50" y="94" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,0.4)">★</text>
-          <text x="198" y="94" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,0.4)">★</text>
-        </svg>`;
+
+        // ViewBox 220×110
+        // Zwei Noten nebeneinander: je 100×48, Lücke in der Mitte
+        // Note links: cx=54,cy=55  Note rechts: cx=166,cy=55
+        // Note+Münze: Note links cx=60,cy=55 w=106 h=52 | Münze rechts cx=170,cy=55
+        // Zwei Münzen: links cx=65,cy=55 | rechts cx=155,cy=55
+        let svg = `<svg viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">`;
+
+        if(combo===0){
+          // Zwei Noten nebeneinander, je 100×50, deutlich getrennt
+          svg += noteSVG(v1,  57, 55, 100, 50);
+          svg += noteSVG(v2, 163, 55, 100, 50);
+        } else if(combo===1){
+          // Note links (etwas breiter), Münze rechts
+          svg += noteSVG(v1, 60, 55, 106, 52);
+          const R = coinSize[c1];
+          svg += coinSVG(c1, 168, 55);
+        } else {
+          // Zwei Münzen — verschiedene Größen sichtbar, nebeneinander
+          const R1 = coinSize[c1], R2 = coinSize[c2];
+          svg += coinSVG(c1,  70, 55);
+          svg += coinSVG(c2, 152, 55);
+        }
+        svg += `</svg>`;
+        wrap.innerHTML = svg;
+        if(res) res.textContent=`${T('diceErgebnis')}: ${resText}`;
         setTimeout(()=>{wrap.style.transform='';},180);
       },130);
     }
-    if(res) res.textContent=`${T('diceErgebnis')}: ${euros} €`;
     return;
   }
   const tnum=parseInt(type||6);
@@ -6792,10 +6886,10 @@ function buildSpiele(body, uid){
 
   // Tab bar
   const tabBar=document.createElement('div');
-  tabBar.style.cssText='display:flex;gap:6px;align-items:center;padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;';
-  ['rad','slot','janken','puzzle'].forEach((tab,i)=>{
-    const labelKeys={rad:'spieleRad',slot:'spieleSlot',janken:'spieleJanken',puzzle:'spielePuzzle'};
-    const icons={rad:'🎡',slot:'🎰',janken:'✂️',puzzle:'🧩'};
+  tabBar.style.cssText='display:flex;gap:6px;align-items:center;padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;flex-wrap:wrap;';
+  ['rad','slot','janken','puzzle','ampel'].forEach((tab,i)=>{
+    const labelKeys={rad:'spieleRad',slot:'spieleSlot',janken:'spieleJanken',puzzle:'spielePuzzle',ampel:'spieleAmpel'};
+    const icons={rad:'🎡',slot:'🎰',janken:'✂️',puzzle:'🧩',ampel:'🚦'};
     const btn=document.createElement('button');
     btn.className='timer-mode-btn spiele-tab-btn'+(i===0?' active-tmode':'');
     btn.id=`spiele-tab-${tab}-${uid}`;
@@ -6806,7 +6900,7 @@ function buildSpiele(body, uid){
   body.appendChild(tabBar);
 
   // Panels
-  ['rad','slot','janken','puzzle'].forEach((tab,i)=>{
+  ['rad','slot','janken','puzzle','ampel'].forEach((tab,i)=>{
     const panel=document.createElement('div');
     panel.id=`spiele-panel-${tab}-${uid}`;
     panel.style.cssText=`flex:1;min-height:0;overflow:hidden;display:${i===0?'flex':'none'};flex-direction:column;`;
@@ -6850,10 +6944,161 @@ function buildSpiele(body, uid){
   puzzlePanel.style.flexDirection = 'column';
   puzzlePanel.style.overflow = 'hidden';
   buildPuzzlePanel(puzzlePanel, uid);
+
+  // ── Ampel panel ──
+  buildAmpelPanel(document.getElementById(`spiele-panel-ampel-${uid}`), uid);
+}
+
+// ════════════════════════════════════════════════
+// AMPEL PANEL (Spiele-Tab) — Design nach Vorlage
+// ════════════════════════════════════════════════
+function buildAmpelPanel(panel, uid){
+  const auid = uid * 1000 + 5;
+  // display bleibt 'none' — nur Layout-Eigenschaften setzen, nicht cssText überschreiben
+  panel.style.flexDirection = 'column';
+  panel.style.alignItems = 'center';
+  panel.style.justifyContent = 'center';
+  panel.style.overflow = 'hidden';
+  panel.style.padding = '0';
+  panel.style.position = 'relative';
+
+  panel.innerHTML = `
+<div id="ampel-scene-${auid}" style="width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#1a2060 0%,#252d7a 60%,#2a3494 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ampelPanelClick(${auid})" title="Klicken zum Neustart">
+
+  <!-- Mond -->
+  <svg style="position:absolute;top:8%;left:12%;width:52px;height:52px;pointer-events:none;" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+    <path d="M36 10 Q48 26 36 42 Q20 48 10 36 Q22 36 28 26 Q32 14 36 10Z" fill="#f5d020" stroke="#e8b800" stroke-width="1"/>
+  </svg>
+
+  <!-- Gebäude links groß -->
+  <svg style="position:absolute;bottom:0;left:0;width:22%;height:75%;pointer-events:none;" viewBox="0 0 100 300" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="100" height="300" fill="#8a8fa0" stroke="#70757f" stroke-width="2"/>
+    ${[0,1,2,3,4].map(r=>[0,1].map(c=>`<rect x="${15+c*42}" y="${20+r*52}" width="28" height="28" fill="#f5c000" stroke="#c8960a" stroke-width="1.5"/>`).join('')).join('')}
+  </svg>
+
+  <!-- Gebäude links klein (vorne) -->
+  <svg style="position:absolute;bottom:0;left:18%;width:12%;height:40%;pointer-events:none;" viewBox="0 0 60 160" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="60" height="160" fill="#9094a3" stroke="#70757f" stroke-width="2"/>
+    ${[0,1,2].map(r=>[0,1].map(c=>`<rect x="${5+c*27}" y="${10+r*45}" width="18" height="18" fill="#f5c000" stroke="#c8960a" stroke-width="1.5"/>`).join('')).join('')}
+  </svg>
+
+  <!-- Gebäude rechts groß -->
+  <svg style="position:absolute;bottom:0;right:0;width:22%;height:80%;pointer-events:none;" viewBox="0 0 100 320" preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="100" height="320" fill="#8a8fa0" stroke="#70757f" stroke-width="2"/>
+    ${[0,1,2,3,4,5].map(r=>[0,1].map(c=>`<rect x="${8+c*46}" y="${18+r*48}" width="30" height="24" fill="#f5c000" stroke="#c8960a" stroke-width="1.5"/>`).join('')).join('')}
+  </svg>
+
+  <!-- Gebäude rechts klein (vorne) -->
+  <svg style="position:absolute;bottom:0;right:18%;width:13%;height:38%;pointer-events:none;" viewBox="0 0 65 155" preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="65" height="155" fill="#9094a3" stroke="#70757f" stroke-width="2"/>
+    ${[0,1,2].map(r=>[0,1].map(c=>`<rect x="${5+c*30}" y="${10+r*44}" width="20" height="20" fill="#f5c000" stroke="#c8960a" stroke-width="1.5"/>`).join('')).join('')}
+  </svg>
+
+  <!-- Ampel-Mast -->
+  <svg id="ampel-svg-${auid}" style="position:relative;z-index:10;height:96%;max-height:520px;width:auto;pointer-events:none;filter:drop-shadow(0 6px 32px rgba(0,0,0,0.8));" viewBox="0 0 120 360" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="rg-r-${auid}" cx="38%" cy="35%"><stop offset="0%" stop-color="#ff6060"/><stop offset="100%" stop-color="#cc0000"/></radialGradient>
+      <radialGradient id="rg-y-${auid}" cx="38%" cy="35%"><stop offset="0%" stop-color="#ffe060"/><stop offset="100%" stop-color="#cc9900"/></radialGradient>
+      <radialGradient id="rg-g-${auid}" cx="38%" cy="35%"><stop offset="0%" stop-color="#60e860"/><stop offset="100%" stop-color="#009900"/></radialGradient>
+    </defs>
+    <!-- Gehäuse -->
+    <rect x="28" y="10" width="64" height="220" rx="16" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="3"/>
+    <rect x="31" y="13" width="58" height="214" rx="14" fill="#787d8a" stroke="none"/>
+    <!-- Seitenflügel oben -->
+    <polygon points="10,50 28,44 28,72 10,66" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
+    <polygon points="110,50 92,44 92,72 110,66" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
+    <!-- Seitenflügel mitte -->
+    <polygon points="10,115 28,109 28,137 10,131" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
+    <polygon points="110,115 92,109 92,137 110,131" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
+    <!-- Seitenflügel unten -->
+    <polygon points="10,178 28,172 28,200 10,194" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
+    <polygon points="110,178 92,172 92,200 110,194" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
+    <!-- Innere Vertiefungen -->
+    <circle cx="60" cy="58"  r="22" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="1.5"/>
+    <circle cx="60" cy="120" r="22" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="1.5"/>
+    <circle cx="60" cy="182" r="22" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="1.5"/>
+    <!-- ROT -->
+    <circle id="ampel-rot-${auid}"  cx="60" cy="58"  r="18" fill="rgba(80,0,0,0.35)"/>
+    <!-- GELB -->
+    <circle id="ampel-gelb-${auid}" cx="60" cy="120" r="18" fill="rgba(80,70,0,0.35)"/>
+    <!-- GRÜN -->
+    <circle id="ampel-gruen-${auid}" cx="60" cy="182" r="18" fill="rgba(0,80,0,0.35)"/>
+    <!-- Mast -->
+    <rect x="54" y="230" width="12" height="130" rx="4" fill="#3a3d44" stroke="#2a2d34" stroke-width="1.5"/>
+  </svg>
+
+  <!-- Timer-Konfiguration -->
+  <div id="ampel-cfg-${auid}" style="position:absolute;top:10px;right:10px;display:flex;align-items:center;gap:.5em;background:rgba(0,0,0,0.55);border-radius:12px;padding:.55em 1em;font-size:1em;font-weight:700;color:rgba(255,255,255,0.9);">
+    <span style="white-space:nowrap;">${(typeof T!=='undefined'?T('diceGruenDauer'):'Grün-Dauer:')}</span>
+    <input type="number" id="sa-min-${auid}" value="10" min="1" max="600" style="width:52px;padding:.25em .4em;border-radius:7px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.5);color:inherit;font-size:1em;text-align:center;">
+    <span>–</span>
+    <input type="number" id="sa-max-${auid}" value="30" min="1" max="600" style="width:52px;padding:.25em .4em;border-radius:7px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.5);color:inherit;font-size:1em;text-align:center;">
+    <span>s</span>
+  </div>
+</div>`;
+
+  // Ampel-Zyklus erst beim ersten Anzeigen des Tabs starten (nicht sofort)
+  // Start wird durch spieleShowTab ausgelöst
+}
+
+// Global state for Ampel Panel
+const _apTimers = {};
+const _apState  = {};
+
+function ampelPanelSetLight(auid, state){
+  const rot  = document.getElementById('ampel-rot-'+auid);
+  const gelb = document.getElementById('ampel-gelb-'+auid);
+  const gruen= document.getElementById('ampel-gruen-'+auid);
+  if(!rot) return;
+  const isLM = document.body.classList.contains('light-mode');
+  rot.setAttribute('fill',  state==='rot'  ? `url(#rg-r-${auid})` : (isLM?'rgba(180,0,0,0.12)':'rgba(80,0,0,0.35)'));
+  gelb.setAttribute('fill', state==='gelb' ? `url(#rg-y-${auid})` : (isLM?'rgba(160,120,0,0.12)':'rgba(80,70,0,0.35)'));
+  gruen.setAttribute('fill',state==='gruen'? `url(#rg-g-${auid})` : (isLM?'rgba(0,150,0,0.12)':'rgba(0,80,0,0.35)'));
+  // Hintergrund-Schimmer der aktiven Lampe
+  const scene = document.getElementById('ampel-scene-'+auid);
+  if(scene){
+    const glows={rot:'rgba(180,0,0,0.18)',gelb:'rgba(160,120,0,0.18)',gruen:'rgba(0,130,0,0.18)'};
+    scene.style.boxShadow = `inset 0 0 80px 20px ${glows[state]||'transparent'}`;
+  }
+  // Ton bei jedem Zustandswechsel: Hupe bei Rot, Pop bei Gelb/Grün
+  try{
+    if(state==='rot'){
+      playSound('Hupe', 0.9);
+    } else {
+      const ac = window._pzAudioCtx || new (window.AudioContext||window.webkitAudioContext)();
+      if(ac.state==='suspended') ac.resume();
+      playPop(ac, 0.8);
+    }
+  }catch(e){}
+  _apState[auid] = state;
+}
+
+function ampelPanelStart(auid){
+  if(_apTimers[auid]){clearTimeout(_apTimers[auid]);delete _apTimers[auid];}
+  const minEl = document.getElementById('sa-min-'+auid);
+  const maxEl = document.getElementById('sa-max-'+auid);
+  const minS  = Math.max(1, parseInt(minEl?.value||10));
+  const maxS  = Math.max(minS, parseInt(maxEl?.value||30));
+  const gruenMs = (minS + Math.random()*(maxS-minS)) * 1000;
+  ampelPanelSetLight(auid, 'gruen');
+  _apTimers[auid] = setTimeout(()=>{
+    if(!document.getElementById('ampel-rot-'+auid)) return;
+    ampelPanelSetLight(auid, 'gelb');
+    _apTimers[auid] = setTimeout(()=>{
+      if(!document.getElementById('ampel-rot-'+auid)) return;
+      ampelPanelSetLight(auid, 'rot');
+      // Stay on rot until manual restart
+    }, 3000);
+  }, gruenMs);
+}
+
+function ampelPanelClick(auid){
+  try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
+  ampelPanelStart(auid);
 }
 
 function spieleShowTab(tab, uid){
-  ['rad','slot','janken','puzzle'].forEach(t=>{
+  ['rad','slot','janken','puzzle','ampel'].forEach(t=>{
     const panel=document.getElementById(`spiele-panel-${t}-${uid}`);
     const btn  =document.getElementById(`spiele-tab-${t}-${uid}`);
     if(panel) panel.style.display = t===tab ? 'flex' : 'none';
@@ -6862,6 +7107,13 @@ function spieleShowTab(tab, uid){
   if(tab==='slot'){
     requestAnimationFrame(()=>slotSizeReels(uid*1000+2));
     setTimeout(()=>slotSizeReels(uid*1000+2), 120);
+  }
+  // Ampel-Zyklus starten wenn Tab geöffnet, stoppen wenn verlassen
+  const auid = uid * 1000 + 5;
+  if(tab==='ampel'){
+    setTimeout(()=>ampelPanelStart(auid), 80);
+  } else {
+    if(_apTimers[auid]){clearTimeout(_apTimers[auid]);delete _apTimers[auid];}
   }
   // Refresh scale for any tab switch so --uiscale is propagated
   const widgetEl = document.getElementById(`spiele-panel-rad-${uid}`)?.closest('.widget');
