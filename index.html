@@ -610,7 +610,7 @@ textarea.winput{resize:vertical;}
 .dice-wrap svg{width:100%;height:100%;max-width:none;max-height:none;min-width:60px;min-height:60px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.4));transition:transform .15s;}
 .dice-wrap:hover svg{transform:scale(1.08) rotate(6deg);}
 .dice-result{text-align:center;font-size:.95em;font-weight:700;color:var(--text2);margin:.2em 0 .5em;}
-.name-disp{font-size:2.8em;font-weight:400;text-align:center;color:#ffffff;min-height:1.2em;transition:all .25s;margin:.2em 0 .5em;line-height:1.1;font-family:'Arial',sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.5);}
+.name-disp{font-size:2.8em;font-weight:400;text-align:center;color:#ffffff;transition:all .25s;margin:.2em 0 .5em;line-height:1.1;font-family:'Arial',sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.5);}
 .draw-canvas{display:block;border-radius:8px;cursor:crosshair;touch-action:none;background:#fff;width:100%;}
 .color-dot{width:1.1em;height:1.1em;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:transform .15s,border-color .15s;flex-shrink:0;}
 .color-dot:hover{transform:scale(1.2);}
@@ -736,6 +736,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .widget[data-type="clock"] canvas{max-width:100%;max-height:100%;}
 .widget[data-type="names"] textarea{font-size:calc(var(--uiscale,1)*13px)!important;}
 .widget[data-type="names"] .wbtn{font-size:calc(var(--uiscale,1)*13px)!important;}
+.widget[data-type="names"] .widget-body{overflow:hidden!important;}
 .widget[data-type="qr"] .qr-canvas{
   width:min(100%, calc(var(--uiscale,1)*180px));
   height:auto;
@@ -3066,10 +3067,10 @@ function updateWidgetScale(el){
   requestAnimationFrame(()=>{
     el.querySelectorAll('canvas.draw-canvas').forEach(cv=>{ try{ resizeDrawCanvas(cv); }catch(_){ } });
     el.querySelectorAll('[id^="aclock-"]').forEach(cv=>{ const uid=cv.id.replace('aclock-',''); try{ drawAnalogClock(uid); }catch(_){ } });
-    // Namen-Widget: Schriftgröße bei Fensterwechsel anpassen
+    // Namen-Widget: Schriftgröße bei Fensterwechsel neu berechnen (force recompute)
     if(el.dataset.type==='names'){
       const disp=el.querySelector('[id^="namedisp-"]');
-      if(disp){ const uid=disp.id.replace('namedisp-',''); try{ calcNameFontSize(uid); }catch(_){} }
+      if(disp){ const uid=disp.id.replace('namedisp-',''); _nameFontCache[uid]=null; try{ calcNameFontSize(uid, true); }catch(_){} }
     }
     // Was?-Widget: Canvas nach Fenstergrößenänderung neu berechnen
     if(el.dataset.type==='was'){
@@ -4910,7 +4911,7 @@ const pickedMap={};
 function buildNames(body,uid){
   pickedMap[uid]=[];
   body.innerHTML=`
-<div class="name-disp" id="namedisp-${uid}" onclick="pickName(${uid})" title="Klicken zum Ziehen" style="font-size:2.8em;font-weight:400;text-align:center;color:rgba(255,255,255,0.35);min-height:1.2em;transition:all .25s;margin:.2em 0 .3em;line-height:1.1;font-family:'Arial',sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer;">${T('namesHierKlicken')}</div>
+<div class="name-disp" id="namedisp-${uid}" onclick="pickName(${uid})" title="Klicken zum Ziehen" style="font-size:2.8em;font-weight:400;text-align:center;color:rgba(255,255,255,0.35);transition:all .25s;margin:.2em 0 .3em;line-height:1.1;font-family:'Arial',sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer;">${T('namesHierKlicken')}</div>
 <div style="display:flex;justify-content:center;">
   <span id="namesleft-${uid}" style="font-size:11px;color:var(--text2);text-align:center;min-height:1.2em;"></span>
 </div>
@@ -4973,8 +4974,8 @@ function toggleNameList(uid){
   taClone.style.cssText = 'background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.5em .75em;font-size:13px;font-family:Arial,sans-serif;width:100%;resize:vertical;min-height:200px;flex:1;outline:none;';
   taClone.value = ta.value;
   taClone.placeholder = ta.placeholder;
-  // Sync changes back to original hidden textarea
-  taClone.addEventListener('input', ()=>{ ta.value = taClone.value; });
+  // Sync changes back to original hidden textarea and invalidate font cache
+  taClone.addEventListener('input', ()=>{ ta.value = taClone.value; _nameFontCache[uid]=null; });
 
   box.appendChild(hdrRow);
   box.appendChild(taClone);
@@ -5000,6 +5001,7 @@ function toggleNameList(uid){
       taClone.value = names;
       ta.value = names;
       pickedMap[uid] = [];
+      _nameFontCache[uid] = null;
       const left = document.getElementById('namesleft-'+uid);
       if(left) left.textContent = '';
     };
@@ -5041,8 +5043,8 @@ function pickName(uid){
     disp.style.opacity='0';disp.style.transform='scale(.8)';
     setTimeout(()=>{disp.textContent=name;disp.style.opacity='1';disp.style.transform='scale(1)';},150);
     disp.style.transition='all .2s';
-    // Apply initial font size; resize will recalculate on window change
-    requestAnimationFrame(()=>calcNameFontSize(uid));
+    // Apply font size fitted to longest name; recompute only if not yet cached
+    requestAnimationFrame(()=>calcNameFontSize(uid, false));
   }
   const remAfter=list.filter(n=>!(pickedMap[uid]||[]).includes(n));
   if(left && left.textContent!==T('namesNeuRunde')) left.textContent=`${T('namesVerbleibend')} ${remAfter.length} ${T('namesVerbleibend2')} ${list.length}`;
@@ -5054,24 +5056,54 @@ function resetNames(uid){
   const l=document.getElementById('namesleft-'+uid);if(l)l.textContent='';
 }
 
-// Recalculates the font size of the name display to optimally fill the widget
-function calcNameFontSize(uid){
-  const disp=document.getElementById('namedisp-'+uid);
-  if(!disp||!disp.textContent||disp.textContent===T('namesHierKlicken')||disp.textContent==='–') return;
-  const widget=disp.closest('.widget');
+// Recalculates the font size of the name display to fit the longest name in the list
+// Uses canvas text measurement for pixel-accurate fitting.
+// The computed size is cached per uid; it is only recomputed when the widget is resized.
+const _nameFontCache = {};  // uid → px size
+function calcNameFontSize(uid, forceRecompute){
+  const disp = document.getElementById('namedisp-' + uid);
+  if(!disp) return;
+  const widget = disp.closest('.widget');
   if(!widget) return;
-  const ww=widget.offsetWidth||290;
-  const wh=widget.offsetHeight||330;
-  // Available area: subtract header (~38px), padding, left/right padding
-  const availW = ww * 0.88;
-  const availH = Math.max(80, wh * 0.38);
-  const text = disp.textContent;
-  const chars = Math.max(1, text.length);
-  // Fit by width: each char ≈ 0.58× font-size in px
-  const fsByWidth = availW / (chars * 0.58);
-  // Fit by height: cap at ~40% of available height
-  const fsByHeight = availH;
-  const fs = Math.max(18, Math.min(fsByWidth, fsByHeight));
+
+  // Determine the longest text to fit: scan all names in the textarea list
+  const ta = document.getElementById('namelist-' + uid);
+  const names = ta ? ta.value.split('\n').map(s=>s.trim()).filter(Boolean) : [];
+  // Also consider current displayed text (in case list is empty but name was picked)
+  const curText = disp.textContent;
+  if(curText && curText !== T('namesHierKlicken') && curText !== '–') names.push(curText);
+  if(!names.length) return;
+
+  // Only recompute font size when forced (resize) or not yet cached
+  if(forceRecompute || _nameFontCache[uid] == null){
+    // Available area: full widget width minus padding, height capped at ~45% of body area
+    const headerH = 38;
+    const bodyPad = 24; // 12px top + 12px bottom padding in widget-body
+    const availW = (widget.offsetWidth || 290) - 24; // 12px left+right padding
+    const availH = Math.max(60, ((widget.offsetHeight || 330) - headerH - bodyPad) * 0.52);
+
+    // Find the longest name by rendered pixel width using canvas
+    const cvs = document.createElement('canvas');
+    const ctx = cvs.getContext('2d');
+    const fontWeight = '400';
+    const fontFamily = 'Arial, sans-serif';
+
+    // Binary search for font size that fits the widest name within availW and availH
+    let lo = 10, hi = Math.min(availW, availH * 1.5);
+    for(let i = 0; i < 18; i++){
+      const mid = (lo + hi) / 2;
+      ctx.font = `${fontWeight} ${mid}px ${fontFamily}`;
+      const maxW = names.reduce((m, n) => Math.max(m, ctx.measureText(n).width), 0);
+      if(maxW <= availW && mid <= availH){
+        lo = mid;
+      } else {
+        hi = mid;
+      }
+    }
+    _nameFontCache[uid] = Math.max(14, Math.floor(lo));
+  }
+
+  const fs = _nameFontCache[uid];
   disp.style.fontSize = fs + 'px';
   disp.style.whiteSpace = 'nowrap';
   disp.style.overflow = 'hidden';
@@ -7101,12 +7133,20 @@ function slotMainStop(uid){
 }
 
 function slotAnimReel(col, uid, speed){
+  // speed was originally px/frame at ~60 fps → convert to px/second
+  // so the visual speed is identical on 60 Hz and correct on any refresh rate
+  const pxPerSec = speed * 60;
   const s = slotState[uid];
-  function frame(){
+  let lastTs = null;
+  function frame(ts){
     if(s.stoppedReels[col]) return;
+    if(lastTs === null) lastTs = ts;
+    // Cap delta to 100 ms to avoid huge jumps after tab switches / pauses
+    const dt = Math.min((ts - lastTs) / 1000, 0.1);
+    lastTs = ts;
     const n    = s.currentWords[col].length;
     const step = (s.stepH && s.stepH[col]) || (s.cellH||100);
-    s.pixelPos[col]+=speed;
+    s.pixelPos[col] += pxPerSec * dt;
     // Wrap within safe range
     if(s.pixelPos[col] > (SLOT_STRIP_REPS-2)*n*step) s.pixelPos[col]-=(SLOT_STRIP_REPS-4)*n*step;
     slotRenderPos(col,uid);
@@ -7248,36 +7288,213 @@ function buildAmpelPanel(panel, uid){
   panel.style.position = 'relative';
 
   panel.innerHTML = `
-<div id="ampel-scene-${auid}" style="width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#1a2060 0%,#252d7a 60%,#2a3494 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ampelPanelClick(${auid})" title="Klicken zum Neustart">
+<div id="ampel-scene-${auid}" style="width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#0d1235 0%,#1a2060 40%,#252d7a 75%,#1e2650 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ampelPanelClick(${auid})" title="Klicken zum Neustart">
 
-  <!-- Mond -->
-  <svg style="position:absolute;top:8%;left:12%;width:52px;height:52px;pointer-events:none;" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
-    <path d="M36 10 Q48 26 36 42 Q20 48 10 36 Q22 36 28 26 Q32 14 36 10Z" fill="#f5d020" stroke="#e8b800" stroke-width="1"/>
+  <!-- Sterne -->
+  <svg style="position:absolute;inset:0;width:100%;height:55%;pointer-events:none;opacity:0.7;" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    ${[[22,18],[60,8],[95,22],[140,6],[175,15],[210,25],[250,10],[290,20],[330,7],[365,18],[40,40],[110,35],[180,42],[255,38],[320,30],[380,44],[15,55],[80,60],[150,50],[230,58],[310,48],[370,56]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="${Math.random()<0.3?1.5:1}" fill="white"/>`).join('')}
   </svg>
 
-  <!-- Gebäude links groß -->
-  <svg style="position:absolute;bottom:0;left:0;width:22%;height:75%;pointer-events:none;" viewBox="0 0 100 300" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="0" width="100" height="300" fill="#8a8fa0" stroke="#70757f" stroke-width="2"/>
-    ${[0,1,2,3,4].map(r=>[0,1].map(c=>`<rect x="${15+c*42}" y="${20+r*52}" width="28" height="28" fill="#f5c000" stroke="#c8960a" stroke-width="1.5"/>`).join('')).join('')}
+  <!-- Mond (größer, mit Glüh-Halo) -->
+  <svg style="position:absolute;top:5%;left:10%;width:90px;height:90px;pointer-events:none;" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="moon-halo-${auid}" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#fffbe0" stop-opacity="0.18"/>
+        <stop offset="60%"  stop-color="#f5d020" stop-opacity="0.07"/>
+        <stop offset="100%" stop-color="#f5d020" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="moon-grad-${auid}" cx="38%" cy="32%" r="62%">
+        <stop offset="0%"  stop-color="#fff8c0"/>
+        <stop offset="55%" stop-color="#f5d020"/>
+        <stop offset="100%" stop-color="#c8920a"/>
+      </radialGradient>
+    </defs>
+    <!-- Halo -->
+    <ellipse cx="45" cy="45" rx="44" ry="44" fill="url(#moon-halo-${auid})"/>
+    <!-- Mondscheibe -->
+    <path d="M58 14 Q76 45 58 72 Q36 82 18 64 Q34 62 42 45 Q48 26 58 14Z" fill="url(#moon-grad-${auid})"/>
+    <!-- Krater -->
+    <ellipse cx="34" cy="40" rx="4" ry="3" fill="rgba(160,100,0,0.18)"/>
+    <ellipse cx="46" cy="60" rx="3" ry="2" fill="rgba(160,100,0,0.14)"/>
+    <ellipse cx="28" cy="55" rx="2.5" ry="2" fill="rgba(160,100,0,0.12)"/>
   </svg>
 
-  <!-- Gebäude links klein (vorne) -->
-  <svg style="position:absolute;bottom:0;left:18%;width:12%;height:40%;pointer-events:none;" viewBox="0 0 60 160" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="0" width="60" height="160" fill="#9094a3" stroke="#70757f" stroke-width="2"/>
-    ${[0,1,2].map(r=>[0,1].map(c=>`<rect x="${5+c*27}" y="${10+r*45}" width="18" height="18" fill="#f5c000" stroke="#c8960a" stroke-width="1.5"/>`).join('')).join('')}
+  <!-- ═══ TIEFSTE EBENE: Silhouetten ganz hinten (dunkel, kaum Detail) ═══ -->
+  <svg style="position:absolute;bottom:0;left:0;width:100%;height:62%;pointer-events:none;" viewBox="0 0 800 310" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <!-- Hintergrund-Skyline als einheitliche Silhouette -->
+    <path d="
+      M0,310 L0,180 L30,180 L30,140 L55,140 L55,180 L70,180 L70,100 L90,100 L90,80 L95,80
+      L95,100 L110,100 L110,180 L130,180 L130,120 L150,120 L150,110 L160,110 L160,90
+      L170,90 L170,110 L195,110 L195,180 L220,180 L220,155 L240,155 L240,180 L260,180
+      L260,115 L280,115 L280,70 L290,60 L300,70 L300,115 L320,115 L320,180 L345,180
+      L345,130 L360,130 L360,105 L375,105 L375,130 L400,130 L400,180 L420,180 L420,150
+      L440,150 L440,120 L460,120 L460,95 L470,85 L480,95 L480,120 L500,120 L500,180
+      L520,180 L520,140 L540,140 L540,160 L560,160 L560,180 L580,180 L580,115 L600,115
+      L600,85 L610,75 L620,85 L620,115 L645,115 L645,180 L665,180 L665,145 L685,145
+      L685,180 L710,180 L710,110 L730,110 L730,180 L755,180 L755,155 L775,155 L775,180
+      L800,180 L800,310 Z
+    " fill="#1a1f45" opacity="0.9"/>
+    <!-- Wenige Lichter hinten, sehr klein und gedimmt -->
+    ${Array.from({length:28},(_,i)=>{const x=20+i*27+Math.sin(i)*8;const y=165+Math.cos(i*1.7)*18;return `<rect x="${x}" y="${y}" width="4" height="4" fill="#ffd04488" opacity="0.45"/>`}).join('')}
   </svg>
 
-  <!-- Gebäude rechts groß -->
-  <svg style="position:absolute;bottom:0;right:0;width:22%;height:80%;pointer-events:none;" viewBox="0 0 100 320" preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="0" width="100" height="320" fill="#8a8fa0" stroke="#70757f" stroke-width="2"/>
-    ${[0,1,2,3,4,5].map(r=>[0,1].map(c=>`<rect x="${8+c*46}" y="${18+r*48}" width="30" height="24" fill="#f5c000" stroke="#c8960a" stroke-width="1.5"/>`).join('')).join('')}
+  <!-- ═══ MITTLERE EBENE: Gebäude links und rechts, mittelgroß ═══ -->
+
+  <!-- Mittleres Gebäude links (hinter dem großen) -->
+  <svg style="position:absolute;bottom:0;left:2%;width:14%;height:55%;pointer-events:none;z-index:1;" viewBox="0 0 80 220" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bm-l1-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#2e3460"/><stop offset="100%" stop-color="#3a4070"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="80" height="220" rx="2" fill="url(#bm-l1-${auid})" stroke="#252a50" stroke-width="1.5"/>
+    <!-- Dachaufbau -->
+    <rect x="28" y="0" width="24" height="18" rx="1" fill="#252a50"/>
+    <rect x="34" y="-12" width="12" height="15" fill="#252a50"/>
+    <!-- Fensterreihen -->
+    ${Array.from({length:6},(_,r)=>Array.from({length:3},(_,c)=>{
+      const lit = (r*3+c+1)%5!==0;
+      return `<rect x="${8+c*24}" y="${22+r*32}" width="14" height="20" rx="1.5"
+        fill="${lit?'#f5c84488':'rgba(10,15,50,0.6)'}"
+        stroke="${lit?'#c8960a44':'#1a2040'}" stroke-width="1"/>`;
+    }).join('')).join('')}
   </svg>
 
-  <!-- Gebäude rechts klein (vorne) -->
-  <svg style="position:absolute;bottom:0;right:18%;width:13%;height:38%;pointer-events:none;" viewBox="0 0 65 155" preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg">
-    <rect x="0" y="0" width="65" height="155" fill="#9094a3" stroke="#70757f" stroke-width="2"/>
-    ${[0,1,2].map(r=>[0,1].map(c=>`<rect x="${5+c*30}" y="${10+r*44}" width="20" height="20" fill="#f5c000" stroke="#c8960a" stroke-width="1.5"/>`).join('')).join('')}
+  <!-- Mittleres Gebäude rechts (hinter dem großen) -->
+  <svg style="position:absolute;bottom:0;right:2%;width:16%;height:60%;pointer-events:none;z-index:1;" viewBox="0 0 90 250" preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bm-r1-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#323870"/><stop offset="100%" stop-color="#282e5c"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="90" height="250" rx="2" fill="url(#bm-r1-${auid})" stroke="#252a50" stroke-width="1.5"/>
+    <!-- Antenne -->
+    <rect x="42" y="-22" width="6" height="25" fill="#1e2248"/>
+    <circle cx="45" cy="-24" r="3" fill="#ff4444" opacity="0.8"/>
+    <!-- Fensterreihen -->
+    ${Array.from({length:7},(_,r)=>Array.from({length:3},(_,c)=>{
+      const lit = (r+c)%3!==0;
+      return `<rect x="${8+c*26}" y="${18+r*32}" width="16" height="22" rx="1.5"
+        fill="${lit?'#ffd05588':'rgba(10,15,50,0.6)'}"
+        stroke="${lit?'#b88a0044':'#1a2040'}" stroke-width="1"/>`;
+    }).join('')).join('')}
   </svg>
+
+  <!-- ═══ VORDERSTE EBENE: Die großen Hauptgebäude ═══ -->
+
+  <!-- Großes Gebäude links -->
+  <svg style="position:absolute;bottom:0;left:0;width:20%;height:80%;pointer-events:none;z-index:2;" viewBox="0 0 110 340" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bg-l-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#4a5070"/><stop offset="50%" stop-color="#565c80"/><stop offset="100%" stop-color="#3e4464"/>
+      </linearGradient>
+    </defs>
+    <!-- Hauptkörper -->
+    <rect x="0" y="0" width="110" height="340" fill="url(#bg-l-${auid})" stroke="#2e3358" stroke-width="2"/>
+    <!-- Gesimse -->
+    <rect x="0" y="0"   width="110" height="8"  fill="#3a3e5c"/>
+    <rect x="0" y="100" width="110" height="6"  fill="#3a3e5c" opacity="0.7"/>
+    <rect x="0" y="200" width="110" height="6"  fill="#3a3e5c" opacity="0.7"/>
+    <rect x="0" y="300" width="110" height="6"  fill="#3a3e5c" opacity="0.7"/>
+    <!-- Seitenstreifen -->
+    <rect x="8" y="0" width="4" height="340" fill="#3a3e5c" opacity="0.5"/>
+    <rect x="98" y="0" width="4" height="340" fill="#3a3e5c" opacity="0.5"/>
+    <!-- Fenster in 2 Spalten, viele Reihen -->
+    ${Array.from({length:9},(_,r)=>Array.from({length:2},(_,c)=>{
+      const lit = Math.sin(r*2.3+c*1.7)>-0.3;
+      const warm = Math.sin(r+c*3)>0;
+      const col = lit?(warm?'#ffe08a':'#a8d8ff'):'rgba(8,12,40,0.7)';
+      const str = lit?(warm?'#c8960a44':'#5599cc44'):'#1a2040';
+      return `<rect x="${16+c*50}" y="${18+r*35}" width="28" height="22" rx="2"
+        fill="${col}" stroke="${str}" stroke-width="1"/>`;
+    }).join('')).join('')}
+  </svg>
+
+  <!-- Kleines Gebäude vor dem großen links (vorne) -->
+  <svg style="position:absolute;bottom:0;left:17%;width:10%;height:38%;pointer-events:none;z-index:3;" viewBox="0 0 65 180" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bs-l-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#505878"/><stop offset="100%" stop-color="#404868"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="65" height="180" fill="url(#bs-l-${auid})" stroke="#2e3358" stroke-width="1.5"/>
+    <!-- Dachterrasse -->
+    <rect x="5" y="0"  width="55" height="10" fill="#383c58"/>
+    <rect x="20" y="-8" width="25" height="10" fill="#383c58"/>
+    <!-- Fenster -->
+    ${Array.from({length:4},(_,r)=>Array.from({length:2},(_,c)=>{
+      const lit = (r+c*2)%3!==2;
+      return `<rect x="${8+c*30}" y="${18+r*38}" width="18" height="24" rx="2"
+        fill="${lit?'#ffd04499':'rgba(8,12,40,0.7)'}"
+        stroke="${lit?'#b88a0033':'#1a2040'}" stroke-width="1"/>`;
+    }).join('')).join('')}
+    <!-- Eingang unten -->
+    <rect x="20" y="155" width="25" height="25" rx="3" fill="rgba(8,12,40,0.8)" stroke="#2e3358" stroke-width="1"/>
+  </svg>
+
+  <!-- Großes Gebäude rechts -->
+  <svg style="position:absolute;bottom:0;right:0;width:21%;height:85%;pointer-events:none;z-index:2;" viewBox="0 0 115 360" preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bg-r-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#3e4464"/><stop offset="50%" stop-color="#565c80"/><stop offset="100%" stop-color="#4a5070"/>
+      </linearGradient>
+    </defs>
+    <!-- Hauptkörper -->
+    <rect x="0" y="0" width="115" height="360" fill="url(#bg-r-${auid})" stroke="#2e3358" stroke-width="2"/>
+    <!-- Gesimse -->
+    <rect x="0" y="0"   width="115" height="8"  fill="#3a3e5c"/>
+    <rect x="0" y="90"  width="115" height="6"  fill="#3a3e5c" opacity="0.7"/>
+    <rect x="0" y="180" width="115" height="6"  fill="#3a3e5c" opacity="0.7"/>
+    <rect x="0" y="270" width="115" height="6"  fill="#3a3e5c" opacity="0.7"/>
+    <!-- Seitenstreifen -->
+    <rect x="8"   y="0" width="4" height="360" fill="#3a3e5c" opacity="0.5"/>
+    <rect x="103" y="0" width="4" height="360" fill="#3a3e5c" opacity="0.5"/>
+    <!-- Antenne mit Blinklicht -->
+    <rect x="54" y="-30" width="7" height="33" fill="#1e2248"/>
+    <circle cx="57.5" cy="-32" r="4" fill="#ff3333" opacity="0.85"/>
+    <!-- Fenster in 2 Spalten -->
+    ${Array.from({length:11},(_,r)=>Array.from({length:2},(_,c)=>{
+      const lit = Math.sin(r*1.9+c*2.5)>-0.2;
+      const warm = Math.cos(r*0.8+c)>0;
+      const col = lit?(warm?'#ffe08a':'#c8eaff'):'rgba(8,12,40,0.7)';
+      const str = lit?(warm?'#c8960a44':'#5599cc44'):'#1a2040';
+      return `<rect x="${14+c*54}" y="${16+r*31}" width="30" height="20" rx="2"
+        fill="${col}" stroke="${str}" stroke-width="1"/>`;
+    }).join('')).join('')}
+  </svg>
+
+  <!-- Kleines Gebäude vor dem großen rechts (vorne) -->
+  <svg style="position:absolute;bottom:0;right:17%;width:11%;height:42%;pointer-events:none;z-index:3;" viewBox="0 0 70 190" preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="bs-r-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#404868"/><stop offset="100%" stop-color="#505878"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="0" width="70" height="190" fill="url(#bs-r-${auid})" stroke="#2e3358" stroke-width="1.5"/>
+    <!-- Treppenartiger Abschluss oben -->
+    <rect x="0"  y="0"  width="70" height="10" fill="#383c58"/>
+    <rect x="10" y="-10" width="50" height="12" fill="#383c58"/>
+    <rect x="22" y="-18" width="26" height="10" fill="#383c58"/>
+    <!-- Wasserturm -->
+    <rect x="26" y="-32" width="18" height="16" rx="2" fill="#303450"/>
+    <ellipse cx="35" cy="-32" rx="11" ry="5" fill="#2a2e4a"/>
+    <!-- Fenster -->
+    ${Array.from({length:5},(_,r)=>Array.from({length:2},(_,c)=>{
+      const lit = (r*2+c)%4!==3;
+      const warm = (r+c)%2===0;
+      return `<rect x="${8+c*33}" y="${18+r*34}" width="20" height="22" rx="2"
+        fill="${lit?(warm?'#ffd04499':'#b8deff88'):'rgba(8,12,40,0.7)'}"
+        stroke="${lit?'#b88a0033':'#1a2040'}" stroke-width="1"/>`;
+    }).join('')).join('')}
+    <!-- Eingang -->
+    <rect x="22" y="165" width="26" height="25" rx="3" fill="rgba(8,12,40,0.8)" stroke="#2e3358" stroke-width="1"/>
+  </svg>
+
+  <!-- Bürgersteig / Straße -->
+  <div style="position:absolute;bottom:0;left:0;right:0;height:12%;background:linear-gradient(180deg,#1e2350 0%,#171b40 100%);border-top:2px solid #2e3470;pointer-events:none;z-index:4;">
+    <!-- Straßenmarkierung -->
+    <div style="position:absolute;bottom:30%;left:5%;right:5%;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,0.15) 0px,rgba(255,255,255,0.15) 30px,transparent 30px,transparent 60px);"></div>
+  </div>
 
   <!-- Ampel-Mast -->
   <svg id="ampel-svg-${auid}" style="position:relative;z-index:10;height:96%;max-height:520px;width:auto;pointer-events:none;filter:drop-shadow(0 6px 32px rgba(0,0,0,0.8));" viewBox="0 0 120 360" xmlns="http://www.w3.org/2000/svg">
