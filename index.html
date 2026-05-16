@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Interaktive Tafel</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#1a1f3a;--bg2:#1d2347;--bg3:#2e3560;
@@ -116,16 +117,47 @@ body.light-mode .jein-mode-btn.active-jmode{background:var(--accent)!important;b
 .satzbau-col{
   flex:1 1 0;min-width:0;
   display:flex;align-items:center;justify-content:center;
-  border:2px solid rgba(255,255,255,0.25);border-radius:10px;
-  background:rgba(255,255,255,0.07);
-  font-size:clamp(1em,4vw,2.2em);font-weight:900;color:var(--text);
-  text-align:center;word-break:break-word;padding:.3em .4em;
-  transition:background .2s,border-color .2s;
+  border:none;border-radius:3px 12px 10px 4px;
+  background:#fef08a;
+  font-family:'Caveat',cursive;
+  font-size:clamp(1.4em,5.5vw,3em);font-weight:700;
+  color:#1e1a0e;
+  text-align:center;word-break:break-word;padding:.35em .5em;
+  position:relative;
+  box-shadow:2px 3px 8px rgba(0,0,0,0.35), inset 0 -2px 0 rgba(0,0,0,0.06);
+  transform:rotate(-1.5deg);
+  transition:transform .2s,box-shadow .2s;
+  /* ruled line at bottom */
+  background-image:repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent calc(1.6em - 1px),
+    rgba(99,120,50,0.18) calc(1.6em - 1px),
+    rgba(99,120,50,0.18) 1.6em
+  );
 }
-.satzbau-col.has-value{background:rgba(108,143,255,0.18);border-color:var(--accent);}
-.satzbau-col.empty{opacity:.25;}
-body.light-mode .satzbau-col{border-color:rgba(0,0,0,0.18);background:rgba(0,0,0,0.04);}
-body.light-mode .satzbau-col.has-value{background:rgba(58,106,255,0.1);border-color:var(--accent);}
+.satzbau-col:nth-child(2){transform:rotate(1deg);background:#fde68a;}
+.satzbau-col:nth-child(3){transform:rotate(-0.8deg);background:#fef9c3;}
+.satzbau-col:nth-child(4){transform:rotate(1.8deg);background:#fde68a;}
+.satzbau-col.has-value{
+  box-shadow:3px 4px 12px rgba(0,0,0,0.4), inset 0 -2px 0 rgba(0,0,0,0.08);
+}
+.satzbau-col.empty{opacity:.4;filter:grayscale(0.3);}
+body.light-mode .satzbau-col{background:#fef08a;color:#1e1a0e;}
+body.light-mode .satzbau-col:nth-child(2){background:#fde68a;}
+body.light-mode .satzbau-col:nth-child(3){background:#fef9c3;}
+body.light-mode .satzbau-col:nth-child(4){background:#fde68a;}
+body.light-mode .satzbau-col.has-value{box-shadow:3px 4px 12px rgba(0,0,0,0.25);}
+@keyframes sb-popin{
+  0%  {transform:scale(0.55) translateY(10px) rotate(var(--sb-rot,-1.5deg));opacity:0;}
+  65% {transform:scale(1.08) translateY(-3px) rotate(var(--sb-rot,-1.5deg));opacity:1;}
+  100%{transform:scale(1)    translateY(0)    rotate(var(--sb-rot,-1.5deg));opacity:1;}
+}
+.satzbau-col.animate{animation:sb-popin .32s cubic-bezier(.34,1.56,.64,1) both;}
+.satzbau-col:nth-child(1).animate{--sb-rot:-1.5deg;}
+.satzbau-col:nth-child(2).animate{--sb-rot:1deg;}
+.satzbau-col:nth-child(3).animate{--sb-rot:-0.8deg;}
+.satzbau-col:nth-child(4).animate{--sb-rot:1.8deg;}
 .satzbau-setup{display:flex;flex-direction:column;gap:.5em;padding:.3em 0 .2em;align-items:center;}
 .satzbau-upload-btn{cursor:pointer;background:var(--bg3);border:1px dashed rgba(255,255,255,0.3);border-radius:8px;padding:.4em .9em;font-size:.78em;font-weight:700;color:var(--text2);transition:background .15s,border-color .15s;}
 .satzbau-upload-btn:hover{background:var(--card2);border-color:var(--accent);color:var(--text);}
@@ -1918,18 +1950,12 @@ function _trDice(uid){
 }
 
 function _trNames(uid){
-  const body=document.getElementById('body-'+uid); if(!body) return;
-  body.querySelectorAll('.wbtn').forEach(btn=>{
-    const t=btn.textContent.trim();
-    if(/Ziehen|引く/.test(t))  btn.textContent=T('namesZiehen');
-    if(/Reset|リセット/.test(t) && !/↺/.test(t.replace(/(リセット|Reset)/,''))) btn.textContent=T('namesReset');
-  });
-  // Reset specifically
-  body.querySelectorAll('.wbtn').forEach(btn=>{
-    if(btn.textContent.trim()==='↺ Reset'||btn.textContent.trim()==='↺ リセット') btn.textContent=T('namesReset');
-  });
   const ta=document.getElementById('namelist-'+uid);
   if(ta) ta.placeholder=T('namesPlaceholder');
+  const listBtn=document.getElementById('names-list-btn-'+uid);
+  if(listBtn) listBtn.innerHTML=`&#128196; ${T('namesListe')}`;
+  const resetBtn=document.getElementById('names-reset-btn-'+uid);
+  if(resetBtn) resetBtn.innerHTML=`&#8635; ${T('namesResetKurz')}`;
 }
 
 function _trDraw(uid){
@@ -2258,6 +2284,15 @@ function setVolume(val){
 
 function setSoundEnabled(val){
   soundEnabled = val;
+  // If muting: stop all city (Spiele Ampel) sounds and ampel panel timers
+  if(!val){
+    // Stop Spiele Ampel city audio for all open Spiele widgets
+    Object.keys(_cityAudio).forEach(auid=>cityStop(auid));
+    // Stop ampel panel timers (the cycling green/yellow/red timeouts)
+    Object.keys(_apTimers).forEach(auid=>{clearTimeout(_apTimers[auid]);delete _apTimers[auid];});
+    // Stop ampel timers in the Würfel/Jein widget (dice ampel mode)
+    Object.keys(ampelTimers).forEach(uid=>{clearTimeout(ampelTimers[uid]);delete ampelTimers[uid];});
+  }
   // Toolbar button icon
   const btn = document.getElementById('sound-btn');
   if(btn){
@@ -2435,6 +2470,7 @@ function playWhistle(ac, vol){
 }
 
 function playCarHorn(ac, vol){
+  if(!soundEnabled) return;
   // Classic car horn: two detuned sawtooth waves (F3 + A3)
   [[174,0],[220,0.015]].forEach(([f,det])=>{
     const o=ac.createOscillator(),g=ac.createGain(),bq=ac.createBiquadFilter();
@@ -2450,6 +2486,7 @@ function playCarHorn(ac, vol){
 }
 
 function playPop(ac, vol){
+  if(!soundEnabled) return;
   // Bubble pop: short pitched click
   const o=ac.createOscillator(),g=ac.createGain();
   o.connect(g);g.connect(ac.destination);
@@ -2911,6 +2948,29 @@ function spawnWidget(type){
 }
 
 function killWidget(id){
+  const el = document.getElementById(id);
+  if(el){
+    const type = el.dataset.type;
+    const uid  = parseInt(id.replace('widget-',''));
+    // ── Stop all sounds/timers for this widget ──
+    if(type === 'spiele'){
+      // Spiele: stop Ampel panel (city audio + cycling timers)
+      const auid = uid * 1000 + 5;
+      cityStop(auid);
+      if(_apTimers[auid]){clearTimeout(_apTimers[auid]);delete _apTimers[auid];}
+      // Spiele Janken sub-widget uses juid = uid*1000+3 for jeinState/ampelTimers/smileyTimers
+      const juid = uid * 1000 + 3;
+      if(ampelTimers[juid]){clearTimeout(ampelTimers[juid]);delete ampelTimers[juid];}
+      stopSmileyAutoRotate(juid);
+      // Wheel and Slot use uid*1000+1 and uid*1000+2 — no persistent timers to stop
+    }
+    if(type === 'dice' || type === 'jein' || type === 'spiele'){
+      // Stop Würfel/Jein ampel timers
+      if(ampelTimers[uid]){clearTimeout(ampelTimers[uid]);delete ampelTimers[uid];}
+      // Stop smiley auto-rotate
+      stopSmileyAutoRotate(uid);
+    }
+  }
   document.getElementById(id)?.remove();
   updateEmptyHint();
 }
@@ -4804,7 +4864,8 @@ function rollSatzbau(uid){
   const colsHtml = [0,1,2,3].map(i=>{
     const val = picked[i];
     const hasVal = val !== '';
-    return `<div class="satzbau-col ${hasVal?'has-value':'empty'}">${hasVal ? escHtml(val) : '\u2014'}</div>`;
+    const delay = i * 60; // staggered: 0, 60, 120, 180 ms
+    return `<div class="satzbau-col animate ${hasVal?'has-value':'empty'}" style="animation-delay:${delay}ms">${hasVal ? escHtml(val) : '\u2014'}</div>`;
   }).join('');
   if(wrap) setTimeout(()=>{
     wrap.innerHTML = `<div style="display:flex;flex-direction:column;width:100%;height:100%;gap:.3em;"><div class="satzbau-cols" style="flex:1;">${colsHtml}</div><div style="display:flex;justify-content:center;"><button id="satzbau-edit-${uid}" class="satzbau-upload-btn" style="font-size:.7em;padding:.25em .7em;">&#9998; Bearbeiten</button></div></div>`;
@@ -4849,7 +4910,14 @@ const pickedMap={};
 function buildNames(body,uid){
   pickedMap[uid]=[];
   body.innerHTML=`
-<div class="name-disp" id="namedisp-${uid}" onclick="pickName(${uid})" title="Klicken zum Ziehen" style="font-size:2.8em;font-weight:400;text-align:center;color:rgba(255,255,255,0.35);min-height:1.2em;transition:all .25s;margin:.2em 0 .5em;line-height:1.1;font-family:'Arial',sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer;">${T('namesHierKlicken')}</div>
+<div class="name-disp" id="namedisp-${uid}" onclick="pickName(${uid})" title="Klicken zum Ziehen" style="font-size:2.8em;font-weight:400;text-align:center;color:rgba(255,255,255,0.35);min-height:1.2em;transition:all .25s;margin:.2em 0 .3em;line-height:1.1;font-family:'Arial',sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.5);cursor:pointer;">${T('namesHierKlicken')}</div>
+<div style="display:flex;justify-content:center;">
+  <span id="namesleft-${uid}" style="font-size:11px;color:var(--text2);text-align:center;min-height:1.2em;"></span>
+</div>
+<div style="display:flex;justify-content:center;gap:.5em;padding:.3em 0 .4em;">
+  <button id="names-list-btn-${uid}" class="satzbau-upload-btn" style="font-size:.92em;padding:.35em 1.1em;" onclick="toggleNameList(${uid})">&#128196; ${T('namesListe')}</button>
+  <button id="names-reset-btn-${uid}" class="satzbau-upload-btn" style="font-size:.92em;padding:.35em 1.1em;" onclick="resetNames(${uid})">&#8635; ${T('namesResetKurz')}</button>
+</div>
 <div id="namelist-wrap-${uid}" style="display:none;">
 <textarea id="namelist-${uid}" rows="5" placeholder="${T('namesPlaceholder')}"
   style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.45em .75em;font-size:13px;font-family:'Arial',sans-serif;width:100%;resize:vertical;">Anna
@@ -4865,36 +4933,7 @@ Lea</textarea>
 </div>
 `;
 
-  // "Liste"- und "Reset"-Button in den Widget-Header einfuegen (vor den Standard-Buttons)
-  const widget=body.closest('.widget');
-  if(widget){
-    const whBtns=widget.querySelector('.wh-btns');
-    if(whBtns){
-      const resetBtn=document.createElement('button');
-      resetBtn.className='wh-btn';
-      resetBtn.title='Zurücksetzen';
-      resetBtn.textContent=T('namesResetKurz');
-      resetBtn.onclick=()=>resetNames(uid);
-      whBtns.insertBefore(resetBtn,whBtns.firstChild);
-
-      const listBtn=document.createElement('button');
-      listBtn.className='wh-btn';
-      listBtn.id='togglelist-'+uid;
-      listBtn.title='Liste ein-/ausblenden';
-      listBtn.textContent=T('namesListe');
-      listBtn.onclick=()=>toggleNameList(uid);
-      whBtns.insertBefore(listBtn,whBtns.firstChild);
-
-      // Insert "verbleibend" info between widget-title and wh-btns
-      const hdr=widget.querySelector('.widget-header');
-      if(hdr){
-        const infoSpan=document.createElement('span');
-        infoSpan.id='namesleft-'+uid;
-        infoSpan.style.cssText='font-size:11px;color:var(--text2);flex:1;text-align:center;padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
-        hdr.insertBefore(infoSpan, whBtns);
-      }
-    }
-  }
+  // Keep only the standard header buttons (minimize, maximize, close) — no extra buttons needed
 }
 function toggleNameList(uid){
   // Open a floating modal dialog with the name list
@@ -4939,6 +4978,41 @@ function toggleNameList(uid){
 
   box.appendChild(hdrRow);
   box.appendChild(taClone);
+
+  // TXT-Datei laden
+  const fileRow = document.createElement('div');
+  fileRow.style.cssText = 'display:flex;align-items:center;gap:8px;';
+  const fileLabel = document.createElement('label');
+  fileLabel.style.cssText = 'cursor:pointer;background:var(--bg3);border:1px dashed rgba(255,255,255,0.25);border-radius:8px;padding:.35em .9em;font-size:12px;font-weight:700;color:var(--text2);transition:background .15s,border-color .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;';
+  fileLabel.innerHTML = '&#128194; TXT laden';
+  fileLabel.onmouseenter = ()=>{ fileLabel.style.background='var(--card2)'; fileLabel.style.borderColor='var(--accent)'; fileLabel.style.color='var(--text)'; };
+  fileLabel.onmouseleave = ()=>{ fileLabel.style.background='var(--bg3)'; fileLabel.style.borderColor='rgba(255,255,255,0.25)'; fileLabel.style.color='var(--text2)'; };
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = '.txt,text/plain';
+  fileInput.style.display = 'none';
+  fileInput.addEventListener('change', e=>{
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ev=>{
+      const names = ev.target.result.split(/\r?\n/).map(s=>s.trim()).filter(Boolean).join('\n');
+      taClone.value = names;
+      ta.value = names;
+      pickedMap[uid] = [];
+      const left = document.getElementById('namesleft-'+uid);
+      if(left) left.textContent = '';
+    };
+    reader.readAsText(file, 'UTF-8');
+  });
+  fileLabel.appendChild(fileInput);
+  const fileHint = document.createElement('span');
+  fileHint.style.cssText = 'font-size:11px;color:var(--text2);';
+  fileHint.textContent = 'Ein Name pro Zeile';
+  fileRow.appendChild(fileLabel);
+  fileRow.appendChild(fileHint);
+  box.appendChild(fileRow);
+
   overlay.appendChild(box);
   document.body.appendChild(overlay);
   taClone.focus();
@@ -6457,6 +6531,7 @@ function showBefinden(uid, idx){
 // ════════════════════════════════════════════════
 
 function playDrumRoll(durationMs){
+  if(!soundEnabled) return;
   try{
     const ac=new(window.AudioContext||window.webkitAudioContext)();
     const totalSec=durationMs/1000;
@@ -6546,6 +6621,7 @@ function playDrumRoll(durationMs){
 }
 
 function playBoing(){
+  if(!soundEnabled) return;
   try{
     const ac=new(window.AudioContext||window.webkitAudioContext)();
     const t=ac.currentTime;
@@ -7245,9 +7321,7 @@ function buildAmpelPanel(panel, uid){
     <span>s</span>
   </div>
 </div>`;
-
-  // Start the ampel cycle
-  setTimeout(()=>ampelPanelStart(auid), 200);
+  // Ampel cycle is started by spieleShowTab when the ampel tab is first selected
 }
 
 // Global state for Ampel Panel
@@ -7275,6 +7349,7 @@ function cityStop(auid){
 
 function cityStart(auid){
   cityStop(auid); // stop any previous
+  if(!soundEnabled) return; // don't start city sounds if muted
   let ctx;
   try{ ctx = window._pzAudioCtx || new (window.AudioContext||window.webkitAudioContext)(); }
   catch(e){ return; }
@@ -7406,7 +7481,7 @@ function ampelPanelSetLight(auid, state){
     scene.style.boxShadow = `inset 0 0 80px 20px ${glows[state]||'transparent'}`;
   }
   // Ton bei jedem Zustandswechsel: Hupe bei Rot, Pop bei Gelb/Grün
-  try{
+  if(soundEnabled) try{
     if(state==='rot'){
       playSound('Hupe', 0.9);
     } else {
@@ -7448,8 +7523,10 @@ function spieleShowTab(tab, uid){
   const auid = uid * 1000 + 5;
   if(tab === 'ampel'){
     cityStart(auid);
+    setTimeout(()=>ampelPanelStart(auid), 50);
   } else {
     cityStop(auid);
+    if(_apTimers[auid]){clearTimeout(_apTimers[auid]);delete _apTimers[auid];}
   }
   ['rad','slot','janken','puzzle','ampel'].forEach(t=>{
     const panel=document.getElementById(`spiele-panel-${t}-${uid}`);
@@ -7487,6 +7564,7 @@ function pzCtx(){
 }
 
 function pzBeep(freq, type, dur, vol, delayMs){
+  if(!soundEnabled) return;
   setTimeout(() => {
     const c = pzCtx(); if(!c) return;
     const osc = c.createOscillator(), g = c.createGain(), t = c.currentTime;
