@@ -111,6 +111,29 @@ body.light-mode .jein-mode-btn{background:var(--bg3)!important;border-color:rgba
 body.light-mode .jein-mode-btn:hover{background:var(--card2)!important;color:var(--text)!important;}
 body.light-mode .jein-mode-btn.active-jmode{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important;}
 
+/* Satzbau */
+.satzbau-cols{display:flex;gap:.5em;justify-content:center;align-items:stretch;width:100%;height:100%;padding:.4em .2em;}
+.satzbau-col{
+  flex:1 1 0;min-width:0;
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid rgba(255,255,255,0.25);border-radius:10px;
+  background:rgba(255,255,255,0.07);
+  font-size:clamp(1em,4vw,2.2em);font-weight:900;color:var(--text);
+  text-align:center;word-break:break-word;padding:.3em .4em;
+  transition:background .2s,border-color .2s;
+}
+.satzbau-col.has-value{background:rgba(108,143,255,0.18);border-color:var(--accent);}
+.satzbau-col.empty{opacity:.25;}
+body.light-mode .satzbau-col{border-color:rgba(0,0,0,0.18);background:rgba(0,0,0,0.04);}
+body.light-mode .satzbau-col.has-value{background:rgba(58,106,255,0.1);border-color:var(--accent);}
+.satzbau-setup{display:flex;flex-direction:column;gap:.5em;padding:.3em 0 .2em;align-items:center;}
+.satzbau-upload-btn{cursor:pointer;background:var(--bg3);border:1px dashed rgba(255,255,255,0.3);border-radius:8px;padding:.4em .9em;font-size:.78em;font-weight:700;color:var(--text2);transition:background .15s,border-color .15s;}
+.satzbau-upload-btn:hover{background:var(--card2);border-color:var(--accent);color:var(--text);}
+.satzbau-textarea{width:100%;min-height:70px;background:var(--bg3);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:var(--text);font-size:.78em;font-family:Arial,sans-serif;padding:.4em .5em;resize:vertical;}
+body.light-mode .satzbau-textarea{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
+body.light-mode .satzbau-upload-btn{background:var(--bg3)!important;border-color:rgba(0,0,0,0.2)!important;color:var(--text2)!important;}
+body.light-mode .satzbau-upload-btn:hover{background:var(--card2)!important;border-color:var(--accent)!important;color:var(--text)!important;}
+
 /* Was? */
 body.light-mode [id^="was-step-"]{color:var(--text2)!important;}
 
@@ -1411,7 +1434,7 @@ const LANG = {
     // Dice widget
     diceClickHint:'Hier klicken zum Würfeln',
     diceErgebnis:'Ergebnis',
-    diceJaNein:'Ja/Nein',
+    diceSatzbau:'Satzbau',
     diceZufallAn:'Zufall an',
     diceZufallAus:'Zufall aus',
     diceGruenDauer:'🟢 Grün-Dauer:',
@@ -1570,7 +1593,7 @@ const LANG = {
     // Dice widget
     diceClickHint:'クリックしてサイコロを振る',
     diceErgebnis:'結果',
-    diceJaNein:'はい/いいえ',
+    diceSatzbau:'文章構成',
     diceZufallAn:'ランダム：オン',
     diceZufallAus:'ランダム：オフ',
     diceGruenDauer:'🟢 青信号の時間:',
@@ -1875,9 +1898,9 @@ function _trDice(uid){
   const body=document.getElementById('body-'+uid); if(!body) return;
   const res=document.getElementById('diceres-'+uid);
   if(res && /Hier klicken|クリックして/.test(res.textContent)) res.textContent=T('diceClickHint');
-  // Ja/Nein button
-  const jnBtn=document.getElementById('dtbtn-jein-text-'+uid);
-  if(jnBtn) jnBtn.textContent=T('diceJaNein');
+  // Satzbau button
+  const sbBtn2=document.getElementById('dtbtn-satzbau-'+uid);
+  if(sbBtn2) sbBtn2.textContent=T('diceSatzbau');
   // Zufall button
   const zBtn=document.getElementById('dtbtn-zufall-'+uid);
   if(zBtn){
@@ -4231,7 +4254,7 @@ function buildDice(body,uid){
   </div>
 </div>
 <div style="display:flex;gap:.4em;justify-content:center;flex-wrap:wrap;padding:.2em 0 .4em;">
-  <button class="jein-mode-btn" id="dtbtn-jein-text-${uid}"   onclick="selectDiceType('jein-text',${uid})"   title="Ja/Nein">${T('diceJaNein')}</button>
+  <button class="jein-mode-btn" id="dtbtn-satzbau-${uid}" onclick="selectDiceType('satzbau',${uid})" title="Satzbau">${T('diceSatzbau')}</button>
   <button class="jein-mode-btn" id="dtbtn-jein-smiley-${uid}" onclick="selectDiceType('jein-smiley',${uid})" title="Smiley">😊</button>
   <button class="jein-mode-btn" id="dtbtn-jein-color-${uid}"  onclick="selectDiceType('jein-color',${uid})"  title="Farbe">🎨</button>
   <button class="jein-mode-btn" id="dtbtn-zufall-${uid}" onclick="toggleDiceZufall(${uid})" title="Zufall an/aus" style="font-size:.75em;padding:.3em .6em;">${T('diceZufallAn')}</button>
@@ -4278,11 +4301,23 @@ function selectDiceType(sides, uid){
     const b=document.getElementById('dtbtn-jein-'+m+'-'+uid);
     if(b) b.classList.toggle('active-jmode', sides==='jein-'+m);
   });
+  // Satzbau button
+  const sbBtn=document.getElementById('dtbtn-satzbau-'+uid);
+  if(sbBtn) sbBtn.classList.toggle('active-jmode', sides==='satzbau');
 
   const wrap=document.getElementById('dicewrap-'+uid);
   const res =document.getElementById('diceres-'+uid);
 
-  if(typeof sides==='string' && sides.startsWith('jein-')){
+  if(sides==='satzbau'){
+    // Stop other modes
+    if(ampelTimers[uid]){clearTimeout(ampelTimers[uid]);delete ampelTimers[uid];}
+    stopSmileyAutoRotate(uid);
+    const _sbData=satzbauWords[uid];
+    const _sbHas=_sbData&&[1,2,3,4].some(i=>_sbData[i]&&_sbData[i].length>0);
+    if(_sbHas) showSatzbauIdle(uid); else showSatzbauSetup(uid);
+    if(res) res.textContent='';
+
+  } else if(typeof sides==='string' && sides.startsWith('jein-')){
     const mode=sides.replace('jein-','');
     if(!jeinState[uid]) jeinState[uid]={mode,result:null};
     else jeinState[uid].mode=mode;
@@ -4343,6 +4378,11 @@ function updateDiceGraphic(uid){
 
 function rollDice(uid){
   const type=document.getElementById('dicetype-'+uid)?.value;
+  // Satzbau-Modus
+  if(type==='satzbau'){
+    rollSatzbau(uid);
+    return;
+  }
   // Jein-Modus: delegate to rollJein using dice widget's display
   if(typeof type==='string' && type.startsWith('jein-')){
     if(!jeinState[uid]) jeinState[uid]={mode:type.replace('jein-',''),result:null};
@@ -4586,10 +4626,20 @@ function rollJeinInDice(uid){
 
   } else if(mode==='color'){
     // Kein Ton
-    const COLOR_DE=[{name:'Rot',hex:'#ef4444'},{name:'Grün',hex:'#22c55e'},{name:'Blau',hex:'#3b82f6'},{name:'Gelb',hex:'#eab308'},{name:'Orange',hex:'#f97316'},{name:'Lila',hex:'#a855f7'},{name:'Rosa',hex:'#ec4899'},{name:'Türkis',hex:'#06b6d4'},{name:'Weiß',hex:'#f8fafc'},{name:'Schwarz',hex:'#1e293b'}];
-    const COLOR_JA=[{name:'赤',hex:'#ef4444'},{name:'緑',hex:'#22c55e'},{name:'青',hex:'#3b82f6'},{name:'黄',hex:'#eab308'},{name:'橙',hex:'#f97316'},{name:'紫',hex:'#a855f7'},{name:'ピンク',hex:'#ec4899'},{name:'水色',hex:'#06b6d4'},{name:'白',hex:'#f8fafc'},{name:'黒',hex:'#1e293b'}];
+    const COLOR_DE=[{name:'Rot',hex:'#ef4444'},{name:'Grün',hex:'#22c55e'},{name:'Blau',hex:'#3b82f6'},{name:'Gelb',hex:'#eab308'},{name:'Orange',hex:'#f97316'},{name:'Lila',hex:'#a855f7'},{name:'Rosa',hex:'#ec4899'},{name:'Türkis',hex:'#06b6d4'},{name:'Weiß',hex:'#f8fafc'},{name:'Schwarz',hex:'#1e293b'},{name:'Grau',hex:'#6b7280'},{name:'Braun',hex:'#92400e'}];
+    const COLOR_JA=[{name:'赤',hex:'#ef4444'},{name:'緑',hex:'#22c55e'},{name:'青',hex:'#3b82f6'},{name:'黄',hex:'#eab308'},{name:'橙',hex:'#f97316'},{name:'紫',hex:'#a855f7'},{name:'ピンク',hex:'#ec4899'},{name:'水色',hex:'#06b6d4'},{name:'白',hex:'#f8fafc'},{name:'黒',hex:'#1e293b'},{name:'灰色',hex:'#6b7280'},{name:'茶色',hex:'#92400e'}];
     const COLORS=currentLanguage==='ja'?COLOR_JA:COLOR_DE;
-    const c=COLORS[Math.floor(Math.random()*COLORS.length)];
+    // Bag shuffle: always show each color once before repeating
+    if(!jeinState[uid]) jeinState[uid]={};
+    if(!jeinState[uid].colorBag || jeinState[uid].colorBag.length===0){
+      const arr=COLORS.map((_,i)=>i);
+      for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+      jeinState[uid].colorBag=arr;
+    }
+    const cIdx=jeinState[uid].colorBag.pop();
+    const c=COLORS[cIdx];
+    // Play plop sound
+    try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
     const showName=jeinState[uid]?.colorShowName===true; // default: versteckt
     const textColor=c.hex==='#f8fafc'||c.hex==='#eab308'?'#1e293b':'#fff';
     wrap.innerHTML=`<div id="dice-color-box-${uid}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:${c.hex};position:relative;">
@@ -4609,6 +4659,165 @@ function rollJeinAmpelInDice(uid){
   jeinState[uid].mode='ampel';
   scheduleAmpelSwitch(uid);
 }
+
+// ══════════════════════════════════════════════
+//  SATZBAU – Funktion
+// ══════════════════════════════════════════════
+const satzbauWords = {}; // uid -> {1:[...], 2:[...], 3:[...], 4:[...]}
+
+function parseSatzbauText(text){
+  // Parse text format: lines starting with "1", "2", "3", "4" as section headers
+  const cols = {1:[],2:[],3:[],4:[]};
+  let cur = null;
+  text.split(/\r?\n/).forEach(line=>{
+    const trimmed = line.trim();
+    if(!trimmed) return;
+    if(/^[1234]$/.test(trimmed)){
+      cur = parseInt(trimmed);
+    } else if(cur !== null){
+      cols[cur].push(trimmed);
+    }
+  });
+  return cols;
+}
+
+function showSatzbauSetup(uid){
+  const wrap = document.getElementById('dicewrap-'+uid);
+  if(!wrap) return;
+  wrap.innerHTML = `
+<div id="satzbau-setup-${uid}" style="display:flex;flex-direction:column;gap:.5em;align-items:stretch;justify-content:flex-start;width:100%;height:100%;padding:.5em;box-sizing:border-box;">
+  <div style="display:flex;gap:.4em;align-items:center;flex-wrap:wrap;">
+    <label class="satzbau-upload-btn" id="satzbau-lbl-${uid}" style="flex-shrink:0;">&#128194; TXT laden<input type="file" accept=".txt,text/plain" style="display:none;" id="satzbau-file-${uid}"></label>
+    <span style="font-size:.75em;color:var(--text2);flex:1;min-width:80px;">oder Text eingeben:</span>
+    <button id="satzbau-ok-${uid}" class="satzbau-upload-btn" style="flex-shrink:0;background:var(--accent);color:#fff;border-color:var(--accent);">&#10003; Fertig</button>
+  </div>
+  <textarea class="satzbau-textarea" id="satzbau-ta-${uid}" placeholder="1&#10;ich&#10;du&#10;Sie&#10;2&#10;kommen&#10;sein" style="flex:1;min-height:60px;"></textarea>
+</div>`;
+  // Block events from bubbling up to dicewrap — use bubble phase so child handlers still fire first
+  const _setup = document.getElementById('satzbau-setup-'+uid);
+  if(_setup){
+    ['click','mousedown','mouseup','touchstart','touchend','keydown','keyup','input','focus','focusin']
+      .forEach(ev => _setup.addEventListener(ev, e=>e.stopPropagation()));
+  }
+  const _ta = document.getElementById('satzbau-ta-'+uid);
+  if(_ta && satzbauWords[uid]?._draftText) _ta.value = satzbauWords[uid]._draftText;
+  const _file = document.getElementById('satzbau-file-'+uid);
+  if(_file) _file.addEventListener('change', e=>satzbauLoadFile(e, uid));
+  const _ok = document.getElementById('satzbau-ok-'+uid);
+  if(_ok) _ok.addEventListener('click', e=>{ e.stopPropagation(); satzbauCommit(uid); });
+}
+
+function showSatzbauIdle(uid){
+  const wrap = document.getElementById('dicewrap-'+uid);
+  if(!wrap) return;
+  const data = satzbauWords[uid] || {1:[],2:[],3:[],4:[]};
+  const hasCols = [1,2,3,4].some(i=>data[i]&&data[i].length>0);
+  if(!hasCols){
+    showSatzbauSetup(uid);
+  } else {
+    // Show idle columns with small edit button
+    const colsHtml = [1,2,3,4].map(i=>{
+      const hasData = data[i]&&data[i].length>0;
+      return `<div class="satzbau-col ${hasData?'':'empty'}" id="satzbau-field-${uid}-${i}">${hasData?'?':'—'}</div>`;
+    }).join('');
+    wrap.innerHTML = `
+<div style="display:flex;flex-direction:column;width:100%;height:100%;gap:.3em;">
+  <div class="satzbau-cols" id="satzbau-cols-${uid}" style="flex:1;">${colsHtml}</div>
+  <div style="display:flex;justify-content:center;">
+    <button id="satzbau-edit-${uid}" class="satzbau-upload-btn" style="font-size:.7em;padding:.25em .7em;">&#9998; Bearbeiten</button>
+  </div>
+</div>`;
+    const _edit = document.getElementById('satzbau-edit-'+uid);
+    if(_edit) _edit.addEventListener('click', e=>{ e.stopPropagation(); showSatzbauSetup(uid); });
+  }
+}
+
+function satzbauCommit(uid){
+  // Read textarea and activate
+  const ta = document.getElementById('satzbau-ta-'+uid);
+  const text = ta ? ta.value : '';
+  if(!satzbauWords[uid]) satzbauWords[uid]={};
+  satzbauWords[uid]._draftText = text;
+  const parsed = parseSatzbauText(text);
+  parsed._draftText = text;
+  parsed._bags = {};
+  satzbauWords[uid] = parsed;
+  showSatzbauIdle(uid);
+}
+
+function satzbauFromTA(uid){
+  // Only saves draft text now — commit happens on "Fertig" button
+  const ta = document.getElementById('satzbau-ta-'+uid);
+  if(!ta) return;
+  if(!satzbauWords[uid]) satzbauWords[uid]={};
+  satzbauWords[uid]._draftText = ta.value;
+}
+
+function satzbauLoadFile(event, uid){
+  const file = event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const text = e.target.result;
+    satzbauWords[uid] = parseSatzbauText(text);
+    satzbauWords[uid]._bags = {}; // reset shuffle bags
+    showSatzbauIdle(uid);
+  };
+  reader.readAsText(file, 'UTF-8');
+}
+
+function rollSatzbau(uid){
+  const wrap = document.getElementById('dicewrap-'+uid);
+  const data = satzbauWords[uid] || {1:[],2:[],3:[],4:[]};
+  const hasCols = [1,2,3,4].some(i=>data[i]&&data[i].length>0);
+  if(!hasCols){
+    // Just toggle setup
+    showSatzbauIdle(uid);
+    return;
+  }
+  // Play plop sound
+  try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
+  // Animate
+  if(wrap){
+    wrap.style.transition='transform .12s ease-in';
+    wrap.style.transform='scale(0.88)';
+    setTimeout(()=>{
+      wrap.style.transition='transform .22s cubic-bezier(.34,1.56,.64,1)';
+      wrap.style.transform='scale(1)';
+    },120);
+  }
+  // Bag shuffle per column: pick from bag, refill when empty
+  if(!satzbauWords[uid]._bags) satzbauWords[uid]._bags={};
+  const picked = [1,2,3,4].map(i=>{
+    const arr = data[i]||[];
+    if(!arr.length) return '';
+    const bags = satzbauWords[uid]._bags;
+    if(!bags[i] || bags[i].length===0){
+      // Refill and shuffle
+      const a=[...arr.keys()];
+      for(let j=a.length-1;j>0;j--){const k=Math.floor(Math.random()*(j+1));[a[j],a[k]]=[a[k],a[j]];}
+      bags[i]=a;
+    }
+    return arr[bags[i].pop()];
+  });
+  // Render columns + keep Bearbeiten button
+  const colsHtml = [0,1,2,3].map(i=>{
+    const val = picked[i];
+    const hasVal = val !== '';
+    return `<div class="satzbau-col ${hasVal?'has-value':'empty'}">${hasVal ? escHtml(val) : '\u2014'}</div>`;
+  }).join('');
+  if(wrap) setTimeout(()=>{
+    wrap.innerHTML = `<div style="display:flex;flex-direction:column;width:100%;height:100%;gap:.3em;"><div class="satzbau-cols" style="flex:1;">${colsHtml}</div><div style="display:flex;justify-content:center;"><button id="satzbau-edit-${uid}" class="satzbau-upload-btn" style="font-size:.7em;padding:.25em .7em;">&#9998; Bearbeiten</button></div></div>`;
+    const _edit = document.getElementById('satzbau-edit-'+uid);
+    if(_edit) _edit.addEventListener('click', e=>{ e.stopPropagation(); showSatzbauSetup(uid); });
+  },120);
+  // Clear result text below widget
+  const res = document.getElementById('diceres-'+uid);
+  if(res) res.textContent = '';
+}
+
+function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
 
 function toggleColorName(uid){
   if(!jeinState[uid]) jeinState[uid]={};
@@ -6954,7 +7163,7 @@ function buildSpiele(body, uid){
 // ════════════════════════════════════════════════
 function buildAmpelPanel(panel, uid){
   const auid = uid * 1000 + 5;
-  // display bleibt 'none' — nur Layout-Eigenschaften setzen, nicht cssText überschreiben
+  // Do NOT use cssText — it would overwrite display:none set by the panel creation loop
   panel.style.flexDirection = 'column';
   panel.style.alignItems = 'center';
   panel.style.justifyContent = 'center';
@@ -7037,13 +7246,149 @@ function buildAmpelPanel(panel, uid){
   </div>
 </div>`;
 
-  // Ampel-Zyklus erst beim ersten Anzeigen des Tabs starten (nicht sofort)
-  // Start wird durch spieleShowTab ausgelöst
+  // Start the ampel cycle
+  setTimeout(()=>ampelPanelStart(auid), 200);
 }
 
 // Global state for Ampel Panel
 const _apTimers = {};
 const _apState  = {};
+
+// ── Ampel: Stadtgeräusche (Web Audio, synthetisch) ──
+const _cityAudio = {}; // auid -> { ctx, nodes[], stopped }
+
+function cityStop(auid){
+  const ca = _cityAudio[auid];
+  if(!ca) return;
+  ca.stopped = true;
+  // Fade out master gain over 0.8s then disconnect all
+  try{
+    ca.master.gain.setValueAtTime(ca.master.gain.value, ca.ctx.currentTime);
+    ca.master.gain.linearRampToValueAtTime(0, ca.ctx.currentTime + 0.8);
+    setTimeout(()=>{
+      ca.nodes.forEach(n=>{ try{n.stop();}catch(e){} try{n.disconnect();}catch(e){} });
+      try{ca.master.disconnect();}catch(e){}
+    }, 900);
+  }catch(e){}
+  delete _cityAudio[auid];
+}
+
+function cityStart(auid){
+  cityStop(auid); // stop any previous
+  let ctx;
+  try{ ctx = window._pzAudioCtx || new (window.AudioContext||window.webkitAudioContext)(); }
+  catch(e){ return; }
+  if(ctx.state==='suspended') ctx.resume();
+
+  const ca = { ctx, nodes:[], master:ctx.createGain(), stopped:false };
+  ca.master.gain.setValueAtTime(0, ctx.currentTime);
+  ca.master.gain.linearRampToValueAtTime(0.18, ctx.currentTime + 1.5); // fade in
+  ca.master.connect(ctx.destination);
+  _cityAudio[auid] = ca;
+
+  // ── 1. Verkehrsrauschen: gefiltertes Rosa-Rauschen ──
+  const bufLen = ctx.sampleRate * 3;
+  const buf = ctx.createBuffer(1, bufLen, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  let b0=0,b1=0,b2=0,b3=0,b4=0,b5=0;
+  for(let i=0;i<bufLen;i++){
+    const w = Math.random()*2-1;
+    b0=0.99886*b0+w*0.0555179; b1=0.99332*b1+w*0.0750759;
+    b2=0.96900*b2+w*0.1538520; b3=0.86650*b3+w*0.3104856;
+    b4=0.55000*b4+w*0.5329522; b5=-0.7616*b5-w*0.0168980;
+    data[i]=(b0+b1+b2+b3+b4+b5+w*0.5362)*0.11;
+  }
+  const noise = ctx.createBufferSource();
+  noise.buffer = buf; noise.loop = true;
+  const noiseFilter = ctx.createBiquadFilter();
+  noiseFilter.type = 'lowpass'; noiseFilter.frequency.value = 800;
+  const noiseGain = ctx.createGain(); noiseGain.gain.value = 0.7;
+  noise.connect(noiseFilter); noiseFilter.connect(noiseGain); noiseGain.connect(ca.master);
+  noise.start(); ca.nodes.push(noise);
+
+  // ── 2. Gelegentliche vorbeifahrende Autos (Doppler-ähnlich) ──
+  function scheduleCarPass(){
+    if(ca.stopped) return;
+    const delay = 3000 + Math.random()*7000;
+    setTimeout(()=>{
+      if(ca.stopped) return;
+      const carBuf = ctx.createBuffer(1, ctx.sampleRate*2, ctx.sampleRate);
+      const cd = carBuf.getChannelData(0);
+      for(let i=0;i<cd.length;i++) cd[i]=(Math.random()*2-1)*0.4;
+      const car = ctx.createBufferSource();
+      car.buffer = carBuf;
+      const carFilter = ctx.createBiquadFilter();
+      carFilter.type = 'bandpass'; carFilter.frequency.value = 400; carFilter.Q.value = 0.8;
+      const carGain = ctx.createGain();
+      const t = ctx.currentTime;
+      carGain.gain.setValueAtTime(0, t);
+      carGain.gain.linearRampToValueAtTime(0.5, t+0.4);
+      carGain.gain.linearRampToValueAtTime(0.2, t+1.0);
+      carGain.gain.linearRampToValueAtTime(0, t+1.8);
+      // Doppler: pitch goes down as car passes
+      carFilter.frequency.setValueAtTime(900, t);
+      carFilter.frequency.linearRampToValueAtTime(180, t+1.8);
+      car.connect(carFilter); carFilter.connect(carGain); carGain.connect(ca.master);
+      car.start(t); car.stop(t+2);
+      ca.nodes.push(car);
+      scheduleCarPass();
+    }, delay);
+  }
+  scheduleCarPass();
+
+  // ── 3. Ferne Stimmen/Schritte: kurze Band-Noise-Bursts ──
+  function scheduleMurmur(){
+    if(ca.stopped) return;
+    const delay = 4000 + Math.random()*8000;
+    setTimeout(()=>{
+      if(ca.stopped) return;
+      const dur = 0.3 + Math.random()*0.5;
+      const osc = ctx.createOscillator();
+      osc.type = 'sawtooth';
+      osc.frequency.value = 180 + Math.random()*120;
+      const murFilter = ctx.createBiquadFilter();
+      murFilter.type = 'bandpass'; murFilter.frequency.value = 300; murFilter.Q.value = 3;
+      const murGain = ctx.createGain();
+      const t = ctx.currentTime;
+      murGain.gain.setValueAtTime(0, t);
+      murGain.gain.linearRampToValueAtTime(0.04, t+0.05);
+      murGain.gain.linearRampToValueAtTime(0, t+dur);
+      osc.connect(murFilter); murFilter.connect(murGain); murGain.connect(ca.master);
+      osc.start(t); osc.stop(t+dur+0.1);
+      ca.nodes.push(osc);
+      scheduleMurmur();
+    }, delay);
+  }
+  scheduleMurmur();
+
+  // ── 4. Vogelzwitschern: kurze FM-Chirps ──
+  function scheduleBird(){
+    if(ca.stopped) return;
+    const delay = 5000 + Math.random()*12000;
+    setTimeout(()=>{
+      if(ca.stopped) return;
+      const chirps = 2 + Math.floor(Math.random()*4);
+      for(let c=0;c<chirps;c++){
+        const t = ctx.currentTime + c*0.12;
+        const osc = ctx.createOscillator();
+        osc.type = 'sine';
+        const baseF = 2400 + Math.random()*1200;
+        osc.frequency.setValueAtTime(baseF, t);
+        osc.frequency.linearRampToValueAtTime(baseF*1.3, t+0.06);
+        osc.frequency.linearRampToValueAtTime(baseF, t+0.10);
+        const bGain = ctx.createGain();
+        bGain.gain.setValueAtTime(0, t);
+        bGain.gain.linearRampToValueAtTime(0.07, t+0.02);
+        bGain.gain.linearRampToValueAtTime(0, t+0.10);
+        osc.connect(bGain); bGain.connect(ca.master);
+        osc.start(t); osc.stop(t+0.12);
+        ca.nodes.push(osc);
+      }
+      scheduleBird();
+    }, delay);
+  }
+  scheduleBird();
+}
 
 function ampelPanelSetLight(auid, state){
   const rot  = document.getElementById('ampel-rot-'+auid);
@@ -7087,6 +7432,7 @@ function ampelPanelStart(auid){
     _apTimers[auid] = setTimeout(()=>{
       if(!document.getElementById('ampel-rot-'+auid)) return;
       ampelPanelSetLight(auid, 'rot');
+      cityStop(auid); // Stadtgeräusche stoppen bei Rot
       // Stay on rot until manual restart
     }, 3000);
   }, gruenMs);
@@ -7094,10 +7440,17 @@ function ampelPanelStart(auid){
 
 function ampelPanelClick(auid){
   try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
-  ampelPanelStart(auid);
+  ampelPanelStart(auid); // cityStart is called by spieleShowTab when ampel tab is active
 }
 
 function spieleShowTab(tab, uid){
+  // City sounds: start when ampel tab selected, stop when leaving it
+  const auid = uid * 1000 + 5;
+  if(tab === 'ampel'){
+    cityStart(auid);
+  } else {
+    cityStop(auid);
+  }
   ['rad','slot','janken','puzzle','ampel'].forEach(t=>{
     const panel=document.getElementById(`spiele-panel-${t}-${uid}`);
     const btn  =document.getElementById(`spiele-tab-${t}-${uid}`);
@@ -7107,13 +7460,6 @@ function spieleShowTab(tab, uid){
   if(tab==='slot'){
     requestAnimationFrame(()=>slotSizeReels(uid*1000+2));
     setTimeout(()=>slotSizeReels(uid*1000+2), 120);
-  }
-  // Ampel-Zyklus starten wenn Tab geöffnet, stoppen wenn verlassen
-  const auid = uid * 1000 + 5;
-  if(tab==='ampel'){
-    setTimeout(()=>ampelPanelStart(auid), 80);
-  } else {
-    if(_apTimers[auid]){clearTimeout(_apTimers[auid]);delete _apTimers[auid];}
   }
   // Refresh scale for any tab switch so --uiscale is propagated
   const widgetEl = document.getElementById(`spiele-panel-rad-${uid}`)?.closest('.widget');
