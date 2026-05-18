@@ -606,7 +606,7 @@ textarea.winput{resize:vertical;}
 .wclock-time{font-size:3.6em;font-weight:900;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.05em;line-height:1;}
 .wclock-date{font-size:.9em;color:var(--text2);text-align:center;margin-top:.3em;}
 .timer-disp{font-size:4em;font-weight:400;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:.08em;line-height:1;color:#ffffff;margin:.2em 0 .5em;transition:color .3s;font-family:'Arial',sans-serif;text-shadow:0 2px 8px rgba(0,0,0,0.4);}
-.dice-wrap{display:flex;align-items:center;justify-content:center;margin:.4em 0 .3em;cursor:pointer;flex:1;min-height:60px;}
+.dice-wrap{display:flex;align-items:center;justify-content:center;margin:.4em 0 .3em;cursor:pointer;flex:1;min-height:60px;overflow:visible;}
 .dice-wrap svg{width:100%;height:100%;max-width:none;max-height:none;min-width:60px;min-height:60px;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.4));transition:transform .15s;}
 .dice-wrap:hover svg{transform:scale(1.08) rotate(6deg);}
 .dice-result{text-align:center;font-size:.95em;font-weight:700;color:var(--text2);margin:.2em 0 .5em;}
@@ -4194,20 +4194,69 @@ function lauferDrawFrame(uid){
 // WIDGET: DICE (SVG)
 // ════════════════════════════════════════════════
 const D6_DOTS=[
-  `<circle cx="50" cy="50" r="8" fill="currentColor"/>`,
-  `<circle cx="30" cy="30" r="8" fill="currentColor"/><circle cx="70" cy="70" r="8" fill="currentColor"/>`,
-  `<circle cx="25" cy="25" r="8" fill="currentColor"/><circle cx="50" cy="50" r="8" fill="currentColor"/><circle cx="75" cy="75" r="8" fill="currentColor"/>`,
-  `<circle cx="30" cy="30" r="8" fill="currentColor"/><circle cx="70" cy="30" r="8" fill="currentColor"/><circle cx="30" cy="70" r="8" fill="currentColor"/><circle cx="70" cy="70" r="8" fill="currentColor"/>`,
-  `<circle cx="30" cy="30" r="8" fill="currentColor"/><circle cx="70" cy="30" r="8" fill="currentColor"/><circle cx="50" cy="50" r="8" fill="currentColor"/><circle cx="30" cy="70" r="8" fill="currentColor"/><circle cx="70" cy="70" r="8" fill="currentColor"/>`,
-  `<circle cx="30" cy="25" r="8" fill="currentColor"/><circle cx="70" cy="25" r="8" fill="currentColor"/><circle cx="30" cy="50" r="8" fill="currentColor"/><circle cx="70" cy="50" r="8" fill="currentColor"/><circle cx="30" cy="75" r="8" fill="currentColor"/><circle cx="70" cy="75" r="8" fill="currentColor"/>`,
+  `<circle cx="50" cy="50" r="9" style="fill:#5a4010!important"/>`,
+  `<circle cx="32" cy="32" r="9" style="fill:#5a4010!important"/><circle cx="68" cy="68" r="9" style="fill:#5a4010!important"/>`,
+  `<circle cx="27" cy="27" r="9" style="fill:#5a4010!important"/><circle cx="50" cy="50" r="9" style="fill:#5a4010!important"/><circle cx="73" cy="73" r="9" style="fill:#5a4010!important"/>`,
+  `<circle cx="32" cy="32" r="9" style="fill:#5a4010!important"/><circle cx="68" cy="32" r="9" style="fill:#5a4010!important"/><circle cx="32" cy="68" r="9" style="fill:#5a4010!important"/><circle cx="68" cy="68" r="9" style="fill:#5a4010!important"/>`,
+  `<circle cx="32" cy="32" r="9" style="fill:#5a4010!important"/><circle cx="68" cy="32" r="9" style="fill:#5a4010!important"/><circle cx="50" cy="50" r="9" style="fill:#5a4010!important"/><circle cx="32" cy="68" r="9" style="fill:#5a4010!important"/><circle cx="68" cy="68" r="9" style="fill:#5a4010!important"/>`,
+  `<circle cx="32" cy="24" r="9" style="fill:#5a4010!important"/><circle cx="68" cy="24" r="9" style="fill:#5a4010!important"/><circle cx="32" cy="50" r="9" style="fill:#5a4010!important"/><circle cx="68" cy="50" r="9" style="fill:#5a4010!important"/><circle cx="32" cy="76" r="9" style="fill:#5a4010!important"/><circle cx="68" cy="76" r="9" style="fill:#5a4010!important"/>`,
 ];
 
 function diceD6svg(val){
-  const c='#6c8fff';
+  const gid='d6_'+Math.random().toString(36).slice(2,7);
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-    <rect x="5" y="5" width="90" height="90" rx="18" fill="${c}" opacity=".14"/>
-    <rect x="5" y="5" width="90" height="90" rx="18" fill="none" stroke="${c}" stroke-width="4"/>
-    <g color="${c}">${D6_DOTS[val-1]||''}</g>
+    <defs>
+      <!-- Ivory base gradient: warm cream top-left to darker warm shadow bottom-right -->
+      <linearGradient id="d6g_${gid}" x1="15%" y1="8%" x2="88%" y2="92%">
+        <stop offset="0%"   stop-color="#fffff4"/>
+        <stop offset="28%"  stop-color="#fdf8e8"/>
+        <stop offset="62%"  stop-color="#f5eecc"/>
+        <stop offset="100%" stop-color="#e2d8a8"/>
+      </linearGradient>
+      <!-- Bevel top edge: bright warm highlight -->
+      <linearGradient id="d6t_${gid}" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stop-color="rgba(255,255,245,0.95)"/>
+        <stop offset="100%" stop-color="rgba(255,255,245,0)"/>
+      </linearGradient>
+      <!-- Bevel left edge -->
+      <linearGradient id="d6l_${gid}" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%"   stop-color="rgba(255,255,245,0.80)"/>
+        <stop offset="100%" stop-color="rgba(255,255,245,0)"/>
+      </linearGradient>
+      <!-- Inner shadow bottom-right corner -->
+      <radialGradient id="d6sh_${gid}" cx="85%" cy="85%" r="55%">
+        <stop offset="0%"   stop-color="rgba(160,140,80,0.28)"/>
+        <stop offset="100%" stop-color="rgba(160,140,80,0)"/>
+      </radialGradient>
+      <!-- Drop shadow filter -->
+      <filter id="d6f_${gid}" x="-20%" y="-20%" width="148%" height="148%">
+        <feDropShadow dx="2" dy="4" stdDeviation="5" flood-color="rgba(80,60,20,0.42)"/>
+      </filter>
+      <!-- Subtle inner glow filter for dot depth -->
+      <filter id="d6df_${gid}" x="-40%" y="-40%" width="180%" height="180%">
+        <feGaussianBlur stdDeviation="0.6" result="blur"/>
+        <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+      </filter>
+    </defs>
+    <!-- Main face with drop shadow -->
+    <rect x="5" y="5" width="90" height="90" rx="16"
+      fill="url(#d6g_${gid})" stroke="#c8b870" stroke-width="1.8"
+      filter="url(#d6f_${gid})"/>
+    <!-- Bottom-right inner shadow for depth -->
+    <rect x="5" y="5" width="90" height="90" rx="16"
+      fill="url(#d6sh_${gid})" stroke="none"/>
+    <!-- Top bevel highlight -->
+    <rect x="7" y="7" width="86" height="30" rx="14"
+      fill="url(#d6t_${gid})" stroke="none"/>
+    <!-- Left bevel highlight -->
+    <rect x="7" y="7" width="28" height="86" rx="14"
+      fill="url(#d6l_${gid})" stroke="none"/>
+    <!-- Outer rim warm highlight line -->
+    <rect x="6.5" y="6.5" width="87" height="87" rx="15"
+      fill="none" stroke="rgba(255,252,220,0.70)" stroke-width="1.2"/>
+    <!-- Dots: deep warm brown, slightly recessed look -->
+    <g filter="url(#d6df_${gid})" style="fill:#5a4010!important">${D6_DOTS[val-1]||''}</g>
+    <!-- Dot inner highlight (tiny white spark top-left of each dot) -->
   </svg>`;
 }
 
@@ -4218,21 +4267,234 @@ function dicePolySvg(sides,val){
   const isResult=(val!=='?');
 
   if(sides===100){
-    const fs=isResult?(label.length>2?44:56):26;
-    const textCol='#fbbf24'; // yellow
-    return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <radialGradient id="rg100" cx="40%" cy="35%">
-          <stop offset="0%" stop-color="${c}" stop-opacity=".32"/>
-          <stop offset="100%" stop-color="${c}" stop-opacity=".06"/>
-        </radialGradient>
-      </defs>
-      <circle cx="60" cy="60" r="54" fill="url(#rg100)" stroke="${c}" stroke-width="3.5"/>
-      <circle cx="60" cy="60" r="44" fill="none" stroke="${c}" stroke-width="1.2" stroke-dasharray="4 3" opacity=".4"/>
-      <circle cx="60" cy="60" r="3" fill="${c}" opacity=".6"/>
-      <text x="60" y="60" text-anchor="middle" dominant-baseline="central"
-        font-family="Arial,sans-serif" font-weight="900" font-size="${fs}" fill="${textCol}">${label}</text>
-    </svg>`;
+    const gid = 'w100_'+Math.random().toString(36).slice(2,8);
+    const fsBig = label.length > 2 ? 38 : 50;
+
+    if(!isResult){
+      return `<div style="
+        position:relative;width:100%;height:100%;
+        display:flex;justify-content:center;align-items:flex-end;
+        padding-bottom:8px;box-sizing:border-box;overflow:visible;">
+        <style>
+          @keyframes w100float_${gid}{
+            0%,100%{top:-90px;}
+            50%{top:-112px;}
+          }
+        </style>
+        <div style="
+          position:absolute;
+          width:108px;height:108px;
+          top:-90px;left:50%;transform:translateX(-50%);
+          border-radius:50%;
+          background:radial-gradient(circle at 35% 32%, #ffffff 0%, #f4f4f4 40%, #cccccc 75%, #999 100%);
+          box-shadow:inset -7px -7px 20px rgba(0,0,0,0.22),inset 9px 9px 18px rgba(255,255,255,0.9),0 12px 32px rgba(0,0,0,0.3);
+          animation:w100float_${gid} 2s ease-in-out infinite;
+          z-index:3;">
+        </div>
+        <div style="
+          position:relative;
+          width:180px;height:220px;
+          background:linear-gradient(90deg,
+            rgba(255,255,255,0.18) 0%,
+            rgba(255,255,255,0.06) 20%,
+            rgba(255,255,255,0.02) 50%,
+            rgba(255,255,255,0.08) 80%,
+            rgba(255,255,255,0.28) 100%);
+          border-left:3px solid rgba(255,255,255,0.45);
+          border-right:3px solid rgba(255,255,255,0.45);
+          border-bottom:8px solid rgba(255,255,255,0.55);
+          border-radius:0 0 90px 90px / 0 0 30px 30px;
+          box-shadow:inset 0 -28px 42px rgba(255,255,255,0.12),0 18px 44px rgba(0,0,0,0.5);
+          z-index:2;">
+          <div style="
+            position:absolute;top:-13px;left:-3px;right:-3px;height:26px;
+            border:3px solid rgba(255,255,255,0.45);
+            border-radius:50%;
+            background:rgba(20,24,32,0.35);
+            box-shadow:inset 0 0 14px rgba(255,255,255,0.18);"></div>
+          <div style="
+            position:absolute;top:24px;right:16px;
+            width:10px;height:185px;
+            background:linear-gradient(to bottom,rgba(255,255,255,0.42) 0%,rgba(255,255,255,0.02) 100%);
+            border-radius:5px;"></div>
+        </div>
+      </div>`;
+    } else {
+      // Cylinder 180×220px, ball 108px.
+      // Ball rests at bottom: top = 220 - 108 - 10 = 102px inside cylinder.
+      // Ball starts at top: -116px (above rim).
+      // 1st bounce: up to top≈18px, 2nd≈58px, 3rd≈78px, 4th≈92px
+      return `<div style="
+        position:relative;width:100%;height:100%;
+        display:flex;justify-content:center;align-items:flex-end;
+        padding-bottom:8px;box-sizing:border-box;overflow:visible;">
+        <style>
+          @keyframes w100drop_${gid}{
+            /* ── FREE FALL from above ── ease-in per segment */
+            0%{
+              top:-116px;
+              transform:translateX(-50%) scaleY(1) scaleX(1) rotate(0deg);
+              animation-timing-function:ease-in;
+            }
+            /* ── IMPACT 1 ── hard squish, ball fell 235px */
+            19%{
+              top:113px;
+              transform:translateX(-50%) scaleY(0.68) scaleX(1.30) rotate(72deg);
+              animation-timing-function:ease-out;
+            }
+            /* brief squish hold */
+            20.5%{
+              top:119px;
+              transform:translateX(-50%) scaleY(0.68) scaleX(1.30) rotate(76deg);
+              animation-timing-function:ease-out;
+            }
+            /* ── RISE 1 ── bounce up to 129px above floor = top:-10px, ease-out */
+            30%{
+              top:-10px;
+              transform:translateX(-50%) scaleY(1.04) scaleX(0.97) rotate(128deg);
+              animation-timing-function:ease-in;
+            }
+            /* ── FALL back, IMPACT 2 ── fell 129px, 0.55× squish */
+            38%{
+              top:113px;
+              transform:translateX(-50%) scaleY(0.76) scaleX(1.22) rotate(172deg);
+              animation-timing-function:ease-out;
+            }
+            39%{
+              top:119px;
+              transform:translateX(-50%) scaleY(0.76) scaleX(1.22) rotate(175deg);
+              animation-timing-function:ease-out;
+            }
+            /* ── RISE 2 ── up to 71px above floor = top:48px */
+            46%{
+              top:48px;
+              transform:translateX(-50%) scaleY(1.02) scaleX(0.98) rotate(208deg);
+              animation-timing-function:ease-in;
+            }
+            /* ── FALL + IMPACT 3 ── */
+            52%{
+              top:113px;
+              transform:translateX(-50%) scaleY(0.84) scaleX(1.14) rotate(238deg);
+              animation-timing-function:ease-out;
+            }
+            52.8%{
+              top:119px;
+              transform:translateX(-50%) scaleY(0.84) scaleX(1.14) rotate(241deg);
+              animation-timing-function:ease-out;
+            }
+            /* ── RISE 3 ── up to 39px above floor = top:80px */
+            57%{
+              top:80px;
+              transform:translateX(-50%) scaleY(1.01) scaleX(0.99) rotate(260deg);
+              animation-timing-function:ease-in;
+            }
+            /* ── FALL + IMPACT 4 ── */
+            61%{
+              top:113px;
+              transform:translateX(-50%) scaleY(0.90) scaleX(1.08) rotate(278deg);
+              animation-timing-function:ease-out;
+            }
+            61.8%{
+              top:119px;
+              transform:translateX(-50%) scaleY(0.90) scaleX(1.08) rotate(281deg);
+              animation-timing-function:ease-out;
+            }
+            /* ── RISE 4 ── up to 21px above floor = top:98px */
+            65%{
+              top:98px;
+              transform:translateX(-50%) scaleY(1.00) scaleX(1.00) rotate(294deg);
+              animation-timing-function:ease-in;
+            }
+            /* ── IMPACT 5 (tiny) ── */
+            68%{
+              top:118px;
+              transform:translateX(-50%) scaleY(0.95) scaleX(1.04) rotate(308deg);
+              animation-timing-function:ease-out;
+            }
+            /* ── SETTLE ── */
+            72%{
+              top:119px;
+              transform:translateX(-50%) scaleY(1) scaleX(1) rotate(315deg);
+            }
+            78%,100%{
+              top:119px;
+              transform:translateX(-50%) scaleY(1) scaleX(1) rotate(315deg);
+            }
+          }
+          @keyframes w100shadow_${gid}{
+            0%    {opacity:0.05;transform:translateX(-50%) scaleX(0.15);}
+            19%   {opacity:0.80;transform:translateX(-50%) scaleX(1.55);}
+            30%   {opacity:0.12;transform:translateX(-50%) scaleX(0.45);}
+            38%   {opacity:0.72;transform:translateX(-50%) scaleX(1.38);}
+            46%   {opacity:0.22;transform:translateX(-50%) scaleX(0.62);}
+            52%   {opacity:0.66;transform:translateX(-50%) scaleX(1.24);}
+            57%   {opacity:0.30;transform:translateX(-50%) scaleX(0.74);}
+            61%   {opacity:0.62;transform:translateX(-50%) scaleX(1.14);}
+            65%   {opacity:0.38;transform:translateX(-50%) scaleX(0.84);}
+            68%   {opacity:0.58;transform:translateX(-50%) scaleX(1.06);}
+            72%,100%{opacity:0.55;transform:translateX(-50%) scaleX(1);}
+          }
+        </style>
+        <div style="
+          position:relative;
+          width:180px;height:220px;
+          background:linear-gradient(90deg,
+            rgba(255,255,255,0.18) 0%,
+            rgba(255,255,255,0.06) 20%,
+            rgba(255,255,255,0.02) 50%,
+            rgba(255,255,255,0.08) 80%,
+            rgba(255,255,255,0.28) 100%);
+          border-left:3px solid rgba(255,255,255,0.45);
+          border-right:3px solid rgba(255,255,255,0.45);
+          border-bottom:8px solid rgba(255,255,255,0.55);
+          border-radius:0 0 90px 90px / 0 0 30px 30px;
+          box-shadow:inset 0 -28px 42px rgba(255,255,255,0.12),0 18px 44px rgba(0,0,0,0.5);
+          overflow:hidden;
+          z-index:2;">
+          <div style="
+            position:absolute;bottom:6px;left:50%;
+            width:90px;height:16px;
+            background:rgba(0,0,0,0.45);
+            border-radius:50%;
+            transform-origin:center;
+            transform:translateX(-50%);
+            animation:w100shadow_${gid} 3.2s linear forwards;"></div>
+          <div style="
+            position:absolute;
+            width:108px;height:108px;
+            top:-116px;left:50%;
+            transform:translateX(-50%);
+            border-radius:50%;
+            background:radial-gradient(circle at 35% 32%, #ffffff 0%, #f4f4f4 40%, #cccccc 75%, #999 100%);
+            box-shadow:inset -7px -7px 20px rgba(0,0,0,0.22),inset 9px 9px 18px rgba(255,255,255,0.9),0 12px 32px rgba(0,0,0,0.3);
+            display:flex;justify-content:center;align-items:center;
+            animation:w100drop_${gid} 3.2s linear forwards;
+            z-index:3;">
+            <span style="
+              font-size:${fsBig}px;font-weight:900;color:#111;
+              font-family:'Arial Black',Arial,sans-serif;
+              text-shadow:1px 1px 1px rgba(255,255,255,0.5);
+              user-select:none;pointer-events:none;">${label}</span>
+          </div>
+          <div style="
+            position:absolute;top:0;right:14px;
+            width:10px;height:100%;
+            background:linear-gradient(to bottom,rgba(255,255,255,0.40) 0%,rgba(255,255,255,0.02) 100%);
+            border-radius:5px;
+            z-index:5;pointer-events:none;"></div>
+        </div>
+        <div style="
+          position:absolute;
+          bottom:236px;left:50%;
+          width:187px;height:26px;
+          transform:translateX(-50%);
+          border:3px solid rgba(255,255,255,0.45);
+          border-radius:50%;
+          background:rgba(20,24,32,0.35);
+          box-shadow:inset 0 0 14px rgba(255,255,255,0.18);
+          z-index:4;"></div>
+      </div>`;
+    }
   }
 
   if(sides===20){
@@ -4248,17 +4510,30 @@ function dicePolySvg(sides,val){
       const a=(i*60-30)*Math.PI/180;
       innerPts.push(`${60+36*Math.cos(a)},${60+36*Math.sin(a)}`);
     }
+    const gid20='d20_'+Math.random().toString(36).slice(2,7);
     return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="lg20" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="${c}" stop-opacity=".28"/>
-          <stop offset="100%" stop-color="${c}" stop-opacity=".06"/>
+        <linearGradient id="lg20_${gid20}" x1="20%" y1="5%" x2="80%" y2="95%">
+          <stop offset="0%"   stop-color="#2d8a4e"/>
+          <stop offset="50%"  stop-color="#1a6635"/>
+          <stop offset="100%" stop-color="#0f4422"/>
         </linearGradient>
+        <linearGradient id="lg20i_${gid20}" x1="20%" y1="5%" x2="80%" y2="95%">
+          <stop offset="0%"   stop-color="rgba(255,255,255,0.18)"/>
+          <stop offset="100%" stop-color="rgba(255,255,255,0.03)"/>
+        </linearGradient>
+        <filter id="d20s_${gid20}" x="-18%" y="-18%" width="145%" height="145%">
+          <feDropShadow dx="3" dy="5" stdDeviation="5" flood-color="rgba(0,0,0,0.45)"/>
+        </filter>
       </defs>
-      <polygon points="${pts.join(' ')}" fill="url(#lg20)" stroke="${c}" stroke-width="3.5" stroke-linejoin="round"/>
-      <polygon points="${innerPts.join(' ')}" fill="none" stroke="${c}" stroke-width="1.2" stroke-linejoin="round" opacity=".35"/>
+      <polygon points="${pts.join(' ')}" fill="url(#lg20_${gid20})" stroke="#0a3018" stroke-width="2.5" stroke-linejoin="round" filter="url(#d20s_${gid20})"/>
+      <polygon points="${pts.join(' ')}" fill="url(#lg20i_${gid20})" stroke="none"/>
+      <polygon points="${innerPts.join(' ')}" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linejoin="round"/>
+      <!-- top-left shine arc -->
+      <ellipse cx="38" cy="35" rx="20" ry="11" fill="rgba(255,255,255,0.22)" transform="rotate(-25,38,35)"/>
       <text x="60" y="60" text-anchor="middle" dominant-baseline="central"
-        font-family="Arial,sans-serif" font-weight="900" font-size="${fs}" fill="${c}">${label}</text>
+        font-family="Arial,sans-serif" font-weight="900" font-size="${fs}" fill="#ffffff"
+        style="text-shadow:0 1px 3px rgba(0,0,0,0.5)">${label}</text>
     </svg>`;
   }
 
@@ -4274,17 +4549,30 @@ function dicePolySvg(sides,val){
     const a=(i*72-90)*Math.PI/180;
     innerPts.push(`${60+34*Math.cos(a)},${60+34*Math.sin(a)}`);
   }
+  const gid12='d12_'+Math.random().toString(36).slice(2,7);
   return `<svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <radialGradient id="rg12" cx="40%" cy="35%">
-        <stop offset="0%" stop-color="${c}" stop-opacity=".30"/>
-        <stop offset="100%" stop-color="${c}" stop-opacity=".06"/>
-      </radialGradient>
+      <linearGradient id="rg12_${gid12}" x1="20%" y1="5%" x2="80%" y2="95%">
+        <stop offset="0%"   stop-color="#f05555"/>
+        <stop offset="50%"  stop-color="#cc2222"/>
+        <stop offset="100%" stop-color="#8b0000"/>
+      </linearGradient>
+      <linearGradient id="rg12i_${gid12}" x1="20%" y1="5%" x2="80%" y2="95%">
+        <stop offset="0%"   stop-color="rgba(255,255,255,0.20)"/>
+        <stop offset="100%" stop-color="rgba(255,255,255,0.02)"/>
+      </linearGradient>
+      <filter id="d12s_${gid12}" x="-18%" y="-18%" width="145%" height="145%">
+        <feDropShadow dx="3" dy="5" stdDeviation="5" flood-color="rgba(0,0,0,0.45)"/>
+      </filter>
     </defs>
-    <polygon points="${pts.join(' ')}" fill="url(#rg12)" stroke="${c}" stroke-width="3.5" stroke-linejoin="round"/>
-    <polygon points="${innerPts.join(' ')}" fill="none" stroke="${c}" stroke-width="1.2" stroke-linejoin="round" opacity=".35"/>
+    <polygon points="${pts.join(' ')}" fill="url(#rg12_${gid12})" stroke="#5a0000" stroke-width="2.5" stroke-linejoin="round" filter="url(#d12s_${gid12})"/>
+    <polygon points="${pts.join(' ')}" fill="url(#rg12i_${gid12})" stroke="none"/>
+    <polygon points="${innerPts.join(' ')}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" stroke-linejoin="round"/>
+    <!-- top-left shine -->
+    <ellipse cx="38" cy="34" rx="18" ry="10" fill="rgba(255,255,255,0.22)" transform="rotate(-20,38,34)"/>
     <text x="60" y="62" text-anchor="middle" dominant-baseline="central"
-      font-family="Arial,sans-serif" font-weight="900" font-size="${fs}" fill="${c}">${label}</text>
+      font-family="Arial,sans-serif" font-weight="900" font-size="${fs}" fill="#ffffff"
+      style="text-shadow:0 1px 3px rgba(0,0,0,0.5)">${label}</text>
   </svg>`;
 }
 
@@ -4307,7 +4595,7 @@ function buildDice(body,uid){
       <svg viewBox="0 0 40 40" width="32" height="32"><polygon points="20,3 35,11.5 35,28.5 20,37 5,28.5 5,11.5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-size="13" font-weight="900" fill="currentColor">20</text></svg>
     </button>
     <button class="dice-type-btn" id="dtbtn-100-${uid}" onclick="selectDiceType(100,${uid})" title="W100">
-      <svg viewBox="0 0 40 40" width="32" height="32"><rect x="2" y="2" width="36" height="36" rx="7" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-size="11" font-weight="900" fill="currentColor">100</text></svg>
+      <svg viewBox="0 0 40 40" width="32" height="32"><circle cx="20" cy="20" r="18" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="20" y="21" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-size="11" font-weight="900" fill="currentColor">100</text></svg>
     </button>
     <button class="dice-type-btn" id="dtbtn-euro-${uid}" onclick="selectDiceType('euro',${uid})" title="Euro-Betrag">
       <svg viewBox="0 0 40 40" width="32" height="32"><rect x="2" y="2" width="36" height="36" rx="7" fill="none" stroke="currentColor" stroke-width="2.5"/><text x="20" y="22" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-size="19" font-weight="900" fill="currentColor">€</text></svg>
@@ -4453,6 +4741,8 @@ function rollDice(uid){
   }
   if(type==='euro'){
     playSound('Glocke',0.9);
+  } else if(parseInt(type||6)===100){
+    playBallImpact();
   } else {
     playSound('Wuerfel',0.8);
     try{const ac=new (window.AudioContext||window.webkitAudioContext)();playDiceRoll(ac,0.6);}catch(e){}
@@ -4640,17 +4930,28 @@ function rollDice(uid){
   }
   const results=[rolledVal];
   if(wrap){
-    wrap.style.transform='scale(0.75) rotate(20deg)';
-    wrap.style.transition='transform .1s ease-in';
-    setTimeout(()=>{
-      wrap.style.transition='transform .28s cubic-bezier(.34,1.56,.64,1)';
-      wrap.style.transform='scale(1) rotate(-5deg)';
-      if(tnum===6) wrap.innerHTML=diceD6svg(results[0]);
-      else wrap.innerHTML=dicePolySvg(tnum,results[0]);
-      setTimeout(()=>{wrap.style.transform='';},180);
-    },130);
+    if(tnum===100){
+      // W100: CSS animation plays for 2.3s, show result text after ball settles
+      wrap.style.transform='';
+      wrap.style.transition='';
+      wrap.innerHTML=dicePolySvg(100,results[0]);
+      if(res) res.textContent='…';
+      setTimeout(()=>{
+        if(res) res.textContent=`${T('diceErgebnis')}: ${results[0]}`;
+      }, 2500);
+    } else {
+      wrap.style.transform='scale(0.75) rotate(20deg)';
+      wrap.style.transition='transform .1s ease-in';
+      setTimeout(()=>{
+        wrap.style.transition='transform .28s cubic-bezier(.34,1.56,.64,1)';
+        wrap.style.transform='scale(1) rotate(-5deg)';
+        if(tnum===6) wrap.innerHTML=diceD6svg(results[0]);
+        else wrap.innerHTML=dicePolySvg(tnum,results[0]);
+        setTimeout(()=>{wrap.style.transform='';},180);
+      },130);
+    }
   }
-  if(res) res.textContent=`${T('diceErgebnis')}: ${results[0]}`;
+  if(tnum!==100 && res) res.textContent=`${T('diceErgebnis')}: ${results[0]}`;
 }
 
 // Roll Jein-mode result and show it in the dice widget's display area
@@ -4777,9 +5078,8 @@ function showSatzbauIdle(uid){
     showSatzbauSetup(uid);
   } else {
     // Show idle columns with small edit button
-    const colsHtml = [1,2,3,4].map(i=>{
-      const hasData = data[i]&&data[i].length>0;
-      return `<div class="satzbau-col ${hasData?'':'empty'}" id="satzbau-field-${uid}-${i}">${hasData?'?':'—'}</div>`;
+    const colsHtml = [1,2,3,4].filter(i=>data[i]&&data[i].length>0).map(i=>{
+      return `<div class="satzbau-col" id="satzbau-field-${uid}-${i}">?</div>`;
     }).join('');
     wrap.innerHTML = `
 <div style="display:flex;flex-direction:column;width:100%;height:100%;gap:.3em;">
@@ -4862,11 +5162,10 @@ function rollSatzbau(uid){
     return arr[bags[i].pop()];
   });
   // Render columns + keep Bearbeiten button
-  const colsHtml = [0,1,2,3].map(i=>{
+  const colsHtml = [0,1,2,3].filter(i=>picked[i]!=='').map((i,idx)=>{
     const val = picked[i];
-    const hasVal = val !== '';
-    const delay = i * 60; // staggered: 0, 60, 120, 180 ms
-    return `<div class="satzbau-col animate ${hasVal?'has-value':'empty'}" style="animation-delay:${delay}ms">${hasVal ? escHtml(val) : '\u2014'}</div>`;
+    const delay = idx * 60;
+    return `<div class="satzbau-col animate has-value" style="animation-delay:${delay}ms">${escHtml(val)}</div>`;
   }).join('');
   if(wrap) setTimeout(()=>{
     wrap.innerHTML = `<div style="display:flex;flex-direction:column;width:100%;height:100%;gap:.3em;"><div class="satzbau-cols" style="flex:1;">${colsHtml}</div><div style="display:flex;justify-content:center;"><button id="satzbau-edit-${uid}" class="satzbau-upload-btn" style="font-size:.7em;padding:.25em .7em;">&#9998; Bearbeiten</button></div></div>`;
@@ -6652,6 +6951,43 @@ function playDrumRoll(durationMs){
   }catch(e){}
 }
 
+function playBallImpact(){
+  try{
+    const ac=new(window.AudioContext||window.webkitAudioContext)();
+    const t=ac.currentTime;
+    // --- thud: low sine burst (ball hitting bottom) ---
+    const osc=ac.createOscillator();
+    const env=ac.createGain();
+    osc.type='sine';
+    osc.frequency.setValueAtTime(180,t);
+    osc.frequency.exponentialRampToValueAtTime(55,t+0.12);
+    env.gain.setValueAtTime(0,t);
+    env.gain.linearRampToValueAtTime(0.7,t+0.008);
+    env.gain.exponentialRampToValueAtTime(0.001,t+0.22);
+    osc.connect(env);env.connect(ac.destination);
+    osc.start(t);osc.stop(t+0.25);
+    // --- click transient: short noise burst ---
+    const buf=ac.createBuffer(1,ac.sampleRate*0.04,ac.sampleRate);
+    const d=buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,3);
+    const ns=ac.createBufferSource();
+    const nf=ac.createBiquadFilter(); nf.type='bandpass'; nf.frequency.value=900; nf.Q.value=0.8;
+    const ng=ac.createGain(); ng.gain.setValueAtTime(0.35,t);
+    ns.buffer=buf;ns.connect(nf);nf.connect(ng);ng.connect(ac.destination);
+    ns.start(t);
+    // --- tiny bounce echo at t+0.48s ---
+    const osc2=ac.createOscillator();
+    const env2=ac.createGain();
+    osc2.type='sine';
+    osc2.frequency.setValueAtTime(130,t+0.48);
+    osc2.frequency.exponentialRampToValueAtTime(45,t+0.56);
+    env2.gain.setValueAtTime(0,t+0.48);
+    env2.gain.linearRampToValueAtTime(0.28,t+0.486);
+    env2.gain.exponentialRampToValueAtTime(0.001,t+0.60);
+    osc2.connect(env2);env2.connect(ac.destination);
+    osc2.start(t+0.48);osc2.stop(t+0.62);
+  }catch(e){}
+}
 function playBoing(){
   if(!soundEnabled) return;
   try{
