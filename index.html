@@ -798,7 +798,7 @@ body.light-mode .wheel-edit-panel textarea{background:var(--bg3)!important;borde
 
 /* T14 Auto-Fit Override: Rad bleibt oben, Ergebnis + Buttons bleiben sichtbar */
 .widget[data-type="wheel"] .widget-body{font-size:calc(var(--uiscale,1)*15px)!important;overflow:hidden!important;padding:0!important;display:flex!important;flex-direction:column!important;}
-.wheel-box{display:flex!important;flex-direction:column!important;gap:8px!important;flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;padding:10px!important;box-sizing:border-box!important;}
+.wheel-box{display:flex;flex-direction:column!important;gap:8px!important;flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;padding:10px!important;box-sizing:border-box!important;}
 .wheel-title{font-size:1.05em!important;font-weight:900!important;color:var(--accent)!important;flex:0 0 auto!important;}
 .wheel-help{font-size:.78em!important;color:var(--text2)!important;line-height:1.25!important;flex:0 0 auto!important;}
 .wheel-title{display:none!important;}
@@ -815,7 +815,7 @@ body.light-mode .wheel-edit-panel textarea{background:var(--bg3)!important;borde
 .wheel-edit{flex:0 0 auto!important;}
 .wheel-edit textarea{min-height:120px!important;font-size:.95em!important;}
 .wheel-tabbar{flex-shrink:0!important;}
-.wheel-edit-panel{flex:0 0 auto!important;max-height:55%!important;}
+.wheel-edit-panel{flex:1 1 auto!important;max-height:none!important;}
 .wheel-edit-panel textarea{min-height:100px!important;font-size:.92em!important;}
 @media(max-width:700px){
   .widget[data-type="wheel"] .widget-body{padding:0!important;overflow:hidden!important;}
@@ -7681,8 +7681,8 @@ function buildAmpelPanel(panel, uid){
 <div id="ampel-scene-${auid}" style="width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#0d1235 0%,#1a2060 40%,#252d7a 75%,#1e2650 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ampelPanelClick(${auid})" title="Klicken zum Neustart">
 
   <!-- Sterne -->
-  <svg style="position:absolute;inset:0;width:100%;height:55%;pointer-events:none;opacity:0.7;" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-    ${[[22,18],[60,8],[95,22],[140,6],[175,15],[210,25],[250,10],[290,20],[330,7],[365,18],[40,40],[110,35],[180,42],[255,38],[320,30],[380,44],[15,55],[80,60],[150,50],[230,58],[310,48],[370,56]].map(([x,y])=>`<circle cx="${x}" cy="${y}" r="${Math.random()<0.3?1.5:1}" fill="white"/>`).join('')}
+  <svg style="position:absolute;inset:0;width:100%;height:72%;pointer-events:none;" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    ${[[254.9,5.6,0.8],[90.9,107.3,1.2],[354.5,14.4,0.8],[202.1,5.8,0.8],[259.1,79.9,0.8],[235.2,117.7,0.8],[320.5,101.8,0.8],[64.3,138.9,0.8],[336.9,88.3,1.2],[290.5,78.7,2.2],[152.1,80.9,1.7],[246.7,125.2,1.2],[280.6,8.6,0.8],[117.0,13.4,0.8],[253.5,54.2,0.8],[85.5,40.2,1.7],[258.3,89.1,0.8],[290.3,25.4,0.8],[392.9,93.5,1.2],[272.7,122.5,1.2],[93.2,6.6,0.8],[108.5,32.2,1.7],[348.3,47.0,1.2],[158.9,132.8,0.8],[224.2,39.6,1.2],[356.7,59.1,0.8],[396.0,74.9,0.8],[250.2,115.3,0.8],[28.0,56.6,2.2],[211.5,140.9,1.7],[7.5,105.1,1.2],[214.6,40.2,1.2],[47.0,64.2,0.8],[378.8,127.2,0.8],[200.2,27.5,1.7],[63.2,111.0,0.8],[309.8,77.8,0.8],[130.7,4.8,1.7],[349.2,120.9,0.8],[25.8,127.6,1.7],[36.7,71.5,0.8],[302.7,111.5,0.8],[190.3,80.6,0.8],[346.7,62.5,0.8],[215.5,106.4,0.8],[125.8,144.3,1.2],[175.6,76.0,0.8],[91.5,50.3,1.2],[93.7,33.5,0.8],[251.7,34.7,1.7],[341.7,12.1,0.8],[266.6,32.6,0.8],[371.6,83.7,0.8],[312.1,117.5,0.8],[290.3,98.3,2.2]].map(([x,y,r],i)=>`<circle id="astar-${auid}-${i}" cx="${x}" cy="${y}" r="${r}" fill="white" opacity="0.7"/>`).join('')}
   </svg>
 
   <!-- Mond (größer, mit Glüh-Halo) -->
@@ -7744,9 +7744,11 @@ function buildAmpelPanel(panel, uid){
     <!-- Fensterreihen -->
     ${Array.from({length:6},(_,r)=>Array.from({length:3},(_,c)=>{
       const lit = (r*3+c+1)%5!==0;
-      return `<rect x="${8+c*24}" y="${22+r*32}" width="14" height="20" rx="1.5"
+      const idx = r*3+c;
+      return `<rect id="aw-bml-${auid}-${idx}" x="${8+c*24}" y="${22+r*32}" width="14" height="20" rx="1.5"
         fill="${lit?'#f5c84488':'rgba(10,15,50,0.6)'}"
-        stroke="${lit?'#c8960a44':'#1a2040'}" stroke-width="1"/>`;
+        stroke="${lit?'#c8960a44':'#1a2040'}" stroke-width="1"
+        data-lit="${lit?1:0}" data-warm="0"/>`;
     }).join('')).join('')}
   </svg>
 
@@ -7764,9 +7766,11 @@ function buildAmpelPanel(panel, uid){
     <!-- Fensterreihen -->
     ${Array.from({length:7},(_,r)=>Array.from({length:3},(_,c)=>{
       const lit = (r+c)%3!==0;
-      return `<rect x="${8+c*26}" y="${18+r*32}" width="16" height="22" rx="1.5"
+      const idx = r*3+c;
+      return `<rect id="aw-bmr-${auid}-${idx}" x="${8+c*26}" y="${18+r*32}" width="16" height="22" rx="1.5"
         fill="${lit?'#ffd05588':'rgba(10,15,50,0.6)'}"
-        stroke="${lit?'#b88a0044':'#1a2040'}" stroke-width="1"/>`;
+        stroke="${lit?'#b88a0044':'#1a2040'}" stroke-width="1"
+        data-lit="${lit?1:0}" data-warm="1"/>`;
     }).join('')).join('')}
   </svg>
 
@@ -7795,8 +7799,10 @@ function buildAmpelPanel(panel, uid){
       const warm = Math.sin(r+c*3)>0;
       const col = lit?(warm?'#ffe08a':'#a8d8ff'):'rgba(8,12,40,0.7)';
       const str = lit?(warm?'#c8960a44':'#5599cc44'):'#1a2040';
-      return `<rect x="${16+c*50}" y="${18+r*35}" width="28" height="22" rx="2"
-        fill="${col}" stroke="${str}" stroke-width="1"/>`;
+      const idx = r*2+c;
+      return `<rect id="aw-bgl-${auid}-${idx}" x="${16+c*50}" y="${18+r*35}" width="28" height="22" rx="2"
+        fill="${col}" stroke="${str}" stroke-width="1"
+        data-lit="${lit?1:0}" data-warm="${warm?1:0}"/>`;
     }).join('')).join('')}
   </svg>
 
@@ -7814,9 +7820,11 @@ function buildAmpelPanel(panel, uid){
     <!-- Fenster -->
     ${Array.from({length:4},(_,r)=>Array.from({length:2},(_,c)=>{
       const lit = (r+c*2)%3!==2;
-      return `<rect x="${8+c*30}" y="${18+r*38}" width="18" height="24" rx="2"
+      const idx = r*2+c;
+      return `<rect id="aw-bsl-${auid}-${idx}" x="${8+c*30}" y="${18+r*38}" width="18" height="24" rx="2"
         fill="${lit?'#ffd04499':'rgba(8,12,40,0.7)'}"
-        stroke="${lit?'#b88a0033':'#1a2040'}" stroke-width="1"/>`;
+        stroke="${lit?'#b88a0033':'#1a2040'}" stroke-width="1"
+        data-lit="${lit?1:0}" data-warm="1"/>`;
     }).join('')).join('')}
     <!-- Eingang unten -->
     <rect x="20" y="155" width="25" height="25" rx="3" fill="rgba(8,12,40,0.8)" stroke="#2e3358" stroke-width="1"/>
@@ -7848,8 +7856,10 @@ function buildAmpelPanel(panel, uid){
       const warm = Math.cos(r*0.8+c)>0;
       const col = lit?(warm?'#ffe08a':'#c8eaff'):'rgba(8,12,40,0.7)';
       const str = lit?(warm?'#c8960a44':'#5599cc44'):'#1a2040';
-      return `<rect x="${14+c*54}" y="${16+r*31}" width="30" height="20" rx="2"
-        fill="${col}" stroke="${str}" stroke-width="1"/>`;
+      const idx = r*2+c;
+      return `<rect id="aw-bgr-${auid}-${idx}" x="${14+c*54}" y="${16+r*31}" width="30" height="20" rx="2"
+        fill="${col}" stroke="${str}" stroke-width="1"
+        data-lit="${lit?1:0}" data-warm="${warm?1:0}"/>`;
     }).join('')).join('')}
   </svg>
 
@@ -7872,9 +7882,11 @@ function buildAmpelPanel(panel, uid){
     ${Array.from({length:5},(_,r)=>Array.from({length:2},(_,c)=>{
       const lit = (r*2+c)%4!==3;
       const warm = (r+c)%2===0;
-      return `<rect x="${8+c*33}" y="${18+r*34}" width="20" height="22" rx="2"
+      const idx = r*2+c;
+      return `<rect id="aw-bsr-${auid}-${idx}" x="${8+c*33}" y="${18+r*34}" width="20" height="22" rx="2"
         fill="${lit?(warm?'#ffd04499':'#b8deff88'):'rgba(8,12,40,0.7)'}"
-        stroke="${lit?'#b88a0033':'#1a2040'}" stroke-width="1"/>`;
+        stroke="${lit?'#b88a0033':'#1a2040'}" stroke-width="1"
+        data-lit="${lit?1:0}" data-warm="${warm?1:0}"/>`;
     }).join('')).join('')}
     <!-- Eingang -->
     <rect x="22" y="165" width="26" height="25" rx="3" fill="rgba(8,12,40,0.8)" stroke="#2e3358" stroke-width="1"/>
@@ -7923,17 +7935,151 @@ function buildAmpelPanel(panel, uid){
   <div id="ampel-cfg-${auid}" style="position:absolute;top:10px;right:10px;display:flex;align-items:center;gap:.5em;background:rgba(0,0,0,0.55);border-radius:12px;padding:.55em 1em;font-size:1em;font-weight:700;color:rgba(255,255,255,0.9);">
     <span style="white-space:nowrap;">${(typeof T!=='undefined'?T('diceGruenDauer'):'Grün-Dauer:')}</span>
     <input type="number" id="sa-min-${auid}" value="10" min="1" max="600" style="width:52px;padding:.25em .4em;border-radius:7px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.5);color:inherit;font-size:1em;text-align:center;">
-    <span>–</span>
+    <span>&#8211;</span>
     <input type="number" id="sa-max-${auid}" value="30" min="1" max="600" style="width:52px;padding:.25em .4em;border-radius:7px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.5);color:inherit;font-size:1em;text-align:center;">
     <span>s</span>
   </div>
+
+  <!-- Start / Pause Knopf -->
+  <button id="ampel-playbtn-${auid}"
+    onclick="event.stopPropagation();ampelPanelToggle(${auid})"
+    style="position:absolute;bottom:14%;left:50%;transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:.55em;padding:.65em 1.6em;font-size:clamp(1em,2.2vw,1.35em);font-weight:900;font-family:Arial,sans-serif;letter-spacing:.04em;color:#fff;background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);border:none;border-radius:50px;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,0.55),0 0 0 3px rgba(255,255,255,0.18);transition:background .2s,transform .12s,box-shadow .2s;white-space:nowrap;pointer-events:all;"
+    onmouseenter="this.style.transform='translateX(-50%) scale(1.07)'"
+    onmouseleave="this.style.transform='translateX(-50%) scale(1)'"
+    onmousedown="this.style.transform='translateX(-50%) scale(0.95)'"
+    onmouseup="this.style.transform='translateX(-50%) scale(1.07)'"
+  >
+    <span id="ampel-playbtn-icon-${auid}" style="font-size:1.2em;line-height:1;">&#9654;</span>
+    <span id="ampel-playbtn-label-${auid}">Start</span>
+  </button>
 </div>`;
   // Ampel cycle is started by spieleShowTab when the ampel tab is first selected
+}
+
+// ════════════════════════════════════════════════
+// AMPEL LIVE ANIMATION: Fenster & Sterne
+// ════════════════════════════════════════════════
+const _ampelAnim = {}; // auid -> { rafId, starPhases[], windowTimers[] }
+
+function ampelAnimStart(auid){
+  ampelAnimStop(auid);
+  const state = { stopped: false, starPhases: [], windowTimers: [] };
+  _ampelAnim[auid] = state;
+
+  // ── Sterne: Schimmern + kurzes Aufblitzen ──
+  const NUM_STARS = 55;
+  // Layer 1: langsame Sinuswelle (Schimmern)
+  // Layer 2: kurzes Aufblitzen (twinkle) – unabhängiger schneller Sinus mit Ruhezeit
+  for(let i = 0; i < NUM_STARS; i++){
+    state.starPhases.push({
+      // Schimmer
+      phase:    Math.random() * Math.PI * 2,
+      speed:    0.3 + Math.random() * 0.7,      // rad/s – langsam
+      minOp:    0.25 + Math.random() * 0.2,
+      maxOp:    0.62 + Math.random() * 0.2,
+      // Twinkle-Blitz
+      tPhase:   Math.random() * Math.PI * 2,
+      tSpeed:   4 + Math.random() * 8,           // rad/s – schnell
+      tActive:  false,
+      tTimer:   Math.random() * 6,               // Sekunden bis zum nächsten Blitz
+      tDur:     0,
+    });
+  }
+  let lastTs = null;
+  function animStars(ts){
+    if(state.stopped) return;
+    const dt = lastTs ? (ts - lastTs) / 1000 : 0.016;
+    lastTs = ts;
+    for(let i = 0; i < NUM_STARS; i++){
+      const sp = state.starPhases[i];
+
+      // Schimmer-Basis
+      sp.phase += sp.speed * dt;
+      const base = (Math.sin(sp.phase) + 1) / 2;
+      let op = sp.minOp + base * (sp.maxOp - sp.minOp);
+
+      // Twinkle-Blitz
+      if(sp.tActive){
+        sp.tPhase += sp.tSpeed * dt;
+        const flash = Math.max(0, Math.sin(sp.tPhase));       // 0..1 schnelle Halbwelle
+        op = Math.min(1, op + flash * (1.0 - op) * 0.92);    // hoch auf fast 1.0
+        sp.tDur -= dt;
+        if(sp.tDur <= 0) sp.tActive = false;
+      } else {
+        sp.tTimer -= dt;
+        if(sp.tTimer <= 0){
+          sp.tActive = true;
+          sp.tPhase  = 0;
+          sp.tDur    = 0.18 + Math.random() * 0.22;           // 180–400 ms Blitz
+          sp.tTimer  = 3 + Math.random() * 12;                // 3–15 s bis zum nächsten
+        }
+      }
+
+      const el = document.getElementById('astar-' + auid + '-' + i);
+      if(el) el.setAttribute('opacity', op.toFixed(3));
+    }
+    state.rafId = requestAnimationFrame(animStars);
+  }
+  state.rafId = requestAnimationFrame(animStars);
+
+  // ── Fenster: zufälliges Ein-/Ausschalten ──
+  // Gebäude-Präfixe und Anzahl Fenster
+  const BUILDINGS = [
+    { prefix: 'bml', count: 18, litColor: () => '#f5c84488', darkColor: 'rgba(10,15,50,0.6)', litStroke: () => '#c8960a44', darkStroke: '#1a2040' },
+    { prefix: 'bmr', count: 21, litColor: () => '#ffd05588', darkColor: 'rgba(10,15,50,0.6)', litStroke: () => '#b88a0044', darkStroke: '#1a2040' },
+    { prefix: 'bgl', count: 18, litColor: (w) => w ? '#ffe08a' : '#a8d8ff', darkColor: 'rgba(8,12,40,0.7)', litStroke: (w) => w ? '#c8960a44' : '#5599cc44', darkStroke: '#1a2040' },
+    { prefix: 'bsl', count:  8, litColor: () => '#ffd04499', darkColor: 'rgba(8,12,40,0.7)',  litStroke: () => '#b88a0033', darkStroke: '#1a2040' },
+    { prefix: 'bgr', count: 22, litColor: (w) => w ? '#ffe08a' : '#c8eaff', darkColor: 'rgba(8,12,40,0.7)', litStroke: (w) => w ? '#c8960a44' : '#5599cc44', darkStroke: '#1a2040' },
+    { prefix: 'bsr', count: 10, litColor: (w) => w ? '#ffd04499' : '#b8deff88', darkColor: 'rgba(8,12,40,0.7)', litStroke: () => '#b88a0033', darkStroke: '#1a2040' },
+  ];
+
+  function scheduleWindowFlicker(){
+    if(state.stopped) return;
+    // Pick a random building, random window
+    const bld = BUILDINGS[Math.floor(Math.random() * BUILDINGS.length)];
+    const idx = Math.floor(Math.random() * bld.count);
+    const el = document.getElementById('aw-' + bld.prefix + '-' + auid + '-' + idx);
+    if(el){
+      const currently = el.getAttribute('data-lit') === '1';
+      const warm = el.getAttribute('data-warm') === '1';
+      // Toggle
+      const nowLit = !currently;
+      el.setAttribute('data-lit', nowLit ? '1' : '0');
+      // Smooth transition via style
+      el.style.transition = 'fill 0.6s ease, opacity 0.6s ease';
+      if(nowLit){
+        el.setAttribute('fill', typeof bld.litColor === 'function' ? bld.litColor(warm) : bld.litColor);
+        el.setAttribute('stroke', typeof bld.litStroke === 'function' ? bld.litStroke(warm) : bld.litStroke);
+      } else {
+        el.setAttribute('fill', bld.darkColor);
+        el.setAttribute('stroke', bld.darkStroke);
+      }
+    }
+    // Next flicker: 1.5–8s (feels organic, not frantic)
+    const delay = 1500 + Math.random() * 6500;
+    const tid = setTimeout(scheduleWindowFlicker, delay);
+    state.windowTimers.push(tid);
+  }
+  // Stagger a few independent flicker streams so multiple windows can change at once
+  for(let s = 0; s < 4; s++){
+    const tid = setTimeout(scheduleWindowFlicker, Math.random() * 3000);
+    state.windowTimers.push(tid);
+  }
+}
+
+function ampelAnimStop(auid){
+  const st = _ampelAnim[auid];
+  if(!st) return;
+  st.stopped = true;
+  if(st.rafId) cancelAnimationFrame(st.rafId);
+  st.windowTimers.forEach(t => clearTimeout(t));
+  delete _ampelAnim[auid];
 }
 
 // Global state for Ampel Panel
 const _apTimers = {};
 const _apState  = {};
+const _apPaused = {}; // auid -> true if paused
 
 // ── Ampel: Stadtgeräusche (Web Audio, synthetisch) ──
 const _cityAudio = {}; // auid -> { ctx, nodes[], stopped }
@@ -8100,8 +8246,27 @@ function ampelPanelSetLight(auid, state){
   _apState[auid] = state;
 }
 
+function _ampelBtnSetRunning(auid, running){
+  const icon  = document.getElementById('ampel-playbtn-icon-'+auid);
+  const label = document.getElementById('ampel-playbtn-label-'+auid);
+  const btn   = document.getElementById('ampel-playbtn-'+auid);
+  if(!btn) return;
+  if(running){
+    if(icon)  icon.innerHTML  = '&#9646;&#9646;';
+    if(label) label.textContent = 'Pause';
+    btn.style.background = 'linear-gradient(135deg,#f59e0b 0%,#d97706 100%)';
+  } else {
+    if(icon)  icon.innerHTML  = '&#9654;';
+    if(label) label.textContent = 'Start';
+    btn.style.background = 'linear-gradient(135deg,#22c55e 0%,#16a34a 100%)';
+  }
+}
+
 function ampelPanelStart(auid){
   if(_apTimers[auid]){clearTimeout(_apTimers[auid]);delete _apTimers[auid];}
+  _apPaused[auid] = false;
+  _ampelBtnSetRunning(auid, true);
+  ampelAnimStart(auid); // Sterne + Fenster-Animation starten
   const minEl = document.getElementById('sa-min-'+auid);
   const maxEl = document.getElementById('sa-max-'+auid);
   const minS  = Math.max(1, parseInt(minEl?.value||10));
@@ -8115,25 +8280,57 @@ function ampelPanelStart(auid){
       if(!document.getElementById('ampel-rot-'+auid)) return;
       ampelPanelSetLight(auid, 'rot');
       cityStop(auid); // Stadtgeräusche stoppen bei Rot
-      // Stay on rot until manual restart
+      _apPaused[auid] = false;
+      _ampelBtnSetRunning(auid, false); // back to Start after cycle ends
     }, 3000);
   }, gruenMs);
 }
 
+function ampelPanelPause(auid){
+  if(_apTimers[auid]){clearTimeout(_apTimers[auid]);delete _apTimers[auid];}
+  cityStop(auid);
+  ampelAnimStop(auid); // Fenster-Animation einfrieren
+  _apPaused[auid] = true;
+  _ampelBtnSetRunning(auid, false);
+  // freeze current light (no state change)
+}
+
+function ampelPanelToggle(auid){
+  try{const ac=window._pzAudioCtx||new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
+  if(_apPaused[auid] || !_apTimers[auid]){
+    // Start or Resume
+    cityStart(auid);
+    ampelPanelStart(auid);
+  } else {
+    // Pause
+    ampelPanelPause(auid);
+  }
+}
+
 function ampelPanelClick(auid){
-  try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
-  ampelPanelStart(auid); // cityStart is called by spieleShowTab when ampel tab is active
+  // Click on scene = Neustart (restart cycle + city sounds)
+  try{const ac=window._pzAudioCtx||new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
+  cityStart(auid);
+  ampelPanelStart(auid);
 }
 
 function spieleShowTab(tab, uid){
-  // City sounds: start when ampel tab selected, stop when leaving it
+  // City sounds: stop when leaving ampel tab
   const auid = uid * 1000 + 5;
   if(tab === 'ampel'){
-    cityStart(auid);
-    setTimeout(()=>ampelPanelStart(auid), 50);
+    // Don't auto-start cycle: user clicks the Start button
+    // Always start the visual live animation (stars + windows) when entering the tab
+    ampelAnimStart(auid);
+    // Reset button to "Start" state when entering the tab fresh (if not currently running)
+    if(!_apTimers[auid]){
+      _apPaused[auid] = false;
+      _ampelBtnSetRunning(auid, false);
+    }
   } else {
     cityStop(auid);
     if(_apTimers[auid]){clearTimeout(_apTimers[auid]);delete _apTimers[auid];}
+    _apPaused[auid] = false;
+    ampelAnimStop(auid); // Animation stoppen beim Tab-Wechsel
   }
   ['rad','slot','janken','puzzle','ampel'].forEach(t=>{
     const panel=document.getElementById(`spiele-panel-${t}-${uid}`);
