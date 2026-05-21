@@ -781,6 +781,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   display:flex;gap:6px;align-items:center;
   padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;
   border-bottom:1px solid rgba(255,255,255,.08);
+  width:100%;box-sizing:border-box;
 }
 .wheel-edit-panel{
   display:none;flex-direction:column;gap:10px;
@@ -803,8 +804,8 @@ body.light-mode .wheel-edit-panel textarea{background:var(--bg3)!important;borde
 .wheel-help{font-size:.78em!important;color:var(--text2)!important;line-height:1.25!important;flex:0 0 auto!important;}
 .wheel-title{display:none!important;}
 .wheel-help{display:none!important;}
-.wheel-stage{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;min-height:0!important;flex:1 1 auto!important;max-height:calc(100% - 110px)!important;}
-.wheel-canvas{width:auto!important;height:auto!important;max-width:min(100%,380px)!important;max-height:100%!important;aspect-ratio:1/1!important;display:block!important;}
+.wheel-stage{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;min-height:0!important;flex:1 1 auto!important;max-height:100%!important;}
+.wheel-canvas{width:auto!important;height:auto!important;max-width:min(100%,560px)!important;max-height:100%!important;aspect-ratio:1/1!important;display:block!important;}
 .wheel-pointer{left:50%!important;top:-14px!important;transform:translateX(-50%)!important;cursor:pointer!important;user-select:none!important;transition:transform .15s, filter .15s!important;}
 .wheel-pointer.active{transform:translateX(-50%) scale(1.15)!important;filter:brightness(1.45) drop-shadow(0 0 10px rgba(108,143,255,.9))!important;}
 .wheel-result{font-size:1.55em!important;min-height:2.05em!important;padding:.45em!important;flex:1 1 auto!important;}
@@ -822,7 +823,7 @@ body.light-mode .wheel-edit-panel textarea{background:var(--bg3)!important;borde
   .wheel-box{gap:7px!important;padding:8px!important;}
   .wheel-title{font-size:1em!important;}
   .wheel-help{display:none!important;}
-  .wheel-stage{max-height:calc(100% - 145px)!important;}
+  .wheel-stage{max-height:100%!important;}
   .wheel-pointer{left:50%!important;top:-14px!important;}
   .wheel-result{font-size:1.35em!important;min-height:2em!important;padding:.4em!important;}
   .wheel-controls .wbtn{font-size:1em!important;padding:.58em .95em!important;}
@@ -3424,8 +3425,15 @@ function buildTimer(body,uid){
 </div>
 <div id="tview-lauf-${uid}" style="display:none;width:100%;flex:1;min-height:130px;cursor:pointer;overflow:hidden;border-radius:10px;position:relative;" onclick="startTimer(${uid})" title="Klicken zum Starten / Pausieren">
   <svg id="lauf-svg-${uid}" viewBox="0 0 790 160" width="100%" height="100%" style="display:block;" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-    <!-- Himmel -->
-    <rect x="0" y="0" width="790" height="160" fill="#87CEEB"/>
+    <!-- Himmel (Farbe wird per JS animiert) -->
+    <rect id="lauf-sky-${uid}" x="0" y="0" width="790" height="160" fill="#f9c27a"/>
+    <!-- Sonne (groß, ohne Striche, mit weichen Glüh-Halos) -->
+    <g id="lauf-sun-${uid}" transform="translate(50,145)">
+      <circle r="38" fill="#FFD700" opacity="0.08"/>
+      <circle r="28" fill="#FFD700" opacity="0.15"/>
+      <circle r="20" fill="#ffe066" opacity="0.35"/>
+      <circle id="lauf-sunbody-${uid}" r="22" fill="#FFD700"/>
+    </g>
     <!-- Wolken — einige mit ID für Bewegungs-Animation -->
     <g id="lauf-cloud1-${uid}"><ellipse cx="120" cy="30" rx="40" ry="18" fill="white" opacity=".85"/><ellipse cx="150" cy="25" rx="30" ry="15" fill="white" opacity=".85"/><ellipse cx="88" cy="32" rx="22" ry="11" fill="white" opacity=".75"/></g>
     <g id="lauf-cloud2-${uid}"><ellipse cx="310" cy="18" rx="35" ry="13" fill="white" opacity=".7"/><ellipse cx="340" cy="14" rx="22" ry="10" fill="white" opacity=".7"/></g>
@@ -3561,6 +3569,20 @@ function buildTimer(body,uid){
     <!-- Vogel (nur Variante 2, standardmäßig hidden) — BLAU, zentriert bei cx=395,cy=52 -->
     <!-- Alle Elemente relativ zu Mitte 395: Kopf rechts, Schwanz links, Flügel oben/unten -->
     <!-- Bei scale(-1,1) um x=395 → Kopf zeigt links = korrekt gespiegelt -->
+    <!-- Vogelnest — nur bei Variante 2, auf Dachmitte -->
+    <g id="lauf-nest-${uid}" visibility="hidden">
+      <!-- Nestschale aus geflochtenen Zweigen -->
+      <ellipse cx="395" cy="60" rx="13" ry="5" fill="#8B5E3C"/>
+      <ellipse cx="395" cy="59" rx="10" ry="3.5" fill="#6B4423"/>
+      <!-- Innere Nestmulde (heller) -->
+      <ellipse cx="395" cy="59" rx="7" ry="2.2" fill="#A0784A"/>
+      <!-- Zweig-Textur oben links -->
+      <path d="M382,59 Q386,55 390,59" stroke="#5a3000" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M384,61 Q388,57 392,60" stroke="#5a3000" stroke-width="1" fill="none" stroke-linecap="round"/>
+      <!-- Zweig-Textur oben rechts -->
+      <path d="M400,59 Q404,55 408,59" stroke="#5a3000" stroke-width="1.2" fill="none" stroke-linecap="round"/>
+      <path d="M399,61 Q403,57 407,60" stroke="#5a3000" stroke-width="1" fill="none" stroke-linecap="round"/>
+    </g>
     <g id="lauf-bird-${uid}" visibility="hidden">
       <!-- Körper (Ellipse, Mitte x=395) -->
       <ellipse cx="395" cy="52" rx="10" ry="5.5" fill="#2980b9"/>
@@ -3660,9 +3682,15 @@ function buildTimer(body,uid){
   </div>
 </div>`;
   timerTotalMap[uid] = 300;
+  timerSec = 300;
+  // Kreis sofort korrekt befüllt anzeigen
+  const _arc = document.getElementById('sw-arc-'+uid);
+  if(_arc) _arc.style.strokeDashoffset = '0';
+  updateAllTimerDisplays();
 }
 
 function setTimerMode(mode, uid){
+  if(mode === 'laufer') resetTimer(uid);
   document.getElementById('tview-ring-'+uid).style.display  = mode==='ring'    ? 'flex'  : 'none';
   document.getElementById('tview-digi-'+uid).style.display  = mode==='digital'  ? 'block' : 'none';
   document.getElementById('tview-lauf-'+uid).style.display  = mode==='laufer'   ? 'block' : 'none';
@@ -3699,7 +3727,7 @@ function updateAllTimerDisplays(){
     const col=timerColor(timerSec,total);
     el.style.color=timerSec<=10?'#f87171':col;
     const arc=document.getElementById('sw-arc-'+uid);
-    if(arc){arc.style.stroke=col;arc.style.strokeDashoffset=String(CIRC*(1-timerSec/total));}
+    if(arc){arc.style.stroke=col;arc.style.strokeDashoffset=String(timerTotalMap[uid] ? CIRC*(1-timerSec/total) : 0);}
     const svgTxt=document.getElementById('td-svg-'+uid);
     if(svgTxt){svgTxt.textContent=fmtTime(timerSec);svgTxt.style.fill=timerSec<=10?'#f87171':col;}
     const digi=document.getElementById('td-digi-'+uid);
@@ -3717,23 +3745,25 @@ function setTimer(min,sec,uid){
 function startTimer(uid){
   if(timerRunning){pauseTimer();return;}
   const wasPaused = (timerSec > 0 && timerTotalMap[uid] && timerSec < timerTotalMap[uid]);
+  const lauferMode = !!document.querySelector('.timer-mode-btn.active-tmode[id^="tbtn-lauf-"]');
+  // Läufer: bei jedem frischen Start (nicht Fortsetzen nach Pause) Reset
+  if(lauferMode && !wasPaused) resetTimer(uid);
   if(uid && !wasPaused){
     const minEl=document.getElementById('tmin-'+uid),secEl=document.getElementById('tsec-'+uid);
     timerSec=(parseInt(minEl?.value)||0)*60+(parseInt(secEl?.value)||0);
     timerTotalMap[uid]=timerSec;
   }
   if(timerSec<=0)return;
-  // Knall beim (frischen) Start
-  // Knall nur im Läufer-Modus
-  const lauferMode = !!document.querySelector('.timer-mode-btn.active-tmode[id^="tbtn-lauf-"]');
   if(!wasPaused && lauferMode) playSound('Knall',0.85);
   timerRunning=true;
-  // Start smooth runner animation
-  document.querySelectorAll('[id^="td-"]').forEach(el=>{
-    if(!el.id.startsWith('td-') || el.id.startsWith('td-digi-') || el.id.startsWith('td-svg-')) return;
-    const u=el.id.replace('td-','');
-    if(document.getElementById('lauf-runner-'+u)) lauferStartRaf(u);
-  });
+  // Start smooth runner animation – nur im Läufer-Modus
+  if(lauferMode){
+    document.querySelectorAll('[id^="td-"]').forEach(el=>{
+      if(!el.id.startsWith('td-') || el.id.startsWith('td-digi-') || el.id.startsWith('td-svg-')) return;
+      const u=el.id.replace('td-','');
+      if(document.getElementById('lauf-runner-'+u)) lauferStartRaf(u);
+    });
+  }
   timerInterval=setInterval(()=>{
     timerSec--;if(timerSec<=0){timerSec=0;clearInterval(timerInterval);timerRunning=false;playTimerEnd();}
     updateAllTimerDisplays();
@@ -3746,6 +3776,7 @@ function resetTimer(uid){
   timerTotalMap[uid]=timerSec;
   if(lauferRaf[uid]){cancelAnimationFrame(lauferRaf[uid]);lauferRaf[uid]=null;}
   lauferPos[uid]=0;
+  lauferPhase[uid]=0;
   lauferLastTick[uid]=0;
   lauferDt[uid]=0.016;
   if(typeof lauferDogPlayed!=='undefined') lauferDogPlayed[uid]=false;
@@ -3757,12 +3788,19 @@ function resetTimer(uid){
   if(dog){ dog.setAttribute('visibility','hidden'); dog.setAttribute('transform','translate(0,0)'); }
   const bird=document.getElementById('lauf-bird-'+uid);
   if(bird){ bird.setAttribute('visibility','hidden'); bird.setAttribute('transform','translate(0,0)'); }
+  const nest=document.getElementById('lauf-nest-'+uid);
+  if(nest){ nest.setAttribute('visibility','hidden'); }
   const cat=document.getElementById('lauf-cat-'+uid);
   if(cat){ cat.setAttribute('visibility','hidden'); }
   const cat2=document.getElementById('lauf-cat2-'+uid);
   if(cat2){ cat2.setAttribute('visibility','hidden'); }
   if(typeof lauferCat2Shown!=='undefined') lauferCat2Shown[uid]=false;
   lauferVariant[uid]=0; // reset → new variant chosen at next half-time
+  // Neue Variante sofort wählen (verhindert wiederholtes gleiche Tier)
+  const _prevVariant = lauferVariant[uid] || 0;
+  let _newVariant;
+  do { _newVariant = Math.floor(Math.random()*3)+1; } while(_newVariant === _prevVariant);
+  lauferVariant[uid] = _newVariant;
   lauferBirdY[uid]=0;
   if(lauferCatTimer[uid]){ clearTimeout(lauferCatTimer[uid]); lauferCatTimer[uid]=null; }
   const mouse=document.getElementById('lauf-mouse-'+uid);
@@ -3905,8 +3943,8 @@ function lauferDrawFrame(uid){
     if(frame) frame.setAttribute('opacity', (ang * 0.7).toFixed(2));
   }
 
-  // ── Zufalls-Variante beim ersten Halbzeit-Erreichen wählen ──
-  if(halfPassed && !lauferVariant[uid]){
+  // ── Variante: wird beim Reset zufällig gewählt, hier nur Fallback ──
+  if(!lauferVariant[uid]){
     lauferVariant[uid] = Math.floor(Math.random()*3)+1; // 1=Hund, 2=Vogel, 3=Katze
   }
   const variant = lauferVariant[uid] || 1;
@@ -3973,17 +4011,25 @@ function lauferDrawFrame(uid){
     lauferDogX[uid] = 0;
   }
 
-  // ── Variante 2: Vogel sitzt bis Halbzeit auf dem Dach, fliegt danach ──
+  // ── Variante 2: Vogel sitzt bis Halbzeit im Nest, fliegt danach ──
+  const nestEl = document.getElementById('lauf-nest-'+uid);
   if(variant===2 && bird){
     if(!halfPassed){
-      // Auf dem Dach sitzen — keine Transformation, Originalposition (x=395,y=52 = Dachspitze)
-      bird.setAttribute('transform', 'translate(0,0)');
-      // Flügel in Ruheposition
+      // Nest anzeigen, Vogel sitzt darin (leicht nach unten versetzt ins Nest)
+      if(nestEl) nestEl.setAttribute('visibility','visible');
+      bird.setAttribute('visibility','visible');
+      bird.setAttribute('transform', 'translate(0,7)'); // Vogel sitzt tief im Nest
+      // Flügel in Ruheposition, leicht angelegt
       const wingEl  = document.getElementById('lauf-bird-wing-'+uid);
       const wingEl2 = document.getElementById('lauf-bird-wing2-'+uid);
-      if(wingEl)  wingEl.setAttribute('d',  'M390,50 Q388,43 396,47');
-      if(wingEl2) wingEl2.setAttribute('d', 'M390,53 Q388,60 396,56');
+      if(wingEl)  wingEl.setAttribute('d',  'M390,50 Q388,45 396,48');
+      if(wingEl2) wingEl2.setAttribute('d', 'M390,53 Q388,58 396,55');
+      // Kleines Nicken im Nest
+      const nestBob = timerRunning ? Math.sin((lauferPhase[uid]||0)/1000 * Math.PI * 0.8) * 1.2 : 0;
+      bird.setAttribute('transform', `translate(0,${(7+nestBob).toFixed(2)})`);
     } else {
+      // Nest ausblenden wenn Vogel fliegt
+      if(nestEl) nestEl.setAttribute('visibility','hidden');
     if(!lauferDogActive[uid]){
       lauferDogActive[uid] = true;
       if(!lauferDogPlayed[uid]){
@@ -4210,6 +4256,57 @@ function lauferDrawFrame(uid){
     if(earEl){
       const earRot = -15 + dogPhase * 8;
       earEl.setAttribute('transform', `rotate(${earRot.toFixed(1)},369,113)`);
+    }
+  }
+
+  // ── Sonne: parabolischer Bogen von links nach rechts ──
+  const sunEl  = document.getElementById('lauf-sun-'+uid);
+  const skyEl  = document.getElementById('lauf-sky-'+uid);
+  if(sunEl){
+    // p = 0 (Start) … 1 (Ziel), basierend auf Läufer-Position
+    const p = Math.min(1, Math.max(0, tx / 750));
+
+    // Parabolischer Bogen: x von 55 (hinter linkem Hügel) bis 735 (hinter rechtem Hügel)
+    // y: Parabel mit Scheitelpunkt bei p=0.5 → y_min=10 (oben), y_start=y_end=148 (hinter Hügeln)
+    const sunX = 55 + p * (735 - 55);
+    const sunY = 148 - 4 * 138 * p * (1 - p);  // Parabel: y=148 bei p=0 und p=1, y=10 bei p=0.5
+
+    sunEl.setAttribute('transform', `translate(${sunX.toFixed(1)},${sunY.toFixed(1)})`);
+
+    // Sonne verstecken wenn hinter Hügeln (am Anfang und Ende)
+    // Linker Hügel verdeckt bis ca. x=80, rechter ab ca. x=710
+    const sunVisible = p > 0.04 && p < 0.96;
+    sunEl.setAttribute('opacity', sunVisible ? '1' : '0');
+
+    // Sonnenfarbe: orange bei Aufgang/Untergang, gelb in der Mitte
+    const sunBody = document.getElementById('lauf-sunbody-'+uid) || sunEl.querySelector('circle:last-child');
+    if(sunBody){
+      // Farbübergang: p=0..0.15 orange→gelb, p=0.85..1 gelb→orange
+      const midFactor = Math.min(1, Math.min(p, 1-p) / 0.15);
+      const r = Math.round(255);
+      const g = Math.round(165 + midFactor * (215 - 165));  // 165→215
+      const b = Math.round(0   + midFactor * (0));
+      sunBody.setAttribute('fill', `rgb(${r},${g},${b})`);
+    }
+
+    // Himmelfarbe: Morgenrot → Tagesblau → Abendrot
+    if(skyEl){
+      let skyColor;
+      if(p < 0.12){
+        // Morgendämmerung: orangerot → hellblau
+        const f = p / 0.12;
+        const sr=Math.round(249 + f*(135-249)), sg=Math.round(194+f*(206-194)), sb=Math.round(122+f*(235-122));
+        skyColor = `rgb(${sr},${sg},${sb})`;
+      } else if(p < 0.85){
+        // Tagesblau
+        skyColor = '#87CEEB';
+      } else {
+        // Abenddämmerung: hellblau → orangerot
+        const f = (p - 0.85) / 0.15;
+        const er=Math.round(135+f*(249-135)), eg=Math.round(206+f*(140-206)), eb=Math.round(235+f*(80-235));
+        skyColor = `rgb(${er},${eg},${eb})`;
+      }
+      skyEl.setAttribute('fill', skyColor);
     }
   }
 }
@@ -4639,6 +4736,9 @@ function buildDice(body,uid){
 // Zufall-aus (bag shuffle) state
 const diceZufallOff = {}; // uid -> true if "Zufall aus" mode active
 const diceBag = {};       // uid -> {sides: [...remaining values]}
+// Euro-Modus: Geldstück-Zähler und aktuelle Münzliste
+const euroCount = {};     // uid -> current count of items shown (1..8)
+const euroItems = {};     // uid -> [{type:'note'|'coin', val:number}, ...]
 
 function toggleDiceZufall(uid){
   try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
@@ -4670,6 +4770,8 @@ function selectDiceType(sides, uid){
     const b=document.getElementById('dtbtn-'+s+'-'+uid);
     if(b) b.classList.toggle('active-dice', s===sides);
   });
+  // Reset Euro counter when (re-)entering Euro mode
+  if(sides==='euro'){ euroCount[uid]=0; euroItems[uid]=[]; }
   ['text','smiley','color'].forEach(m=>{
     const b=document.getElementById('dtbtn-jein-'+m+'-'+uid);
     if(b) b.classList.toggle('active-jmode', sides==='jein-'+m);
@@ -4727,21 +4829,47 @@ function updateDiceGraphic(uid){
   const t=document.getElementById('dicetype-'+uid)?.value;
   const wrap=document.getElementById('dicewrap-'+uid); if(!wrap)return;
   if(t==='euro'){
-    wrap.innerHTML=`<svg viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">
+    // Idle-Anzeige: 3 Münzen + 2 Scheine als Vorschau, gedimmt
+    wrap.innerHTML=`<svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:0.55;">
+      <!-- Schein 5€ grün -->
       <defs>
-        <linearGradient id="noteGradP" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#8ab4d4"/><stop offset="50%" stop-color="#5a8fb8"/><stop offset="100%" stop-color="#3a6a94"/>
-        </linearGradient>
+        <linearGradient id="idleN1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#b5cfab"/><stop offset="100%" stop-color="#4e8428"/></linearGradient>
+        <linearGradient id="idleN2" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#f0d080"/><stop offset="100%" stop-color="#c89000"/></linearGradient>
+        <radialGradient id="idleC1" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#d4743a"/><stop offset="100%" stop-color="#8a3e10"/></radialGradient>
+        <radialGradient id="idleC2" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#e8c040"/><stop offset="100%" stop-color="#9c7408"/></radialGradient>
+        <radialGradient id="idleC3" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#e8e8e8"/><stop offset="100%" stop-color="#909090"/></radialGradient>
       </defs>
-      <rect x="4" y="4" width="212" height="102" rx="7" fill="url(#noteGradP)" stroke="#2a5070" stroke-width="1.5"/>
-      <rect x="9" y="9" width="202" height="92" rx="5" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.8"/>
-      <rect x="64" y="4" width="3.5" height="102" fill="rgba(0,0,0,0.22)" rx="1"/>
-      <rect x="65" y="4" width="1.5" height="102" fill="rgba(255,255,255,0.13)" rx="1"/>
-      <rect x="150" y="14" width="56" height="82" rx="4" fill="rgba(0,0,0,0.07)"/>
-      <path d="M158,82 L158,42 Q158,26 173,26 Q188,26 188,42 L188,82" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1.8"/>
-      <text x="110" y="55" text-anchor="middle" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="700" font-size="13" fill="rgba(255,255,255,0.45)">${T('diceClickHint')}</text>
-      <text x="15" y="20" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.4)">★★★</text>
-      <text x="140" y="20" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.4)">★★★</text>
+      <!-- Schein 1: 5€ links -->
+      <rect x="8" y="20" width="120" height="60" rx="4" fill="url(#idleN1)" stroke="#3a6e1a" stroke-width="1"/>
+      <rect x="8" y="20" width="34" height="60" rx="4" fill="rgba(90,158,56,0.4)"/>
+      <rect x="10" y="22" width="116" height="56" rx="2" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.6"/>
+      <text x="12" y="34" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="rgba(255,255,255,0.7)">€</text>
+      <text x="34" y="53" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="26" fill="rgba(255,255,255,0.85)">5</text>
+      <text x="12" y="76" font-family="Arial,sans-serif" font-size="5" fill="rgba(255,255,255,0.35)">★★★★★★★★★★★★</text>
+      <!-- Schein 2: 20€ rechts -->
+      <rect x="172" y="20" width="120" height="60" rx="4" fill="url(#idleN2)" stroke="#a87800" stroke-width="1"/>
+      <rect x="172" y="20" width="34" height="60" rx="4" fill="rgba(212,160,32,0.4)"/>
+      <rect x="174" y="22" width="116" height="56" rx="2" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="0.6"/>
+      <text x="176" y="34" font-family="Arial,sans-serif" font-size="9" font-weight="700" fill="rgba(255,255,255,0.7)">€</text>
+      <text x="196" y="53" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="22" fill="rgba(255,255,255,0.85)">20</text>
+      <text x="176" y="76" font-family="Arial,sans-serif" font-size="5" fill="rgba(255,255,255,0.35)">★★★★★★★★★★★★</text>
+      <!-- Münze 1: 50ct Gold -->
+      <circle cx="70" cy="128" r="22" fill="url(#idleC2)"/>
+      <circle cx="70" cy="128" r="16" fill="#f8dc70" opacity="0.7"/>
+      <text x="70" y="125" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="12" fill="rgba(255,255,255,0.85)">50</text>
+      <text x="70" y="139" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="rgba(255,255,255,0.65)">ct</text>
+      <!-- Münze 2: 1€ bicolor -->
+      <circle cx="150" cy="128" r="22" fill="url(#idleC2)"/>
+      <circle cx="150" cy="128" r="16" fill="url(#idleC3)"/>
+      <text x="150" y="125" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="14" fill="rgba(255,255,255,0.85)">1</text>
+      <text x="150" y="139" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="rgba(255,255,255,0.65)">€</text>
+      <!-- Münze 3: 1ct Kupfer -->
+      <circle cx="230" cy="128" r="16" fill="url(#idleC1)"/>
+      <circle cx="230" cy="128" r="11" fill="#e89060" opacity="0.7"/>
+      <text x="230" y="125" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="rgba(255,255,255,0.85)">1</text>
+      <text x="230" y="136" text-anchor="middle" font-family="Arial,sans-serif" font-size="5" fill="rgba(255,255,255,0.65)">ct</text>
+      <!-- Hinweis-Text -->
+      <text x="150" y="8" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,0.45)">${T('diceClickHint')}</text>
     </svg>`;
   } else {
     const tnum=parseInt(t||6);
@@ -4764,7 +4892,7 @@ function rollDice(uid){
     return;
   }
   if(type==='euro'){
-    playSound('Glocke',0.9);
+    playSound('Glocke',0.7);
   } else if(parseInt(type||6)===100){
     playBallImpact();
   } else {
@@ -4774,166 +4902,297 @@ function rollDice(uid){
   const wrap=document.getElementById('dicewrap-'+uid);
   const res=document.getElementById('diceres-'+uid);
   if(type==='euro'){
-    // ── Hilfsfunktionen ──
-    const noteValues = [10,20,50,100,200];
-    const centValues = [1,2,5,10,20,50];
+    // ══════════════════════════════════════════════════════════
+    // EURO-MODUS: Progressiv 1→8 Geldstücke, getreu dem Vorbild
+    // ══════════════════════════════════════════════════════════
+
+    // ── Alle Geldwerte (Scheine + Münzen) ──
+    const noteValues = [5,10,20,50,100,200];
+    const coinValues = [1,2,5,10,20,50,100,200]; // ct=1..50, Euro=100(=1€),200(=2€)
+
+    // Schein-Farben angelehnt an echte EUR-Noten
     const noteColors = {
-      10:  ['#e8c87a','#d4a843','#b8891c'],
-      20:  ['#8ab4d4','#5a8fb8','#3a6a94'],
-      50:  ['#e8a06a','#d47438','#b85416'],
-      100: ['#a8c87a','#7aab48','#568a2c'],
-      200: ['#e8da8a','#d4be54','#b89e2c'],
+      5:   { bg:['#b5cfab','#7aab48','#4e8428'], border:'#3a6e1a', stripe:'#5a9e38' },
+      10:  { bg:['#f0d080','#e8b824','#c89000'], border:'#a87800', stripe:'#d4a020' },
+      20:  { bg:['#8ec4e8','#4e8fb8','#2a6898'], border:'#1a5080', stripe:'#3a7aaa' },
+      50:  { bg:['#f0b878','#e07828','#b85410'], border:'#943810', stripe:'#d06820' },
+      100: { bg:['#b8d898','#78b448','#4e8c28'], border:'#3a6e18', stripe:'#5aaa38' },
+      200: { bg:['#f0e098','#d4be54','#b49010'], border:'#907000', stripe:'#c8aa30' },
     };
-
-    // Echte Münzgrößen (mm) → Pixel-Radien (skaliert auf 16–32px)
-    // 1ct=16.25, 2ct=18.75, 5ct=21.25, 10ct=19.75, 20ct=22.25, 50ct=24.25
-    const coinSize = { 1:18, 2:20, 5:23, 10:21, 20:24, 50:27 };
-    // Kupfer: 1,2,5ct — Gold/Messing: 10,20,50ct
+    // Münzmetall: Kupfer(1,2,5ct), Gold(10,20,50ct), Bimetall-Gold(1€=100), Bimetall-Silber(2€=200)
     const coinMetal = {
-      1:  { outer:['#e08838','#c8702a','#9e5018'], inner:['#e8a060','#d4844a','#a85c20'] },
-      2:  { outer:['#e08838','#c8702a','#9e5018'], inner:['#e8a060','#d4844a','#a85c20'] },
-      5:  { outer:['#e08838','#c8702a','#9e5018'], inner:['#e8a060','#d4844a','#a85c20'] },
-      10: { outer:['#e0b83a','#c9a227','#9e7a10'], inner:['#f0d060','#d4b040','#a08010'] },
-      20: { outer:['#e0b83a','#c9a227','#9e7a10'], inner:['#f0d060','#d4b040','#a08010'] },
-      50: { outer:['#e0b83a','#c9a227','#9e7a10'], inner:['#f0d060','#d4b040','#a08010'] },
+      1:   { outer:['#d4743a','#b85a20','#8a3e10'], inner:['#e89060','#cc6e3a','#9a4c18'], label:'1', sub:'ct', isEuro:false },
+      2:   { outer:['#d4743a','#b85a20','#8a3e10'], inner:['#e89060','#cc6e3a','#9a4c18'], label:'2', sub:'ct', isEuro:false },
+      5:   { outer:['#d4743a','#b85a20','#8a3e10'], inner:['#e89060','#cc6e3a','#9a4c18'], label:'5', sub:'ct', isEuro:false },
+      10:  { outer:['#e8c040','#c89c18','#9c7408'], inner:['#f8dc70','#dcb030','#b08010'], label:'10', sub:'ct', isEuro:false },
+      20:  { outer:['#e8c040','#c89c18','#9c7408'], inner:['#f8dc70','#dcb030','#b08010'], label:'20', sub:'ct', isEuro:false },
+      50:  { outer:['#e8c040','#c89c18','#9c7408'], inner:['#f8dc70','#dcb030','#b08010'], label:'50', sub:'ct', isEuro:false },
+      100: { outer:['#e8c040','#c89c18','#9c7408'], inner:['#e8e8e8','#c0c0c0','#909090'], label:'1', sub:'€', isEuro:true, bicolor:true },
+      200: { outer:['#e8e8e8','#c4c4c4','#909090'], inner:['#e8c040','#c89c18','#9c7408'], label:'2', sub:'€', isEuro:true, bicolor:true },
     };
+    const coinSize = { 1:16, 2:18, 5:20, 10:18, 20:21, 50:24, 100:24, 200:27 };
 
-    // Baut eine Note (w×h) zentriert bei (cx,cy)
-    function noteSVG(val, cx, cy, w, h){
+    // ── SVG-Hilfsfunktion: Schein (detailreich, angelehnt an echte EUR-Noten) ──
+    function noteSVG(val, x, y, w, h){
       const nc = noteColors[val];
-      const nid = 'n'+Math.random().toString(36).slice(2,6);
-      const x=cx-w/2, y=cy-h/2, r=4;
-      const labelSize = val>=100 ? Math.round(h*0.42) : Math.round(h*0.50);
+      const nid = 'n'+Math.random().toString(36).slice(2,7);
+      const r = 5;
+      // Koordinaten-Helfer: relativ zur Note
+      const rx = (p) => x + Math.round(w * p);
+      const ry = (p) => y + Math.round(h * p);
+      const rw = (p) => Math.round(w * p);
+      const rh = (p) => Math.round(h * p);
+
+      // Wert-Label links-mittig
+      const labelSize = val>=100 ? Math.round(h*0.38) : (val>=10 ? Math.round(h*0.42) : Math.round(h*0.45));
+      // Euro-Zeichen oben links, sicher INNERHALB des Scheins
+      const eSize  = Math.max(6, Math.round(h * 0.16));
+      const eX     = x + eSize * 0.55 + 3;   // genug Abstand vom linken Rand
+      const eY     = y + eSize * 0.55 + 3;   // genug Abstand vom oberen Rand
+      // Streifen links (Sicherheitsstreifen-Optik)
+      const stripW = rw(0.26);
+      // Hologramm-Streifen rechts
+      const holoX  = rx(0.76);
+      const holoW  = rw(0.08);
+      // Wert-Label Mittelpunkt
+      const lx = x + stripW/2;
+      const ly = y + h/2;
+      // Kleiner Wert oben links (neben Euro-Zeichen)
+      const smallValSize = Math.max(5, Math.round(h * 0.17));
+      // Sterne-Band unten
+      const starY  = y + h - Math.max(4, Math.round(h*0.14));
+      const starSize = Math.max(4, Math.round(h * 0.12));
+      // Architektur-Muster rechts (stilisiertes Fenster/Tor)
+      const archX  = rx(0.34);
+      const archW  = rw(0.38);
+      const archH  = rh(0.70);
+      const archY  = ry(0.15);
+      const archCX = archX + archW/2;
+
       return `
         <defs>
           <linearGradient id="ng${nid}" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="${nc[0]}"/><stop offset="50%" stop-color="${nc[1]}"/><stop offset="100%" stop-color="${nc[2]}"/>
+            <stop offset="0%" stop-color="${nc.bg[0]}"/>
+            <stop offset="55%" stop-color="${nc.bg[1]}"/>
+            <stop offset="100%" stop-color="${nc.bg[2]}"/>
           </linearGradient>
-          <linearGradient id="ns${nid}" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#fff" stop-opacity=".14"/><stop offset="100%" stop-color="#000" stop-opacity=".09"/>
+          <linearGradient id="nl${nid}" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="${nc.bg[0]}" stop-opacity="0.9"/>
+            <stop offset="100%" stop-color="${nc.bg[1]}" stop-opacity="0.2"/>
           </linearGradient>
+          <linearGradient id="nh${nid}" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="rgba(255,255,255,0.55)"/>
+            <stop offset="30%" stop-color="rgba(255,220,80,0.35)"/>
+            <stop offset="60%" stop-color="rgba(180,255,220,0.30)"/>
+            <stop offset="100%" stop-color="rgba(255,255,255,0.40)"/>
+          </linearGradient>
+          <clipPath id="nc${nid}">
+            <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>
+          </clipPath>
         </defs>
-        <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="url(#ng${nid})" stroke="${nc[2]}" stroke-width="1"/>
-        <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="url(#ns${nid})"/>
-        <rect x="${x+3}" y="${y+3}" width="${w-6}" height="${h-6}" rx="2" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="0.7"/>
-        <rect x="${x+Math.round(w*0.27)}" y="${y}" width="2" height="${h}" fill="rgba(0,0,0,0.20)" rx="1"/>
-        <rect x="${x+Math.round(w*0.27)+0.5}" y="${y}" width="1" height="${h}" fill="rgba(255,255,255,0.14)" rx="1"/>
-        <path d="M${x+w-22},${y+h-4} L${x+w-22},${y+Math.round(h*0.38)} Q${x+w-22},${y+7} ${x+w-11},${y+7} Q${x+w},${y+7} ${x+w},${y+Math.round(h*0.38)} L${x+w},${y+h-4}" fill="none" stroke="rgba(255,255,255,0.13)" stroke-width="1.1"/>
-        <text x="${x+Math.round(w*0.18)}" y="${cy+1}" text-anchor="middle" dominant-baseline="central"
+
+        <!-- Hauptfläche -->
+        <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="url(#ng${nid})" stroke="${nc.border}" stroke-width="1.2"/>
+
+        <!-- Linker Streifen (Sicherheitsbereich) -->
+        <rect x="${x}" y="${y}" width="${stripW}" height="${h}" rx="${r}" fill="url(#nl${nid})" clip-path="url(#nc${nid})"/>
+        <line x1="${x+stripW}" y1="${y+2}" x2="${x+stripW}" y2="${y+h-2}" stroke="${nc.border}" stroke-width="0.7" stroke-opacity="0.4"/>
+
+        <!-- Äußerer Rahmen (doppelt) -->
+        <rect x="${x+2}" y="${y+2}" width="${w-4}" height="${h-4}" rx="${r-1}" fill="none" stroke="rgba(255,255,255,0.28)" stroke-width="0.7"/>
+        <rect x="${x+4}" y="${y+4}" width="${w-8}" height="${h-8}" rx="${r-2}" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+
+        <!-- Architektur-Motiv (stilisiertes Tor/Brücke) -->
+        <rect x="${archX}" y="${archY}" width="${archW}" height="${archH}" rx="3" fill="rgba(0,0,0,0.07)" clip-path="url(#nc${nid})"/>
+        <rect x="${archX+2}" y="${archY+2}" width="${archW-4}" height="${archH-4}" rx="2" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="0.8"/>
+        <!-- Bogen oben -->
+        <path d="M${archX+4},${archY+Math.round(archH*0.45)} L${archX+4},${archY+10} Q${archX+4},${archY+2} ${archCX},${archY+2} Q${archX+archW-4},${archY+2} ${archX+archW-4},${archY+10} L${archX+archW-4},${archY+Math.round(archH*0.45)}"
+          fill="none" stroke="rgba(255,255,255,0.30)" stroke-width="1.2"/>
+        <!-- Säulen -->
+        <line x1="${archX+Math.round(archW*0.25)}" y1="${archY+Math.round(archH*0.40)}" x2="${archX+Math.round(archW*0.25)}" y2="${archY+archH-2}" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
+        <line x1="${archX+Math.round(archW*0.50)}" y1="${archY+Math.round(archH*0.40)}" x2="${archX+Math.round(archW*0.50)}" y2="${archY+archH-2}" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
+        <line x1="${archX+Math.round(archW*0.75)}" y1="${archY+Math.round(archH*0.40)}" x2="${archX+Math.round(archW*0.75)}" y2="${archY+archH-2}" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
+
+        <!-- Hologramm-Streifen rechts -->
+        <rect x="${holoX}" y="${y}" width="${holoW}" height="${h}" fill="url(#nh${nid})" clip-path="url(#nc${nid})"/>
+        <line x1="${holoX}" y1="${y+2}" x2="${holoX}" y2="${y+h-2}" stroke="rgba(255,255,255,0.35)" stroke-width="0.6"/>
+        <line x1="${holoX+holoW}" y1="${y+2}" x2="${holoX+holoW}" y2="${y+h-2}" stroke="rgba(255,255,255,0.20)" stroke-width="0.5"/>
+
+        <!-- Wert-Zahl rechts oben -->
+        <text x="${rx(0.88)}" y="${ry(0.22)}" text-anchor="middle" dominant-baseline="central"
+          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${smallValSize}"
+          fill="rgba(255,255,255,0.70)">${val}</text>
+
+        <!-- Großer Wert links-mittig (Hauptzahl) — Schatten + Füllung -->
+        <text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central"
           font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${labelSize}"
-          fill="rgba(0,0,0,0.30)">${val}</text>
-        <text x="${x+Math.round(w*0.18)}" y="${cy+1}" text-anchor="middle" dominant-baseline="central"
+          fill="rgba(0,0,0,0.25)" dx="1" dy="1">${val}</text>
+        <text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="central"
           font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${labelSize}"
-          fill="rgba(255,255,255,0.92)">${val}</text>
-        <text x="${x+5}" y="${y+8}" font-family="Arial,sans-serif" font-size="4" fill="rgba(255,255,255,0.38)">★★★</text>
-        <text x="${x+5}" y="${y+h-3}" font-family="Arial,sans-serif" font-size="4" fill="rgba(255,255,255,0.38)">★★★</text>`;
+          fill="rgba(255,255,255,0.95)">${val}</text>
+
+        <!-- Euro-Zeichen oben links — klar INNERHALB des Scheins -->
+        <text x="${eX}" y="${eY}" text-anchor="middle" dominant-baseline="central"
+          font-family="Arial,sans-serif" font-size="${eSize}" font-weight="700"
+          fill="rgba(255,255,255,0.85)">€</text>
+
+        <!-- EU-Sterne-Band unten links -->
+        <text x="${x+5}" y="${starY}" font-family="Arial,sans-serif" font-size="${starSize}"
+          fill="rgba(255,255,255,0.40)">★★★★★★★★★★★★</text>
+
+        <!-- Wert unten rechts (klein) -->
+        <text x="${rx(0.88)}" y="${ry(0.82)}" text-anchor="middle" dominant-baseline="central"
+          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${smallValSize}"
+          fill="rgba(255,255,255,0.55)">${val}</text>`;
     }
 
-    // Baut eine Münze, R = Außenradius, zentriert bei (cx,cy)
+    // ── SVG-Hilfsfunktion: Münze ──
     function coinSVG(val, cx, cy){
       const R  = coinSize[val];
-      const Ri = Math.round(R * 0.78);
       const m  = coinMetal[val];
-      const cid = 'c'+Math.random().toString(36).slice(2,6);
-      const rimColor = m.outer[2];
-      const nNotches = Math.round(R * 0.9); // mehr Riefen bei größeren Münzen
-      const labelSize = val>=10 ? Math.round(R*0.75) : Math.round(R*0.88);
-      const notches = Array.from({length:nNotches},(_,i)=>{
+      const cid = 'c'+Math.random().toString(36).slice(2,7);
+      const isEuro = m.isEuro;
+      const Ri = isEuro ? Math.round(R*0.62) : Math.round(R*0.75);
+      const nNotches = isEuro ? 0 : Math.round(R*1.1);
+      const notches = nNotches > 0 ? Array.from({length:nNotches},(_,i)=>{
         const a=i*(Math.PI*2/nNotches);
-        const r1=R-3, r2=R;
-        return `<line x1="${(cx+Math.cos(a)*r1).toFixed(1)}" y1="${(cy+Math.sin(a)*r1).toFixed(1)}" x2="${(cx+Math.cos(a)*r2).toFixed(1)}" y2="${(cy+Math.sin(a)*r2).toFixed(1)}" stroke="${rimColor}" stroke-width="1.2"/>`;
+        const r1=R-2.5, r2=R;
+        return `<line x1="${(cx+Math.cos(a)*r1).toFixed(1)}" y1="${(cy+Math.sin(a)*r1).toFixed(1)}" x2="${(cx+Math.cos(a)*r2).toFixed(1)}" y2="${(cy+Math.sin(a)*r2).toFixed(1)}" stroke="${m.outer[2]}" stroke-width="1"/>`;
+      }).join('') : '';
+      const starR = Ri - Math.round(Ri*0.30);
+      const starSize = Math.max(2.5, Math.round(R*0.13));
+      const nStars = isEuro ? 12 : 8;
+      const stars = Array.from({length:nStars},(_,i)=>{
+        const a=i*(Math.PI*2/nStars)-Math.PI/2;
+        return `<text x="${(cx+Math.cos(a)*starR).toFixed(1)}" y="${(cy+Math.sin(a)*starR).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${starSize}" fill="rgba(255,255,255,0.55)">★</text>`;
       }).join('');
-      const starR = Ri - Math.round(Ri*0.28);
-      const starSize = Math.max(3, Math.round(R*0.14));
-      const stars = Array.from({length:12},(_,i)=>{
-        const a=i*(Math.PI*2/12)-Math.PI/2;
-        return `<text x="${(cx+Math.cos(a)*starR).toFixed(1)}" y="${(cy+Math.sin(a)*starR).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${starSize}" fill="rgba(255,255,255,0.62)">★</text>`;
-      }).join('');
-      const labelY = cy - Math.round(R*0.10);
-      const ctSize = Math.max(5, Math.round(R*0.28));
+      const labelSize = Math.round(R*(isEuro?0.60:0.70));
+      const subSize = Math.max(4, Math.round(R*0.26));
+      const labelY = cy - Math.round(R*0.08);
       return `
         <defs>
-          <radialGradient id="cg${cid}" cx="38%" cy="32%" r="62%">
-            <stop offset="0%" stop-color="${m.outer[0]}"/><stop offset="45%" stop-color="${m.outer[1]}"/><stop offset="100%" stop-color="${m.outer[2]}"/>
+          <radialGradient id="cg${cid}" cx="38%" cy="32%" r="65%">
+            <stop offset="0%" stop-color="${m.outer[0]}"/><stop offset="50%" stop-color="${m.outer[1]}"/><stop offset="100%" stop-color="${m.outer[2]}"/>
           </radialGradient>
-          <radialGradient id="ci${cid}" cx="42%" cy="35%" r="58%">
-            <stop offset="0%" stop-color="${m.inner[0]}"/><stop offset="60%" stop-color="${m.inner[1]}"/><stop offset="100%" stop-color="${m.inner[2]}"/>
+          <radialGradient id="ci${cid}" cx="40%" cy="34%" r="60%">
+            <stop offset="0%" stop-color="${m.inner[0]}"/><stop offset="55%" stop-color="${m.inner[1]}"/><stop offset="100%" stop-color="${m.inner[2]}"/>
           </radialGradient>
         </defs>
-        <ellipse cx="${cx+2}" cy="${cy+R-2}" rx="${R-2}" ry="${Math.round(R*0.14)}" fill="rgba(0,0,0,0.14)"/>
+        <ellipse cx="${cx+1.5}" cy="${cy+R-1.5}" rx="${R-1.5}" ry="${Math.round(R*0.12)}" fill="rgba(0,0,0,0.18)"/>
         <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#cg${cid})"/>
         ${notches}
+        ${isEuro ? `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${m.outer[2]}" stroke-width="2.5"/>` : ''}
         <circle cx="${cx}" cy="${cy}" r="${Ri}" fill="url(#ci${cid})"/>
-        <circle cx="${cx}" cy="${cy}" r="${Ri}" fill="none" stroke="rgba(255,255,255,0.20)" stroke-width="1.5"/>
+        <circle cx="${cx}" cy="${cy}" r="${Ri}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
         ${stars}
         <text x="${cx}" y="${labelY}" text-anchor="middle" dominant-baseline="central"
-          font-family="Georgia,serif" font-weight="900" font-size="${labelSize}"
-          fill="rgba(0,0,0,0.48)">${val}</text>
+          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${labelSize}"
+          fill="rgba(0,0,0,0.38)">${m.label}</text>
         <text x="${cx}" y="${labelY}" text-anchor="middle" dominant-baseline="central"
-          font-family="Georgia,serif" font-weight="900" font-size="${labelSize}"
-          fill="rgba(255,255,255,0.86)">${val}</text>
-        <text x="${cx}" y="${cy+Math.round(R*0.42)}" text-anchor="middle" dominant-baseline="central"
-          font-family="Arial,sans-serif" font-weight="700" font-size="${ctSize}"
-          fill="rgba(255,255,255,0.65)">ct</text>
-        <ellipse cx="${cx-Math.round(R*0.28)}" cy="${cy-Math.round(R*0.30)}" rx="${Math.round(R*0.22)}" ry="${Math.round(R*0.13)}" fill="rgba(255,255,255,0.16)" transform="rotate(-30,${cx-Math.round(R*0.28)},${cy-Math.round(R*0.30)})"/>`;
+          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${labelSize}"
+          fill="rgba(255,255,255,0.90)">${m.label}</text>
+        <text x="${cx}" y="${cy+Math.round(R*0.44)}" text-anchor="middle" dominant-baseline="central"
+          font-family="Arial,sans-serif" font-weight="700" font-size="${subSize}"
+          fill="rgba(255,255,255,0.68)">${m.sub}</text>
+        <ellipse cx="${cx-Math.round(R*0.26)}" cy="${cy-Math.round(R*0.28)}" rx="${Math.round(R*0.20)}" ry="${Math.round(R*0.10)}" fill="rgba(255,255,255,0.18)" transform="rotate(-30,${cx-Math.round(R*0.26)},${cy-Math.round(R*0.28)})"/>`;
     }
 
-    // Zufällig: 0=2 Noten, 1=Note+Münze, 2=2 Münzen (gleichverteilt)
-    const combo = Math.floor(Math.random()*3);
+    // ── Progressiv 1→8, jedes Mal neue zufällige Kombination gleicher Länge ──
+    if(!euroCount[uid]){ euroCount[uid] = 0; }
+    if(euroCount[uid] < 8) euroCount[uid]++;
+    const n = euroCount[uid]; // 1..8
 
-    // Zwei UNTERSCHIEDLICHE Notenwerte
-    let v1 = noteValues[Math.floor(Math.random()*noteValues.length)];
-    let v2idx = Math.floor(Math.random()*(noteValues.length-1));
-    if(noteValues[v2idx] >= v1) v2idx++;
-    let v2 = noteValues[v2idx]; // garantiert verschieden von v1
-    // Sortiert: kleinerer Wert vorne links
-    if(v1 > v2){ const tmp=v1; v1=v2; v2=tmp; }
+    // Kombination aufbauen: Münzen und Scheine mischen
+    const items = [];
+    const typePool = [];
+    for(let i=0;i<n;i++) typePool.push(Math.random() < 0.35 ? 'note' : 'coin');
+    // Sicherstellen: nie ausschließlich eine Sorte wenn n>=3
+    const hasNote = typePool.includes('note');
+    const hasCoin = typePool.includes('coin');
+    if(n >= 3 && !hasNote) typePool[Math.floor(Math.random()*n)] = 'note';
+    if(n >= 3 && !hasCoin) typePool[Math.floor(Math.random()*n)] = 'coin';
+    typePool.forEach(t => {
+      if(t==='note'){
+        items.push({type:'note', val: noteValues[Math.floor(Math.random()*noteValues.length)]});
+      } else {
+        items.push({type:'coin', val: coinValues[Math.floor(Math.random()*coinValues.length)]});
+      }
+    });
 
-    const c1 = centValues[Math.floor(Math.random()*centValues.length)];
-    let c2idx = Math.floor(Math.random()*(centValues.length-1));
-    if(centValues[c2idx] >= c1) c2idx++;
-    const c2 = centValues[c2idx]; // verschieden von c1
+    // ── Render-Strategie: Scheine hinten, Münzen vorne ──
+    // Scheine und Münzen separat sammeln, dann Scheine zuerst rendern,
+    // Münzen danach → Münzen liegen immer oben und sind nie verdeckt
+    const noteItems = items.map((it,i)=>({...it,origIdx:i})).filter(it=>it.type==='note');
+    const coinItems = items.map((it,i)=>({...it,origIdx:i})).filter(it=>it.type==='coin');
 
-    // Ergebnis-Text
-    let resText = '';
-    if(combo===0){ resText=`${v1} € + ${v2} €`; }
-    else if(combo===1){ resText=`${v1} € + ${c1} Cent`; }
-    else { resText=`${c1} Cent + ${c2} Cent`; }
+    const VW = 320, VH = 180;
+
+    // Rotationen & Y-Versätze (leicht variiert per Math.random für echte Zufälligkeit)
+    function randRot(base){ return base + (Math.random()-0.5)*4; }
+    function randOffY(base){ return base + (Math.random()-0.5)*6; }
+    const rotPool  = [-13,-6, 3,10,-8, 1, 8,-15, 5,-3, 12,-10];
+    const offYPool = [  0,-9, 6,-3, 9,-5, 2,-11, 4,-7,  8, -2];
+
+    // Schein-Größe: immer groß und gut lesbar, leicht skaliert mit Anzahl
+    const nNotes = noteItems.length;
+    const noteW = nNotes <= 1 ? 240 : (nNotes <= 2 ? 210 : (nNotes <= 4 ? 185 : 160));
+    const noteH = Math.round(noteW / 2.0);
+    // Münz-Radius: immer gut ablesbar
+    const nCoins = coinItems.length;
+    const coinR  = nCoins <= 2 ? 38 : (nCoins <= 4 ? 33 : (nCoins <= 6 ? 28 : 24));
+
+    // X-Positionen für Scheine: gestaffelt überlappend über die ganze Breite
+    function spreadCenters(count, margin, spread){
+      if(count === 1) return [VW/2];
+      const step = spread / (count - 1);
+      return Array.from({length:count},(_,i) => margin + step * i);
+    }
+
+    const noteCentersX = spreadCenters(noteItems.length, 50, VW-100);
+    const coinCentersX = spreadCenters(coinItems.length, 35, VW-70);
+
+    let svgContent = '';
+
+    // 1. Scheine zuerst (hinten)
+    noteItems.forEach((item, i) => {
+      const cx = noteCentersX[i];
+      const cy = VH/2 + offYPool[(item.origIdx * 3) % offYPool.length] * 0.7;
+      const rot = rotPool[(item.origIdx * 5) % rotPool.length];
+      const nx = cx - noteW/2, ny = cy - noteH/2;
+      svgContent += `<g transform="rotate(${rot.toFixed(1)},${cx},${cy})">${noteSVG(item.val, nx, ny, noteW, noteH)}</g>`;
+    });
+
+    // 2. Münzen danach (vorne, nie verdeckt)
+    // Münzen in einer Reihe unten verteilt, mit leichter Y-Staffelung
+    const coinY = VH * 0.72;
+    coinItems.forEach((item, i) => {
+      const cx = coinCentersX[i];
+      const cy = coinY + offYPool[(item.origIdx * 7 + 2) % offYPool.length] * 0.5;
+      const rot = rotPool[(item.origIdx * 4 + 1) % rotPool.length] * 0.6;
+      const R = Math.min(coinSize[item.val], coinR);
+      const origSize = coinSize[item.val];
+      coinSize[item.val] = R;
+      svgContent += `<g transform="rotate(${rot.toFixed(1)},${cx},${cy})">${coinSVG(item.val, cx, cy)}</g>`;
+      coinSize[item.val] = origSize;
+    });
+
+    // ── Ergebnis-Text ──
+    const resText = items.map(it=>{
+      if(it.type==='note') return `${it.val}€`;
+      else if(it.val>=100) return `${it.val/100}€`;
+      else return `${it.val}ct`;
+    }).join(' + ');
 
     if(wrap){
-      wrap.style.transform='scale(0.75) rotate(20deg)';
-      wrap.style.transition='transform .1s ease-in';
+      wrap.style.transform='scale(0.80) rotate(12deg)';
+      wrap.style.transition='transform .08s ease-in';
       setTimeout(()=>{
-        wrap.style.transition='transform .28s cubic-bezier(.34,1.56,.64,1)';
-        wrap.style.transform='scale(1) rotate(-5deg)';
-
-        // ViewBox 220×110
-        // Zwei Noten nebeneinander: je 100×48, Lücke in der Mitte
-        // Note links: cx=54,cy=55  Note rechts: cx=166,cy=55
-        // Note+Münze: Note links cx=60,cy=55 w=106 h=52 | Münze rechts cx=170,cy=55
-        // Zwei Münzen: links cx=65,cy=55 | rechts cx=155,cy=55
-        let svg = `<svg viewBox="0 0 220 110" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">`;
-
-        if(combo===0){
-          // Zwei Noten nebeneinander, je 100×50, deutlich getrennt
-          svg += noteSVG(v1,  57, 55, 100, 50);
-          svg += noteSVG(v2, 163, 55, 100, 50);
-        } else if(combo===1){
-          // Note links (etwas breiter), Münze rechts
-          svg += noteSVG(v1, 60, 55, 106, 52);
-          const R = coinSize[c1];
-          svg += coinSVG(c1, 168, 55);
-        } else {
-          // Zwei Münzen — verschiedene Größen sichtbar, nebeneinander
-          const R1 = coinSize[c1], R2 = coinSize[c2];
-          svg += coinSVG(c1,  70, 55);
-          svg += coinSVG(c2, 152, 55);
-        }
-        svg += `</svg>`;
-        wrap.innerHTML = svg;
+        wrap.style.transition='transform .25s cubic-bezier(.34,1.45,.64,1)';
+        wrap.style.transform='scale(1) rotate(-2deg)';
+        wrap.innerHTML=`<svg viewBox="0 0 ${VW} ${VH}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">${svgContent}</svg>`;
         if(res) res.textContent=`${T('diceErgebnis')}: ${resText}`;
-        setTimeout(()=>{wrap.style.transform='';},180);
-      },130);
+        setTimeout(()=>{wrap.style.transform='';},160);
+      },100);
     }
     return;
   }
@@ -8710,6 +8969,7 @@ function buildWheel(body, uid){
 <div class="wheel-tabbar">
   <button class="timer-mode-btn active-tmode" id="wheel-tab-play-${uid}" onclick="wheelShowTab('play',${uid})">&#9654; Drehen</button>
   <button class="timer-mode-btn" id="wheel-tab-edit-${uid}" onclick="wheelShowTab('edit',${uid})">&#9999; Eintr&auml;ge</button>
+  <button class="wbtn wheel-fragen-btn" id="wheel-zufall-btn-${uid}" onclick="toggleWheelZufall(${uid})" title="Zufall an/aus" style="font-size:.82em;padding:.3em .75em;white-space:nowrap;margin-left:auto;">${T('diceZufallAn')}</button>
 </div>
 
 <div id="wheel-play-${uid}" class="wheel-box">
@@ -8717,15 +8977,11 @@ function buildWheel(body, uid){
     <div class="wheel-pointer" id="wheel-pointer-${uid}" onclick="stopQuestionWheel(${uid})" title="Stoppen"><svg viewBox="0 0 28 36" width="40" height="52" xmlns="http://www.w3.org/2000/svg"><polygon points="14,36 0,0 28,0" fill="#ffffff" filter="url(#ps)"/><defs><filter id="ps" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="rgba(0,0,0,0.55)"/></filter></defs></svg></div>
     <canvas id="wheel-canvas-${uid}" class="wheel-canvas" onclick="spinQuestionWheel(${uid})" style="cursor:pointer;" title="Klicken zum Drehen"></canvas>
   </div>
-  <div class="wheel-bottom-row">
-    <div id="wheel-result-${uid}" class="wheel-result">${T('wheelNochNicht')}</div>
-    <button class="wbtn wheel-fragen-btn" id="wheel-zufall-btn-${uid}" onclick="toggleWheelZufall(${uid})" title="Zufall an/aus" style="font-size:.88em;padding:.5em .85em;white-space:nowrap;">${T('diceZufallAn')}</button>
-  </div>
 </div>
 
 <div id="wheel-edit-panel-${uid}" class="wheel-edit-panel">
-  <div style="font-size:.82em;color:var(--text2);line-height:1.35;">Ein Eintrag pro Zeile. Leerzeilen werden ignoriert.</div>
-  <textarea id="wheel-text-${uid}" spellcheck="false">${WHEEL_QUESTIONS_DEFAULT.join('\n')}</textarea>
+  <div style="font-size:clamp(11px,1.5vw,13px);color:var(--text2);line-height:1.5;">Ein Eintrag pro Zeile. Leerzeilen werden ignoriert.</div>
+  <textarea id="wheel-text-${uid}" class="slot-edit-textarea" spellcheck="false">${WHEEL_QUESTIONS_DEFAULT.join('\n')}</textarea>
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
     <button class="wbtn primary" style="font-size:.92em;padding:.45em 1.2em;" onclick="saveWheelQuestions(${uid})">&#10004; ${T('wheelUebernehmen')}</button>
     <label title="TXT-Datei laden" style="cursor:pointer;display:contents;">
@@ -8821,7 +9077,7 @@ function saveWheelQuestions(uid){
   wheelStates[uid].questions = qs;
   wheelStates[uid].selected = -1;
   wheelStates[uid].bag = []; // reset bag after new entries
-  document.getElementById('wheel-result-'+uid).textContent = T('wheelUebernommen');
+  const _r = document.getElementById('wheel-result-'+uid); if(_r) _r.textContent = T('wheelUebernommen');
   drawQuestionWheel(uid);
   wheelShowTab('play', uid);
 }
@@ -8873,22 +9129,20 @@ function drawQuestionWheel(uid){
     ctx.shadowColor='rgba(0,0,0,.30)';
     ctx.shadowBlur=2;
 
-    // Verfügbare Bogenhöhe am mittleren Radius (r=0.6*R) → max Schriftgröße
-    const textR = R * 0.72;           // Radius wo Text beginnt (von Mitte)
-    const arcH  = seg * textR;        // Bogenlänge = verfügbare Texthöhe
-    const maxW  = R * 0.58;           // radiale Tiefe verfügbar
-    const text  = shortWheelLabel(qs[i]);
-
-    // Schriftgröße: begrenzt durch Bogenhöhe / Anzahl Zeilen und durch Breite
-    let fs = Math.min(
-      Math.floor(arcH * 0.72),        // ~72% der Bogenhöhe (etwas Abstand)
-      Math.floor(maxW / Math.max(text.length * 0.55, 1)), // Breite pro Zeichen
-      Math.max(11, Math.round(R * 0.12)) // Obergrenze: 12% des Radius
-    );
-    fs = Math.max(fs, 9);             // Untergrenze: 9px
-
+    // Verfügbare Bogenhöhe und radiale Breite
+    // Einzeilige Darstellung: Schriftgröße so groß wie möglich, Text passt in maxW
+    const maxW = R * 0.62;
+    const arcH = seg * R * 0.72;
+    const fullText = String(qs[i] || '').replace(/\s+/g,' ').trim();
+    let fs = Math.min(Math.round(arcH * 0.72), Math.round(R * 0.13));
+    fs = Math.max(fs, 9);
     ctx.font = `900 ${fs}px Arial, sans-serif`;
-    ctx.fillText(text, R*0.91, 0, maxW);
+    // Schriftgröße verkleinern bis Text in einer Zeile passt
+    while(fs > 7 && ctx.measureText(fullText).width > maxW){
+      fs -= 1;
+      ctx.font = `900 ${fs}px Arial, sans-serif`;
+    }
+    ctx.fillText(fullText, R * 0.91, 0, maxW);
     ctx.restore();  }
 
   // outer rim
@@ -8948,6 +9202,92 @@ function finishQuestionWheel(uid, forced=false){
   if(pointer) pointer.classList.remove('active');
   if(result && idx >= 0) result.textContent = st.questions[idx];
   try{ playCurrentSound(forced ? 0.45 : 0.6); }catch(_){ }
+  if(idx >= 0 && st.questions[idx]){
+    const colors = ['#0ea5e9','#dc2626','#16a34a','#9333ea','#1d4ed8','#ea580c'];
+    const segColor = colors[idx % colors.length];
+    showWheelResultOverlay(uid, st.questions[idx], segColor);
+  }
+}
+
+function showWheelResultOverlay(uid, text, segColor){
+  // Remove any existing overlay for this wheel
+  const existId = 'wheel-overlay-'+uid;
+  const existing = document.getElementById(existId);
+  if(existing) existing.remove();
+
+  const color = segColor || '#1d4ed8';
+
+  const ov = document.createElement('div');
+  ov.id = existId;
+  ov.style.cssText = `
+    position:fixed;inset:0;z-index:99999;
+    display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,0);
+    backdrop-filter:blur(0px);
+    transition:background .35s ease, backdrop-filter .35s ease;
+    cursor:pointer;
+  `;
+
+  const box = document.createElement('div');
+  box.style.cssText = `
+    background:${color};
+    border:3px solid rgba(255,255,255,0.35);
+    border-radius:24px;
+    padding:clamp(28px,6vw,64px) clamp(32px,8vw,96px);
+    max-width:min(88vw,820px);
+    box-shadow:0 24px 80px rgba(0,0,0,0.75), 0 0 0 6px ${color}55;
+    text-align:center;
+    transform:scale(0.6);
+    opacity:0;
+    transition:transform .38s cubic-bezier(.34,1.56,.64,1), opacity .28s ease;
+  `;
+
+  const label = document.createElement('div');
+  label.textContent = text;
+  label.style.cssText = `
+    font-family:Arial,sans-serif;
+    font-size:clamp(2rem,7vw,5.5rem);
+    font-weight:900;
+    color:#fff;
+    line-height:1.15;
+    letter-spacing:.01em;
+    text-shadow:0 4px 24px rgba(0,0,0,0.4);
+    word-break:break-word;
+  `;
+
+  const hint = document.createElement('div');
+  hint.textContent = '▶ Tippen zum Schließen';
+  hint.style.cssText = `
+    margin-top:clamp(12px,2.5vw,28px);
+    font-family:Arial,sans-serif;
+    font-size:clamp(.7rem,1.5vw,1rem);
+    color:rgba(255,255,255,0.38);
+    letter-spacing:.04em;
+  `;
+
+  box.appendChild(label);
+  box.appendChild(hint);
+  ov.appendChild(box);
+  document.body.appendChild(ov);
+
+  // Animate in
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      ov.style.background = 'rgba(0,0,0,0.72)';
+      ov.style.backdropFilter = 'blur(6px)';
+      box.style.transform = 'scale(1)';
+      box.style.opacity = '1';
+    });
+  });
+
+  // Close on click/tap
+  ov.addEventListener('click', ()=>{
+    ov.style.background = 'rgba(0,0,0,0)';
+    ov.style.backdropFilter = 'blur(0px)';
+    box.style.transform = 'scale(0.85)';
+    box.style.opacity = '0';
+    setTimeout(()=> ov.remove(), 340);
+  });
 }
 
 function stopQuestionWheel(uid){
