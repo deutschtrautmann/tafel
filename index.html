@@ -5564,13 +5564,13 @@ function toggleNameList(uid){
 
   // Dialog box
   const box = document.createElement('div');
-  box.style.cssText = 'background:var(--card);border:1px solid rgba(255,255,255,0.14);border-radius:14px;box-shadow:0 12px 40px rgba(0,0,0,0.6);padding:16px;display:flex;flex-direction:column;gap:10px;min-width:260px;width:340px;max-width:calc(100vw - 32px);max-height:calc(100dvh - 80px);';
+  box.style.cssText = 'background:var(--card);border:1px solid rgba(255,255,255,0.14);border-radius:18px;box-shadow:0 16px 60px rgba(0,0,0,0.65);padding:24px;display:flex;flex-direction:column;gap:14px;min-width:320px;width:min(680px,calc(100vw - 40px));max-width:calc(100vw - 40px);height:min(82dvh,700px);max-height:calc(100dvh - 60px);';
 
   // Header row
   const hdrRow = document.createElement('div');
   hdrRow.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
   const ttl = document.createElement('span');
-  ttl.style.cssText = 'font-size:13px;font-weight:700;color:var(--text);';
+  ttl.style.cssText = 'font-size:16px;font-weight:800;color:var(--text);';
   ttl.textContent = T('namesListe');
   const closeBtn = document.createElement('button');
   closeBtn.textContent = '✕';
@@ -5583,7 +5583,7 @@ function toggleNameList(uid){
 
   // Textarea (shared — move into modal, restore on close)
   const taClone = document.createElement('textarea');
-  taClone.style.cssText = 'background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.5em .75em;font-size:13px;font-family:Arial,sans-serif;width:100%;resize:vertical;min-height:200px;flex:1;outline:none;';
+  taClone.style.cssText = 'background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:10px;padding:.6em 1em;font-size:16px;font-family:Arial,sans-serif;width:100%;resize:none;min-height:0;flex:1;outline:none;line-height:1.7;';
   taClone.value = ta.value;
   taClone.placeholder = ta.placeholder;
   // Sync changes back to original hidden textarea and invalidate font cache
@@ -5627,6 +5627,39 @@ function toggleNameList(uid){
   fileRow.appendChild(fileHint);
   box.appendChild(fileRow);
 
+  // Gruppen button row
+  const gruppenRow = document.createElement('div');
+  gruppenRow.style.cssText = 'display:flex;align-items:center;gap:8px;flex-wrap:wrap;';
+
+  const gruppenBtn = document.createElement('button');
+  gruppenBtn.style.cssText = 'cursor:pointer;background:var(--bg3);border:1px dashed rgba(255,255,255,0.25);border-radius:8px;padding:.35em .9em;font-size:12px;font-weight:700;color:var(--text2);transition:background .15s,border-color .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;';
+  gruppenBtn.innerHTML = '👥 Gruppen';
+  gruppenBtn.onmouseenter = ()=>{ gruppenBtn.style.background='var(--card2)'; gruppenBtn.style.borderColor='var(--accent)'; gruppenBtn.style.color='var(--text)'; };
+  gruppenBtn.onmouseleave = ()=>{ gruppenBtn.style.background='var(--bg3)'; gruppenBtn.style.borderColor='rgba(255,255,255,0.25)'; gruppenBtn.style.color='var(--text2)'; };
+
+  const gruppenNumLabel = document.createElement('span');
+  gruppenNumLabel.style.cssText = 'font-size:11px;color:var(--text2);white-space:nowrap;';
+  gruppenNumLabel.textContent = 'Gruppen:';
+
+  const gruppenNum = document.createElement('input');
+  gruppenNum.type = 'number';
+  gruppenNum.min = '2';
+  gruppenNum.max = '20';
+  gruppenNum.value = '3';
+  gruppenNum.style.cssText = 'width:48px;background:var(--bg3);border:1px solid rgba(255,255,255,0.18);border-radius:7px;color:var(--text);font-size:12px;font-weight:700;text-align:center;padding:.25em .3em;outline:none;';
+
+  gruppenBtn.onclick = ()=>{
+    const names = taClone.value.split('\n').map(s=>s.trim()).filter(Boolean);
+    const n = Math.max(2, Math.min(20, parseInt(gruppenNum.value)||3));
+    overlay.remove();
+    showNamenGruppen(uid, names, n);
+  };
+
+  gruppenRow.appendChild(gruppenBtn);
+  gruppenRow.appendChild(gruppenNumLabel);
+  gruppenRow.appendChild(gruppenNum);
+  box.appendChild(gruppenRow);
+
   overlay.appendChild(box);
   document.body.appendChild(overlay);
   taClone.focus();
@@ -5666,6 +5699,129 @@ function resetNames(uid){
   pickedMap[uid]=[];
   const d=document.getElementById('namedisp-'+uid);if(d)d.textContent='–';
   const l=document.getElementById('namesleft-'+uid);if(l)l.textContent='';
+}
+
+// ── Gruppen-Anzeige für das Namen-Widget ──────────────────────────────────
+function showNamenGruppen(uid, names, numGroups){
+  // Remove existing if open
+  const existing = document.getElementById('namen-gruppen-modal-'+uid);
+  if(existing){ existing.remove(); return; }
+
+  // Pastel colors for groups — light backgrounds, black text
+  const PASTEL = [
+    '#fef08a','#bbf7d0','#bfdbfe','#fecaca','#e9d5ff',
+    '#fed7aa','#a7f3d0','#fde68a','#c7d2fe','#fbcfe8',
+    '#d1fae5','#fce7f3','#ccfbf1','#fef3c7','#ddd6fe',
+    '#fee2e2','#ecfccb','#e0f2fe','#fae8ff','#f0fdf4'
+  ];
+
+  // Shuffle names randomly
+  const shuffled = [...names].sort(()=>Math.random()-.5);
+
+  // Distribute into groups
+  const groups = Array.from({length:numGroups}, ()=>[]);
+  shuffled.forEach((name, i) => groups[i % numGroups].push(name));
+
+  // Rotation values per group (like satzbau-col)
+  const ROTS = [-1.5, 1.0, -0.8, 1.8, -1.2, 0.7, -1.6, 1.3, -0.5, 1.1,
+                -1.9, 0.4, -0.9, 1.6, -0.3, 1.4, -1.1, 0.6, -1.7, 0.9];
+
+  // Overlay
+  const overlay = document.createElement('div');
+  overlay.id = 'namen-gruppen-modal-'+uid;
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:50000;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);overflow-y:auto;padding:28px 24px 40px;';
+  overlay.addEventListener('mousedown', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'width:100%;max-width:1400px;display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-shrink:0;';
+  const hdrLeft = document.createElement('div');
+  hdrLeft.style.cssText = 'display:flex;align-items:center;gap:10px;';
+  const hdrTitle = document.createElement('span');
+  hdrTitle.style.cssText = 'font-size:20px;font-weight:800;color:#fff;';
+  hdrTitle.textContent = `👥 ${numGroups} Gruppen — ${names.length} Namen`;
+  const reshuffleBtn = document.createElement('button');
+  reshuffleBtn.textContent = '🔀 Neu mischen';
+  reshuffleBtn.style.cssText = 'background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.22);border-radius:10px;color:#fff;font-size:14px;font-weight:700;padding:.4em 1.1em;cursor:pointer;transition:background .15s;';
+  reshuffleBtn.onmouseenter=()=>reshuffleBtn.style.background='rgba(255,255,255,0.22)';
+  reshuffleBtn.onmouseleave=()=>reshuffleBtn.style.background='rgba(255,255,255,0.12)';
+  reshuffleBtn.onclick=()=>{ overlay.remove(); showNamenGruppen(uid, names, numGroups); };
+  hdrLeft.appendChild(hdrTitle);
+  hdrLeft.appendChild(reshuffleBtn);
+
+  const closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'background:none;border:none;color:rgba(255,255,255,0.6);font-size:18px;cursor:pointer;padding:2px 8px;border-radius:8px;transition:background .15s,color .15s;';
+  closeBtn.onmouseenter=()=>{closeBtn.style.background='rgba(255,255,255,0.15)';closeBtn.style.color='#fff';};
+  closeBtn.onmouseleave=()=>{closeBtn.style.background='none';closeBtn.style.color='rgba(255,255,255,0.6)';};
+  closeBtn.onclick=()=>overlay.remove();
+  hdr.appendChild(hdrLeft);
+  hdr.appendChild(closeBtn);
+
+  // Grid of group cards
+  const grid = document.createElement('div');
+  grid.style.cssText = `display:flex;flex-wrap:wrap;gap:22px;justify-content:center;width:100%;max-width:1400px;`;
+
+  groups.forEach((members, gi)=>{
+    const col = document.createElement('div');
+    const rot = ROTS[gi % ROTS.length];
+    const bg = PASTEL[gi % PASTEL.length];
+    col.style.cssText = `
+      min-width:200px;max-width:300px;flex:1 1 220px;
+      display:flex;flex-direction:column;align-items:center;
+      border-radius:3px 16px 14px 4px;
+      background:${bg};
+      font-family:'Caveat',cursive;
+      color:#1e1a0e;
+      text-align:center;
+      padding:1em 1.1em 1.3em;
+      position:relative;
+      box-shadow:3px 5px 14px rgba(0,0,0,0.5), inset 0 -2px 0 rgba(0,0,0,0.06);
+      transform:rotate(${rot}deg);
+      background-image:repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent calc(1.8em - 1px),
+        rgba(99,120,50,0.18) calc(1.8em - 1px),
+        rgba(99,120,50,0.18) 1.8em
+      );
+    `;
+
+    // Group number badge
+    const badge = document.createElement('div');
+    badge.style.cssText = 'font-size:2.4em;font-weight:900;margin-bottom:.2em;line-height:1;opacity:0.85;';
+    badge.textContent = `${gi+1}`;
+
+    // Divider
+    const divider = document.createElement('div');
+    divider.style.cssText = `width:70%;height:2px;background:rgba(0,0,0,0.15);border-radius:1px;margin-bottom:.4em;`;
+
+    col.appendChild(badge);
+    col.appendChild(divider);
+
+    // Names list
+    members.forEach(name => {
+      const nameEl = document.createElement('div');
+      nameEl.style.cssText = 'font-size:1.6em;font-weight:700;line-height:1.45;word-break:break-word;';
+      nameEl.textContent = name;
+      col.appendChild(nameEl);
+    });
+
+    // Animate in
+    col.style.opacity = '0';
+    col.style.transform = `rotate(${rot}deg) scale(0.55) translateY(10px)`;
+    col.style.transition = `opacity .28s ease ${gi*0.04}s, transform .32s cubic-bezier(.34,1.56,.64,1) ${gi*0.04}s`;
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      col.style.opacity = '1';
+      col.style.transform = `rotate(${rot}deg) scale(1) translateY(0)`;
+    }));
+
+    grid.appendChild(col);
+  });
+
+  overlay.appendChild(hdr);
+  overlay.appendChild(grid);
+  document.body.appendChild(overlay);
 }
 
 // Recalculates the font size of the name display to fit the longest name in the list
