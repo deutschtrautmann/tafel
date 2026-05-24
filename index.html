@@ -4934,78 +4934,71 @@ function updateDiceGraphic(uid){
   const t=document.getElementById('dicetype-'+uid)?.value;
   const wrap=document.getElementById('dicewrap-'+uid); if(!wrap)return;
   if(t==='euro'){
-    // Idle-Anzeige: 3 Münzen + 2 Scheine als Vorschau, gedimmt
-    wrap.innerHTML=`<svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:0.55;">
+    // Idle-Anzeige: 2 Scheine (neues Design) + 3 Münzen darunter, gedimmt
+    // Hilfsfunktion für Sterne-Kreis (12 Sterne, goldgelb)
+    function idleStars(cx, cy, r, fs){
+      return Array.from({length:12},(_,i)=>{
+        const a=i*(Math.PI*2/12)-Math.PI/2;
+        return `<text x="${(cx+Math.cos(a)*r).toFixed(1)}" y="${(cy+Math.sin(a)*r).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${fs}" fill="#f5c800">★</text>`;
+      }).join('');
+    }
+    // Schein-Hilfsfunktion für Idle-Vorschau (neues Layout)
+    function idleNote(x, y, w, h, val, base, mid, dark, label){
+      const whiteW=Math.round(w*0.25);
+      const colorX=x+whiteW;
+      const colorW=w-whiteW;
+      const midRX=colorX+Math.round(colorW*0.18), midRY=y+Math.round(h*0.12);
+      const midRW=Math.round(colorW*0.64), midRH=Math.round(h*0.76);
+      const starCX=colorX+Math.round(colorW*0.50), starCY=y+Math.round(h*0.50);
+      const starR=Math.min(colorW,h)*0.24, starFS=Math.max(3,Math.round(h*0.11));
+      const bigFS=Math.max(8,Math.round(h*0.38));
+      const eFS=Math.max(5,Math.round(h*0.20));
+      const snFS=Math.max(4,Math.round(h*0.16));
+      const euFS=Math.max(3,Math.round(h*0.12));
+      const nid='idle'+Math.random().toString(36).slice(2,6);
+      return `
+        <defs><clipPath id="icp${nid}"><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4"/></clipPath></defs>
+        <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="4" fill="${base}" stroke="${dark}" stroke-width="0.8"/>
+        <rect x="${x}" y="${y}" width="${whiteW}" height="${h}" rx="4" fill="#f8f8f6" clip-path="url(#icp${nid})"/>
+        <rect x="${x+whiteW-4}" y="${y}" width="4" height="${h}" fill="#f8f8f6" clip-path="url(#icp${nid})"/>
+        <line x1="${colorX}" y1="${y+1}" x2="${colorX}" y2="${y+h-1}" stroke="${dark}" stroke-width="0.5" stroke-opacity="0.3"/>
+        <rect x="${midRX}" y="${midRY}" width="${midRW}" height="${midRH}" rx="2" fill="${mid}" opacity="0.7" clip-path="url(#icp${nid})"/>
+        ${idleStars(starCX, starCY, starR, starFS)}
+        <text x="${x+4}" y="${y+Math.round(h*0.22)}" font-family="Arial,sans-serif" font-size="${eFS}" font-weight="700" fill="${label}">€</text>
+        <text x="${x+3}" y="${y+Math.round(h*0.80)}" font-family="Arial Black,sans-serif" font-weight="900" font-size="${snFS}" fill="${label}">${val}</text>
+        <text x="${x+3+snFS*(val>=10?1.6:1.1)+1}" y="${y+Math.round(h*0.80)}" font-family="Arial,sans-serif" font-size="${euFS}" fill="${label}" dominant-baseline="central">Euro</text>
+        <text x="${x+w-4}" y="${y+Math.round(h*0.30)}" text-anchor="end" font-family="Arial Black,sans-serif" font-weight="900" font-size="${bigFS}" fill="${dark}" clip-path="url(#icp${nid})">${val}</text>`;
+    }
+    wrap.innerHTML=`<svg viewBox="0 0 300 168" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:0.55;">
       <defs>
-        <linearGradient id="idleN1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#6b8f6b"/><stop offset="54%" stop-color="#8fa882"/><stop offset="55%" stop-color="#c8cfc0"/><stop offset="100%" stop-color="#c8cfc0"/></linearGradient>
-        <linearGradient id="idleN2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#3a72a8"/><stop offset="54%" stop-color="#6a9ec8"/><stop offset="55%" stop-color="#b8d4e8"/><stop offset="100%" stop-color="#b8d4e8"/></linearGradient>
         <radialGradient id="idleC1" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#d4743a"/><stop offset="100%" stop-color="#8a3e10"/></radialGradient>
         <radialGradient id="idleC2" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#e8c040"/><stop offset="100%" stop-color="#9c7408"/></radialGradient>
         <radialGradient id="idleC3" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#e8e8e8"/><stop offset="100%" stop-color="#909090"/></radialGradient>
-        <clipPath id="idleClip1"><rect x="8" y="20" width="120" height="60" rx="4"/></clipPath>
-        <clipPath id="idleClip2"><rect x="172" y="20" width="120" height="60" rx="4"/></clipPath>
       </defs>
-      <!-- Schein 1: 5€ links -->
-      <rect x="8" y="20" width="120" height="60" rx="4" fill="url(#idleN1)" stroke="#4a6e4a" stroke-width="1"/>
-      <rect x="8" y="20" width="66" height="5" fill="#4a6e4a" opacity="0.55" clip-path="url(#idleClip1)"/>
-      <line x1="74" y1="22" x2="74" y2="78" stroke="#4a6e4a" stroke-width="0.6" stroke-opacity="0.3"/>
-      <text x="13" y="31" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="#4a6e4a">€</text>
-      <text x="41" y="57" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="28" fill="#4a6e4a" clip-path="url(#idleClip1)">5</text>
-      <text x="13" y="70" font-family="Arial,sans-serif" font-weight="700" font-size="6" fill="#4a6e4a">EURO</text>
-      <text x="124" y="29" text-anchor="end" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#4a6e4a">5</text>
-      <text x="124" y="75" text-anchor="end" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#4a6e4a" opacity="0.7">5</text>
-      <!-- Sterne 5€ rechts im Kreis -->
-      <text x="101" y="37" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="109" y="43" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="111" y="51" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="109" y="59" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="101" y="65" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="93" y="68" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="85" y="65" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="77" y="59" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="75" y="51" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="77" y="43" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="85" y="37" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="93" y="34" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <!-- Schein 2: 20€ rechts -->
-      <rect x="172" y="20" width="120" height="60" rx="4" fill="url(#idleN2)" stroke="#1e4e88" stroke-width="1"/>
-      <rect x="172" y="20" width="66" height="5" fill="#1e4e88" opacity="0.55" clip-path="url(#idleClip2)"/>
-      <line x1="238" y1="22" x2="238" y2="78" stroke="#1e4e88" stroke-width="0.6" stroke-opacity="0.3"/>
-      <text x="177" y="31" font-family="Arial,sans-serif" font-size="8" font-weight="700" fill="#1e4e88">€</text>
-      <text x="205" y="57" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="24" fill="#1e4e88" clip-path="url(#idleClip2)">20</text>
-      <text x="177" y="70" font-family="Arial,sans-serif" font-weight="700" font-size="6" fill="#1e4e88">EURO</text>
-      <text x="288" y="29" text-anchor="end" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#1e4e88">20</text>
-      <text x="288" y="75" text-anchor="end" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="#1e4e88" opacity="0.7">20</text>
-      <!-- Sterne 20€ rechts im Kreis -->
-      <text x="265" y="37" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="273" y="43" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="275" y="51" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="273" y="59" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="265" y="65" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="257" y="68" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="249" y="65" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="241" y="59" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="239" y="51" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="241" y="43" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="249" y="37" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
-      <text x="257" y="34" text-anchor="middle" dominant-baseline="central" font-size="5" fill="#f5c800">★</text>
+      <!-- Schein 1: 5€ (grau) links -->
+      ${idleNote(6, 14, 130, 68, 5, '#dde0d8', '#b0b8a8', '#5a6a52', '#3a4a32')}
+      <!-- Schein 2: 20€ (blau) rechts -->
+      ${idleNote(164, 14, 130, 68, 20, '#c8daf0', '#8aaed8', '#2a5a9a', '#1a3a72')}
       <!-- Münze 1: 50ct Gold -->
-      <circle cx="70" cy="128" r="22" fill="url(#idleC2)"/>
-      <circle cx="70" cy="128" r="16" fill="#f8dc70" opacity="0.7"/>
-      <text x="70" y="125" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="12" fill="rgba(255,255,255,0.85)">50</text>
-      <text x="70" y="139" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="rgba(255,255,255,0.65)">ct</text>
+      <ellipse cx="70" cy="141" rx="21" ry="3" fill="rgba(0,0,0,0.15)"/>
+      <circle cx="70" cy="136" r="22" fill="url(#idleC2)"/>
+      <circle cx="70" cy="136" r="16" fill="#f8dc70" opacity="0.7"/>
+      <text x="70" y="133" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="11" fill="rgba(255,255,255,0.85)">50</text>
+      <text x="70" y="146" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="rgba(255,255,255,0.65)">ct</text>
       <!-- Münze 2: 1€ bicolor -->
-      <circle cx="150" cy="128" r="22" fill="url(#idleC2)"/>
-      <circle cx="150" cy="128" r="16" fill="url(#idleC3)"/>
-      <text x="150" y="125" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="14" fill="rgba(255,255,255,0.85)">1</text>
-      <text x="150" y="139" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="rgba(255,255,255,0.65)">€</text>
+      <ellipse cx="150" cy="141" rx="21" ry="3" fill="rgba(0,0,0,0.15)"/>
+      <circle cx="150" cy="136" r="22" fill="url(#idleC2)"/>
+      <circle cx="150" cy="136" r="16" fill="url(#idleC3)"/>
+      <text x="150" y="133" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="13" fill="rgba(255,255,255,0.85)">1</text>
+      <text x="150" y="146" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="rgba(255,255,255,0.65)">€</text>
       <!-- Münze 3: 1ct Kupfer -->
-      <circle cx="230" cy="128" r="16" fill="url(#idleC1)"/>
-      <circle cx="230" cy="128" r="11" fill="#e89060" opacity="0.7"/>
-      <text x="230" y="125" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="10" fill="rgba(255,255,255,0.85)">1</text>
-      <text x="230" y="136" text-anchor="middle" font-family="Arial,sans-serif" font-size="5" fill="rgba(255,255,255,0.65)">ct</text>
+      <ellipse cx="230" cy="138" rx="15" ry="2.5" fill="rgba(0,0,0,0.15)"/>
+      <circle cx="230" cy="133" r="16" fill="url(#idleC1)"/>
+      <circle cx="230" cy="133" r="11" fill="#e89060" opacity="0.7"/>
+      <text x="230" y="130" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="9" fill="rgba(255,255,255,0.85)">1</text>
+      <text x="230" y="141" text-anchor="middle" font-family="Arial,sans-serif" font-size="5" fill="rgba(255,255,255,0.65)">ct</text>
       <!-- Hinweis-Text -->
-      <text x="150" y="8" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="rgba(255,255,255,0.45)">${T('diceClickHint')}</text>
+      <text x="150" y="6" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.40)">${T('diceClickHint')}</text>
     </svg>`;
   } else {
     const tnum=parseInt(t||6);
@@ -5043,20 +5036,20 @@ function rollDice(uid){
     // ══════════════════════════════════════════════════════════
 
     // ── Alle Geldwerte (Scheine + Münzen) ──
-    const noteValues = [5,10,20,50,100,200];
+    // Scheine bis 100€ bevorzugt (200€/500€ selten)
+    const noteValues = [5,5,5,10,10,10,20,20,20,50,50,50,100,100,200,500]; // gewichtet: 5/10/20/50/100 häufiger, 200/500 selten
     const coinValues = [1,2,5,10,20,50,100,200]; // ct=1..50, Euro=100(=1€),200(=2€)
 
-    // Schein-Farben angelehnt an echte EUR-Noten
-    // Farben exakt nach Vorlage (echte Euroscheine)
-    // bg[2]=linkes Panel (dunkel), bg[1]=Mitte, bg[0]=rechtes Panel (hell)
+    // Echte Euro-Schein-Farben: hell mit passendem Farbton
+    // base = heller Hauptton, mid = dunkleres Rechteck in der Mitte, dark = Textfarbe/Rand
     const noteColors = {
-      5:   { bg:['#c8cfc0','#8fa882','#6b8f6b'], border:'#4a6e4a', stripe:'#6b8f6b' },  // graugrün
-      10:  { bg:['#e8b89a','#cc7a5a','#b05a3a'], border:'#8a3a20', stripe:'#b85a38' },  // terrakotta/rotbraun
-      20:  { bg:['#b8d4e8','#6a9ec8','#3a72a8'], border:'#1e4e88', stripe:'#4a80b8' },  // blau/stahlblau
-      50:  { bg:['#f5c878','#e8903a','#cc6418'], border:'#a84010', stripe:'#d87830' },  // orange
-      100: { bg:['#c0d8a8','#7ab860','#4a9438'], border:'#286e18', stripe:'#5aaa38' },  // grün (satter als 5€)
-      200: { bg:['#e8dfa0','#c8b84a','#a89020'], border:'#786800', stripe:'#b8a030' },  // gelblich/ocker
-      500: { bg:['#d8c0d8','#b088b8','#8a5a9a'], border:'#5a3a78', stripe:'#9a68b0' },  // violett/lila
+      5:   { base:'#dde0d8', mid:'#b0b8a8', dark:'#5a6a52', label:'#3a4a32' },  // grau
+      10:  { base:'#f0c8b8', mid:'#d4947a', dark:'#8a3a20', label:'#6a2010' },  // rot
+      20:  { base:'#c8daf0', mid:'#8aaed8', dark:'#2a5a9a', label:'#1a3a72' },  // blau
+      50:  { base:'#f8dfa0', mid:'#e8b040', dark:'#a87010', label:'#7a4a00' },  // orange
+      100: { base:'#d0ecc0', mid:'#8acc70', dark:'#2a7a18', label:'#1a5010' },  // grün
+      200: { base:'#f4edb0', mid:'#d4c040', dark:'#8a7000', label:'#5a4800' },  // gelb
+      500: { base:'#e8d0f0', mid:'#c090d8', dark:'#6a3090', label:'#4a1870' },  // lila
     };
     // Münzmetall: Kupfer(1,2,5ct), Gold(10,20,50ct), Bimetall-Gold(1€=100), Bimetall-Silber(2€=200)
     const coinMetal = {
@@ -5071,55 +5064,55 @@ function rollDice(uid){
     };
     const coinSize = { 1:16, 2:18, 5:20, 10:18, 20:21, 50:24, 100:24, 200:27 };
 
-    // ── SVG-Hilfsfunktion: Schein (angelehnt an echte EUR-Noten nach Vorlage) ──
+    // ── SVG-Hilfsfunktion: Schein (getreu echten Euro-Scheinen) ──
+    // Layout: linkes ~25% weiß | Rest farbig | dunkles Rechteck in der Mitte
+    // Texte: € oben links (weiß), kleine Zahl+Euro unten links (weiß),
+    //        große Zahl oben rechts (dunkel), 12 Sterne kreisförmig in der Mitte
     function noteSVG(val, x, y, w, h){
       const nc = noteColors[val];
       const nid = 'n'+Math.random().toString(36).slice(2,7);
       const r = 5;
 
-      // Koordinaten-Helfer
-      const rx = (p) => x + Math.round(w * p);
-      const ry = (p) => y + Math.round(h * p);
-      const rw = (p) => Math.round(w * p);
-      const rh = (p) => Math.round(h * p);
+      // Weißer linker Streifen: ~25% der Breite
+      const whiteW = Math.round(w * 0.25);
+      const colorX = x + whiteW;
+      const colorW = w - whiteW;
 
-      // Zwei-Panel-Layout wie Vorlage:
-      // Linke Hälfte (ca. 55%): dunklerer Streifen mit großer Zahl + EURO-Text
-      // Rechte Hälfte (ca. 45%): hellerer Hintergrund mit Architektur-Motiv + Sterne-Kreis
-      const splitX = rx(0.55);
-      const splitW = Math.round(w * 0.55);
-      const rightX = splitX;
-      const rightW = w - splitW;
+      // Dunkleres Rechteck in der Mitte des farbigen Bereichs
+      const midRectX = colorX + Math.round(colorW * 0.18);
+      const midRectY = y + Math.round(h * 0.12);
+      const midRectW = Math.round(colorW * 0.64);
+      const midRectH = Math.round(h * 0.76);
 
-      // Textfarbe: dunkel wie auf echten Scheinen
-      const darkText = nc.border;
-      const midText  = nc.stripe;
+      // Textfarben
+      const darkText  = nc.dark;
+      const labelText = nc.label;
 
       // Schriftgrößen
-      const mainNumSize  = val >= 100 ? Math.round(h * 0.52) : (val >= 10 ? Math.round(h * 0.56) : Math.round(h * 0.60));
-      const euroLabelSize= Math.max(5, Math.round(h * 0.13)); // "EURO" klein
-      const eSize        = Math.max(6, Math.round(h * 0.18)); // €-Zeichen oben links
-      const smallValSize = Math.max(5, Math.round(h * 0.18)); // kleine Zahl rechts
-      const barH         = Math.max(3, Math.round(h * 0.10)); // Sicherheitsbalken oben
+      const bigNumSize   = Math.max(10, Math.round(h * 0.36)); // große Zahl oben rechts
+      const eSize        = Math.max(6,  Math.round(h * 0.20)); // € oben links (weiß)
+      const smallNumSize = Math.max(5,  Math.round(h * 0.16)); // kleine Zahl unten links
+      const euroTxtSize  = Math.max(4,  Math.round(h * 0.12)); // "Euro" neben kleiner Zahl
 
       // Positionen
-      const eX   = x + 5;
-      const eY   = y + eSize * 0.65 + barH + 2;
-      // Große Zahl: unten links im linken Panel
-      const numX = x + splitW * 0.50;
-      const numY = y + h * 0.54;
-      // "EURO" Text unter der großen Zahl
-      const euroY = y + h * 0.80;
-      // Kleiner Wert: rechts oben und rechts unten
-      const svX  = x + w - 6;
-      const svYt = y + barH + smallValSize * 0.7 + 2;
-      const svYb = y + h - smallValSize * 0.5 - 3;
+      // € oben links im weißen Bereich
+      const eX = x + 5;
+      const eY = y + Math.round(h * 0.22);
+      // Kleine Zahl unten links im weißen Bereich
+      const snX = x + 4;
+      const snY = y + Math.round(h * 0.80);
+      // "Euro" rechts neben kleiner Zahl (ebenfalls unten links)
+      const euTxtX = snX + smallNumSize * (val >= 100 ? 2.0 : (val >= 10 ? 1.5 : 1.0)) + 2;
+      const euTxtY = snY;
+      // Große Zahl oben rechts
+      const bigNumX = x + w - 6;
+      const bigNumY = y + Math.round(h * 0.32);
 
-      // Sterne-Kreis rechts (12 Sterne wie EU-Flagge)
-      const starCX = rightX + rightW * 0.50;
-      const starCY = y + h * 0.50;
-      const starR  = Math.min(rightW, h) * 0.28;
-      const starFS = Math.max(4, Math.round(h * 0.13));
+      // 12 Sterne kreisförmig in der Mitte des Scheins
+      const starCX = colorX + Math.round(colorW * 0.50);
+      const starCY = y + Math.round(h * 0.50);
+      const starR  = Math.min(colorW, h) * 0.24;
+      const starFS = Math.max(4, Math.round(h * 0.11));
       const stars12 = Array.from({length:12}, (_,i) => {
         const a = i * (Math.PI*2/12) - Math.PI/2;
         const sx = (starCX + Math.cos(a)*starR).toFixed(1);
@@ -5127,73 +5120,57 @@ function rollDice(uid){
         return `<text x="${sx}" y="${sy}" text-anchor="middle" dominant-baseline="central" font-size="${starFS}" fill="#f5c800">★</text>`;
       }).join('');
 
-      // Architektur-Motiv (stilisiertes Tor) im rechten Panel
-      const archX  = rightX + rightW * 0.12;
-      const archW2 = rightW * 0.76;
-      const archY2 = y + h * 0.12;
-      const archH2 = h * 0.72;
-      const archCX = archX + archW2/2;
-
       return `
         <defs>
-          <linearGradient id="ng${nid}" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%"   stop-color="${nc.bg[2]}"/>
-            <stop offset="54%"  stop-color="${nc.bg[1]}"/>
-            <stop offset="55%"  stop-color="${nc.bg[0]}"/>
-            <stop offset="100%" stop-color="${nc.bg[0]}"/>
-          </linearGradient>
           <clipPath id="nc${nid}">
             <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}"/>
           </clipPath>
         </defs>
 
-        <!-- Hauptfläche: linke Hälfte dunkler, rechte heller -->
-        <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="url(#ng${nid})" stroke="${nc.border}" stroke-width="1.2" clip-path="url(#nc${nid})"/>
+        <!-- Heller farbiger Hintergrund (gesamte Fläche) -->
+        <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${nc.base}" stroke="${nc.dark}" stroke-width="1.0"/>
 
-        <!-- Trennlinie zwischen Panels -->
-        <line x1="${splitX}" y1="${y+2}" x2="${splitX}" y2="${y+h-2}" stroke="${nc.border}" stroke-width="0.8" stroke-opacity="0.35" clip-path="url(#nc${nid})"/>
+        <!-- Weißer linker Streifen (~25%) -->
+        <rect x="${x}" y="${y}" width="${whiteW}" height="${h}" rx="${r}" fill="#f8f8f6" clip-path="url(#nc${nid})"/>
+        <!-- Abrundung rechts vom weißen Bereich begradigen -->
+        <rect x="${x + whiteW - r}" y="${y}" width="${r}" height="${h}" fill="#f8f8f6" clip-path="url(#nc${nid})"/>
 
-        <!-- Sicherheitsbalken oben (dunkler Streifen) -->
-        <rect x="${x}" y="${y}" width="${splitW}" height="${barH}" fill="${nc.border}" opacity="0.55" clip-path="url(#nc${nid})"/>
+        <!-- Trennlinie weißer Bereich / farbiger Bereich -->
+        <line x1="${colorX}" y1="${y+2}" x2="${colorX}" y2="${y+h-2}" stroke="${nc.dark}" stroke-width="0.6" stroke-opacity="0.3" clip-path="url(#nc${nid})"/>
 
-        <!-- Äußerer Rahmen -->
-        <rect x="${x+1.5}" y="${y+1.5}" width="${w-3}" height="${h-3}" rx="${r-1}" fill="none" stroke="${nc.border}" stroke-width="0.7" stroke-opacity="0.4" clip-path="url(#nc${nid})"/>
+        <!-- Dunkleres Rechteck in der Mitte (Architektur-/Muster-Feld) -->
+        <rect x="${midRectX}" y="${midRectY}" width="${midRectW}" height="${midRectH}" rx="3" fill="${nc.mid}" opacity="0.7" clip-path="url(#nc${nid})"/>
 
-        <!-- Architektur-Motiv rechts (stilisiertes Tor/Brücke) -->
-        <rect x="${archX}" y="${archY2}" width="${archW2}" height="${archH2}" rx="2" fill="rgba(0,0,0,0.06)" clip-path="url(#nc${nid})"/>
-        <path d="M${(archX+4).toFixed(1)},${(archY2+archH2*0.5).toFixed(1)} L${(archX+4).toFixed(1)},${(archY2+10).toFixed(1)} Q${(archX+4).toFixed(1)},${(archY2+2).toFixed(1)} ${archCX.toFixed(1)},${(archY2+2).toFixed(1)} Q${(archX+archW2-4).toFixed(1)},${(archY2+2).toFixed(1)} ${(archX+archW2-4).toFixed(1)},${(archY2+10).toFixed(1)} L${(archX+archW2-4).toFixed(1)},${(archY2+archH2*0.5).toFixed(1)}"
-          fill="none" stroke="${midText}" stroke-width="1.0" stroke-opacity="0.35" clip-path="url(#nc${nid})"/>
-        <line x1="${(archX+archW2*0.25).toFixed(1)}" y1="${(archY2+archH2*0.45).toFixed(1)}" x2="${(archX+archW2*0.25).toFixed(1)}" y2="${(archY2+archH2).toFixed(1)}" stroke="${midText}" stroke-width="0.8" stroke-opacity="0.30" clip-path="url(#nc${nid})"/>
-        <line x1="${(archX+archW2*0.50).toFixed(1)}" y1="${(archY2+archH2*0.45).toFixed(1)}" x2="${(archX+archW2*0.50).toFixed(1)}" y2="${(archY2+archH2).toFixed(1)}" stroke="${midText}" stroke-width="0.8" stroke-opacity="0.30" clip-path="url(#nc${nid})"/>
-        <line x1="${(archX+archW2*0.75).toFixed(1)}" y1="${(archY2+archH2*0.45).toFixed(1)}" x2="${(archX+archW2*0.75).toFixed(1)}" y2="${(archY2+archH2).toFixed(1)}" stroke="${midText}" stroke-width="0.8" stroke-opacity="0.30" clip-path="url(#nc${nid})"/>
+        <!-- Stilisiertes Architekturfenster im dunklen Rechteck -->
+        <rect x="${midRectX + Math.round(midRectW*0.15)}" y="${midRectY + Math.round(midRectH*0.15)}" width="${Math.round(midRectW*0.70)}" height="${Math.round(midRectH*0.60)}" rx="2" fill="none" stroke="${nc.dark}" stroke-width="0.8" stroke-opacity="0.35" clip-path="url(#nc${nid})"/>
+        <line x1="${(midRectX + midRectW*0.50).toFixed(1)}" y1="${(midRectY + midRectH*0.15).toFixed(1)}" x2="${(midRectX + midRectW*0.50).toFixed(1)}" y2="${(midRectY + midRectH*0.75).toFixed(1)}" stroke="${nc.dark}" stroke-width="0.6" stroke-opacity="0.25" clip-path="url(#nc${nid})"/>
+        <line x1="${(midRectX + midRectW*0.15).toFixed(1)}" y1="${(midRectY + midRectH*0.45).toFixed(1)}" x2="${(midRectX + midRectW*0.85).toFixed(1)}" y2="${(midRectY + midRectH*0.45).toFixed(1)}" stroke="${nc.dark}" stroke-width="0.6" stroke-opacity="0.25" clip-path="url(#nc${nid})"/>
 
-        <!-- 12 Sterne im Kreis (EU-Flagge) im rechten Panel -->
+        <!-- 12 Sterne kreisförmig in der Mitte -->
         ${stars12}
 
-        <!-- € oben links -->
+        <!-- Äußerer Rahmen -->
+        <rect x="${x+1}" y="${y+1}" width="${w-2}" height="${h-2}" rx="${r-0.5}" fill="none" stroke="${nc.dark}" stroke-width="0.5" stroke-opacity="0.3" clip-path="url(#nc${nid})"/>
+
+        <!-- € oben links im weißen Bereich (dunkel) -->
         <text x="${eX}" y="${eY}" text-anchor="start" dominant-baseline="central"
           font-family="Arial,sans-serif" font-size="${eSize}" font-weight="700"
-          fill="${darkText}">€</text>
+          fill="${labelText}">€</text>
 
-        <!-- Große Hauptzahl unten links im linken Panel -->
-        <text x="${numX.toFixed(1)}" y="${numY.toFixed(1)}" text-anchor="middle" dominant-baseline="central"
-          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${mainNumSize}"
-          fill="${darkText}" clip-path="url(#nc${nid})">${val}</text>
+        <!-- Kleine Zahl unten links im weißen Bereich -->
+        <text x="${snX}" y="${snY}" text-anchor="start" dominant-baseline="central"
+          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${smallNumSize}"
+          fill="${labelText}">${val}</text>
 
-        <!-- "EURO" unter der Zahl -->
-        <text x="${(x+8).toFixed(1)}" y="${euroY.toFixed(1)}" text-anchor="start" dominant-baseline="central"
-          font-family="Arial,sans-serif" font-weight="700" font-size="${euroLabelSize}"
-          fill="${darkText}">EURO</text>
+        <!-- "Euro" klein rechts neben der kleinen Zahl -->
+        <text x="${euTxtX.toFixed(1)}" y="${euTxtY}" text-anchor="start" dominant-baseline="central"
+          font-family="Arial,sans-serif" font-weight="400" font-size="${euroTxtSize}"
+          fill="${labelText}">Euro</text>
 
-        <!-- Kleiner Wert rechts oben -->
-        <text x="${svX}" y="${svYt.toFixed(1)}" text-anchor="end" dominant-baseline="central"
-          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${smallValSize}"
-          fill="${darkText}">${val}</text>
-
-        <!-- Kleiner Wert rechts unten -->
-        <text x="${svX}" y="${svYb.toFixed(1)}" text-anchor="end" dominant-baseline="central"
-          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${smallValSize}"
-          fill="${darkText}" opacity="0.7">${val}</text>`;
+        <!-- Große Hauptzahl oben rechts -->
+        <text x="${bigNumX}" y="${bigNumY.toFixed(1)}" text-anchor="end" dominant-baseline="central"
+          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${bigNumSize}"
+          fill="${darkText}" clip-path="url(#nc${nid})">${val}</text>`;
     }
 
     // ── SVG-Hilfsfunktion: Münze ──
@@ -5252,22 +5229,25 @@ function rollDice(uid){
     if(euroCount[uid] < 8) euroCount[uid]++;
     const n = euroCount[uid]; // 1..8
 
-    // Kombination aufbauen: Münzen und Scheine mischen
+    // Kombination aufbauen: höchstens 3 Scheine, Rest Münzen
     const items = [];
-    const typePool = [];
-    for(let i=0;i<n;i++) typePool.push(Math.random() < 0.35 ? 'note' : 'coin');
-    // Sicherstellen: nie ausschließlich eine Sorte wenn n>=3
-    const hasNote = typePool.includes('note');
-    const hasCoin = typePool.includes('coin');
-    if(n >= 3 && !hasNote) typePool[Math.floor(Math.random()*n)] = 'note';
-    if(n >= 3 && !hasCoin) typePool[Math.floor(Math.random()*n)] = 'coin';
-    typePool.forEach(t => {
-      if(t==='note'){
-        items.push({type:'note', val: noteValues[Math.floor(Math.random()*noteValues.length)]});
-      } else {
-        items.push({type:'coin', val: coinValues[Math.floor(Math.random()*coinValues.length)]});
-      }
-    });
+    const maxNotes = Math.min(3, n);
+    // Wie viele Scheine? 0 bis maxNotes, aber mindestens 1 wenn n>=2
+    let nNotesTarget = 0;
+    for(let i=0;i<n;i++){
+      if(Math.random() < 0.40 && nNotesTarget < maxNotes) nNotesTarget++;
+    }
+    if(n >= 2 && nNotesTarget === 0) nNotesTarget = 1; // mindestens 1 Schein ab 2 Items
+    nNotesTarget = Math.min(nNotesTarget, maxNotes);
+
+    // Scheine füllen (gewichtete Auswahl aus noteValues)
+    for(let i=0;i<nNotesTarget;i++){
+      items.push({type:'note', val: noteValues[Math.floor(Math.random()*noteValues.length)]});
+    }
+    // Münzen für den Rest
+    for(let i=nNotesTarget;i<n;i++){
+      items.push({type:'coin', val: coinValues[Math.floor(Math.random()*coinValues.length)]});
+    }
 
     // ── Render-Strategie: Scheine hinten, Münzen vorne ──
     // Scheine und Münzen separat sammeln, dann Scheine zuerst rendern,
@@ -5301,37 +5281,36 @@ function rollDice(uid){
     const noteCentersX = spreadCenters(noteItems.length, 50, VW-100);
     const coinCentersX = spreadCenters(coinItems.length, 35, VW-70);
 
+    // Höhe des SVG: Scheine oben, Münzen darunter in eigener Zone
+    const nCoinsRows = coinItems.length > 0 ? 1 : 0;
+    const coinZoneH = nCoinsRows > 0 ? coinR * 2 + 16 : 0;
+    const noteZoneH = 180;
+    const VH2 = noteZoneH + coinZoneH;
+
     let svgContent = '';
 
-    // 1. Scheine zuerst (hinten)
+    // 1. Scheine im oberen Bereich (noteZone)
     noteItems.forEach((item, i) => {
       const cx = noteCentersX[i];
-      const cy = VH/2 + offYPool[(item.origIdx * 3) % offYPool.length] * 0.7;
+      const cy = noteZoneH/2 + offYPool[(item.origIdx * 3) % offYPool.length] * 0.7;
       const rot = rotPool[(item.origIdx * 5) % rotPool.length];
       const nx = cx - noteW/2, ny = cy - noteH/2;
       svgContent += `<g transform="rotate(${rot.toFixed(1)},${cx},${cy})">${noteSVG(item.val, nx, ny, noteW, noteH)}</g>`;
     });
 
-    // 2. Münzen danach (vorne, nie verdeckt)
-    // Münzen in einer Reihe unten verteilt, mit leichter Y-Staffelung
-    const coinY = VH * 0.72;
-    coinItems.forEach((item, i) => {
-      const cx = coinCentersX[i];
-      const cy = coinY + offYPool[(item.origIdx * 7 + 2) % offYPool.length] * 0.5;
-      const rot = rotPool[(item.origIdx * 4 + 1) % rotPool.length] * 0.6;
-      const R = Math.min(coinSize[item.val], coinR);
-      const origSize = coinSize[item.val];
-      coinSize[item.val] = R;
-      svgContent += `<g transform="rotate(${rot.toFixed(1)},${cx},${cy})">${coinSVG(item.val, cx, cy)}</g>`;
-      coinSize[item.val] = origSize;
-    });
-
-    // ── Ergebnis-Text ──
-    const resText = items.map(it=>{
-      if(it.type==='note') return `${it.val}€`;
-      else if(it.val>=100) return `${it.val/100}€`;
-      else return `${it.val}ct`;
-    }).join(' + ');
+    // 2. Münzen in eigener Zeile unterhalb der Scheine
+    if(coinItems.length > 0){
+      const coinY = noteZoneH + coinR + 8;
+      coinItems.forEach((item, i) => {
+        const cx = coinCentersX[i];
+        const cy = coinY + offYPool[(item.origIdx * 7 + 2) % offYPool.length] * 0.4;
+        const R = Math.min(coinSize[item.val], coinR);
+        const origSize = coinSize[item.val];
+        coinSize[item.val] = R;
+        svgContent += coinSVG(item.val, cx, cy);
+        coinSize[item.val] = origSize;
+      });
+    }
 
     if(wrap){
       wrap.style.transform='scale(0.80) rotate(12deg)';
@@ -5339,8 +5318,8 @@ function rollDice(uid){
       setTimeout(()=>{
         wrap.style.transition='transform .25s cubic-bezier(.34,1.45,.64,1)';
         wrap.style.transform='scale(1) rotate(-2deg)';
-        wrap.innerHTML=`<svg viewBox="0 0 ${VW} ${VH}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">${svgContent}</svg>`;
-        if(res) res.textContent=`${T('diceErgebnis')}: ${resText}`;
+        wrap.innerHTML=`<svg viewBox="0 0 ${VW} ${VH2}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;">${svgContent}</svg>`;
+        if(res) res.textContent='';
         setTimeout(()=>{wrap.style.transform='';},160);
       },100);
     }
