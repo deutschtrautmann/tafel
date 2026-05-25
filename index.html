@@ -2267,7 +2267,7 @@ function _trSpiele(uid){
   const puzzlePanel=document.getElementById(`spiele-panel-puzzle-${uid}`);
   if(puzzlePanel && typeof pzState!=='undefined' && pzState[uid]){
     pzShowSentence(uid);
-    const fileLabel=puzzlePanel.querySelector('.pz-file-label');
+    const fileLabel=puzzlePanel.querySelector(`label.pz-file-label[for="pz-file-${uid}"]`);
     if(fileLabel) fileLabel.textContent=T('pzDateiLaden');
   }
   // Wheel panel uses uid*1000+1, Slot uses uid*1000+2
@@ -2476,12 +2476,48 @@ function playSound(id, vol=0.8){
 }
 
 function playCurrentSound(vol=0.8){ playSound(currentSound, vol); }
+
+// Läufer-Sounds: leise starten, crescendo, dann zweites Mal in voller Lautstärke
+function playFadeinDouble(id, fullVol=0.9){
+  if(!soundEnabled) return;
+  const fv = Math.min(1, fullVol * soundVolume);
+  const ac = window._pzAudioCtx;
+
+  function playWithGainRamp(startVol, endVol, durationSec, onEnded){
+    if(ac && window._waBuffers && window._waBuffers[id]){
+      if(ac.state === 'suspended') ac.resume();
+      const buf  = window._waBuffers[id];
+      const src  = ac.createBufferSource();
+      const gain = ac.createGain();
+      gain.gain.setValueAtTime(Math.max(0.001, startVol), ac.currentTime);
+      gain.gain.linearRampToValueAtTime(endVol, ac.currentTime + durationSec);
+      src.buffer = buf;
+      src.connect(gain);
+      gain.connect(ac.destination);
+      if(onEnded) src.onended = onEnded;
+      src.start(0);
+    } else {
+      // Fallback: HTML Audio ohne Fade
+      const el = document.getElementById('snd-'+id);
+      if(el){ el.volume=Math.min(1,endVol); el.currentTime=0; el.play(); }
+      if(onEnded) setTimeout(onEnded, 3000);
+    }
+  }
+
+  // 1. Durchlauf: von 5% auf 100% der Ziellautstärke ansteigend
+  playWithGainRamp(fv * 0.05, fv, 1.5, ()=>{
+    // 2. Durchlauf: sofort in voller Lautstärke
+    playWithGainRamp(fv, fv, 0, null);
+  });
+}
+
 function playTimerEnd(){
-  // Läufer-Modus aktiv? → Applaus, sonst 1× Glocke
+  // Läufer-Modus aktiv? → Applaus mit Fade-in-Doppel, sonst 1× Glocke
   const lauferActive = !!document.querySelector('.timer-mode-btn.active-tmode[id^="tbtn-lauf-"]');
-  if(lauferActive) playSound('Applaus',0.9);
+  if(lauferActive) playFadeinDouble('Applaus', 0.9);
   else             playSound('Glocke',0.9);
 }
+
 
 // — Individual synth sounds —
 
@@ -4098,7 +4134,7 @@ function lauferDrawFrame(uid){
       lauferDogActive[uid] = true;
       if(!lauferDogPlayed[uid]){
         lauferDogPlayed[uid] = true;
-        setTimeout(()=>{ playSound('Hundebellen', 0.85); }, 300);
+        setTimeout(()=>{ playFadeinDouble('Hundebellen', 0.85); }, 300);
       }
       // Hund startet an der Türposition (x=378, relativ zu dogBaseX=362 → offset=16)
       lauferDogX[uid] = 16;
@@ -4139,7 +4175,7 @@ function lauferDrawFrame(uid){
       lauferDogActive[uid] = true;
       if(!lauferDogPlayed[uid]){
         lauferDogPlayed[uid] = true;
-        setTimeout(()=>{ playSound('Vogel', 0.85); }, 300);
+        setTimeout(()=>{ playFadeinDouble('Vogel', 0.85); }, 300);
       }
     }
     const t2=(lauferPhase[uid]||0)/1000;
@@ -4206,7 +4242,7 @@ function lauferDrawFrame(uid){
       lauferDogActive[uid] = true;
       if(!lauferDogPlayed[uid]){
         lauferDogPlayed[uid] = true;
-        setTimeout(()=>{ playSound('Miau', 0.85); }, 300);
+        setTimeout(()=>{ playFadeinDouble('Miau', 0.85); }, 300);
       }
     }
     // Maus erscheint erst wenn Tür halb offen, läuft dann dauerhaft (auch wenn Tür wieder zu)
@@ -4971,32 +5007,40 @@ function updateDiceGraphic(uid){
     }
     wrap.innerHTML=`<svg viewBox="0 0 300 168" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:0.55;">
       <defs>
-        <radialGradient id="idleC1" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#d4743a"/><stop offset="100%" stop-color="#8a3e10"/></radialGradient>
-        <radialGradient id="idleC2" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#e8c040"/><stop offset="100%" stop-color="#9c7408"/></radialGradient>
-        <radialGradient id="idleC3" cx="38%" cy="32%" r="65%"><stop offset="0%" stop-color="#e8e8e8"/><stop offset="100%" stop-color="#909090"/></radialGradient>
+        <!-- Gold: 10/20/50ct -->
+        <radialGradient id="idleGold" cx="36%" cy="30%" r="70%"><stop offset="0%" stop-color="#f0be18"/><stop offset="100%" stop-color="#9a7000"/></radialGradient>
+        <!-- Silber: 2€ äußerer Ring -->
+        <radialGradient id="idleSilv" cx="36%" cy="30%" r="70%"><stop offset="0%" stop-color="#d8d8d8"/><stop offset="100%" stop-color="#808080"/></radialGradient>
+        <!-- Kupfer: 1/2/5ct -->
+        <radialGradient id="idleCop" cx="36%" cy="30%" r="70%"><stop offset="0%" stop-color="#e06830"/><stop offset="100%" stop-color="#9a4412"/></radialGradient>
       </defs>
       <!-- Schein 1: 5€ (grau) links -->
       ${idleNote(6, 14, 130, 68, 5, '#dde0d8', '#b0b8a8', '#5a6a52', '#3a4a32')}
       <!-- Schein 2: 20€ (blau) rechts -->
       ${idleNote(164, 14, 130, 68, 20, '#c8daf0', '#8aaed8', '#2a5a9a', '#1a3a72')}
-      <!-- Münze 1: 50ct Gold -->
-      <ellipse cx="70" cy="141" rx="21" ry="3" fill="rgba(0,0,0,0.15)"/>
-      <circle cx="70" cy="136" r="22" fill="url(#idleC2)"/>
-      <circle cx="70" cy="136" r="16" fill="#f8dc70" opacity="0.7"/>
-      <text x="70" y="133" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="11" fill="rgba(255,255,255,0.85)">50</text>
-      <text x="70" y="146" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="rgba(255,255,255,0.65)">ct</text>
-      <!-- Münze 2: 1€ bicolor -->
-      <ellipse cx="150" cy="141" rx="21" ry="3" fill="rgba(0,0,0,0.15)"/>
-      <circle cx="150" cy="136" r="22" fill="url(#idleC2)"/>
-      <circle cx="150" cy="136" r="16" fill="url(#idleC3)"/>
-      <text x="150" y="133" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="13" fill="rgba(255,255,255,0.85)">1</text>
-      <text x="150" y="146" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="rgba(255,255,255,0.65)">€</text>
-      <!-- Münze 3: 1ct Kupfer -->
-      <ellipse cx="230" cy="138" rx="15" ry="2.5" fill="rgba(0,0,0,0.15)"/>
-      <circle cx="230" cy="133" r="16" fill="url(#idleC1)"/>
-      <circle cx="230" cy="133" r="11" fill="#e89060" opacity="0.7"/>
-      <text x="230" y="130" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="9" fill="rgba(255,255,255,0.85)">1</text>
-      <text x="230" y="141" text-anchor="middle" font-family="Arial,sans-serif" font-size="5" fill="rgba(255,255,255,0.65)">ct</text>
+      <!-- Münze 1: 50ct Gold (rechts versetzt) -->
+      <ellipse cx="70" cy="141" rx="21" ry="3" fill="rgba(0,0,0,0.18)"/>
+      <circle cx="70" cy="136" r="22" fill="url(#idleGold)"/>
+      <circle cx="70" cy="136" r="22" fill="none" stroke="#9a7000" stroke-width="0.8"/>
+      <circle cx="70" cy="136" r="14" fill="url(#idleGold)"/>
+      <circle cx="70" cy="136" r="14" fill="none" stroke="#9a7000" stroke-width="0.8"/>
+      <text x="${70+2}" y="133" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="11" fill="#6b4800">50</text>
+      <text x="70" y="146" text-anchor="middle" font-family="Arial,sans-serif" font-size="6" fill="#6b4800">Cent</text>
+      <!-- Münze 2: 1€ bicolor (Gold außen, Silber innen; Zahl links + "Euro") -->
+      <ellipse cx="150" cy="141" rx="21" ry="3" fill="rgba(0,0,0,0.18)"/>
+      <circle cx="150" cy="136" r="22" fill="url(#idleGold)"/>
+      <circle cx="150" cy="136" r="22" fill="none" stroke="#9a7000" stroke-width="0.8"/>
+      <circle cx="150" cy="136" r="14" fill="#d8d8d8"/>
+      <circle cx="150" cy="136" r="14" fill="none" stroke="#9a7000" stroke-width="0.8"/>
+      <text x="${150-7}" y="133" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="13" fill="#5a6a6a">1</text>
+      <text x="${150+1}" y="133" text-anchor="start" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="700" font-size="6" fill="#5a6a6a">Euro</text>
+      <!-- Münze 3: 1ct Kupfer (links versetzt) -->
+      <ellipse cx="230" cy="138" rx="15" ry="2.5" fill="rgba(0,0,0,0.18)"/>
+      <circle cx="230" cy="133" r="16" fill="url(#idleCop)"/>
+      <circle cx="230" cy="133" r="16" fill="none" stroke="#9a4412" stroke-width="0.8"/>
+      <circle cx="230" cy="133" r="9" fill="#7a2e08"/>
+      <text x="${230-7}" y="130" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="9" fill="#f0c090">1</text>
+      <text x="${230+1}" y="130" text-anchor="start" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="700" font-size="5" fill="#f0c090">Cent</text>
       <!-- Hinweis-Text -->
       <text x="150" y="6" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.40)">${T('diceClickHint')}</text>
     </svg>`;
@@ -5051,16 +5095,17 @@ function rollDice(uid){
       200: { base:'#f4edb0', mid:'#d4c040', dark:'#8a7000', label:'#5a4800' },  // gelb
       500: { base:'#e8d0f0', mid:'#c090d8', dark:'#6a3090', label:'#4a1870' },  // lila
     };
-    // Münzmetall: Kupfer(1,2,5ct), Gold(10,20,50ct), Bimetall-Gold(1€=100), Bimetall-Silber(2€=200)
+    // Münzmetall: Kupfer(1,2,5ct), Gold(10,20,50ct), Bimetall(1€,2€)
+    // type: 'copper'=1/2/5ct, 'gold'=10/20/50ct, 'bi-gold'=1€(gold außen/silber innen), 'bi-silver'=2€(silber außen/gold innen)
     const coinMetal = {
-      1:   { outer:['#d4743a','#b85a20','#8a3e10'], inner:['#e89060','#cc6e3a','#9a4c18'], label:'1', sub:'ct', isEuro:false },
-      2:   { outer:['#d4743a','#b85a20','#8a3e10'], inner:['#e89060','#cc6e3a','#9a4c18'], label:'2', sub:'ct', isEuro:false },
-      5:   { outer:['#d4743a','#b85a20','#8a3e10'], inner:['#e89060','#cc6e3a','#9a4c18'], label:'5', sub:'ct', isEuro:false },
-      10:  { outer:['#e8c040','#c89c18','#9c7408'], inner:['#f8dc70','#dcb030','#b08010'], label:'10', sub:'ct', isEuro:false },
-      20:  { outer:['#e8c040','#c89c18','#9c7408'], inner:['#f8dc70','#dcb030','#b08010'], label:'20', sub:'ct', isEuro:false },
-      50:  { outer:['#e8c040','#c89c18','#9c7408'], inner:['#f8dc70','#dcb030','#b08010'], label:'50', sub:'ct', isEuro:false },
-      100: { outer:['#e8c040','#c89c18','#9c7408'], inner:['#e8e8e8','#c0c0c0','#909090'], label:'1', sub:'€', isEuro:true, bicolor:true },
-      200: { outer:['#e8e8e8','#c4c4c4','#909090'], inner:['#e8c040','#c89c18','#9c7408'], label:'2', sub:'€', isEuro:true, bicolor:true },
+      1:   { body:'#e06830', bodyDark:'#9a4412', innerRing:'#7a2e08', label:'1',  sub:'', labelColor:'#f0c090', numLeft:true,  euroText:true,  euroLabel:'Cent', type:'copper' },
+      2:   { body:'#e06830', bodyDark:'#9a4412', innerRing:'#7a2e08', label:'2',  sub:'', labelColor:'#f0c090', numLeft:true,  euroText:true,  euroLabel:'Cent', type:'copper' },
+      5:   { body:'#e06830', bodyDark:'#9a4412', innerRing:'#7a2e08', label:'5',  sub:'', labelColor:'#f0c090', numLeft:true,  euroText:true,  euroLabel:'Cent', type:'copper' },
+      10:  { body:'#f0be18', bodyDark:'#9a7000', innerRing:'#b08800', label:'10', sub:'Cent', labelColor:'#6b4800', numLeft:false, euroText:false, euroLabel:'', type:'gold'   },
+      20:  { body:'#f0be18', bodyDark:'#9a7000', innerRing:'#b08800', label:'20', sub:'Cent', labelColor:'#6b4800', numLeft:false, euroText:false, euroLabel:'', type:'gold'   },
+      50:  { body:'#f0be18', bodyDark:'#9a7000', innerRing:'#b08800', label:'50', sub:'Cent', labelColor:'#6b4800', numLeft:false, euroText:false, euroLabel:'', type:'gold'   },
+      100: { body:'#f0be18', bodyDark:'#9a7000', innerRing:'#d0d0d0', label:'1',  sub:'',   labelColor:'#5a6a6a', numLeft:true,  euroText:true,  euroLabel:'Euro', type:'bi-gold'   },
+      200: { body:'#d8d8d8', bodyDark:'#808080', innerRing:'#e0aa10', label:'2',  sub:'',   labelColor:'#6a5000', numLeft:true,  euroText:true,  euroLabel:'Euro', type:'bi-silver' },
     };
     const coinSize = { 1:16, 2:18, 5:20, 10:18, 20:21, 50:24, 100:24, 200:27 };
 
@@ -5173,55 +5218,88 @@ function rollDice(uid){
           fill="${darkText}" clip-path="url(#nc${nid})">${val}</text>`;
     }
 
-    // ── SVG-Hilfsfunktion: Münze ──
+    // ── SVG-Hilfsfunktion: Münze (simpel, an Vorlage angelehnt) ──
     function coinSVG(val, cx, cy){
       const R  = coinSize[val];
       const m  = coinMetal[val];
       const cid = 'c'+Math.random().toString(36).slice(2,7);
-      const isEuro = m.isEuro;
-      const Ri = isEuro ? Math.round(R*0.62) : Math.round(R*0.75);
-      const nNotches = isEuro ? 0 : Math.round(R*1.1);
-      const notches = nNotches > 0 ? Array.from({length:nNotches},(_,i)=>{
-        const a=i*(Math.PI*2/nNotches);
-        const r1=R-2.5, r2=R;
-        return `<line x1="${(cx+Math.cos(a)*r1).toFixed(1)}" y1="${(cy+Math.sin(a)*r1).toFixed(1)}" x2="${(cx+Math.cos(a)*r2).toFixed(1)}" y2="${(cy+Math.sin(a)*r2).toFixed(1)}" stroke="${m.outer[2]}" stroke-width="1"/>`;
-      }).join('') : '';
-      const starR = Ri - Math.round(Ri*0.30);
-      const starSize = Math.max(2.5, Math.round(R*0.13));
-      const nStars = isEuro ? 12 : 8;
-      const stars = Array.from({length:nStars},(_,i)=>{
-        const a=i*(Math.PI*2/nStars)-Math.PI/2;
-        return `<text x="${(cx+Math.cos(a)*starR).toFixed(1)}" y="${(cy+Math.sin(a)*starR).toFixed(1)}" text-anchor="middle" dominant-baseline="central" font-size="${starSize}" fill="rgba(255,255,255,0.55)">★</text>`;
-      }).join('');
-      const labelSize = Math.round(R*(isEuro?0.60:0.70));
-      const subSize = Math.max(4, Math.round(R*0.26));
-      const labelY = cy - Math.round(R*0.08);
+
+      // Innenkreis-Radius
+      const Ri = (m.type==='copper') ? Math.round(R*0.58) : Math.round(R*0.62);
+
+      // Schatten
+      const shadow = `<ellipse cx="${cx+1.5}" cy="${cy+R-1}" rx="${R-2}" ry="${Math.round(R*0.11)}" fill="rgba(0,0,0,0.20)"/>`;
+
+      const outerFill   = m.body;
+      const outerStroke = m.bodyDark;
+
+      // Innenkreis-Farbe
+      let innerFill;
+      if(m.type==='copper')       innerFill = m.innerRing;
+      else if(m.type==='gold')    innerFill = m.body;
+      else if(m.type==='bi-gold') innerFill = '#d8d8d8';   // 1€: silberner Innenkreis (heller)
+      else                        innerFill = '#f0be18';   // 2€: goldener Innenkreis (heller)
+
+      // Zahlenposition:
+      // 1/2/5ct: deutlich links (Platz für "Cent"); 10/20/50ct: leicht rechts; 1€/2€: deutlich links (Platz für "Euro")
+      const isEuroVal = (m.type==='bi-gold' || m.type==='bi-silver');
+      const isCopperVal = (m.type==='copper');
+      const labelSize = Math.round(R * (m.label.length > 1 ? 0.62 : 0.72));
+      const subSize   = Math.max(4, Math.round(R * 0.28));
+      const euroTextSize = Math.max(3, Math.round(R * 0.22));
+
+      // X-Offset für Zahl: Kupfer + Euro-Münzen deutlich links, Gold leicht rechts
+      const offX = (isEuroVal || isCopperVal) ? -Math.round(R*0.30) : Math.round(R*0.10);
+      const labelX = cx + offX;
+      const labelY = cy - Math.round(R*0.05);
+
+      // Nebentext ("Cent" / "Euro") rechts neben der Zahl
+      const euroLabelX = labelX + Math.round(labelSize * 0.55) + 2;
+      const euroLabel = m.euroText
+        ? `<text x="${euroLabelX}" y="${labelY}" text-anchor="start" dominant-baseline="central"
+            font-family="Arial,sans-serif" font-weight="700" font-size="${euroTextSize}"
+            fill="${m.labelColor}">${m.euroLabel}</text>`
+        : '';
+
+      // Glanzfleck
+      const shine = `<ellipse cx="${cx-Math.round(R*0.22)}" cy="${cy-Math.round(R*0.28)}" rx="${Math.round(R*0.18)}" ry="${Math.round(R*0.09)}" fill="rgba(255,255,255,0.22)" transform="rotate(-30,${cx-Math.round(R*0.22)},${cy-Math.round(R*0.28)})"/>`;
+
+      // Ring-Kontur: dünn (0.8px) bei allen Münzen
+      const ringStroke = (m.type==='gold' || m.type==='bi-gold' || m.type==='bi-silver')
+        ? `<circle cx="${cx}" cy="${cy}" r="${Ri}" fill="none" stroke="${m.bodyDark}" stroke-width="0.8"/>`
+        : '';
+      // Äußere Kontur ebenfalls dünn
+      const outerContour = `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${outerStroke}" stroke-width="0.8"/>`;
+
+      // "ct"-Subtext nur für Cent-Münzen
+      const subText = m.sub
+        ? `<text x="${cx}" y="${cy+Math.round(R*0.46)}" text-anchor="middle" dominant-baseline="central"
+            font-family="Arial,sans-serif" font-weight="700" font-size="${subSize}"
+            fill="${m.labelColor}">${m.sub}</text>`
+        : '';
+
       return `
         <defs>
-          <radialGradient id="cg${cid}" cx="38%" cy="32%" r="65%">
-            <stop offset="0%" stop-color="${m.outer[0]}"/><stop offset="50%" stop-color="${m.outer[1]}"/><stop offset="100%" stop-color="${m.outer[2]}"/>
+          <radialGradient id="cg${cid}" cx="36%" cy="30%" r="70%">
+            <stop offset="0%" stop-color="${outerFill}" stop-opacity="1"/>
+            <stop offset="100%" stop-color="${outerStroke}" stop-opacity="1"/>
           </radialGradient>
-          <radialGradient id="ci${cid}" cx="40%" cy="34%" r="60%">
-            <stop offset="0%" stop-color="${m.inner[0]}"/><stop offset="55%" stop-color="${m.inner[1]}"/><stop offset="100%" stop-color="${m.inner[2]}"/>
+          <radialGradient id="ci${cid}" cx="38%" cy="32%" r="65%">
+            <stop offset="0%" stop-color="${innerFill}" stop-opacity="1"/>
+            <stop offset="100%" stop-color="${m.innerRing}" stop-opacity="1"/>
           </radialGradient>
         </defs>
-        <ellipse cx="${cx+1.5}" cy="${cy+R-1.5}" rx="${R-1.5}" ry="${Math.round(R*0.12)}" fill="rgba(0,0,0,0.18)"/>
+        ${shadow}
         <circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#cg${cid})"/>
-        ${notches}
-        ${isEuro ? `<circle cx="${cx}" cy="${cy}" r="${R}" fill="none" stroke="${m.outer[2]}" stroke-width="2.5"/>` : ''}
+        ${outerContour}
         <circle cx="${cx}" cy="${cy}" r="${Ri}" fill="url(#ci${cid})"/>
-        <circle cx="${cx}" cy="${cy}" r="${Ri}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1"/>
-        ${stars}
-        <text x="${cx}" y="${labelY}" text-anchor="middle" dominant-baseline="central"
+        ${ringStroke}
+        ${shine}
+        <text x="${labelX}" y="${labelY}" text-anchor="middle" dominant-baseline="central"
           font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${labelSize}"
-          fill="rgba(0,0,0,0.38)">${m.label}</text>
-        <text x="${cx}" y="${labelY}" text-anchor="middle" dominant-baseline="central"
-          font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${labelSize}"
-          fill="rgba(255,255,255,0.90)">${m.label}</text>
-        <text x="${cx}" y="${cy+Math.round(R*0.44)}" text-anchor="middle" dominant-baseline="central"
-          font-family="Arial,sans-serif" font-weight="700" font-size="${subSize}"
-          fill="rgba(255,255,255,0.68)">${m.sub}</text>
-        <ellipse cx="${cx-Math.round(R*0.26)}" cy="${cy-Math.round(R*0.28)}" rx="${Math.round(R*0.20)}" ry="${Math.round(R*0.10)}" fill="rgba(255,255,255,0.18)" transform="rotate(-30,${cx-Math.round(R*0.26)},${cy-Math.round(R*0.28)})"/>`;
+          fill="${m.labelColor}">${m.label}</text>
+        ${euroLabel}
+        ${subText}`;
     }
 
     // ── Progressiv 1→8, jedes Mal neue zufällige Kombination gleicher Länge ──
@@ -9322,13 +9400,18 @@ function buildPuzzlePanel(panel, uid){
   scrollArea.style.cssText = 'flex:1 1 0;min-height:0;height:0;overflow-y:auto;overflow-x:hidden;padding:10px 10px 10px;display:flex;flex-direction:column;gap:6px;';
   panel.appendChild(scrollArea);
 
+  // Button row: file button + Einträge button
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;';
+  scrollArea.appendChild(btnRow);
+
   // File button — compact, not full width
   const fileLabel = document.createElement('label');
   fileLabel.className = 'pz-file-label';
   fileLabel.textContent = T('pzDateiLaden');
   fileLabel.htmlFor = `pz-file-${uid}`;
-  fileLabel.style.cssText += ';align-self:flex-start;';
-  scrollArea.appendChild(fileLabel);
+  fileLabel.style.marginBottom = '0';
+  btnRow.appendChild(fileLabel);
 
   const fileInput = document.createElement('input');
   fileInput.type = 'file'; fileInput.accept = '.txt'; fileInput.id = `pz-file-${uid}`;
@@ -9344,7 +9427,15 @@ function buildPuzzlePanel(panel, uid){
     };
     r1.readAsText(file, 'UTF-8');
   });
-  scrollArea.appendChild(fileInput);
+  btnRow.appendChild(fileInput);
+
+  // Einträge button — opens manual text entry modal (same style as Rad)
+  const eintraegeBtn = document.createElement('button');
+  eintraegeBtn.className = 'pz-file-label';
+  eintraegeBtn.style.cssText += ';margin-bottom:0;cursor:pointer;border:none;';
+  eintraegeBtn.textContent = '✏️ Einträge';
+  eintraegeBtn.onclick = () => pzShowEintraegeModal(uid);
+  btnRow.appendChild(eintraegeBtn);
 
   const game = document.createElement('div');
   game.id = `pz-game-${uid}`;
@@ -9352,6 +9443,100 @@ function buildPuzzlePanel(panel, uid){
   scrollArea.appendChild(game);
 
   pzShowSentence(uid);
+}
+
+function pzShowEintraegeModal(uid){
+  // Toggle: close if already open
+  const existing = document.getElementById('pz-eintraege-modal-'+uid);
+  if(existing){ existing.remove(); return; }
+
+  const st = pzState[uid];
+
+  // Overlay backdrop
+  const overlay = document.createElement('div');
+  overlay.id = 'pz-eintraege-modal-'+uid;
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:50000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);';
+  overlay.addEventListener('mousedown', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  // Dialog box
+  const box = document.createElement('div');
+  box.style.cssText = 'background:var(--card);border-radius:16px;padding:20px 22px 18px;box-shadow:0 12px 48px rgba(0,0,0,0.55);min-width:320px;max-width:520px;width:90vw;display:flex;flex-direction:column;gap:12px;';
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
+  const title = document.createElement('div');
+  title.style.cssText = 'font-weight:700;font-size:1.05em;color:var(--text);';
+  title.textContent = '✏️ Einträge';
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'wh-btn';
+  closeBtn.style.cssText = 'font-size:1.15em;padding:2px 8px;border-radius:7px;cursor:pointer;background:none;border:none;color:var(--text2);';
+  closeBtn.textContent = '✕';
+  closeBtn.onclick = ()=>overlay.remove();
+  hdr.appendChild(title);
+  hdr.appendChild(closeBtn);
+  box.appendChild(hdr);
+
+  // Hint
+  const hint = document.createElement('div');
+  hint.style.cssText = 'font-size:.82em;color:var(--text2);line-height:1.5;';
+  hint.textContent = 'Ein Satz pro Zeile. Leerzeilen werden ignoriert.';
+  box.appendChild(hint);
+
+  // Textarea — pre-fill with current sentences
+  const ta = document.createElement('textarea');
+  ta.className = 'slot-edit-textarea';
+  ta.spellcheck = false;
+  ta.style.cssText += ';min-height:140px;';
+  ta.value = (st && st.sentences && st.sentences.length) ? st.sentences.join('\n') : (st && st.lastData ? st.lastData : '');
+  box.appendChild(ta);
+
+  // Buttons row
+  const btnRow2 = document.createElement('div');
+  btnRow2.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+
+  const applyBtn = document.createElement('button');
+  applyBtn.className = 'wbtn primary';
+  applyBtn.style.cssText = 'font-size:.92em;padding:.45em 1.2em;';
+  applyBtn.textContent = '✔ Übernehmen';
+  applyBtn.onclick = ()=>{
+    const text = ta.value.trim();
+    if(!text) return;
+    st.lastData = text;
+    pzProcessData(uid, text);
+    overlay.remove();
+  };
+  btnRow2.appendChild(applyBtn);
+
+  // TXT-Datei laden inside modal
+  const fileLabelM = document.createElement('label');
+  fileLabelM.style.cssText = 'cursor:pointer;display:contents;';
+  const fileSpan = document.createElement('span');
+  fileSpan.className = 'wbtn';
+  fileSpan.style.cssText = 'font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;';
+  fileSpan.textContent = '📂 TXT laden';
+  const fileInputM = document.createElement('input');
+  fileInputM.type = 'file'; fileInputM.accept = '.txt,text/plain';
+  fileInputM.style.display = 'none';
+  fileInputM.addEventListener('change', function(){
+    const file = fileInputM.files?.[0]; if(!file) return;
+    const apply = text => { ta.value = (text||'').replace(/\r\n/g,'\n'); fileInputM.value=''; };
+    const r1 = new FileReader();
+    r1.onload = e => {
+      const text = e.target.result || '';
+      if(text.includes('\uFFFD')){ const r2=new FileReader(); r2.onload=e2=>apply(e2.target.result||''); r2.readAsText(file,'windows-1252'); }
+      else apply(text);
+    };
+    r1.readAsText(file, 'UTF-8');
+  });
+  fileLabelM.appendChild(fileSpan);
+  fileLabelM.appendChild(fileInputM);
+  btnRow2.appendChild(fileLabelM);
+
+  box.appendChild(btnRow2);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  setTimeout(()=>ta.focus(),80);
 }
 
 function pzProcessData(uid, data){
@@ -10993,6 +11178,7 @@ function ddtInitEvents(){
 
   // Override playSound to use Web Audio API when buffer is ready
   window._pzAudioCtx = _audioCtx;   // expose for Puzzle
+  window._waBuffers  = _buffers;    // expose for playFadeinDouble
   window._waPlaySound = function(id, vol) {
     if(_audioCtx.state === 'suspended') _audioCtx.resume();
     const buf = _buffers[id];
