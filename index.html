@@ -1311,6 +1311,94 @@ body.light-mode .pz-word{background:#fff;border-color:rgba(0,0,0,0.12);color:#1a
 body.light-mode .pz-container{background:rgba(58,106,255,0.10);border:2px solid rgba(58,106,255,0.25);}
 body.light-mode .pz-file-label{background:#e8f0fe;border-color:#3a6aff;color:#1a1f3a;}
 
+/* ── Zuordnen-Spiel ── */
+.zu-field{
+  min-height:calc(var(--uiscale,1)*70px);
+  border:2px solid rgba(180,195,220,0.6);border-radius:14px;
+  padding:calc(var(--uiscale,1)*10px);
+  display:flex;flex-wrap:wrap;gap:calc(var(--uiscale,1)*7px);
+  background:rgba(235,240,255,0.92);align-content:flex-start;
+  transition:background .2s,border-color .2s;
+}
+body.light-mode .zu-field{background:rgba(58,106,255,0.07);border-color:rgba(58,106,255,0.22);}
+.zu-field.zu-drag-over{background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.55);}
+.zu-word{
+  padding:calc(var(--uiscale,1)*8px) calc(var(--uiscale,1)*16px);
+  border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.5);
+  cursor:grab;user-select:none;-webkit-user-select:none;
+  border:1px solid rgba(255,255,255,0.45);
+  font-size:calc(var(--uiscale,1)*28px);font-family:'Caveat',cursive;font-weight:700;
+  display:inline-block;touch-action:none;
+  transition:transform 0.18s cubic-bezier(0.25,0.46,0.45,0.94),box-shadow .2s;
+  will-change:transform;color:#1a1f3a;
+}
+.zu-word:active{cursor:grabbing;}
+.zu-word.zu-dragging{opacity:0.35;}
+.zu-word:nth-child(7n+1){background:#fff9c4;}
+.zu-word:nth-child(7n+2){background:#ffd6e0;}
+.zu-word:nth-child(7n+3){background:#c8f7c5;}
+.zu-word:nth-child(7n+4){background:#cce5ff;}
+.zu-word:nth-child(7n+5){background:#f9d5ff;}
+.zu-word:nth-child(7n+6){background:#ffe0cc;}
+.zu-word:nth-child(7n+0){background:#d0f4f7;}
+body.light-mode .zu-word{color:#1a1f3a;}
+.zu-title{
+  font-size:calc(var(--uiscale,1)*30px);font-family:'Caveat',cursive;font-weight:900;
+  color:#1a1f3a;
+  padding:calc(var(--uiscale,1)*6px) calc(var(--uiscale,1)*14px);
+  border-radius:10px;
+  border:3px solid #f87171;
+  background:#fff5f5;
+  display:inline-flex;align-items:center;
+  box-shadow:0 2px 8px rgba(0,0,0,0.25);
+  cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none;
+  flex-shrink:0;
+}
+.zu-title:active{cursor:grabbing;}
+.zu-title.zu-dragging{opacity:0.35;}
+.zu-connected-group{
+  display:flex;flex-wrap:wrap;gap:calc(var(--uiscale,1)*5px);align-items:center;
+  border:3px solid;border-radius:14px;
+  padding:calc(var(--uiscale,1)*5px) calc(var(--uiscale,1)*8px);
+  background:rgba(0,0,0,0.08);
+  cursor:grab;touch-action:none;
+}
+.zu-connected-group:active{cursor:grabbing;}
+@keyframes zu-flash{
+  0%{box-shadow:0 0 0 0 rgba(255,255,255,1),0 0 40px 20px rgba(74,222,128,0.95);filter:brightness(2.2);}
+  40%{box-shadow:0 0 0 12px rgba(74,222,128,0.3),0 0 60px 30px rgba(74,222,128,0.5);filter:brightness(1.4);}
+  100%{box-shadow:none;filter:brightness(1);}
+}
+.zu-flash{animation:zu-flash 0.7s ease-out;}
+@keyframes zu-win-pop{
+  0%{transform:scale(0.7);opacity:0;}
+  60%{transform:scale(1.08);opacity:1;}
+  100%{transform:scale(1);opacity:1;}
+}
+.zu-win-banner{animation:zu-win-pop 0.45s cubic-bezier(.34,1.56,.64,1) both;}
+.zu-setup-area{
+  display:flex;flex-direction:column;gap:8px;padding:10px 10px 8px;flex-shrink:0;
+}
+.zu-count-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.zu-count-label{font-size:.82em;font-weight:700;color:var(--text2);}
+.zu-count-input{
+  background:var(--bg3);border:1px solid rgba(255,255,255,0.18);color:var(--text);
+  border-radius:7px;padding:.25em .55em;font-size:.85em;font-weight:700;
+  width:52px;text-align:center;font-family:Arial,sans-serif;
+}
+body.light-mode .zu-count-input{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
+.zu-textarea{
+  width:100%;min-height:90px;
+  background:var(--bg3);border:1px solid rgba(255,255,255,0.15);border-radius:9px;
+  color:var(--text);font-size:.82em;font-family:Arial,sans-serif;
+  padding:.45em .55em;resize:vertical;box-sizing:border-box;
+  outline:none;transition:border-color .15s;line-height:1.55;
+}
+body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
+.zu-textarea:focus{border-color:var(--accent);}
+.zu-hint{font-size:.75em;color:var(--text2);line-height:1.45;}
+.zu-group-colors{--c0:#f87171;--c1:#60a5fa;--c2:#4ade80;--c3:#fbbf24;--c4:#a78bfa;--c5:#f472b6;--c6:#34d399;--c7:#fb923c;}
+
 </style>
 
 <!-- FIXED_FULL_FROM_UPLOADED_T19_SOUND_MENU_DROPDOWN_V1 -->
@@ -1682,6 +1770,15 @@ const LANG = {
     pzPruefen:'Prüfen ✔',
     pzPerfekt:'Perfekt! Alle Sätze gelöst!',
     pzNochmal:'Nochmal spielen',
+    // Zuordnen-Spiel
+    spieleZuordnen:'Zuordnen',
+    zuordnenAnzahl:'Anzahl Gruppen:',
+    zuordnenHint:'Erste Zeile einer Gruppe = Nummer (1, 2, 3 …)\nZweite Zeile = Titel der Gruppe\nDarunter: Begriffe, die zugeordnet werden müssen',
+    zuordnenStart:'▶ Spiel starten',
+    zuordnenDatei:'📄 TXT laden',
+    zuordnenInstr:'Ziehe jedes Wort zum passenden Titel:',
+    zuordnenPerfekt:'🎉 Alle Gruppen richtig zugeordnet!',
+    zuordnenNochmal:'Nochmal',
     // Karten-Mixer
     kartenMixerTitle:'🎴 Karten-Mixer offline',
     kartenMixerDesc:'20 Karten sind vorbereitet. In der heutigen Klasse werden nur die Karten 1 bis zur eingestellten Zahl benutzt.',
@@ -1841,6 +1938,15 @@ const LANG = {
     pzPruefen:'確認 ✔',
     pzPerfekt:'完璧！全問正解！',
     pzNochmal:'もう一度プレイ',
+    // Zuordnen-Spiel
+    spieleZuordnen:'分類',
+    zuordnenAnzahl:'グループ数:',
+    zuordnenHint:'グループの1行目 = 番号（1, 2, 3…）\n2行目 = グループのタイトル\n以下：分類する言葉',
+    zuordnenStart:'▶ ゲーム開始',
+    zuordnenDatei:'📄 TXTを読み込む',
+    zuordnenInstr:'各単語を正しいタイトルにドラッグしてください：',
+    zuordnenPerfekt:'🎉 すべてのグループが正しく分類されました！',
+    zuordnenNochmal:'もう一度',
     // Karten-Mixer
     kartenMixerTitle:'🎴 カードミキサー（オフライン）',
     kartenMixerDesc:'20枚のカードが用意されています。今日の授業では設定した枚数だけ使います。',
@@ -2256,11 +2362,11 @@ function _trSlotInner(uid){
 
 function _trSpiele(uid){
   // Tab buttons (including Puzzle and Ampel)
-  ['rad','slot','janken','puzzle','ampel'].forEach(tab=>{
+  ['rad','slot','janken','puzzle','ampel','zuordnen'].forEach(tab=>{
     const btn=document.getElementById(`spiele-tab-${tab}-${uid}`);
     if(!btn) return;
-    const icons={rad:'🎡',slot:'🎰',janken:'✂️',puzzle:'🧩',ampel:'🚦'};
-    const labels={rad:T('spieleRad'),slot:T('spieleSlot'),janken:T('spieleJanken'),puzzle:T('spielePuzzle'),ampel:T('spieleAmpel')};
+    const icons={rad:'🎡',slot:'🎰',janken:'✂️',puzzle:'🧩',ampel:'🚦',zuordnen:'🔗'};
+    const labels={rad:T('spieleRad'),slot:T('spieleSlot'),janken:T('spieleJanken'),puzzle:T('spielePuzzle'),ampel:T('spieleAmpel'),zuordnen:T('spieleZuordnen')};
     btn.textContent=icons[tab]+' '+labels[tab];
   });
   // Rebuild puzzle panel so all strings use the new language
@@ -8630,9 +8736,9 @@ function buildSpiele(body, uid){
   // Tab bar
   const tabBar=document.createElement('div');
   tabBar.style.cssText='display:flex;gap:6px;align-items:center;padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;flex-wrap:wrap;';
-  ['rad','slot','janken','puzzle','ampel'].forEach((tab,i)=>{
-    const labelKeys={rad:'spieleRad',slot:'spieleSlot',janken:'spieleJanken',puzzle:'spielePuzzle',ampel:'spieleAmpel'};
-    const icons={rad:'🎡',slot:'🎰',janken:'✂️',puzzle:'🧩',ampel:'🚦'};
+  ['rad','slot','janken','puzzle','ampel','zuordnen'].forEach((tab,i)=>{
+    const labelKeys={rad:'spieleRad',slot:'spieleSlot',janken:'spieleJanken',puzzle:'spielePuzzle',ampel:'spieleAmpel',zuordnen:'spieleZuordnen'};
+    const icons={rad:'🎡',slot:'🎰',janken:'✂️',puzzle:'🧩',ampel:'🚦',zuordnen:'🔗'};
     const btn=document.createElement('button');
     btn.className='timer-mode-btn spiele-tab-btn'+(i===0?' active-tmode':'');
     btn.id=`spiele-tab-${tab}-${uid}`;
@@ -8643,7 +8749,7 @@ function buildSpiele(body, uid){
   body.appendChild(tabBar);
 
   // Panels
-  ['rad','slot','janken','puzzle','ampel'].forEach((tab,i)=>{
+  ['rad','slot','janken','puzzle','ampel','zuordnen'].forEach((tab,i)=>{
     const panel=document.createElement('div');
     panel.id=`spiele-panel-${tab}-${uid}`;
     panel.style.cssText=`flex:1;min-height:0;overflow:hidden;display:${i===0?'flex':'none'};flex-direction:column;`;
@@ -8707,6 +8813,9 @@ function buildSpiele(body, uid){
 
   // ── Ampel panel ──
   buildAmpelPanel(document.getElementById(`spiele-panel-ampel-${uid}`), uid);
+
+  // ── Zuordnen panel ──
+  buildZuordnenPanel(document.getElementById(`spiele-panel-zuordnen-${uid}`), uid);
 }
 
 // ════════════════════════════════════════════════
@@ -9388,7 +9497,7 @@ function spieleShowTab(tab, uid){
     _apPaused[auid] = false;
     ampelAnimStop(auid); // Animation stoppen beim Tab-Wechsel
   }
-  ['rad','slot','janken','puzzle','ampel'].forEach(t=>{
+  ['rad','slot','janken','puzzle','ampel','zuordnen'].forEach(t=>{
     const panel=document.getElementById(`spiele-panel-${t}-${uid}`);
     const btn  =document.getElementById(`spiele-tab-${t}-${uid}`);
     if(panel) panel.style.display = t===tab ? 'flex' : 'none';
@@ -9944,6 +10053,497 @@ function pzUpdateGroups(answer, correctStr){
     return true;
   }
   return false;
+}
+
+// ════════════════════════════════════════════════
+// ZUORDNEN-SPIEL (Spiele-Tab)
+// ════════════════════════════════════════════════
+const zuState = {};
+let _zuDragSource = null;
+let _zuDragGhost  = null;
+
+// Group border/bg colours (matches --c0..--c7 in CSS)
+const ZU_COLORS = ['#f87171','#60a5fa','#4ade80','#fbbf24','#a78bfa','#f472b6','#34d399','#fb923c'];
+const ZU_BG     = ['rgba(248,113,113,0.10)','rgba(96,165,250,0.10)','rgba(74,222,128,0.10)',
+                   'rgba(251,191,36,0.10)','rgba(167,139,250,0.10)','rgba(244,114,182,0.10)',
+                   'rgba(52,211,153,0.10)','rgba(251,146,60,0.10)'];
+
+function buildZuordnenPanel(panel, uid){
+  if(!panel) return;
+  panel.style.flexDirection  = 'column';
+  panel.style.overflow       = 'hidden';
+  panel.style.padding        = '0';
+
+  zuState[uid] = { groups:[], rawText:'', numGroups:3, phase:'setup' };
+
+  // ── Setup area ──
+  const setup = document.createElement('div');
+  setup.id  = `zu-setup-${uid}`;
+  setup.className = 'zu-setup-area';
+
+  // Count row
+  const countRow = document.createElement('div');
+  countRow.className = 'zu-count-row';
+
+  const countLabel = document.createElement('span');
+  countLabel.className = 'zu-count-label';
+  countLabel.id = `zu-count-lbl-${uid}`;
+  countLabel.textContent = T('zuordnenAnzahl');
+
+  const countInput = document.createElement('input');
+  countInput.type = 'number'; countInput.min = '2'; countInput.max = '8';
+  countInput.value = '3'; countInput.className = 'zu-count-input';
+  countInput.id = `zu-count-${uid}`;
+  countInput.oninput = ()=>{ zuState[uid].numGroups = Math.max(2,Math.min(8,parseInt(countInput.value)||3)); };
+
+  countRow.appendChild(countLabel);
+  countRow.appendChild(countInput);
+  setup.appendChild(countRow);
+
+  // Hint
+  const hint = document.createElement('div');
+  hint.className = 'zu-hint';
+  hint.innerHTML = T('zuordnenHint').replace(/\n/g,'<br>');
+  setup.appendChild(hint);
+
+  // Textarea
+  const ta = document.createElement('textarea');
+  ta.className = 'zu-textarea';
+  ta.id = `zu-ta-${uid}`;
+  ta.placeholder = '1\nTiere\nHund\nKatze\nVogel\n\n2\nPflanzen\nRose\nTanne\nGras';
+  ta.value = zuState[uid].rawText;
+  ta.spellcheck = false;
+  ta.rows = 8;
+  setup.appendChild(ta);
+
+  // Button row: file + start
+  const btnRowS = document.createElement('div');
+  btnRowS.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;';
+
+  // File label
+  const fileLabel = document.createElement('label');
+  fileLabel.className = 'pz-file-label';
+  fileLabel.style.marginBottom = '0';
+  fileLabel.textContent = T('zuordnenDatei');
+  fileLabel.htmlFor = `zu-file-${uid}`;
+
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file'; fileInput.accept = '.txt'; fileInput.id = `zu-file-${uid}`;
+  fileInput.style.display = 'none';
+  fileInput.addEventListener('change', function(){
+    const file = fileInput.files?.[0]; if(!file) return;
+    const apply = text => { ta.value = text; zuState[uid].rawText = text; fileInput.value=''; };
+    const r1 = new FileReader();
+    r1.onload = e => {
+      const t = e.target.result||'';
+      if(t.includes('\uFFFD')){ const r2=new FileReader(); r2.onload=e2=>apply(e2.target.result||''); r2.readAsText(file,'windows-1252'); }
+      else apply(t);
+    };
+    r1.readAsText(file,'UTF-8');
+  });
+
+  const startBtn = document.createElement('button');
+  startBtn.className = 'wbtn primary';
+  startBtn.id = `zu-start-btn-${uid}`;
+  startBtn.textContent = T('zuordnenStart');
+  startBtn.onclick = ()=>{ zuStartGame(uid, ta.value); };
+
+  btnRowS.appendChild(fileLabel);
+  btnRowS.appendChild(fileInput);
+  btnRowS.appendChild(startBtn);
+  setup.appendChild(btnRowS);
+  panel.appendChild(setup);
+
+  // ── Game area (scrollable) ──
+  const gameWrap = document.createElement('div');
+  gameWrap.id = `zu-game-${uid}`;
+  gameWrap.style.cssText = 'flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px;display:none;flex-direction:column;gap:10px;';
+  panel.appendChild(gameWrap);
+}
+
+function zuParseText(text, numGroups){
+  // Returns array of {title, words[]} for each group found
+  const lines = text.split(/\r?\n/);
+  const groups = [];
+  let cur = null;
+  let firstLine = true; // skip the number line, next line = title
+  for(const raw of lines){
+    const line = raw.trim();
+    if(!line){ firstLine = true; continue; }
+    // Line is a group number if it matches ^[0-9]+$ or starts a new numbered block
+    if(/^\d+$/.test(line)){
+      if(cur) groups.push(cur);
+      cur = { title:'', words:[] };
+      firstLine = true; // next non-empty line = title
+      continue;
+    }
+    if(!cur) cur = { title:'', words:[] };
+    if(firstLine){ cur.title = line; firstLine = false; }
+    else cur.words.push(line);
+  }
+  if(cur) groups.push(cur);
+  return groups.filter(g=>g.title);
+}
+
+function zuStartGame(uid, rawText){
+  const st = zuState[uid];
+  st.rawText = rawText;
+  const groups = zuParseText(rawText, st.numGroups);
+  if(groups.length < 2){
+    const ta = document.getElementById(`zu-ta-${uid}`);
+    if(ta){ ta.style.borderColor='#f87171'; setTimeout(()=>ta.style.borderColor='',1200); }
+    return;
+  }
+  st.groups   = groups;
+  st.phase    = 'playing';
+  st.solved   = 0;
+  st.total    = groups.length;
+
+  const setup = document.getElementById(`zu-setup-${uid}`);
+  const gameWrap = document.getElementById(`zu-game-${uid}`);
+  if(setup)    setup.style.display    = 'none';
+  if(gameWrap) gameWrap.style.display = 'flex';
+
+  zuBuildGame(uid);
+}
+
+function zuBuildGame(uid){
+  const st       = zuState[uid];
+  const gameWrap = document.getElementById(`zu-game-${uid}`);
+  if(!gameWrap) return;
+  gameWrap.innerHTML = '';
+
+  // Instruction
+  const instr = document.createElement('div');
+  instr.style.cssText = 'font-size:.82em;font-weight:700;color:var(--text2);padding:0 2px 2px;flex-shrink:0;';
+  instr.textContent = T('zuordnenInstr');
+  gameWrap.appendChild(instr);
+
+  // Collect all items and shuffle
+  const allItems = []; // {type:'title'|'word', groupIdx, text}
+  st.groups.forEach((g,gi)=>{
+    allItems.push({type:'title', groupIdx:gi, text:g.title});
+    g.words.forEach(w=>allItems.push({type:'word', groupIdx:gi, text:w}));
+  });
+  const shuffled = [...allItems].sort(()=>Math.random()-0.5);
+
+  // Word field
+  const field = document.createElement('div');
+  field.id = `zu-field-${uid}`;
+  field.className = 'zu-field';
+  gameWrap.appendChild(field);
+
+  shuffled.forEach(item=>{
+    field.appendChild(zuCreateItem(item, uid));
+  });
+
+  zuSetDropZone(field, uid);
+
+  // Prüfen button — same style as Puzzle
+  const checkBtn = document.createElement('button');
+  checkBtn.className = 'pz-btn';
+  checkBtn.id = `zu-check-${uid}`;
+  checkBtn.textContent = T('pzPruefen');
+  checkBtn.onclick = ()=>zuPruefen(uid);
+  gameWrap.appendChild(checkBtn);
+}
+
+/* ── Item factory ─────────────────────────────────── */
+function zuCreateItem(item, uid){
+  const el = document.createElement('div');
+  const color = ZU_COLORS[item.groupIdx % ZU_COLORS.length];
+  if(item.type === 'title'){
+    el.className = 'zu-title';
+    el.style.borderColor = color;
+    el.style.background  = ZU_BG[item.groupIdx % ZU_BG.length];
+    el.style.color       = color;
+    el.textContent = item.text;
+    el.dataset.zuType  = 'title';
+    el.dataset.zuGroup = item.groupIdx;
+  } else {
+    el.className = 'zu-word';
+    el.textContent = item.text;
+    el.dataset.zuType  = 'word';
+    el.dataset.zuGroup = item.groupIdx;
+  }
+  el.dataset.zuText = item.text;
+  zuAddDragBehaviour(el, uid);
+  return el;
+}
+
+/* ── Drop zone on the word field ─────────────────── */
+function zuSetDropZone(zone, uid){
+  zone.addEventListener('dragover', e=>{
+    e.preventDefault();
+    zone.classList.add('zu-drag-over');
+    if(!_zuDragSource) return;
+    const after = zuGetAfter(zone, e.clientX, e.clientY);
+    if(after) zone.insertBefore(_zuDragSource, after);
+    else      zone.appendChild(_zuDragSource);
+  });
+  zone.addEventListener('dragleave', ()=>zone.classList.remove('zu-drag-over'));
+  zone.addEventListener('drop', e=>{ e.preventDefault(); zone.classList.remove('zu-drag-over'); _zuDragSource=null; });
+}
+
+/* ── Drag behaviour for individual words/titles ─────── */
+function zuAddDragBehaviour(el, uid){
+  el.draggable = true;
+  el.addEventListener('dragstart', ()=>{ _zuDragSource=el; setTimeout(()=>el.classList.add('zu-dragging'),0); });
+  el.addEventListener('dragend',   ()=>{ el.classList.remove('zu-dragging'); _zuDragSource=null; });
+  // Touch drag
+  let ghost=null, offX=0, offY=0;
+  el.addEventListener('touchstart', e=>{
+    const t=e.touches[0]; const r=el.getBoundingClientRect();
+    offX=t.clientX-r.left; offY=t.clientY-r.top;
+    ghost=el.cloneNode(true);
+    ghost.style.cssText=`position:fixed;z-index:9999;pointer-events:none;opacity:0.82;`+
+      `left:${r.left}px;top:${r.top}px;width:${r.width}px;transform:scale(1.07);box-shadow:0 8px 24px rgba(0,0,0,0.4);`;
+    document.body.appendChild(ghost);
+    _zuDragSource=el; el.classList.add('zu-dragging');
+  },{passive:true});
+  el.addEventListener('touchmove', e=>{
+    if(!ghost) return; e.preventDefault();
+    const t=e.touches[0];
+    ghost.style.left=(t.clientX-offX)+'px'; ghost.style.top=(t.clientY-offY)+'px';
+    ghost.style.visibility='hidden';
+    const under=document.elementFromPoint(t.clientX,t.clientY);
+    ghost.style.visibility='visible';
+    const zone=under&&(under.classList.contains('zu-field')||under.closest('.zu-field'));
+    if(zone){
+      document.querySelectorAll('.zu-field').forEach(z=>z.classList.remove('zu-drag-over'));
+      zone.classList.add('zu-drag-over');
+      const after=zuGetAfter(zone,t.clientX,t.clientY);
+      if(after) zone.insertBefore(el,after); else zone.appendChild(el);
+    }
+  },{passive:false});
+  const touchEnd=()=>{
+    if(ghost){ghost.remove();ghost=null;}
+    el.classList.remove('zu-dragging');
+    document.querySelectorAll('.zu-field').forEach(z=>z.classList.remove('zu-drag-over'));
+    _zuDragSource=null;
+  };
+  el.addEventListener('touchend',touchEnd);
+  el.addEventListener('touchcancel',touchEnd);
+}
+
+/* ── Drag behaviour for connected groups ────────── */
+function zuAddGroupDrag(grp, uid){
+  grp.draggable = true;
+  // Remove old listeners cleanly
+  if(grp._zuDS) grp.removeEventListener('dragstart', grp._zuDS);
+  if(grp._zuDE) grp.removeEventListener('dragend',   grp._zuDE);
+  grp._zuDS = ()=>{ _zuDragSource=grp; setTimeout(()=>grp.classList.add('zu-dragging'),0); };
+  grp._zuDE = ()=>{ grp.classList.remove('zu-dragging'); _zuDragSource=null; };
+  grp.addEventListener('dragstart', grp._zuDS);
+  grp.addEventListener('dragend',   grp._zuDE);
+
+  // Touch drag for the group
+  let ghost=null, offX=0, offY=0;
+  if(grp._zuTouchEnd){
+    grp.removeEventListener('touchstart',  grp._zuTouchStart);
+    grp.removeEventListener('touchmove',   grp._zuTouchMove);
+    grp.removeEventListener('touchend',    grp._zuTouchEnd);
+    grp.removeEventListener('touchcancel', grp._zuTouchEnd);
+  }
+  grp._zuTouchStart = e=>{
+    const t=e.touches[0]; const r=grp.getBoundingClientRect();
+    offX=t.clientX-r.left; offY=t.clientY-r.top;
+    ghost=grp.cloneNode(true);
+    ghost.style.cssText=`position:fixed;z-index:9999;pointer-events:none;opacity:0.82;`+
+      `left:${r.left}px;top:${r.top}px;width:${r.width}px;transform:scale(1.05);box-shadow:0 8px 24px rgba(0,0,0,0.4);`;
+    document.body.appendChild(ghost);
+    _zuDragSource=grp; grp.classList.add('zu-dragging');
+  };
+  grp._zuTouchMove = e=>{
+    if(!ghost) return; e.preventDefault();
+    const t=e.touches[0];
+    ghost.style.left=(t.clientX-offX)+'px'; ghost.style.top=(t.clientY-offY)+'px';
+    ghost.style.visibility='hidden';
+    const under=document.elementFromPoint(t.clientX,t.clientY);
+    ghost.style.visibility='visible';
+    const zone=under&&(under.classList.contains('zu-field')||under.closest('.zu-field'));
+    if(zone){
+      document.querySelectorAll('.zu-field').forEach(z=>z.classList.remove('zu-drag-over'));
+      zone.classList.add('zu-drag-over');
+      const after=zuGetAfter(zone,t.clientX,t.clientY);
+      if(after) zone.insertBefore(grp,after); else zone.appendChild(grp);
+    }
+  };
+  grp._zuTouchEnd = ()=>{
+    if(ghost){ghost.remove();ghost=null;}
+    grp.classList.remove('zu-dragging');
+    document.querySelectorAll('.zu-field').forEach(z=>z.classList.remove('zu-drag-over'));
+    _zuDragSource=null;
+  };
+  grp.addEventListener('touchstart',  grp._zuTouchStart, {passive:true});
+  grp.addEventListener('touchmove',   grp._zuTouchMove,  {passive:false});
+  grp.addEventListener('touchend',    grp._zuTouchEnd);
+  grp.addEventListener('touchcancel', grp._zuTouchEnd);
+}
+
+/* ── Helper: insertion target for drag-over ─────── */
+function zuGetAfter(container, x, y){
+  const items=[...container.children].filter(c=>c!==_zuDragSource);
+  let best=null, bestDist=Infinity;
+  for(const el of items){
+    const box=el.getBoundingClientRect();
+    const cx=box.left+box.width/2, cy=box.top+box.height/2;
+    const d=Math.hypot(x-cx,y-cy);
+    if(x<cx && d<bestDist){bestDist=d;best=el;}
+  }
+  return best;
+}
+
+/* ── Prüfen: called when the button is pressed ───── *
+ *
+ *  Rules:
+ *  1. Scan the field left-to-right for pairs (A, B) where both share
+ *     the same groupIdx AND the RIGHT element (B) is a title (or a
+ *     connected group whose rightmost child is a title).
+ *     → When found: B becomes/stays the group container, A is
+ *       prepended to the LEFT of the existing words (title stays right).
+ *  2. When a word is already in a connected group and the item
+ *     immediately to its LEFT also shares the same group, prepend it.
+ *  3. Re-scan after every merge until no more merges happen.
+ *  4. Flash every newly merged group.
+ *  5. After all merges, check for complete win.
+ */
+function zuPruefen(uid){
+  const field = document.getElementById(`zu-field-${uid}`);
+  if(!field) return;
+
+  pzPlayDing();
+
+  let merged = false;
+  let anyMerge = false;
+
+  do {
+    merged = false;
+    const items = [...field.children];
+
+    for(let i = 0; i < items.length - 1; i++){
+      const left  = items[i];
+      const right = items[i+1];
+
+      const gL = parseInt(left.dataset.zuGroup  ?? -1);
+      const gR = parseInt(right.dataset.zuGroup ?? -1);
+      if(gL === -1 || gR === -1 || gL !== gR) continue;
+
+      // LEFT must contain a title (= it is a title or a group with a title inside)
+      const leftHasTitle = left.dataset.zuType==='title' ||
+                           (left.classList.contains('zu-connected-group') &&
+                            left.querySelector('[data-zu-type="title"]'));
+      if(!leftHasTitle) continue;
+
+      // Right must NOT be a bare title (titles only sit on the left/first position)
+      const rightIsTitle = right.dataset.zuType==='title';
+      if(rightIsTitle) continue;
+
+      // ── Merge right INTO left (right appended after last word, title stays leftmost) ──
+      const color = ZU_COLORS[gL % ZU_COLORS.length];
+      let grp;
+
+      if(left.classList.contains('zu-connected-group')){
+        // Append right at the end of the group
+        grp = left;
+        grp.appendChild(right);
+      } else {
+        // left is a bare title — wrap in a new group
+        grp = document.createElement('div');
+        grp.className = 'zu-connected-group';
+        grp.style.borderColor = color;
+        grp.style.background  = ZU_BG[gL % ZU_BG.length];
+        grp.dataset.zuGroup   = gL;
+        field.insertBefore(grp, left);
+        // title first (left), then word (right)
+        grp.appendChild(left);
+        grp.appendChild(right);
+      }
+
+      zuAddGroupDrag(grp, uid);
+
+      // Flash animation
+      requestAnimationFrame(()=>{
+        grp.classList.remove('zu-flash');
+        void grp.offsetWidth;
+        grp.classList.add('zu-flash');
+        grp.addEventListener('animationend', ()=>grp.classList.remove('zu-flash'), {once:true});
+      });
+
+      try{const _ac=new(window.AudioContext||window.webkitAudioContext)();playPop(_ac,0.65);}catch(_){}
+      merged    = true;
+      anyMerge  = true;
+      break; // restart scan from the top
+    }
+  } while(merged);
+
+  if(!anyMerge){
+    pzPlayWrong();
+    return;
+  }
+
+  zuCheckWin(uid);
+}
+
+/* ── Win check ───────────────────────────────────── */
+function zuCheckWin(uid){
+  const st    = zuState[uid];
+  const field = document.getElementById(`zu-field-${uid}`);
+  if(!field || st.phase!=='playing') return;
+
+  const children = [...field.children];
+  // Every top-level element must be a connected group
+  if(children.some(c=>!c.classList.contains('zu-connected-group'))) return;
+  if(children.length !== st.total) return;
+
+  // Each group must have exactly 1 title (leftmost) and all correct words
+  for(const grp of children){
+    const gi = parseInt(grp.dataset.zuGroup);
+    const g  = st.groups[gi];
+    if(!g) return;
+    const titleEls = [...grp.querySelectorAll('[data-zu-type="title"]')];
+    const wordEls  = [...grp.querySelectorAll('[data-zu-type="word"]')];
+    if(titleEls.length !== 1) return;
+    // Title must be the first child
+    if(grp.firstElementChild !== titleEls[0]) return;
+    if(wordEls.length !== g.words.length) return;
+    const wTexts = wordEls.map(w=>w.dataset.zuText);
+    if(!g.words.every(w=>wTexts.includes(w))) return;
+  }
+
+  // ── All groups correct — WIN! ──
+  st.phase = 'won';
+  pzPlayWin();
+
+  const gameWrap = document.getElementById(`zu-game-${uid}`);
+  if(!gameWrap) return;
+
+  const oldCheck = document.getElementById(`zu-check-${uid}`);
+  if(oldCheck) oldCheck.remove();
+
+  field.querySelectorAll('[draggable]').forEach(el=>el.draggable=false);
+
+  const banner = document.createElement('div');
+  banner.className = 'zu-win-banner';
+  banner.style.cssText = 'text-align:center;font-size:1.35em;font-weight:900;color:var(--green);padding:10px 8px 2px;flex-shrink:0;';
+  banner.textContent = T('zuordnenPerfekt');
+  gameWrap.insertBefore(banner, field);
+
+  const nochmalBtn = document.createElement('button');
+  nochmalBtn.className = 'pz-btn';
+  nochmalBtn.style.cssText = 'background:var(--accent2);margin-top:4px;align-self:flex-start;';
+  nochmalBtn.textContent = T('zuordnenNochmal');
+  nochmalBtn.onclick = ()=>zuReset(uid);
+  gameWrap.appendChild(nochmalBtn);
+}
+
+function zuReset(uid){
+  const st=zuState[uid];
+  st.phase='setup';
+  const setup=document.getElementById(`zu-setup-${uid}`);
+  const gameWrap=document.getElementById(`zu-game-${uid}`);
+  if(setup){setup.style.display='flex';}
+  if(gameWrap){gameWrap.style.display='none'; gameWrap.innerHTML='';}
 }
 
 // ════════════════════════════════════════════════
