@@ -828,7 +828,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .widget[data-type="clock"] canvas{max-width:100%;max-height:100%;}
 .widget[data-type="names"] textarea{font-size:calc(var(--uiscale,1)*13px)!important;}
 .widget[data-type="names"] .wbtn{font-size:calc(var(--uiscale,1)*13px)!important;}
-.widget[data-type="names"] .widget-body{overflow:hidden!important;display:flex!important;flex-direction:column!important;font-size:13px!important;}
+.widget[data-type="names"] .widget-body{overflow:hidden!important;display:flex!important;flex-direction:column!important;font-size:13px!important;min-height:220px!important;}
 .widget[data-type="qr"] .qr-canvas{
   width:min(100%, calc(var(--uiscale,1)*180px));
   height:auto;
@@ -2997,7 +2997,7 @@ const WIDGET_DEFS={
   clock:  {title:'Analoge Uhr',         icon:'🕰️',w:300,h:380, fitContent:false},
   timer:  {title:'Timer',               icon:'⏱', w:300,h:370, fitContent:false},
   dice:   {title:'Würfel',              icon:'🎲', w:300,h:400, fitContent:true},
-  names:  {title:'Zufälliger Name',     icon:'👤', w:290,h:330, fitContent:true},
+  names:  {title:'Zufälliger Name',     icon:'👤', w:290,h:330, fitContent:false},
   draw:   {title:'Zeichenbrett',        icon:'✏️',w:580,h:450, fitContent:false},
   qr:     {title:'QR-Code',             icon:'📱', w:260,h:310, fitContent:true},
   textpad:{title:'Textfeld',            icon:'📝', w:340,h:310, fitContent:true},
@@ -3054,7 +3054,8 @@ function spawnWidget(type){
   const stepY = isPhone ? 54 : 30;
   const stackIndex = openCount % 7;
   const maxLeft = Math.max(0, desktop.clientWidth - startSize.w - 8);
-  const maxTop  = Math.max(0, desktop.clientHeight - startSize.h - 8);
+  const estimatedH = def.fitContent ? Math.max(startSize.h, 360) : startSize.h;
+  const maxTop  = Math.max(0, desktop.clientHeight - estimatedH - 8);
   const startLeft = Math.min(baseLeft + stackIndex * stepX, maxLeft);
   const startTop  = Math.min(baseTop  + stackIndex * stepY, maxTop);
   el.style.left=startLeft+'px';
@@ -3111,6 +3112,23 @@ function spawnWidget(type){
   if(builders[type]) builders[type](body,uid);
   updateWidgetScale(el);
   updateEmptyHint();
+  // Nach dem Rendern sicherstellen, dass fit-content-Widgets vollständig sichtbar sind
+  if(def.fitContent){
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        const deskH = desktop.clientHeight || window.innerHeight;
+        const deskW = desktop.clientWidth  || window.innerWidth;
+        const elH   = el.offsetHeight;
+        const elW   = el.offsetWidth;
+        let   t     = parseInt(el.style.top)  || 0;
+        let   l     = parseInt(el.style.left) || 0;
+        if(t + elH > deskH - 4) t = Math.max(0, deskH - elH - 4);
+        if(l + elW > deskW - 4) l = Math.max(0, deskW - elW - 4);
+        el.style.top  = t + 'px';
+        el.style.left = l + 'px';
+      });
+    });
+  }
   return el;
 }
 
@@ -3187,6 +3205,7 @@ function maximizeWidget(id){
     el.style.left='0px';
     el.style.top='0px';
     el.style.width=desktop.clientWidth+'px';
+    el.style.maxWidth='none';
     el.style.height=deskH+'px';
     el.style.zIndex=++zTop;
     // Body einblenden falls minimiert
@@ -3212,6 +3231,7 @@ function maximizeWidget(id){
     el.style.left=s.left||'0px';
     el.style.top=s.top||'0px';
     el.style.width=s.width||'';
+    el.style.maxWidth='';
     const btn=el.querySelector('.wh-btn[title="Wiederherstellen"]');
     if(btn){ btn.title='Maximieren'; btn.textContent='⛶'; }
   }
@@ -5740,7 +5760,7 @@ function buildNames(body,uid){
 body.style.flexDirection='column';
 body.style.overflow='hidden';
 body.innerHTML=`
-<div onclick="pickName(${uid})" title="Klicken zum Ziehen" style="cursor:pointer;flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;padding:0 6px;overflow:visible;">
+<div onclick="pickName(${uid})" title="Klicken zum Ziehen" style="cursor:pointer;flex:1 1 0;min-height:120px;display:flex;align-items:center;justify-content:center;padding:0 6px;overflow:visible;">
   <div id="namedisp-${uid}" style="
     display:inline-flex;align-items:center;justify-content:center;
     width:fit-content;min-width:80px;max-width:calc(100% - 12px);
