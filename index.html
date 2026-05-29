@@ -11,7 +11,7 @@
 }
 /* body.light-mode custom properties now set entirely via applyTheme JS */
 body.light-mode #bg-layer{background:var(--bg);background-image:radial-gradient(rgba(var(--accent-rgb),0.07) 1px,transparent 1px);background-size:28px 28px;}
-body.light-mode #topbar{background:rgba(240,242,250,0.94);border-bottom:1px solid rgba(0,0,0,0.1);}
+body.light-mode #topbar,body.light-mode #topbar-row1{background:rgba(240,242,250,0.94);border-bottom:1px solid rgba(0,0,0,0.1);}
 body.light-mode #launcher{background:rgba(180,190,220,0.55);}
 body.light-mode .widget{background:rgba(255,255,255,0.92);border:1px solid rgba(0,0,0,0.1);}
 body.light-mode .widget-header{background:rgba(0,0,0,0.05);border-bottom:1px solid rgba(0,0,0,0.07);}
@@ -259,103 +259,160 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 }
 
 /* ── TOPBAR ── */
+/* ═══════════════════════════════════════
+   TOPBAR — zweizeilig, vollständig responsiv
+   ═══════════════════════════════════════ */
 #topbar{
   position:fixed;top:0;left:0;right:0;z-index:9999;
   background:rgba(29,35,71,0.92);
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-bottom:1px solid rgba(255,255,255,0.08);
-  display:flex;flex-direction:row;
-  align-items:center;
-  padding:0 10px;
-  height:68px;
-  gap:8px;
-  overflow-x:auto;
-  overflow-y:visible; /* FIX: Dropdown nicht abschneiden */
+  display:flex;
+  flex-direction:column;
+  padding:0;
+}
+
+/* Zeile 1: Utility-Buttons + Uhr */
+#topbar-row1{
+  display:flex;align-items:center;
+  gap:4px;
+  padding:4px 10px;
+  height:52px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  flex-shrink:0;
+  overflow-x:auto;overflow-y:visible;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+#topbar-row1::-webkit-scrollbar{display:none;}
+
+/* Zeile 2: Werkzeug-Launcher */
+#launcher{
+  display:flex;align-items:center;
+  gap:5px;
+  padding:4px 10px;
+  height:64px;
+  overflow-x:auto;overflow-y:visible;
   -webkit-overflow-scrolling:touch;
   touch-action:pan-x;
   overscroll-behavior-x:contain;
-  white-space:nowrap;
-}
-#topbar::-webkit-scrollbar{display:none;}
-#topbar{scrollbar-width:none;}
-#logo{font-size:20px;font-weight:900;color:var(--accent);letter-spacing:-0.5px;white-space:nowrap;flex-shrink:0;}
-#logo span{color:var(--accent2);}
-#clock-wrap{
-  position:fixed;top:0;right:12px;z-index:10000;
-  height:68px;display:flex;flex-direction:column;
-  align-items:flex-end;justify-content:center;
-  pointer-events:none;
-}
-#clock-big{font-size:26px;font-weight:400;font-variant-numeric:tabular-nums;letter-spacing:1px;line-height:1;}
-#date-big{font-size:10px;color:var(--text2);margin-top:1px;}
-
-/* Launcher — inline left */
-#launcher{
-  display:flex;align-items:center;gap:5px;
-  flex:0 0 auto;
-  min-width:max-content;
-  overflow:visible;
-  padding:4px 10px 4px 4px;
-  background:rgba(60,70,120,0.55);
-  border-radius:12px;
-  margin:4px 0;
+  scrollbar-width:none;
 }
 #launcher::-webkit-scrollbar{display:none;}
-#launcher{scrollbar-width:none;}
-#launcher .tool-btn{scroll-snap-align:start;}
+
+/* Uhr inline in Zeile 1 */
+#clock-inline{
+  display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
+  margin-left:auto;flex-shrink:0;pointer-events:none;padding-right:4px;
+}
+/* Legacy clock-wrap falls noch irgendwo referenziert */
+#clock-wrap{display:none;}
+
+#logo{font-size:20px;font-weight:900;color:var(--accent);letter-spacing:-0.5px;white-space:nowrap;flex-shrink:0;}
+#logo span{color:var(--accent2);}
+#clock-big{font-size:22px;font-weight:400;font-variant-numeric:tabular-nums;letter-spacing:1px;line-height:1;white-space:nowrap;}
+#date-big{font-size:9px;color:var(--text2);margin-top:1px;white-space:nowrap;text-align:right;}
+
+/* ── Tool-Buttons (beide Zeilen) ── */
 .tool-btn{
   background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.13);
   color:var(--text);border-radius:9px;
-  padding:0;width:60px;height:54px;
+  padding:0;width:60px;height:44px;
   font-size:10px;font-family:'Arial',sans-serif;font-weight:800;
   cursor:pointer;transition:background .15s,transform .1s,border-color .15s;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:3px;white-space:nowrap;letter-spacing:.2px;
+  gap:2px;white-space:nowrap;letter-spacing:.2px;
   flex:0 0 60px;
-  touch-action:pan-x;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
 }
-.tool-btn 
-.tb-icon {
+.tool-btn .tb-icon {
   font-family: 'Material Symbols Rounded';
-  font-size: 26px;
+  font-size: 22px;
   line-height: 1;
   color: var(--accent);
   transition: all .2s ease;
 }
-
-.tool-btn:hover .tb-icon {
-  transform: scale(1.15);
-  color: #ffffff;
-}
-
+.tool-btn:hover .tb-icon{transform:scale(1.15);color:#ffffff;}
 .tool-btn:hover{background:rgba(255,255,255,0.16);border-color:rgba(255,255,255,0.25);transform:translateY(-1px);}
 .tool-btn:active{transform:scale(0.94);}
 .tool-btn.sep{margin-left:4px;}
 
-/* Handy: obere Werkzeug-Buttons als schiebbare Icon-Leiste */
-@media (max-width: 700px){
-  #topbar{padding:0 8px;gap:6px;}
-  #launcher{gap:6px;}
-  .tool-btn{
-    width:58px;
-    height:54px;
-    flex:0 0 58px;
+/* Werkzeug-Buttons in Launcher etwas höher */
+#launcher .tool-btn{
+  height:54px;
+  width:64px;flex:0 0 64px;
+  font-size:10px;
+}
+#launcher .tool-btn .tb-icon{font-size:26px;}
+
+/* ── MOBIL ≤ 540px ── */
+@media (max-width:540px){
+  #topbar-row1{
+    height:44px;
+    padding:3px 8px;
+    gap:3px;
   }
-  #topbar-row1{gap:6px;margin-left:4px;}
-  .bg-btn{padding:0 9px;font-size:11px;}
-  .sound-btn{padding:0 9px;font-size:11px;}
-  #clock-big{font-size:20px;}
+  #launcher{
+    height:68px;
+    padding:4px 8px;
+    gap:4px;
+  }
+  /* Utility-Buttons kleiner */
+  #topbar-row1 .tool-btn{
+    width:52px;height:38px;flex:0 0 52px;
+    border-radius:8px;
+  }
+  #topbar-row1 .tool-btn .tb-icon{font-size:18px;}
+  #topbar-row1 .tool-btn .tb-label{font-size:8.5px;}
+  /* Werkzeug-Buttons etwas größer für Touch */
+  #launcher .tool-btn{
+    width:62px;height:60px;flex:0 0 62px;
+  }
+  #launcher .tool-btn .tb-icon{font-size:28px;}
+  #launcher .tool-btn span:not(.tb-icon){font-size:9.5px;}
+  #clock-big{font-size:17px;}
   #date-big{display:none;}
+  /* Zumpad schmaler */
+  .zumpad-input{width:60px;}
+  .zumpad-inline{padding:0 5px 0 8px;}
 }
 
-/* Right-side controls */
-#topbar-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
-#topbar-row1{
-  display:flex;align-items:center;gap:7px;
-  flex:0 0 auto;margin-left:6px;min-width:max-content;
-  padding-left:10px;
-  border-left:1px solid rgba(255,255,255,0.10);
+/* ── SEHR KLEINES HANDY ≤ 380px ── */
+@media (max-width:380px){
+  #topbar-row1 .tool-btn{
+    width:46px;height:36px;flex:0 0 46px;
+  }
+  #topbar-row1 .tool-btn .tb-icon{font-size:16px;}
+  #topbar-row1 .tool-btn .tb-label{display:none;}
+  #launcher .tool-btn{
+    width:58px;height:58px;flex:0 0 58px;
+  }
+  #clock-big{font-size:15px;}
 }
+
+/* ── DESKTOP ≥ 900px: flache Einzeiler-Topbar (wie vorher) ── */
+@media (min-width:900px){
+  #topbar{flex-direction:row;align-items:center;height:68px;padding:0 10px;gap:0;}
+  #topbar-row1{
+    border-bottom:none;height:auto;padding:4px 0;
+    flex:0 0 auto;order:2;margin-left:auto;
+    border-left:1px solid rgba(255,255,255,0.10);
+    padding-left:10px;
+  }
+  #launcher{
+    height:auto;padding:4px 10px 4px 4px;order:1;
+    background:rgba(60,70,120,0.55);border-radius:12px;margin:4px 0;
+    flex:0 0 auto;min-width:0;
+  }
+  #launcher .tool-btn{height:54px;width:60px;flex:0 0 60px;}
+  #launcher .tool-btn .tb-icon{font-size:26px;}
+  .tool-btn{height:44px;}
+  #topbar-row1 .tool-btn{height:44px;width:60px;flex:0 0 60px;}
+}
+
+/* Rechte Seite (legacy-Referenzen) */
+#topbar-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
 
 /* Sound dropdown */
 .sound-wrap{position:relative;flex-shrink:0;}
@@ -385,7 +442,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 .sound-menu{
   display:none;
   position:fixed; /* FIX: Menü liegt nicht mehr in der schiebbaren Topbar */
-  top:72px;
+  top:130px;
   right:12px;
   background:var(--card);border:1px solid rgba(255,255,255,0.12);
   border-radius:12px;padding:8px;min-width:210px;
@@ -441,11 +498,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 }
 .zumpad-los-btn:hover{background:#8aabff;}
 .zumpad-los-btn:active{transform:scale(0.93);filter:brightness(1.15);}
-@media(max-width:700px){
-  .zumpad-input{width:70px;}
-  .sound-btn,.bg-btn,.zumpad-inline{padding:0 9px;font-size:11px;}
-  .zumpad-inline{padding:0 6px 0 9px;}
-}
+/* Zumpad small screens — covered by new topbar responsive CSS above */
 
 /* old dropdown – keep empty to avoid errors */
 .zumpad-wrap,.zumpad-menu,.zumpad-go-btn,.zumpad-go-new{}
@@ -483,7 +536,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 /* BG Panel */
 #bg-panel{
   display:none;position:fixed;
-  width:260px;min-width:200px;max-width:520px;
+  width:260px;min-width:200px;max-width:min(520px,calc(100vw - 16px));
   background:var(--card);
   border:1px solid rgba(255,255,255,0.12);
   border-radius:14px;
@@ -491,7 +544,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   flex-direction:column;gap:8px;
   box-shadow:0 8px 32px rgba(0,0,0,0.5);
   overflow-y:auto;
-  max-height:calc(100dvh - 84px);
+  max-height:calc(100dvh - 130px);
   user-select:none;
 }
 #bg-panel-resize{
@@ -1438,68 +1491,14 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 
 <!-- ═══ TOPBAR ═══ -->
 <div id="topbar">
-  <!-- Launcher: left side -->
-  
-<div id="launcher">
 
-  <div class="zumpad-inline" id="zumpad-inline">
-    <input type="text" id="zumpad-input" class="zumpad-input"
-      placeholder="Pad-Name?"
-      autocomplete="off"
-      onkeydown="if(event.key==='Enter') openZumpad()">
-    <button class="zumpad-los-btn" onclick="openZumpad()">Los!</button>
-  </div>
-
-  <button class="tool-btn" onclick="spawnWidget('names')">
-    <span class="tb-icon material-symbols-rounded">groups</span>
-    <span id="lbl-namen">Namen</span>
-  </button>
-
-  <button class="tool-btn" onclick="openDesktopDraw()">
-    <span class="tb-icon material-symbols-rounded">edit</span>
-    <span id="lbl-zeichnen">Zeichnen</span>
-  </button>
-
-  <button class="tool-btn" onclick="spawnWidget('textpad')">
-    <span class="tb-icon material-symbols-rounded">description</span>
-    <span id="lbl-text">Text</span>
-  </button>
-
-  <button class="tool-btn" onclick="spawnWidget('timer')">
-    <span class="tb-icon material-symbols-rounded">timer</span>
-    <span id="lbl-timer">Timer</span>
-  </button>
-
-  <button class="tool-btn" onclick="spawnWidget('clock')">
-    <span class="tb-icon material-symbols-rounded">schedule</span>
-    <span id="lbl-uhr">Uhr</span>
-  </button>
-
-  <button class="tool-btn" onclick="spawnWidget('dice')">
-    <span class="tb-icon material-symbols-rounded">casino</span>
-    <span id="lbl-wuerfel">Würfel</span>
-  </button>
-
-  <button class="tool-btn" onclick="spawnWidget('spiele')">
-    <span class="tb-icon material-symbols-rounded">sports_esports</span>
-    <span id="lbl-spiele">Spiele</span>
-  </button>
-
-  <button class="tool-btn" onclick="spawnWidget('was')">
-    <span class="tb-icon material-symbols-rounded">help</span>
-    <span id="lbl-was">Fotos</span>
-  </button>
-
-</div>
-
-
-  <!-- Right side: sound, bg, fullscreen -->
+  <!-- ── Zeile 1: Utility-Leiste (Audio, Design, Sprache, Vollbild + Uhrzeit) ── -->
   <div id="topbar-row1">
 
     <!-- Sound control -->
     <div class="sound-wrap" id="sound-wrap">
       <button class="tool-btn" id="sound-btn" onclick="toggleSoundMenu()">
-        <span class="tb-icon material-symbols-rounded">volume_up</span>Audio ▾
+        <span class="tb-icon material-symbols-rounded">volume_up</span><span class="tb-label">Audio ▾</span>
       </button>
       <div class="sound-menu" id="sound-menu">
         <div id="sound-opts"></div>
@@ -1508,33 +1507,88 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 
     <!-- Design -->
     <button class="tool-btn" onclick="toggleBgPanel()">
-      <span class="tb-icon material-symbols-rounded">palette</span><span id="design-label">Design</span>
+      <span class="tb-icon material-symbols-rounded">palette</span><span id="design-label" class="tb-label">Design</span>
     </button>
 
-    <!-- QR -->
+    <!-- Sprache -->
+    <button class="tool-btn" id="lang-btn" onclick="toggleLanguage()">
+      <span class="tb-icon material-symbols-rounded">language</span><span class="tb-label">Sprache</span>
+    </button>
+
+    <!-- Fullscreen -->
+    <button class="tool-btn" id="fullscreen-btn" onclick="toggleFullscreen()">
+      <span class="tb-icon" style="font-size:22px;">⛶</span><span id="fullscreen-label" class="tb-label">Vollbild</span>
+    </button>
+
+    <!-- Uhrzeit inline (nur Desktop sichtbar, Handy hat eigene Uhr) -->
+    <div id="clock-inline">
+      <div id="clock-big">00:00:00</div>
+      <div id="date-big"></div>
+    </div>
+
+  </div>
+
+  <!-- ── Zeile 2: Werkzeug-Launcher (scrollbar) ── -->
+  <div id="launcher">
+
+    <div class="zumpad-inline" id="zumpad-inline">
+      <input type="text" id="zumpad-input" class="zumpad-input"
+        placeholder="Pad-Name?"
+        autocomplete="off"
+        onkeydown="if(event.key==='Enter') openZumpad()">
+      <button class="zumpad-los-btn" onclick="openZumpad()">Los!</button>
+    </div>
+
+    <button class="tool-btn" onclick="spawnWidget('names')">
+      <span class="tb-icon material-symbols-rounded">groups</span>
+      <span id="lbl-namen">Namen</span>
+    </button>
+
+    <button class="tool-btn" onclick="openDesktopDraw()">
+      <span class="tb-icon material-symbols-rounded">edit</span>
+      <span id="lbl-zeichnen">Zeichnen</span>
+    </button>
+
+    <button class="tool-btn" onclick="spawnWidget('textpad')">
+      <span class="tb-icon material-symbols-rounded">description</span>
+      <span id="lbl-text">Text</span>
+    </button>
+
+    <button class="tool-btn" onclick="spawnWidget('timer')">
+      <span class="tb-icon material-symbols-rounded">timer</span>
+      <span id="lbl-timer">Timer</span>
+    </button>
+
+    <button class="tool-btn" onclick="spawnWidget('clock')">
+      <span class="tb-icon material-symbols-rounded">schedule</span>
+      <span id="lbl-uhr">Uhr</span>
+    </button>
+
+    <button class="tool-btn" onclick="spawnWidget('dice')">
+      <span class="tb-icon material-symbols-rounded">casino</span>
+      <span id="lbl-wuerfel">Würfel</span>
+    </button>
+
+    <button class="tool-btn" onclick="spawnWidget('spiele')">
+      <span class="tb-icon material-symbols-rounded">sports_esports</span>
+      <span id="lbl-spiele">Spiele</span>
+    </button>
+
+    <button class="tool-btn" onclick="spawnWidget('was')">
+      <span class="tb-icon material-symbols-rounded">help</span>
+      <span id="lbl-was">Fotos</span>
+    </button>
+
     <button class="tool-btn" onclick="spawnWidget('qr')">
       <span class="tb-icon material-symbols-rounded">qr_code</span>
       <span id="lbl-qr">QR</span>
     </button>
 
-    <!-- Sprache -->
-    <button class="tool-btn" id="lang-btn" onclick="toggleLanguage()">
-      <span class="tb-icon material-symbols-rounded">language</span>Sprache
-    </button>
-
-    <!-- Fullscreen -->
-    <button class="tool-btn" id="fullscreen-btn" onclick="toggleFullscreen()">
-      <span class="tb-icon" style="font-size:22px;">⛶</span><span id="fullscreen-label">Vollbild</span>
-    </button>
-
   </div>
+
 </div>
 
-<!-- Uhr: fest auf der rechten Seite des Desktops -->
-<div id="clock-wrap">
-  <div id="clock-big">00:00:00</div>
-  <div id="date-big"></div>
-</div>
+<!-- Uhr: jetzt in #clock-inline innerhalb der Topbar -->
 
 <div id="desktop">
   <div id="empty-hint">
@@ -1553,7 +1607,7 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 <!-- BG PANEL -->
 <div id="bg-panel">
   <!-- Hell/Dunkel-Schalter -->
-  <button id="light-mode-btn" onclick="toggleLightMode()" style="width:100%;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--bg3);border:1px solid rgba(255,255,255,0.13);color:var(--text);border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s;font-family:Arial,sans-serif;">Helle Oberfläche</button>
+  <button id="light-mode-btn" onclick="toggleLightMode()" style="width:100%;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--bg3);border:1px solid rgba(255,255,255,0.13);color:var(--text);border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s;font-family:Arial,sans-serif;"id="light-mode-btn-init">Helle Oberfläche</button>
   <div class="sound-divider" style="margin-bottom:10px;"></div>
   <!-- Theme picker -->
   <div id="theme-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;"></div>
@@ -1628,12 +1682,7 @@ function setDesktopTop(){
 }
 
 function updateClockVisibility(){
-  const row1 = document.getElementById('topbar-row1');
-  const clock = document.getElementById('clock-wrap');
-  if(!row1 || !clock) return;
-  const row1Right = row1.getBoundingClientRect().right;
-  const clockLeft = window.innerWidth - clock.offsetWidth - 12;
-  clock.style.visibility = row1Right + 8 > clockLeft ? 'hidden' : 'visible';
+  // Clock is now inline in topbar-row1 — no overlap check needed
 }
 
 window.addEventListener('resize', ()=>{ setDesktopTop(); document.querySelectorAll('.widget').forEach(updateWidgetScale); });
@@ -1814,6 +1863,31 @@ const LANG = {
     designUnschaerfe:'Unschärfe',
     designTransparenz:'Fenster-Transparenz',
     designFotoHochladen:'Foto hochladen',
+    designHell:'Helle Oberfläche',
+    designDunkel:'Dunkle Oberfläche',
+    // Namen-Modal
+    namesTxtLaden:'📂 TXT laden',
+    namesEinNameProZeile:'Ein Name pro Zeile',
+    namesGruppen:'👥 Gruppen',
+    namesGruppenAnzahl:'Gruppen:',
+    // Zeichnen-Toolbar
+    drawFarben:{schwarz:'Schwarz',grau:'Grau',weiss:'Weiß',blau:'Blau',gelb:'Gelb',rot:'Rot',gruen:'Grün',orange:'Orange',braun:'Braun',lila:'Lila',rosa:'Rosa'},
+    drawTitelStift:'Stift',
+    drawTitelMarker:'Marker',
+    drawTitelText:'Text schreiben',
+    drawTitelRadierer:'Radierer',
+    drawTitelSchriftart:'Schriftart',
+    drawTitelSchriftgroesse:'Schriftgröße',
+    drawTitelStiftgroesse:'Stiftgröße',
+    drawTitelFoto:'Foto einfügen',
+    drawTitelRueckgaengig:'Rückgängig (Strg+Z)',
+    drawTitelSpeichern:'Speichern',
+    drawTitelLoeschen:'Löschen',
+    drawFotoBtn:'Foto',
+    drawEinbetten:'✓ Einbetten',
+    // Spiele Eingabe
+    spieleEintraege:'✏️ Einträge',
+    spieleTxtLaden:'📂 TXT laden',
   },
   ja: {
     namen:'名前',
@@ -1982,6 +2056,31 @@ const LANG = {
     designUnschaerfe:'ぼかし',
     designTransparenz:'透明度',
     designFotoHochladen:'写真をアップロード',
+    designHell:'明るい画面',
+    designDunkel:'暗い画面',
+    // Namen-Modal
+    namesTxtLaden:'📂 TXTを読み込む',
+    namesEinNameProZeile:'1行に1つの名前',
+    namesGruppen:'👥 グループ',
+    namesGruppenAnzahl:'グループ数:',
+    // Zeichnen-Toolbar
+    drawFarben:{schwarz:'黒',grau:'グレー',weiss:'白',blau:'青',gelb:'黄',rot:'赤',gruen:'緑',orange:'オレンジ',braun:'茶色',lila:'紫',rosa:'ピンク'},
+    drawTitelStift:'ペン',
+    drawTitelMarker:'マーカー',
+    drawTitelText:'テキストを書く',
+    drawTitelRadierer:'消しゴム',
+    drawTitelSchriftart:'フォント',
+    drawTitelSchriftgroesse:'文字サイズ',
+    drawTitelStiftgroesse:'ペンサイズ',
+    drawTitelFoto:'写真を挿入',
+    drawTitelRueckgaengig:'元に戻す (Ctrl+Z)',
+    drawTitelSpeichern:'保存',
+    drawTitelLoeschen:'削除',
+    drawFotoBtn:'写真',
+    drawEinbetten:'✓ 埋め込む',
+    // Spiele Eingabe
+    spieleEintraege:'✏️ 入力',
+    spieleTxtLaden:'📂 TXTを読み込む',
   }
 };
 
@@ -2025,7 +2124,10 @@ function applyLanguage(lang){
   const soundBtn = document.getElementById('sound-btn');
   if(soundBtn){
     const icon = soundEnabled ? 'volume_up' : 'volume_off';
-    soundBtn.innerHTML = '<span class="tb-icon material-symbols-rounded">'+icon+'</span>' + t.audio;
+    const _sIcon = soundBtn.querySelector('.tb-icon');
+    const _sLabel = soundBtn.querySelector('.tb-label');
+    if(_sIcon) _sIcon.textContent = icon;
+    if(_sLabel) _sLabel.textContent = t.audio;
   }
 
   const uploadZone = document.querySelector('.bg-upload-zone div:last-child');
@@ -2067,7 +2169,8 @@ function applyLanguage(lang){
     },
     ja:{
       'NAMEN':'名前','ZEICHNEN':'描画','TEXT':'テキスト','WÜRFEL':'サイコロ',
-      'WAS?':'なに？','TIMER':'タイマー','UHR':'時計','SPIELE':'ゲーム','QR':'QR'
+      'WAS?':'なに？','TIMER':'タイマー','UHR':'時計','SPIELE':'ゲーム','QR':'QR',
+      'ZEICHENBRETT':'描画ボード','DESIGN':'デザイン'
     }
   };
 
@@ -2090,6 +2193,12 @@ function applyLanguage(lang){
   _updLabel('bg-label-dim',     t.designAbdunkeln+': ','dim-val',   '%');
   _updLabel('bg-label-blur',    t.designUnschaerfe+': ','blur-val', 'px');
   _updLabel('bg-label-alpha',   t.designTransparenz+': ','widget-alpha-val','%');
+  // Update light-mode-btn label
+  const _lmBtn=document.getElementById('light-mode-btn');
+  if(_lmBtn){
+    const _isLight=document.body.classList.contains('light-mode');
+    _lmBtn.textContent=_isLight?T('designDunkel'):T('designHell');
+  }
   const bgUploadLbl=document.getElementById('bg-upload-label');
   if(bgUploadLbl) bgUploadLbl.textContent=t.designFotoHochladen;
   const removeFotoBtn=document.querySelector('#bg-photo-controls .wbtn');
@@ -2097,6 +2206,7 @@ function applyLanguage(lang){
 
   // ── Translate open widgets ──
   _translateOpenWidgets(lang);
+  _translateDesktopDrawToolbar(lang);
 
   document.documentElement.lang = lang === 'ja' ? 'ja' : 'de';
 }
@@ -2207,8 +2317,60 @@ function _trDraw(uid){
   body.querySelectorAll('span').forEach(sp=>{
     if(/Auf Zeichenfläche|キャンバスをクリック/.test(sp.textContent)) sp.textContent=T('drawKlicken');
   });
+  // Update color dot titles
+  const colorMap={schwarz:'黒',grau:'グレー',weiss:'白',blau:'青',gelb:'黄',rot:'赤',gruen:'緑',orange:'オレンジ',braun:'茶色',lila:'紫',rosa:'ピンク'};
+  const colorMapDe={schwarz:'Schwarz',grau:'Grau',weiss:'Weiß',blau:'Blau',gelb:'Gelb',rot:'Rot',gruen:'Grün',orange:'Orange',braun:'Braun',lila:'Lila',rosa:'Rosa'};
+  const lang=currentLanguage;
+  body.querySelectorAll('.color-dot').forEach(dot=>{
+    const titleDe=dot.title;
+    const key=Object.keys(colorMapDe).find(k=>colorMapDe[k]===titleDe);
+    if(key) dot.title=lang==='ja'?colorMap[key]:colorMapDe[key];
+  });
 }
 
+function _translateDesktopDrawToolbar(lang){
+  // Color dot titles in desktop draw toolbar
+  const colorIds=['ddtc-0','ddtc-1','ddtc-2','ddtc-3','ddtc-4','ddtc-5','ddtc-6','ddtc-7','ddtc-8','ddtc-9','ddtc-10'];
+  const colorDe=['Schwarz','Grau','Weiß','Blau','Gelb','Rot','Grün','Orange','Braun','Lila','Rosa'];
+  const colorJa=['黒','グレー','白','青','黄','赤','緑','オレンジ','茶色','紫','ピンク'];
+  colorIds.forEach((id,i)=>{
+    const el=document.getElementById(id);
+    if(el) el.title=lang==='ja'?colorJa[i]:colorDe[i];
+  });
+  // Tool button titles
+  const toolMap={
+    'ddt-pen':    {de:'Stift',           ja:'ペン'},
+    'ddt-marker': {de:'Marker',          ja:'マーカー'},
+    'ddt-text':   {de:'Text',            ja:'テキスト'},
+    'ddt-eraser': {de:'Radierer',        ja:'消しゴム'},
+    'ddt-undo':   {de:'Rückgängig (Strg+Z)', ja:'元に戻す (Ctrl+Z)'},
+  };
+  Object.entries(toolMap).forEach(([id,t])=>{
+    const el=document.getElementById(id);
+    if(el) el.title=lang==='ja'?t.ja:t.de;
+  });
+  // Action button titles (save/clear by title content)
+  const toolbar=document.getElementById('desktop-draw-toolbar');
+  if(toolbar){
+    toolbar.querySelectorAll('button,label').forEach(el=>{
+      if(el.title==='Speichern'||el.title==='保存') el.title=lang==='ja'?'保存':'Speichern';
+      if(el.title==='Löschen'||el.title==='削除') el.title=lang==='ja'?'削除':'Löschen';
+      if(el.title==='Foto einfügen'||el.title==='写真を挿入') el.title=lang==='ja'?'写真を挿入':'Foto einfügen';
+      if(el.title==='Schriftart'||el.title==='フォント') el.title=lang==='ja'?'フォント':'Schriftart';
+      if(el.title==='Schriftgröße'||el.title==='文字サイズ') el.title=lang==='ja'?'文字サイズ':'Schriftgröße';
+      if(el.title==='Stiftgröße'||el.title==='ペンサイズ') el.title=lang==='ja'?'ペンサイズ':'Stiftgröße';
+    });
+    // Foto text button
+    toolbar.querySelectorAll('label').forEach(el=>{
+      if(el.textContent.trim()==='Foto'||el.textContent.trim()==='写真'){
+        // Keep child input, update text node
+        const inp=el.querySelector('input');
+        el.textContent=lang==='ja'?'写真':'Foto';
+        if(inp) el.appendChild(inp);
+      }
+    });
+  }
+}
 function _trTextpad(uid){
   const body=document.getElementById('body-'+uid); if(!body) return;
   // Font size select options
@@ -2532,7 +2694,10 @@ function setSoundEnabled(val){
   const btn = document.getElementById('sound-btn');
   if(btn){
     const audioLabel = currentLanguage === 'ja' ? '音声 ▾' : 'Audio ▾';
-    btn.innerHTML = `<span class="tb-icon material-symbols-rounded">${soundEnabled ? 'volume_up' : 'volume_off'}</span>${audioLabel}`;
+    const iconEl = btn.querySelector('.tb-icon');
+    const labelEl = btn.querySelector('.tb-label');
+    if(iconEl) iconEl.textContent = soundEnabled ? 'volume_up' : 'volume_off';
+    if(labelEl) labelEl.textContent = audioLabel;
     btn.classList.toggle('muted', !soundEnabled);
   }
   // Update mute button in open menu
@@ -2774,27 +2939,27 @@ function playPop(ac, vol){
 // ════════════════════════════════════════════════
 // ── FULL COLOUR THEMES ──
 const THEMES = [
-  { id:'midnight', label:'Mitternacht',
+  { id:'midnight', label:'Mitternacht', labelJa:'真夜中',
     dark:{  bg:'#1a1f3a',bg2:'#1d2347',bg3:'#2e3560',card:'#242c56',card2:'#2e3870',cardRgb:'36,44,86',accent:'#6c8fff',accent2:'#a78bfa',accentRgb:'108,143,255',accent2Rgb:'167,139,250',text:'#eef0ff',text2:'#8892bb',topbar:'rgba(29,35,71,0.92)',launcher:'rgba(60,70,120,0.55)',dotColor:'rgba(255,255,255,0.05)'},
     light:{ bg:'#f0f2fa',bg2:'#e8ebf7',bg3:'#d8dcef',card:'#ffffff',card2:'#e2e6f8',cardRgb:'255,255,255',accent:'#3a6aff',accent2:'#7c5ce8',accentRgb:'58,106,255',accent2Rgb:'124,92,232',text:'#1a1f3a',text2:'#5a6390',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(240,242,250,0.94)',launcher:'rgba(180,190,220,0.55)',dotColor:'rgba(58,106,255,0.07)'}
   },
-  { id:'forest', label:'Wald',
+  { id:'forest', label:'Wald', labelJa:'森',
     dark:{  bg:'#0a1e0e',bg2:'#0d2411',bg3:'#163a1c',card:'#112916',card2:'#1a3d20',cardRgb:'17,41,22',accent:'#2d8c3e',accent2:'#56b368',accentRgb:'45,140,62',accent2Rgb:'86,179,104',text:'#dff5e3',text2:'#6a9e74',topbar:'rgba(10,30,14,0.95)',launcher:'rgba(22,58,28,0.65)',dotColor:'rgba(45,140,62,0.07)'},
     light:{ bg:'#e8f5eb',bg2:'#d4ecda',bg3:'#b8dfc2',card:'#ffffff',card2:'#cce8d4',cardRgb:'255,255,255',accent:'#2d8c3e',accent2:'#1e6b2c',accentRgb:'45,140,62',accent2Rgb:'30,107,44',text:'#0a1e0e',text2:'#3a6b45',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(232,245,235,0.96)',launcher:'rgba(180,220,188,0.55)',dotColor:'rgba(45,140,62,0.08)'}
   },
-  { id:'sunset', label:'Tomate',
-    dark:{  bg:'#1e0a0a',bg2:'#2a0e0e',bg3:'#3f1414',card:'#2e0f0f',card2:'#4a1a1a',cardRgb:'46,15,15',accent:'#e03030',accent2:'#f87171',accentRgb:'224,48,48',accent2Rgb:'248,113,113',text:'#fff0f0',text2:'#c07070',topbar:'rgba(30,10,10,0.95)',launcher:'rgba(63,20,20,0.65)',dotColor:'rgba(224,48,48,0.07)'},
-    light:{ bg:'#fff0f0',bg2:'#fde0e0',bg3:'#fcc8c8',card:'#ffffff',card2:'#fdd4d4',cardRgb:'255,255,255',accent:'#d42020',accent2:'#b01010',accentRgb:'212,32,32',accent2Rgb:'176,16,16',text:'#1e0a0a',text2:'#8a3030',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(255,240,240,0.96)',launcher:'rgba(252,200,200,0.6)',dotColor:'rgba(212,32,32,0.08)'}
+  { id:'sunset', label:'Rose', labelJa:'ローズ',
+    dark:{  bg:'#1e0a14',bg2:'#2a0e1c',bg3:'#3f1430',card:'#2e0f20',card2:'#4a1a34',cardRgb:'46,15,32',accent:'#e0509a',accent2:'#f9a8d4',accentRgb:'224,80,154',accent2Rgb:'249,168,212',text:'#fff0f8',text2:'#c07098',topbar:'rgba(30,10,20,0.95)',launcher:'rgba(63,20,40,0.65)',dotColor:'rgba(224,80,154,0.07)'},
+    light:{ bg:'#fff0f8',bg2:'#fde0ef',bg3:'#fcc8e2',card:'#ffffff',card2:'#fdd4e8',cardRgb:'255,255,255',accent:'#d4208a',accent2:'#b01070',accentRgb:'212,32,138',accent2Rgb:'176,16,112',text:'#1e0a14',text2:'#8a3060',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(255,240,248,0.96)',launcher:'rgba(252,200,230,0.6)',dotColor:'rgba(212,32,138,0.08)'}
   },
-  { id:'ocean', label:'Ozean',
+  { id:'ocean', label:'Ozean', labelJa:'海',
     dark:{  bg:'#0d2a45',bg2:'#0f3255',bg3:'#1a4a72',card:'#143660',card2:'#1e4878',cardRgb:'20,54,96',accent:'#38bdf8',accent2:'#818cf8',accentRgb:'56,189,248',accent2Rgb:'129,140,248',text:'#e8f6ff',text2:'#6a9ab8',topbar:'rgba(13,42,69,0.94)',launcher:'rgba(26,74,114,0.6)',dotColor:'rgba(56,189,248,0.05)'},
     light:{ bg:'#eef8ff',bg2:'#daeefa',bg3:'#bcdff5',card:'#ffffff',card2:'#d4eefb',cardRgb:'255,255,255',accent:'#0284c7',accent2:'#4f46e5',accentRgb:'2,132,199',accent2Rgb:'79,70,229',text:'#0d2a45',text2:'#3a6a90',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(238,248,255,0.96)',launcher:'rgba(188,223,245,0.6)',dotColor:'rgba(2,132,199,0.07)'}
   },
-  { id:'berry', label:'Beere',
+  { id:'berry', label:'Beere', labelJa:'ベリー',
     dark:{  bg:'#1e0a2e',bg2:'#260d38',bg3:'#3a1455',card:'#2e1045',card2:'#3e185c',cardRgb:'46,16,69',accent:'#c084fc',accent2:'#f472b6',accentRgb:'192,132,252',accent2Rgb:'244,114,182',text:'#f5eeff',text2:'#9a70c0',topbar:'rgba(30,10,46,0.94)',launcher:'rgba(58,20,85,0.6)',dotColor:'rgba(192,132,252,0.06)'},
     light:{ bg:'#faf5ff',bg2:'#f3e8ff',bg3:'#e9d5ff',card:'#ffffff',card2:'#ede9fe',cardRgb:'255,255,255',accent:'#9333ea',accent2:'#db2777',accentRgb:'147,51,234',accent2Rgb:'219,39,119',text:'#1e0a2e',text2:'#6b35a0',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(250,245,255,0.96)',launcher:'rgba(233,213,255,0.6)',dotColor:'rgba(147,51,234,0.07)'}
   },
-  { id:'slate', label:'Schiefer',
+  { id:'slate', label:'Schiefer', labelJa:'スレート',
     dark:{  bg:'#0f172a',bg2:'#131c30',bg3:'#1e2d45',card:'#1a2540',card2:'#243050',cardRgb:'26,37,64',accent:'#64748b',accent2:'#94a3b8',accentRgb:'100,116,139',accent2Rgb:'148,163,184',text:'#e2e8f0',text2:'#64748b',topbar:'rgba(15,23,42,0.94)',launcher:'rgba(30,45,69,0.6)',dotColor:'rgba(100,116,139,0.06)'},
     light:{ bg:'#f1f5f9',bg2:'#e2e8f0',bg3:'#cbd5e1',card:'#ffffff',card2:'#e8edf4',cardRgb:'255,255,255',accent:'#475569',accent2:'#6366f1',accentRgb:'71,85,105',accent2Rgb:'99,102,241',text:'#0f172a',text2:'#475569',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(241,245,249,0.96)',launcher:'rgba(203,213,225,0.6)',dotColor:'rgba(71,85,105,0.07)'}
   },
@@ -2850,7 +3015,7 @@ function applyTheme(themeId, mode){
   const btn = document.getElementById('light-mode-btn');
   if(btn){
     const isLight = _activeThemeMode === 'light';
-    btn.textContent = isLight ? 'Dunkle Oberfläche' : 'Helle Oberfläche';
+    btn.textContent = isLight ? T('designDunkel') : T('designHell');
     btn.style.background = isLight ? 'var(--accent)' : 'var(--bg3)';
     btn.style.color = isLight ? '#fff' : 'var(--text)';
     btn.style.borderColor = isLight ? 'var(--accent)' : 'rgba(0,0,0,0.12)';
@@ -2905,7 +3070,7 @@ function buildThemeGrid(){
           <div style="width:20px;height:12px;border-radius:3px;background:${vars.accent};opacity:.85;"></div>
         </div>
       </div>
-      <div style="background:${vars.card};padding:3px 5px;font-size:10px;font-weight:700;color:${vars.text};font-family:Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${theme.label}</div>`;
+      <div style="background:${vars.card};padding:3px 5px;font-size:10px;font-weight:700;color:${vars.text};font-family:Arial,sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${currentLanguage==='ja'?(theme.labelJa||theme.label):theme.label}</div>`;
     grid.appendChild(card);
   });
 }
@@ -5723,16 +5888,12 @@ function showSatzbauSetup(uid){
   if(!wrap) return;
   wrap.innerHTML = `
 <div id="satzbau-setup-${uid}" style="display:flex;flex-direction:column;gap:.5em;align-items:stretch;justify-content:flex-start;width:100%;height:100%;padding:.5em;box-sizing:border-box;">
-  <div style="font-size:.75em;color:var(--text2);line-height:1.45;background:rgba(var(--accent-rgb),0.08);border:1px solid rgba(var(--accent-rgb),0.2);border-radius:8px;padding:.45em .65em;flex-shrink:0;">
-    🎲 <strong style="color:var(--accent);">Satzbau-Würfel:</strong> Jede Spalte = eine Wortgruppe. Beim Würfeln erscheint aus jeder Gruppe ein zufälliges Wort — so entstehen immer neue Sätze.<br>
-    <span style="opacity:.85;">Gruppen mit Nummer einleiten: <code style="background:rgba(255,255,255,0.1);border-radius:3px;padding:0 3px;">1 / Wort / Wort …</code> dann <code style="background:rgba(255,255,255,0.1);border-radius:3px;padding:0 3px;">2 / Wort …</code></span>
-  </div>
   <div style="display:flex;gap:.4em;align-items:center;flex-wrap:wrap;">
     <label class="satzbau-upload-btn" id="satzbau-lbl-${uid}" style="flex-shrink:0;">&#128194; TXT laden<input type="file" accept=".txt,text/plain" style="display:none;" id="satzbau-file-${uid}"></label>
-    <span style="font-size:.75em;color:var(--text2);flex:1;min-width:80px;">oder Text eingeben:</span>
     <button id="satzbau-ok-${uid}" class="satzbau-upload-btn" style="flex-shrink:0;background:var(--accent);color:#fff;border-color:var(--accent);">&#10003; Fertig</button>
   </div>
-  <textarea class="satzbau-textarea" id="satzbau-ta-${uid}" placeholder="1&#10;ich&#10;du&#10;Sie&#10;2&#10;kommen&#10;sein" style="flex:1;min-height:60px;"></textarea>
+  <textarea class="satzbau-textarea" id="satzbau-ta-${uid}" placeholder="2–4 Wortgruppen möglich.&#10;Jede Gruppe mit Nummer einleiten:&#10;&#10;1&#10;ich&#10;du&#10;Sie&#10;&#10;2&#10;kommen&#10;gehen&#10;&#10;3&#10;nach Hause&#10;in die Schule&#10;&#10;→ Beim Würfeln erscheint aus jeder&#10;   Gruppe ein zufälliges Wort." style="flex:1;min-height:60px;"></textarea>
+
 </div>`;
   // Block events from bubbling up to dicewrap — use bubble phase so child handlers still fire first
   const _setup = document.getElementById('satzbau-setup-'+uid);
@@ -5998,7 +6159,7 @@ function toggleNameList(uid){
   fileRow.style.cssText = 'display:flex;align-items:center;gap:8px;';
   const fileLabel = document.createElement('label');
   fileLabel.style.cssText = 'cursor:pointer;background:var(--bg3);border:1px dashed rgba(255,255,255,0.25);border-radius:8px;padding:.35em .9em;font-size:12px;font-weight:700;color:var(--text2);transition:background .15s,border-color .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;';
-  fileLabel.innerHTML = '&#128194; TXT laden';
+  fileLabel.textContent = T('namesTxtLaden');
   fileLabel.onmouseenter = ()=>{ fileLabel.style.background='var(--card2)'; fileLabel.style.borderColor='var(--accent)'; fileLabel.style.color='var(--text)'; };
   fileLabel.onmouseleave = ()=>{ fileLabel.style.background='var(--bg3)'; fileLabel.style.borderColor='rgba(255,255,255,0.25)'; fileLabel.style.color='var(--text2)'; };
   const fileInput = document.createElement('input');
@@ -6028,7 +6189,7 @@ function toggleNameList(uid){
   fileLabel.appendChild(fileInput);
   const fileHint = document.createElement('span');
   fileHint.style.cssText = 'font-size:11px;color:var(--text2);';
-  fileHint.textContent = 'Ein Name pro Zeile';
+  fileHint.textContent = T('namesEinNameProZeile');
   fileRow.appendChild(fileLabel);
   fileRow.appendChild(fileHint);
   box.appendChild(fileRow);
@@ -6039,13 +6200,13 @@ function toggleNameList(uid){
 
   const gruppenBtn = document.createElement('button');
   gruppenBtn.style.cssText = 'cursor:pointer;background:var(--bg3);border:1px dashed rgba(255,255,255,0.25);border-radius:8px;padding:.35em .9em;font-size:12px;font-weight:700;color:var(--text2);transition:background .15s,border-color .15s;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;';
-  gruppenBtn.innerHTML = '👥 Gruppen';
+  gruppenBtn.textContent = T('namesGruppen');
   gruppenBtn.onmouseenter = ()=>{ gruppenBtn.style.background='var(--card2)'; gruppenBtn.style.borderColor='var(--accent)'; gruppenBtn.style.color='var(--text)'; };
   gruppenBtn.onmouseleave = ()=>{ gruppenBtn.style.background='var(--bg3)'; gruppenBtn.style.borderColor='rgba(255,255,255,0.25)'; gruppenBtn.style.color='var(--text2)'; };
 
   const gruppenNumLabel = document.createElement('span');
   gruppenNumLabel.style.cssText = 'font-size:11px;color:var(--text2);white-space:nowrap;';
-  gruppenNumLabel.textContent = 'Gruppen:';
+  gruppenNumLabel.textContent = T('namesGruppenAnzahl');
 
   const gruppenNum = document.createElement('input');
   gruppenNum.type = 'number';
@@ -6312,10 +6473,10 @@ function buildDraw(body,uid){
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
   <!-- Tool buttons -->
   <div style="display:flex;gap:.25em;">
-    <button class="draw-tool-btn active-tool" id="dtool-pen-${uid}" onclick="setDrawTool(${uid},'pen',this)" title="Stift">✏️</button>
-    <button class="draw-tool-btn" id="dtool-marker-${uid}" onclick="setDrawTool(${uid},'marker',this)" title="Marker">🖊</button>
-    <button class="draw-tool-btn" id="dtool-text-${uid}" onclick="setDrawTool(${uid},'text',this)" title="Text schreiben">T</button>
-    <button class="draw-tool-btn" id="dtool-eraser-${uid}" onclick="setDrawTool(${uid},'eraser',this)" title="Radierer">
+    <button class="draw-tool-btn active-tool" id="dtool-pen-${uid}" onclick="setDrawTool(${uid},'pen',this)" title="${T('drawTitelStift')}">✏️</button>
+    <button class="draw-tool-btn" id="dtool-marker-${uid}" onclick="setDrawTool(${uid},'marker',this)" title="${T('drawTitelMarker')}">🖊</button>
+    <button class="draw-tool-btn" id="dtool-text-${uid}" onclick="setDrawTool(${uid},'text',this)" title="${T('drawTitelText')}">T</button>
+    <button class="draw-tool-btn" id="dtool-eraser-${uid}" onclick="setDrawTool(${uid},'eraser',this)" title="${T('drawTitelRadierer')}">
       <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="1" y="9" width="9" height="6" rx="1.5" fill="currentColor" opacity=".9"/>
         <path d="M5 9L13 2.5Q14.5 1.5 15.5 2.5L16 3.5Q17 4.5 16 5.5L8 12Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
@@ -6326,13 +6487,13 @@ function buildDraw(body,uid){
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
   <!-- Text tool options (shown only when text tool active) -->
   <div id="dtool-text-opts-${uid}" style="display:none;gap:.25em;align-items:center;flex-wrap:wrap;">
-    <select id="dtextfont-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" title="Schriftart" onchange="updateDrawTextCursor(${uid})">
+    <select id="dtextfont-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" title="${T('drawTitelSchriftart')}" onchange="updateDrawTextCursor(${uid})">
       <option value="Arial">Arial</option>
       <option value="Georgia">Georgia</option>
       <option value="'Courier New'">Monospace</option>
       <option value="Impact">Impact</option>
     </select>
-    <select id="dtextsize-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" title="Schriftgröße" onchange="updateDrawTextCursor(${uid})">
+    <select id="dtextsize-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" title="${T('drawTitelSchriftgroesse')}" onchange="updateDrawTextCursor(${uid})">
       <option value="14">14</option>
       <option value="20" selected>20</option>
       <option value="28">28</option>
@@ -6343,19 +6504,19 @@ function buildDraw(body,uid){
     <span style="font-size:10px;color:var(--text2);">${T('drawKlicken')}</span>
   </div>
   <!-- Size (pen/marker) -->
-  <select id="dtool-sz-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:12px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" onchange="drawStates[${uid}].sz=parseInt(this.value)" title="Stiftgröße">
+  <select id="dtool-sz-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:12px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" onchange="drawStates[${uid}].sz=parseInt(this.value)" title="${T('drawTitelStiftgroesse')}">
     <option value="2">2px</option><option value="5" selected>5px</option>
     <option value="10">10px</option><option value="20">20px</option><option value="40">40px</option>
   </select>
   <!-- Photo upload -->
-  <label style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;display:flex;align-items:center;" title="Foto einfügen">
+  <label style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;display:flex;align-items:center;" title="${T('drawTitelFoto')}">
     🖼
     <input type="file" accept="image/*" style="display:none;" onchange="insertDrawPhoto(${uid},this.files[0]);this.value=''">
   </label>
   <!-- Actions -->
-  <button id="dbtn-undo-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;opacity:0.4;" onclick="undoDraw(${uid})" title="Rückgängig (Strg+Z)">↩</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="saveDraw(${uid})" title="Speichern">💾</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="clearDraw(${uid})" title="Löschen">🗑</button>
+  <button id="dbtn-undo-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;opacity:0.4;" onclick="undoDraw(${uid})" title="${T('drawTitelRueckgaengig')}">↩</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="saveDraw(${uid})" title="${T('drawTitelSpeichern')}">💾</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="clearDraw(${uid})" title="${T('drawTitelLoeschen')}">🗑</button>
 </div>
 <canvas class="draw-canvas" id="dcanvas-${uid}" style="flex:1;min-height:180px;"></canvas>`;
   drawStates[uid]={color:'#000000',sz:5,tool:'pen',drawing:false,lx:0,ly:0,undoStack:[]};
@@ -6411,7 +6572,7 @@ function _startDrawPhotoOverlay(uid, img){
 
   // Commit button
   const commitBtn=document.createElement('button');
-  commitBtn.textContent='✓ Einbetten';
+  commitBtn.textContent=T('drawEinbetten');
   commitBtn.style.cssText=`position:absolute;top:-30px;left:50%;transform:translateX(-50%);background:${_accentHex()};color:#fff;border:none;border-radius:7px;padding:2px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4);`;
   commitBtn.onmousedown=e=>e.stopPropagation();
   commitBtn.onclick=e=>{ e.stopPropagation(); _endDrawPhotoOverlay(uid, true); };
@@ -8341,7 +8502,7 @@ function buildSlot(body, uid){
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
     <button class="wbtn primary" style="font-size:.92em;padding:.45em 1.2em;" onclick="slotApplyTextarea(${uid})">&#10004; Übernehmen</button>
     <label title="TXT-Datei laden (2–4 Wörter pro Zeile)" style="cursor:pointer;display:contents;">
-      <span class="wbtn" style="font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;">📂 TXT laden</span>
+      <span class="wbtn" style="font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;">${T('spieleTxtLaden')}</span>
       <input type="file" accept=".txt,text/plain" style="display:none" onchange="slotLoadTxtToTextarea(${uid},this)">
     </label>
   </div>
@@ -9594,7 +9755,7 @@ function buildPuzzlePanel(panel, uid){
   const eintraegeBtn = document.createElement('button');
   eintraegeBtn.className = 'pz-file-label';
   eintraegeBtn.style.cssText += ';margin-bottom:0;cursor:pointer;border:none;';
-  eintraegeBtn.textContent = '✏️ Einträge';
+  eintraegeBtn.textContent = T('spieleEintraege');
   eintraegeBtn.onclick = () => pzShowEintraegeModal(uid);
   btnRow.appendChild(eintraegeBtn);
 
@@ -9628,7 +9789,7 @@ function pzShowEintraegeModal(uid){
   hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
   const title = document.createElement('div');
   title.style.cssText = 'font-weight:700;font-size:1.05em;color:var(--text);';
-  title.textContent = '✏️ Einträge';
+  title.textContent = T('spieleEintraege');
   const closeBtn = document.createElement('button');
   closeBtn.className = 'wh-btn';
   closeBtn.style.cssText = 'font-size:1.15em;padding:2px 8px;border-radius:7px;cursor:pointer;background:none;border:none;color:var(--text2);';
@@ -9675,7 +9836,7 @@ function pzShowEintraegeModal(uid){
   const fileSpan = document.createElement('span');
   fileSpan.className = 'wbtn';
   fileSpan.style.cssText = 'font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;';
-  fileSpan.textContent = '📂 TXT laden';
+  fileSpan.textContent = T('spieleTxtLaden');
   const fileInputM = document.createElement('input');
   fileInputM.type = 'file'; fileInputM.accept = '.txt,text/plain';
   fileInputM.style.display = 'none';
@@ -10104,7 +10265,7 @@ function buildZuordnenPanel(panel, uid){
   const eintraegeBtn = document.createElement('button');
   eintraegeBtn.className = 'pz-file-label';
   eintraegeBtn.style.cssText += ';margin-bottom:0;cursor:pointer;border:none;';
-  eintraegeBtn.textContent = '✏️ Einträge';
+  eintraegeBtn.textContent = T('spieleEintraege');
   eintraegeBtn.onclick = () => zuShowEintraegeModal(uid);
   btnRow.appendChild(eintraegeBtn);
 
@@ -10139,7 +10300,7 @@ function zuShowEintraegeModal(uid){
   hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
   const titleEl = document.createElement('div');
   titleEl.style.cssText = 'font-weight:700;font-size:1.05em;color:var(--text);';
-  titleEl.textContent = '✏️ Einträge';
+  titleEl.textContent = T('spieleEintraege');
   const closeBtn = document.createElement('button');
   closeBtn.className = 'wh-btn';
   closeBtn.style.cssText = 'font-size:1.15em;padding:2px 8px;border-radius:7px;cursor:pointer;background:none;border:none;color:var(--text2);';
@@ -10183,7 +10344,7 @@ function zuShowEintraegeModal(uid){
   const fileSpan = document.createElement('span');
   fileSpan.className = 'wbtn';
   fileSpan.style.cssText = 'font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;';
-  fileSpan.textContent = '📂 TXT laden';
+  fileSpan.textContent = T('spieleTxtLaden');
   const fileInputM = document.createElement('input');
   fileInputM.type = 'file'; fileInputM.accept = '.txt,text/plain';
   fileInputM.style.display = 'none';
@@ -11306,7 +11467,7 @@ function _ddtStartPhotoOverlay(img){
 
   // Einbetten-Button
   const commitBtn=document.createElement('button');
-  commitBtn.textContent='✓ Einbetten';
+  commitBtn.textContent=T('drawEinbetten');
   commitBtn.style.cssText=`position:absolute;top:-34px;left:50%;transform:translateX(-50%);background:${_accentHex()};color:#fff;border:none;border-radius:8px;padding:4px 14px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4);z-index:3;`;
   commitBtn.onmousedown=e=>e.stopPropagation();
   commitBtn.ontouchstart=e=>e.stopPropagation();
