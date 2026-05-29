@@ -859,20 +859,53 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .widget[data-type="timer"] .widget-body,
 .widget[data-type="clock"] .widget-body,
 .widget[data-type="textpad"] .widget-body,
+/* Fotos-Widget: kein Skalieren, kein Scrollbalken */
 .widget[data-type="was"] .widget-body{
   display:flex;
   flex-direction:column;
   min-height:0;
+  overflow:hidden!important;
+  padding:8px!important;
+}
+.widget[data-type="was"] .timer-mode-btn{
+  font-size:11px!important;
+  padding:4px 10px!important;
+}
+.widget[data-type="was"] .wbtn{
+  font-size:13px!important;
+  padding:4px 10px!important;
+}
+.widget[data-type="was"] [id^="was-canvas-wrap-"]{
+  min-height:0;
+  overflow:hidden;
 }
 .widget[data-type="timer"] svg{width:100%;height:100%;}
 .widget[data-type="timer"] .timer-disp{font-size:calc(var(--uiscale,1)*4em);}
+/* Timer-Widget: Buttons und Inputs nicht mit uiscale skalieren */
+.widget[data-type="timer"] .timer-mode-btn{font-size:11px!important;padding:4px 10px!important;}
+.widget[data-type="timer"] .wbtn{font-size:13px!important;padding:4px 8px!important;}
+.widget[data-type="timer"] .preset-btn{font-size:10px!important;padding:2px 6px!important;}
+.widget[data-type="timer"] .winput{font-size:12px!important;width:3em!important;padding:2px 4px!important;}
+.widget[data-type="timer"] [id^="timer-inputs-"] span{font-size:12px!important;}
 .widget[data-type="clock"] canvas{max-width:100%;max-height:100%;}
 .widget[data-type="names"] textarea{font-size:calc(var(--uiscale,1)*13px)!important;}
 .widget[data-type="names"] .wbtn{font-size:calc(var(--uiscale,1)*13px)!important;}
 .widget[data-type="names"] .widget-body{overflow:hidden!important;display:flex!important;flex-direction:column!important;font-size:13px!important;min-height:220px!important;}
+.widget[data-type="qr"] .widget-body{
+  overflow:hidden!important;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+}
+.widget[data-type="qr"] .wbtn{font-size:13px!important;padding:4px 10px!important;}
+.widget[data-type="qr"] .winput{font-size:13px!important;}
 .widget[data-type="qr"] .qr-canvas{
-  width:min(100%, calc(var(--uiscale,1)*180px));
-  height:auto;
+  width:100%!important;
+  max-width:100%!important;
+  height:auto!important;
+  flex:1 1 auto;
+  min-height:0;
+  object-fit:contain;
 }
 .widget[data-type="textpad"] .textpad{flex:1 1 auto;min-height:calc(var(--uiscale,1)*120px);}
 .widget[data-type="jein"] [id^="jein-display-"]{min-height:calc(var(--uiscale,1)*120px)!important;}
@@ -7186,8 +7219,9 @@ function genQR(uid){
   const inp=document.getElementById('qrurl-'+uid),cv=document.getElementById('qrcanvas-'+uid);
   if(!inp||!cv||!window.QRious)return;
   const widget=cv.closest('.widget');
-  const scale=parseFloat(getComputedStyle(widget||document.documentElement).getPropertyValue('--uiscale'))||1;
-  const sz=Math.max(140,Math.min(420,Math.round(180*scale)));
+  const body=cv.closest('.widget-body');
+  const availW=body ? body.clientWidth - 24 : 180;
+  const sz=Math.max(140,Math.min(600,Math.round(availW)));
   new QRious({element:cv,value:inp.value||'https://schulportal.de',size:sz,background:'white',foreground:'#000'});
 }
 
