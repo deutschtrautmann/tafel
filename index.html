@@ -17,10 +17,10 @@
 }
 /* body.light-mode custom properties now set entirely via applyTheme JS */
 body.light-mode #bg-layer{background:var(--bg);background-image:radial-gradient(rgba(var(--accent-rgb),0.07) 1px,transparent 1px);background-size:28px 28px;}
-body.light-mode #topbar,body.light-mode #topbar-row1{background:rgba(240,242,250,0.94);border-bottom:1px solid rgba(0,0,0,0.1);}
-body.light-mode #launcher{background:rgba(180,190,220,0.55);}
+body.light-mode #topbar,body.light-mode #topbar-row1{border-bottom:1px solid rgba(0,0,0,0.1);}
+body.light-mode #launcher{}
 body.light-mode .widget{background:rgba(255,255,255,0.92);border:1px solid rgba(0,0,0,0.1);}
-body.light-mode .widget-header{background:rgba(0,0,0,0.05);border-bottom:1px solid rgba(0,0,0,0.07);}
+body.light-mode .widget-header{background:rgba(var(--accent-rgb),0.08);border-bottom:1px solid rgba(var(--accent-rgb),0.15);}
 body.light-mode .wh-btn{color:var(--text2);}
 body.light-mode .wh-btn:hover{background:rgba(0,0,0,0.07);color:var(--text);}
 body.light-mode .sound-menu{background:var(--card);border-color:rgba(0,0,0,0.1);}
@@ -40,7 +40,7 @@ body.light-mode .sound-btn,.light-mode .bg-btn,.light-mode .zumpad-inline{backgr
 body.light-mode .sound-btn:hover,.light-mode .bg-btn:hover{background:var(--card2);}
 body.light-mode .sound-preview{background:var(--bg3);color:var(--text2);}
 body.light-mode .sound-preview:hover{background:var(--card2);color:var(--text);}
-body.light-mode .slot-tabbar{background:rgba(0,0,0,0.08);}
+body.light-mode .slot-tabbar{background:rgba(var(--accent-rgb),0.08);}
 body.light-mode .timer-mode-btn{color:var(--text2);}
 body.light-mode .timer-mode-btn.active-tmode{background:var(--accent);color:#fff;}
 body.light-mode .bg-panel-close{color:var(--text2);}
@@ -58,8 +58,8 @@ body.light-mode .widget{
   box-shadow:0 4px 24px rgba(0,0,0,0.12)!important;
 }
 body.light-mode .widget-header{
-  background:rgba(0,0,0,0.04)!important;
-  border-bottom:1px solid rgba(0,0,0,0.08)!important;
+  background:rgba(var(--accent-rgb),0.08)!important;
+  border-bottom:1px solid rgba(var(--accent-rgb),0.15)!important;
 }
 body.light-mode .widget-title{color:var(--text)!important;}
 body.light-mode .wh-btn{color:var(--text2)!important;}
@@ -164,7 +164,7 @@ body.light-mode .satzbau-upload-btn:hover{background:var(--card2)!important;bord
 body.light-mode [id^="was-step-"]{color:var(--text2)!important;}
 
 /* Slot */
-body.light-mode .slot-tabbar{background:rgba(0,0,0,0.06)!important;}
+body.light-mode .slot-tabbar{background:rgba(var(--accent-rgb),0.08)!important;}
 body.light-mode [class*="slot-reel"]{background:var(--bg3)!important;border-color:rgba(0,0,0,0.12)!important;color:var(--text)!important;}
 body.light-mode [id^="slot-result"]{color:var(--text)!important;}
 
@@ -184,7 +184,10 @@ body.light-mode .timer-disp{color:var(--text)!important;text-shadow:none!importa
 body.light-mode [id^="tbtn-ring-"],
 body.light-mode [id^="tbtn-digi-"],
 body.light-mode [id^="tbtn-lauf-"]{color:var(--text2)!important;}
-body.light-mode div[style*="background:rgba(0,0,0,0.25)"]{background:rgba(0,0,0,0.07)!important;}
+body.light-mode .timer-mode-bar{background:rgba(var(--accent-rgb),0.08)!important;}
+body.light-mode div[style*="background:rgba(0,0,0,0.25)"]{background:rgba(var(--accent-rgb),0.08)!important;}
+body.light-mode div[style*="background:rgba(0,0,0,0.22)"]{background:rgba(var(--accent-rgb),0.08)!important;}
+body.light-mode div[style*="background:rgba(0,0,0,0.28)"]{background:rgba(var(--accent-rgb),0.08)!important;}
 
 /* ── Würfel Ampel: Inputs hell ── */
 body.light-mode [id^="ampel-min-"],
@@ -637,7 +640,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 /* ── WIDGET ── */
 .widget{
   position:absolute;
-  background:rgba(var(--card-rgb),0.88);
+  background:rgba(var(--card-rgb),0.70);
   backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
   border-radius:var(--radius);
   border:1px solid rgba(255,255,255,0.1);
@@ -716,11 +719,12 @@ textarea.winput{resize:vertical;}
 }
 #desktop-draw-toolbar{
   position:fixed;top:0;left:0;right:0;z-index:10001;
-  height:68px;
+  min-height:68px;
   background:#ffffff;
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-bottom:2px solid rgba(var(--accent-rgb),0.3);
   display:none;align-items:center;
+  flex-wrap:nowrap;
   gap:6px;
   padding:0 12px;
   overflow-x:auto;
@@ -728,6 +732,25 @@ textarea.winput{resize:vertical;}
   pointer-events:auto;
 }
 #desktop-draw-toolbar.active{display:flex;}
+/* Wenn Bildschirm zu schmal: Farben umbrechen */
+@media (max-width:700px){
+  #desktop-draw-toolbar{
+    flex-wrap:wrap;
+    padding:6px 10px;
+    overflow-x:visible;
+    white-space:normal;
+    height:auto;
+  }
+  #ddt-color-row{
+    order:99;
+    width:100%;
+    flex-wrap:wrap;
+    padding:4px 0 2px;
+  }
+  #desktop-draw-toolbar .ddt-close{
+    margin-left:auto;
+  }
+}
 #desktop-draw-toolbar::-webkit-scrollbar{display:none;}
 #desktop-draw-toolbar{scrollbar-width:none;}
 body.light-mode #desktop-draw-toolbar{
@@ -1007,6 +1030,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   padding:.5em .6em;resize:vertical;box-sizing:border-box;
 }
 body.light-mode .wheel-edit-panel textarea{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
+body.light-mode .wheel-tabbar{background:rgba(var(--accent-rgb),0.08)!important;border-bottom:1px solid rgba(var(--accent-rgb),0.15)!important;}
 @media(max-width:700px){.wheel-pointer{left:50%;top:-14px;}.wheel-stage{min-height:300px}.wheel-result{font-size:1.75em}.wheel-controls .wbtn{font-size:1.15em}}
 
 /* T14 Auto-Fit Override: Rad bleibt oben, Ergebnis + Buttons bleiben sichtbar */
@@ -1716,17 +1740,13 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       <label id="bg-label-dim">Abdunkeln: <span id="dim-val">30</span>%</label>
       <input type="range" min="0" max="85" value="30" id="dim-slider" oninput="setBgDim(this.value)">
     </div>
-    <div class="bg-dim-row" style="margin-top:6px;">
-      <label id="bg-label-blur">Unschärfe: <span id="blur-val">0</span>px</label>
-      <input type="range" min="0" max="20" value="0" id="blur-slider" oninput="setBgBlur(this.value)">
-    </div>
     <button class="wbtn" style="margin-top:6px;width:100%;font-size:.82em;" onclick="removeBgPhoto()">✕ Foto entfernen</button>
   </div>
 
   <div class="sound-divider"></div>
   <div class="bg-dim-row">
-    <label id="bg-label-alpha">Fenster-Transparenz: <span id="widget-alpha-val">88</span>%</label>
-    <input type="range" min="40" max="100" value="88" id="widget-alpha-slider" oninput="setWidgetAlpha(this.value)">
+    <label id="bg-label-alpha">Fenster-Transparenz: <span id="widget-alpha-val">70</span>%</label>
+    <input type="range" min="40" max="100" value="70" id="widget-alpha-slider" oninput="setWidgetAlpha(this.value)">
   </div>
   <div id="bg-panel-resize" title="Größe ändern">
     <svg viewBox="0 0 10 10" width="11" height="11" fill="none">
@@ -3184,23 +3204,23 @@ function playPop(ac, vol){
 const THEMES = [
   { id:'midnight', label:'Mitternacht', labelJa:'真夜中',
     dark:{  bg:'#1a1f3a',bg2:'#1d2347',bg3:'#2e3560',card:'#242c56',card2:'#2e3870',cardRgb:'36,44,86',accent:'#6c8fff',accent2:'#a78bfa',accentRgb:'108,143,255',accent2Rgb:'167,139,250',text:'#eef0ff',text2:'#8892bb',topbar:'rgba(29,35,71,0.92)',launcher:'rgba(60,70,120,0.55)',dotColor:'rgba(255,255,255,0.05)'},
-    light:{ bg:'#f0f2fa',bg2:'#e8ebf7',bg3:'#d8dcef',card:'#ffffff',card2:'#e2e6f8',cardRgb:'255,255,255',accent:'#3a6aff',accent2:'#7c5ce8',accentRgb:'58,106,255',accent2Rgb:'124,92,232',text:'#1a1f3a',text2:'#5a6390',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(240,242,250,0.94)',launcher:'rgba(180,190,220,0.55)',dotColor:'rgba(58,106,255,0.07)'}
+    light:{ bg:'#f0f2fa',bg2:'#e8ebf7',bg3:'#cdd3f5',card:'#ffffff',card2:'#e2e6f8',cardRgb:'255,255,255',accent:'#3a6aff',accent2:'#7c5ce8',accentRgb:'58,106,255',accent2Rgb:'124,92,232',text:'#1a1f3a',text2:'#4a4fbf',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(240,242,250,0.94)',launcher:'rgba(180,190,220,0.55)',dotColor:'rgba(58,106,255,0.07)'}
   },
   { id:'forest', label:'Wald', labelJa:'森',
     dark:{  bg:'#0a1e0e',bg2:'#0d2411',bg3:'#163a1c',card:'#112916',card2:'#1a3d20',cardRgb:'17,41,22',accent:'#2d8c3e',accent2:'#56b368',accentRgb:'45,140,62',accent2Rgb:'86,179,104',text:'#dff5e3',text2:'#6a9e74',topbar:'rgba(10,30,14,0.95)',launcher:'rgba(22,58,28,0.65)',dotColor:'rgba(45,140,62,0.07)'},
-    light:{ bg:'#e8f5eb',bg2:'#d4ecda',bg3:'#b8dfc2',card:'#ffffff',card2:'#cce8d4',cardRgb:'255,255,255',accent:'#2d8c3e',accent2:'#1e6b2c',accentRgb:'45,140,62',accent2Rgb:'30,107,44',text:'#0a1e0e',text2:'#3a6b45',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(232,245,235,0.96)',launcher:'rgba(180,220,188,0.55)',dotColor:'rgba(45,140,62,0.08)'}
+    light:{ bg:'#e8f5eb',bg2:'#d4ecda',bg3:'#a8d8b4',card:'#ffffff',card2:'#cce8d4',cardRgb:'255,255,255',accent:'#2d8c3e',accent2:'#1e6b2c',accentRgb:'45,140,62',accent2Rgb:'30,107,44',text:'#0a1e0e',text2:'#2a7a38',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(232,245,235,0.96)',launcher:'rgba(180,220,188,0.55)',dotColor:'rgba(45,140,62,0.08)'}
   },
   { id:'sunset', label:'Rose', labelJa:'ローズ',
     dark:{  bg:'#1e0a14',bg2:'#2a0e1c',bg3:'#3f1430',card:'#2e0f20',card2:'#4a1a34',cardRgb:'46,15,32',accent:'#e0509a',accent2:'#f9a8d4',accentRgb:'224,80,154',accent2Rgb:'249,168,212',text:'#fff0f8',text2:'#c07098',topbar:'rgba(30,10,20,0.95)',launcher:'rgba(63,20,40,0.65)',dotColor:'rgba(224,80,154,0.07)'},
-    light:{ bg:'#fff0f8',bg2:'#fde0ef',bg3:'#fcc8e2',card:'#ffffff',card2:'#fdd4e8',cardRgb:'255,255,255',accent:'#d4208a',accent2:'#b01070',accentRgb:'212,32,138',accent2Rgb:'176,16,112',text:'#1e0a14',text2:'#8a3060',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(255,240,248,0.96)',launcher:'rgba(252,200,230,0.6)',dotColor:'rgba(212,32,138,0.08)'}
+    light:{ bg:'#fff0f8',bg2:'#fde0ef',bg3:'#f8b4d8',card:'#ffffff',card2:'#fdd4e8',cardRgb:'255,255,255',accent:'#d4208a',accent2:'#b01070',accentRgb:'212,32,138',accent2Rgb:'176,16,112',text:'#1e0a14',text2:'#b8186e',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(255,240,248,0.96)',launcher:'rgba(252,200,230,0.6)',dotColor:'rgba(212,32,138,0.08)'}
   },
   { id:'ocean', label:'Ozean', labelJa:'海',
     dark:{  bg:'#0d2a45',bg2:'#0f3255',bg3:'#1a4a72',card:'#143660',card2:'#1e4878',cardRgb:'20,54,96',accent:'#38bdf8',accent2:'#818cf8',accentRgb:'56,189,248',accent2Rgb:'129,140,248',text:'#e8f6ff',text2:'#6a9ab8',topbar:'rgba(13,42,69,0.94)',launcher:'rgba(26,74,114,0.6)',dotColor:'rgba(56,189,248,0.05)'},
-    light:{ bg:'#eef8ff',bg2:'#daeefa',bg3:'#bcdff5',card:'#ffffff',card2:'#d4eefb',cardRgb:'255,255,255',accent:'#0284c7',accent2:'#4f46e5',accentRgb:'2,132,199',accent2Rgb:'79,70,229',text:'#0d2a45',text2:'#3a6a90',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(238,248,255,0.96)',launcher:'rgba(188,223,245,0.6)',dotColor:'rgba(2,132,199,0.07)'}
+    light:{ bg:'#eef8ff',bg2:'#daeefa',bg3:'#a0d4f0',card:'#ffffff',card2:'#d4eefb',cardRgb:'255,255,255',accent:'#0284c7',accent2:'#4f46e5',accentRgb:'2,132,199',accent2Rgb:'79,70,229',text:'#0d2a45',text2:'#0670aa',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(238,248,255,0.96)',launcher:'rgba(188,223,245,0.6)',dotColor:'rgba(2,132,199,0.07)'}
   },
   { id:'berry', label:'Beere', labelJa:'ベリー',
     dark:{  bg:'#1e0a2e',bg2:'#260d38',bg3:'#3a1455',card:'#2e1045',card2:'#3e185c',cardRgb:'46,16,69',accent:'#c084fc',accent2:'#f472b6',accentRgb:'192,132,252',accent2Rgb:'244,114,182',text:'#f5eeff',text2:'#9a70c0',topbar:'rgba(30,10,46,0.94)',launcher:'rgba(58,20,85,0.6)',dotColor:'rgba(192,132,252,0.06)'},
-    light:{ bg:'#faf5ff',bg2:'#f3e8ff',bg3:'#e9d5ff',card:'#ffffff',card2:'#ede9fe',cardRgb:'255,255,255',accent:'#9333ea',accent2:'#db2777',accentRgb:'147,51,234',accent2Rgb:'219,39,119',text:'#1e0a2e',text2:'#6b35a0',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(250,245,255,0.96)',launcher:'rgba(233,213,255,0.6)',dotColor:'rgba(147,51,234,0.07)'}
+    light:{ bg:'#faf5ff',bg2:'#f3e8ff',bg3:'#dbb8f8',card:'#ffffff',card2:'#ede9fe',cardRgb:'255,255,255',accent:'#9333ea',accent2:'#db2777',accentRgb:'147,51,234',accent2Rgb:'219,39,119',text:'#1e0a2e',text2:'#7e22ce',shadow:'0 8px 32px rgba(0,0,0,0.15)',topbar:'rgba(250,245,255,0.96)',launcher:'rgba(233,213,255,0.6)',dotColor:'rgba(147,51,234,0.07)'}
   },
   { id:'slate', label:'Schiefer', labelJa:'スレート',
     dark:{  bg:'#0f172a',bg2:'#131c30',bg3:'#1e2d45',card:'#1a2540',card2:'#243050',cardRgb:'26,37,64',accent:'#64748b',accent2:'#94a3b8',accentRgb:'100,116,139',accent2Rgb:'148,163,184',text:'#e2e8f0',text2:'#64748b',topbar:'rgba(15,23,42,0.94)',launcher:'rgba(30,45,69,0.6)',dotColor:'rgba(100,116,139,0.06)'},
@@ -3266,18 +3286,22 @@ function applyTheme(themeId, mode){
   // Clock redraws
   // Re-apply widget backgrounds with new card-rgb
   const _newCrgb = vars.cardRgb || getComputedStyle(document.body).getPropertyValue('--card-rgb').trim();
-  const _wAlpha = getComputedStyle(document.documentElement).getPropertyValue('--widget-alpha').trim() || '0.88';
+  const _wAlpha = getComputedStyle(document.documentElement).getPropertyValue('--widget-alpha').trim() || '0.70';
   document.querySelectorAll('.widget').forEach(w=>{ w.style.background=`rgba(${_newCrgb},${_wAlpha})`; });
   document.querySelectorAll('.widget[data-type="clock"]').forEach(w=>{
     const uid=w.dataset.uid; if(uid) try{drawAnalogClock(uid);}catch(_){}
   });
   buildThemeGrid();
-  // Re-apply timer colour fixes same as toggleLightMode
+  // Re-apply colour fixes for dynamically-built widgets
   const isLight = _activeThemeMode==='light';
+  const accentRgb = vars.accentRgb || getComputedStyle(document.body).getPropertyValue('--accent-rgb').trim();
+  const tabBg = isLight ? `rgba(${accentRgb},0.08)` : 'rgba(0,0,0,0.28)';
+  // Fix all inline-style dark tabbars (timer, spiele, etc.)
+  document.querySelectorAll('div[style*="rgba(0,0,0,0.25)"], div[style*="rgba(0,0,0,0.28)"], div[style*="rgba(0,0,0,0.22)"], div[style*="rgba(0,0,0,0.18)"], .timer-mode-bar').forEach(el=>{
+    el.style.background = tabBg;
+  });
   document.querySelectorAll('.widget[data-type="timer"]').forEach(w=>{
     const uid=w.dataset.uid; if(!uid) return;
-    const tabBar=w.querySelector('[style*="rgba(0,0,0,0.25)"]');
-    if(tabBar) tabBar.style.background=isLight?'rgba(0,0,0,0.07)':'rgba(0,0,0,0.25)';
     const svg=document.getElementById('timer-svg-'+uid);
     if(svg) svg.querySelectorAll('line').forEach(l=>l.setAttribute('stroke',isLight?'rgba(0,0,0,0.2)':'rgba(255,255,255,0.22)'));
     const bgCircle=svg&&svg.querySelector('circle:first-child');
@@ -3562,7 +3586,7 @@ function spawnWidget(type){
   if(def.minh) el.dataset.minh=def.minh;
 
   // apply current alpha
-  const alpha=getComputedStyle(document.documentElement).getPropertyValue('--widget-alpha').trim()||'0.88';
+  const alpha=getComputedStyle(document.documentElement).getPropertyValue('--widget-alpha').trim()||'0.70';
   el.style.background=`rgba(${getComputedStyle(document.body).getPropertyValue('--card-rgb').trim()},${alpha})`;
 
   const startSize = getInitialWidgetSize(type, def);
@@ -4092,7 +4116,7 @@ function buildTimer(body,uid){
   const CIRC=427;
   const ticks=Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180;const r1=72,r2=i%3===0?80:76;const x1=80+r1*Math.sin(a),y1=80-r1*Math.cos(a),x2=80+r2*Math.sin(a),y2=80-r2*Math.cos(a);return`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,0.22)" stroke-width="${i%3===0?2:1}" stroke-linecap="round"/>`;}).join('');
   body.innerHTML=`
-<div style="display:flex;gap:calc(var(--uiscale,1)*3px);margin-bottom:.4em;background:rgba(0,0,0,0.25);border-radius:calc(var(--uiscale,1)*8px);padding:calc(var(--uiscale,1)*3px);">
+<div style="display:flex;gap:calc(var(--uiscale,1)*3px);margin-bottom:.4em;background:rgba(0,0,0,0.25);border-radius:calc(var(--uiscale,1)*8px);padding:calc(var(--uiscale,1)*3px);" class="timer-mode-bar">
   <button id="tbtn-ring-${uid}" class="timer-mode-btn active-tmode" onclick="setTimerMode('ring',${uid})">${T('timerKreis')}</button>
   <button id="tbtn-digi-${uid}" class="timer-mode-btn" onclick="setTimerMode('digital',${uid})">${T('timerDigital')}</button>
   <button id="tbtn-lauf-${uid}" class="timer-mode-btn" onclick="setTimerMode('laufer',${uid})">${T('timerLaufer')}</button>
@@ -6703,7 +6727,7 @@ const drawStates={};
 function buildDraw(body,uid){
   body.style.display='flex';body.style.flexDirection='column';body.style.padding='6px';
   body.innerHTML=`
-<div style="display:flex;gap:.3em;align-items:center;flex-wrap:wrap;margin-bottom:.4em;padding:4px 6px;background:rgba(0,0,0,0.18);border-radius:8px;flex-shrink:0;font-size:13px;">
+<div class="timer-mode-bar" style="display:flex;gap:.3em;align-items:center;flex-wrap:wrap;margin-bottom:.4em;padding:4px 6px;background:rgba(0,0,0,0.18);border-radius:8px;flex-shrink:0;font-size:13px;">
   <!-- Colors (fixed 13px base, do not scale) -->
   <div style="display:flex;gap:4px;align-items:center;">
     <div class="color-dot selected" style="background:#000"  onclick="setDColor(${uid},'#000000',this)" title="Schwarz"></div>
@@ -9180,6 +9204,7 @@ function buildSpiele(body, uid){
   // Tab bar
   const tabBar=document.createElement('div');
   tabBar.style.cssText='display:flex;gap:6px;align-items:center;padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;flex-wrap:wrap;';
+  tabBar.classList.add('timer-mode-bar');
   ['rad','slot','puzzle','zuordnen','ampel'].forEach((tab,i)=>{
     const labelKeys={rad:'spieleRad',slot:'spieleSlot',puzzle:'spielePuzzle',ampel:'spieleAmpel',zuordnen:'spieleZuordnen'};
     const icons={rad:'🎡',slot:'🎰',puzzle:'🧩',ampel:'🚦',zuordnen:'🔗'};
@@ -11099,7 +11124,7 @@ function drawQuestionWheel(uid){
     ctx.closePath();
     ctx.fillStyle = colors[i%colors.length];
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,.95)';
+    ctx.strokeStyle = 'rgba(255,215,0,.95)';
     ctx.lineWidth = Math.max(2, W*0.003);
     ctx.stroke();
 
@@ -11112,7 +11137,7 @@ function drawQuestionWheel(uid){
     ctx.closePath();
     ctx.clip();
     ctx.rotate(mid);
-    ctx.fillStyle = '#fff';
+    ctx.fillStyle = '#FFD700';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
     ctx.shadowColor='rgba(0,0,0,.30)';
@@ -11136,7 +11161,7 @@ function drawQuestionWheel(uid){
 
   // outer rim
   ctx.beginPath(); ctx.arc(0,0,R,0,Math.PI*2);
-  ctx.strokeStyle='rgba(255,255,255,.95)'; ctx.lineWidth=Math.max(8,W*.01); ctx.stroke();
+  ctx.strokeStyle='rgba(255,215,0,.95)'; ctx.lineWidth=Math.max(8,W*.01); ctx.stroke();
   // center hole
   const g = ctx.createRadialGradient(0,0,inner*0.1,0,0,inner);
   g.addColorStop(0,'#fff'); g.addColorStop(1,'#e5e7eb');
@@ -11376,21 +11401,6 @@ function spinQuestionWheel(uid){
 
 <!-- ══ DESKTOP DRAW OVERLAY ══ -->
 <div id="desktop-draw-toolbar">
-  <!-- Colors -->
-  <div style="display:flex;gap:5px;align-items:center;flex-shrink:0;">
-    <div class="ddt-color selected" style="background:#111111"                                      id="ddtc-0"  onclick="ddtSetColor('#111111',this)"  title="Schwarz"></div>
-    <div class="ddt-color"          style="background:#6b7280"                                      id="ddtc-1"  onclick="ddtSetColor('#6b7280',this)"  title="Grau"></div>
-    <div class="ddt-color"          style="background:#ffffff;border:2px solid rgba(0,0,0,0.18);"   id="ddtc-2"  onclick="ddtSetColor('#ffffff',this)"  title="Weiß"></div>
-    <div class="ddt-color"          style="background:#3498db"                                      id="ddtc-3"  onclick="ddtSetColor('#3498db',this)"  title="Blau"></div>
-    <div class="ddt-color"          style="background:#f1c40f"                                      id="ddtc-4"  onclick="ddtSetColor('#f1c40f',this)"  title="Gelb"></div>
-    <div class="ddt-color"          style="background:#e74c3c"                                      id="ddtc-5"  onclick="ddtSetColor('#e74c3c',this)"  title="Rot"></div>
-    <div class="ddt-color"          style="background:#2ecc71"                                      id="ddtc-6"  onclick="ddtSetColor('#2ecc71',this)"  title="Grün"></div>
-    <div class="ddt-color"          style="background:#f39c12"                                      id="ddtc-7"  onclick="ddtSetColor('#f39c12',this)"  title="Orange"></div>
-    <div class="ddt-color"          style="background:#7b4f2e"                                      id="ddtc-8"  onclick="ddtSetColor('#7b4f2e',this)"  title="Braun"></div>
-    <div class="ddt-color"          style="background:#9b59b6"                                      id="ddtc-9"  onclick="ddtSetColor('#9b59b6',this)"  title="Lila"></div>
-    <div class="ddt-color"          style="background:#e91e8c"                                      id="ddtc-10" onclick="ddtSetColor('#e91e8c',this)"  title="Rosa"></div>
-  </div>
-  <div class="ddt-sep"></div>
   <!-- Tool buttons -->
   <button class="ddt-btn active-tool" id="ddt-pen"    onclick="ddtSetTool('pen',this)"    title="Stift">✏️</button>
   <button class="ddt-btn"             id="ddt-marker" onclick="ddtSetTool('marker',this)" title="Marker">
@@ -11402,7 +11412,6 @@ function spinQuestionWheel(uid){
       <line x1="7" y1="13" x2="7" y2="16" stroke="white" stroke-width="0.8"/>
     </svg>
   </button>
-  <button class="ddt-btn"             id="ddt-text"   onclick="ddtSetTool('text',this)"   title="Text">T</button>
   <button class="ddt-btn"             id="ddt-eraser" onclick="ddtSetTool('eraser',this)" title="Radierer">
     <svg viewBox="0 0 18 18" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
       <!-- Radiergummi: Quader mit abgerundeten Ecken, diagonal -->
@@ -11412,6 +11421,7 @@ function spinQuestionWheel(uid){
       <line x1="8.5" y1="7" x2="8.5" y2="14" stroke="currentColor" stroke-width="0.9" opacity="0.5"/>
     </svg>
   </button>
+  <button class="ddt-btn"             id="ddt-text"   onclick="ddtSetTool('text',this)"   title="Text">T</button>
   <div class="ddt-sep"></div>
   <!-- Text options (only when text tool active) -->
   <div class="ddt-text-opts" id="ddt-text-opts">
@@ -11456,6 +11466,21 @@ function spinQuestionWheel(uid){
       <line x1="11" y1="8" x2="11" y2="13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
     </svg>
   </button>
+  <div class="ddt-sep"></div>
+  <!-- Colors -->
+  <div id="ddt-color-row" style="display:flex;gap:5px;align-items:center;flex-shrink:0;">
+    <div class="ddt-color selected" style="background:#111111"                                      id="ddtc-0"  onclick="ddtSetColor('#111111',this)"  title="Schwarz"></div>
+    <div class="ddt-color"          style="background:#6b7280"                                      id="ddtc-1"  onclick="ddtSetColor('#6b7280',this)"  title="Grau"></div>
+    <div class="ddt-color"          style="background:#ffffff;border:2px solid rgba(0,0,0,0.18);"   id="ddtc-2"  onclick="ddtSetColor('#ffffff',this)"  title="Weiß"></div>
+    <div class="ddt-color"          style="background:#3498db"                                      id="ddtc-3"  onclick="ddtSetColor('#3498db',this)"  title="Blau"></div>
+    <div class="ddt-color"          style="background:#f1c40f"                                      id="ddtc-4"  onclick="ddtSetColor('#f1c40f',this)"  title="Gelb"></div>
+    <div class="ddt-color"          style="background:#e74c3c"                                      id="ddtc-5"  onclick="ddtSetColor('#e74c3c',this)"  title="Rot"></div>
+    <div class="ddt-color"          style="background:#2ecc71"                                      id="ddtc-6"  onclick="ddtSetColor('#2ecc71',this)"  title="Grün"></div>
+    <div class="ddt-color"          style="background:#f39c12"                                      id="ddtc-7"  onclick="ddtSetColor('#f39c12',this)"  title="Orange"></div>
+    <div class="ddt-color"          style="background:#7b4f2e"                                      id="ddtc-8"  onclick="ddtSetColor('#7b4f2e',this)"  title="Braun"></div>
+    <div class="ddt-color"          style="background:#9b59b6"                                      id="ddtc-9"  onclick="ddtSetColor('#9b59b6',this)"  title="Lila"></div>
+    <div class="ddt-color"          style="background:#e91e8c"                                      id="ddtc-10" onclick="ddtSetColor('#e91e8c',this)"  title="Rosa"></div>
+  </div>
   <!-- Close -->
   <button class="ddt-close" onclick="closeDesktopDraw()">✕</button>
 </div>
