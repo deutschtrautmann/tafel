@@ -1,3 +1,9 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Interaktive Tafel</title>
 <style>
 :root{
   --bg:#1a1f3a;--bg2:#1d2347;--bg3:#2e3560;
@@ -1962,6 +1968,46 @@ const LANG = {
     // Spiele Eingabe
     spieleEintraege:'✏️ Einträge',
     spieleTxtLaden:'📂 TXT laden',
+    slotUebernehmen:'✔ Übernehmen',
+    ampelStart:'Start',
+    ampelStop:'Stop',
+    satzbauTxtLaden:'📂 TXT laden',
+    satzbauFertig:'✓ Fertig',
+    slotEditHint:'Je Zeile <b style="color:var(--text);">2, 3 oder 4 Wörter</b> eingeben, getrennt durch <b style="color:var(--text);">Tab</b>, <b style="color:var(--text);">Komma</b>, <b style="color:var(--text);">Semikolon</b> oder <b style="color:var(--text);">Leerzeichen</b>.<br>Die Anzahl der Wörter pro Zeile bestimmt die Anzahl der Rollen.<br><span style="color:var(--yellow);">2 Wörter = 2 Rollen (Treffer: 1/3/– Pkt) &nbsp;·&nbsp; 3 Wörter = 3 Rollen (1/5/– Pkt) &nbsp;·&nbsp; 4 Wörter = 4 Rollen (1/10/– Pkt)</span>',
+    wheelEditHint:'Ein Eintrag pro Zeile. Leerzeilen werden ignoriert.',
+    wheelTxtLaden:'📂 TXT laden',
+    pzHint:'Ein Satz pro Zeile. Leerzeilen werden ignoriert.',
+    // Tooltips / title-Attribute
+    ttSchliessen:'Schließen',
+    ttKlickenUhr:'Klicken für zufällige Uhrzeit',
+    ttKlickenTimer:'Klicken zum Starten / Pausieren',
+    ttKlickenWuerfeln:'Hier klicken zum Würfeln',
+    ttKlickenZiehen:'Klicken zum Ziehen',
+    ttSchriftgroesseAusw:'Schriftgröße für Auswahl / nächste Eingabe',
+    ttKlickenEnthuellen:'Klicken zum Enthüllen',
+    ttTxtDateiLaden:'TXT-Datei laden (2–4 Wörter pro Zeile)',
+    ttTxtDateiLadenKurz:'TXT-Datei laden',
+    ttKlickenNeustart:'Klicken zum Neustart',
+    ttKlickenDrehen:'Klicken zum Drehen',
+    ttTippenSchliessen:'▶ Tippen zum Schließen',
+    ttJanken:'Janken',
+    // Widget-Fenstertitel
+    wtUhr:'Analoge Uhr',
+    wtTimer:'Timer',
+    wtWuerfel:'Würfel',
+    wtNamen:'Zufälliger Name',
+    wtZeichnen:'Zeichenbrett',
+    wtQR:'QR-Code',
+    wtText:'Textfeld',
+    wtJein:'Jein',
+    wtFotos:'Fotos',
+    wtRad:'Frage-Rad',
+    wtSlot:'Slot-Maschine',
+    wtSpiele:'Spiele',
+    // Fensterknöpfe
+    ttMinimieren:'Minimieren',
+    ttMaximieren:'Maximieren',
+    ttWiederherstellen:'Wiederherstellen',
   },
   ja: {
     namen:'名前',
@@ -2155,6 +2201,46 @@ const LANG = {
     // Spiele Eingabe
     spieleEintraege:'✏️ 入力',
     spieleTxtLaden:'📂 TXTを読み込む',
+    slotUebernehmen:'✔ 保存',
+    ampelStart:'スタート',
+    ampelStop:'ストップ',
+    satzbauTxtLaden:'📂 TXTを読み込む',
+    satzbauFertig:'✓ 完了',
+    slotEditHint:'1行に <b style="color:var(--text);">2、3、または4語</b> 入力。区切りは <b style="color:var(--text);">Tab</b>、<b style="color:var(--text);">コンマ</b>、<b style="color:var(--text);">セミコロン</b> または <b style="color:var(--text);">スペース</b>。<br>1行の語数がリールの数になります。<br><span style="color:var(--yellow);">2語 = 2リール (得点: 1/3/–) &nbsp;·&nbsp; 3語 = 3リール (1/5/–) &nbsp;·&nbsp; 4語 = 4リール (1/10/–)</span>',
+    wheelEditHint:'1行に1エントリ。空行は無視されます。',
+    wheelTxtLaden:'📂 TXTを読み込む',
+    pzHint:'1行に1文。空行は無視されます。',
+    // Tooltips / title-Attribute
+    ttSchliessen:'閉じる',
+    ttKlickenUhr:'クリックでランダム時刻',
+    ttKlickenTimer:'クリックで開始 / 一時停止',
+    ttKlickenWuerfeln:'クリックしてサイコロを振る',
+    ttKlickenZiehen:'クリックして引く',
+    ttSchriftgroesseAusw:'選択 / 次の入力の文字サイズ',
+    ttKlickenEnthuellen:'クリックして公開',
+    ttTxtDateiLaden:'TXTファイルを読み込む（1行に2〜4語）',
+    ttTxtDateiLadenKurz:'TXTファイルを読み込む',
+    ttKlickenNeustart:'クリックして再スタート',
+    ttKlickenDrehen:'クリックして回す',
+    ttTippenSchliessen:'▶ タップして閉じる',
+    ttJanken:'じゃんけん',
+    // Widget-Fenstertitel
+    wtUhr:'アナログ時計',
+    wtTimer:'タイマー',
+    wtWuerfel:'サイコロ',
+    wtNamen:'ランダム名前',
+    wtZeichnen:'お絵かきボード',
+    wtQR:'QRコード',
+    wtText:'テキスト欄',
+    wtJein:'是か非か',
+    wtFotos:'写真',
+    wtRad:'質問ルーレット',
+    wtSlot:'スロットマシン',
+    wtSpiele:'ゲーム',
+    // Fensterknöpfe
+    ttMinimieren:'最小化',
+    ttMaximieren:'最大化',
+    ttWiederherstellen:'元に戻す',
   }
 };
 
@@ -2235,22 +2321,18 @@ function applyLanguage(lang){
     buildSoundMenu();
   }
 
-  // Häufige Widgettitel übersetzen
-  const titleMap = {
-    de:{
-      'NAMEN':'NAMEN','ZEICHNEN':'ZEICHNEN','TEXT':'TEXT','WÜRFEL':'WÜRFEL',
-      'WAS?':'WAS?','TIMER':'TIMER','UHR':'UHR','SPIELE':'SPIELE','QR':'QR'
-    },
-    ja:{
-      'NAMEN':'名前','ZEICHNEN':'描画','TEXT':'テキスト','WÜRFEL':'サイコロ',
-      'WAS?':'なに？','TIMER':'タイマー','UHR':'時計','SPIELE':'ゲーム','QR':'QR',
-      'ZEICHENBRETT':'描画ボード','DESIGN':'デザイン'
-    }
-  };
-
-  document.querySelectorAll('.widget-title').forEach(el=>{
-    const txt = el.textContent.trim().toUpperCase();
-    if(titleMap[lang][txt]) el.textContent = titleMap[lang][txt];
+  // Widget-Fenstertitel via titleKey übersetzen
+  document.querySelectorAll('.widget-header[data-title-key]').forEach(hdr=>{
+    const key = hdr.dataset.titleKey;
+    const titleEl = hdr.querySelector('.widget-title');
+    if(titleEl && key) titleEl.textContent = T(key);
+    // Fensterknöpfe
+    hdr.querySelectorAll('.wh-btn').forEach(btn=>{
+      if(/Minimieren|最小化/.test(btn.title))         btn.title = T('ttMinimieren');
+      if(/Maximieren|最大化/.test(btn.title))         btn.title = T('ttMaximieren');
+      if(/Wiederherstellen|元に戻す/.test(btn.title)) btn.title = T('ttWiederherstellen');
+      if(/Schließen|閉じる/.test(btn.title))          btn.title = T('ttSchliessen');
+    });
   });
 
   
@@ -2278,6 +2360,11 @@ function applyLanguage(lang){
   const removeFotoBtn=document.querySelector('#bg-photo-controls .wbtn');
   if(removeFotoBtn) removeFotoBtn.textContent=t.designFotoEntfernen;
 
+  // (Widget-Fenstertitel und -knöpfe werden über data-title-key oben übersetzt)
+  // ── Textpad font-size tooltip ──
+  document.querySelectorAll('[title]').forEach(el=>{
+    if(/Schriftgröße für Auswahl|選択.*文字サイズ/.test(el.title)) el.title=T('ttSchriftgroesseAusw');
+  });
   // ── Translate open widgets ──
   _translateOpenWidgets(lang);
   _translateDesktopDrawToolbar(lang);
@@ -2341,6 +2428,13 @@ function _trTimer(uid){
       if(/HALBZEIT|ハーフタイム/.test(tx.textContent)) tx.textContent=T('timerHalbzeit');
     });
   }
+  // Title attributes
+  const timerSvg=document.getElementById('timer-svg-'+uid);
+  if(timerSvg) timerSvg.title=T('ttKlickenTimer');
+  const timerDigi=document.getElementById('td-digi-'+uid);
+  if(timerDigi) timerDigi.title=T('ttKlickenTimer');
+  const timerLauf=document.getElementById('tview-lauf-'+uid);
+  if(timerLauf) timerLauf.title=T('ttKlickenTimer');
 }
 
 function _trClock(uid){
@@ -2352,6 +2446,9 @@ function _trClock(uid){
   });
   const dtEl=document.getElementById('wcdate-'+uid);
   if(dtEl && /5-Min|5分/.test(dtEl.textContent)) dtEl.textContent=T('clockRandomLabel');
+  // Title attribute on canvas
+  const cv=document.getElementById('aclock-'+uid);
+  if(cv) cv.title=T('ttKlickenUhr');
 }
 
 function _trDice(uid){
@@ -2375,6 +2472,20 @@ function _trDice(uid){
       if(sp.textContent.trim()==='Sek.'||sp.textContent.trim()==='秒') sp.textContent=T('diceSek');
     });
   }
+  // Satzbau TXT / Fertig buttons
+  const sbLbl=document.getElementById('satzbau-lbl-'+uid);
+  if(sbLbl){
+    const inp=sbLbl.querySelector('input');
+    sbLbl.textContent=T('satzbauTxtLaden');
+    if(inp) sbLbl.appendChild(inp);
+  }
+  const sbOk=document.getElementById('satzbau-ok-'+uid);
+  if(sbOk) sbOk.textContent=T('satzbauFertig');
+  // Title attributes
+  const diceWrap=document.getElementById('dicewrap-'+uid);
+  if(diceWrap) diceWrap.title=T('ttKlickenWuerfeln');
+  const jankenBtn=document.getElementById('dtbtn-jein-janken-'+uid);
+  if(jankenBtn) jankenBtn.title=T('ttJanken');
 }
 
 function _trNames(uid){
@@ -2384,6 +2495,13 @@ function _trNames(uid){
   if(listBtn) listBtn.innerHTML=`&#128196; ${T('namesListe')}`;
   const resetBtn=document.getElementById('names-reset-btn-'+uid);
   if(resetBtn) resetBtn.innerHTML=`&#8635; ${T('namesResetKurz')}`;
+  // Title on click-area
+  const body=document.getElementById('body-'+uid);
+  if(body){
+    body.querySelectorAll('[title]').forEach(el=>{
+      if(/Klicken zum Ziehen|クリックして引く/.test(el.title)) el.title=T('ttKlickenZiehen');
+    });
+  }
 }
 
 function _trDraw(uid){
@@ -2495,6 +2613,9 @@ function _trWas(uid){
       if(/Mehrere Fotos|複数の写真/.test(d.textContent)&&d.children.length===0) d.textContent=T('wasUploadSub');
     });
   }
+  // Title on canvas
+  const wasCv=document.getElementById('was-canvas-'+uid);
+  if(wasCv) wasCv.title=T('ttKlickenEnthuellen');
   const btn=document.getElementById('was-btn-'+uid);
   if(btn&&!btn.disabled){
     const s=wasState[uid]?.mode;
@@ -2553,7 +2674,7 @@ function _trWheel(uid){
   const tabPlay=document.getElementById('wheel-tab-play-'+uid);
   const tabEdit=document.getElementById('wheel-tab-edit-'+uid);
   if(tabPlay) tabPlay.innerHTML='&#9654; '+T('slotSpielen').replace('▶ ','');
-  if(tabEdit) tabEdit.innerHTML='&#9999; '+T('wheelFragen').replace('✏️ ','').replace('✏ ','');
+  if(tabEdit) tabEdit.innerHTML='&#9999; '+T('spieleEintraege').replace('✏️ ','');
   // Zufall button
   const zBtn=document.getElementById('wheel-zufall-btn-'+uid);
   if(zBtn){
@@ -2568,6 +2689,21 @@ function _trWheel(uid){
       if(/Übernehmen|保存|✓/.test(btn.textContent)) btn.textContent='✓ '+T('wheelUebernehmen');
     });
   }
+  // Edit-panel Hinweis und TXT-Knopf
+  const editHintEl=document.querySelector('#wheel-edit-panel-'+uid+' div[style*="clamp"]');
+  if(editHintEl) editHintEl.textContent=T('wheelEditHint');
+  const txtSpan=document.querySelector('#wheel-edit-panel-'+uid+' .wbtn:not(.primary)');
+  if(txtSpan) txtSpan.textContent=T('wheelTxtLaden');
+  // Title on canvas
+  const wheelCv=document.getElementById('wheel-canvas-'+uid);
+  if(wheelCv) wheelCv.title=T('ttKlickenDrehen');
+  // Title on txt file label
+  const body2=document.getElementById('body-'+uid);
+  if(body2){
+    body2.querySelectorAll('[title]').forEach(el=>{
+      if(/TXT-Datei laden|TXTファイルを読み込む/.test(el.title)) el.title=T('ttTxtDateiLadenKurz');
+    });
+  }
 }
 
 function _trSlot(uid){
@@ -2580,6 +2716,11 @@ function _trSlotInner(uid){
   const tabEdit=document.getElementById('slot-tab-edit-'+uid);
   if(tabPlay) tabPlay.innerHTML='&#9654; '+T('slotSpielen').replace('▶ ','');
   if(tabEdit) tabEdit.innerHTML='&#9999; '+T('slotWoerter').replace('✏ ','');
+  // Anleitung und Übernehmen
+  const editHint=document.querySelector('#slot-edit-'+uid+' .slot-edit-hint');
+  if(editHint) editHint.innerHTML=T('slotEditHint');
+  const applyBtn=document.querySelector('#slot-edit-'+uid+' .wbtn.primary');
+  if(applyBtn) applyBtn.textContent=T('slotUebernehmen');
   // Score bar title
   const scoreTitle=document.querySelector('#slot-play-'+uid+' .slot-scorebar-title');
   if(scoreTitle){
@@ -2625,6 +2766,34 @@ function _trSpiele(uid){
   // Wheel panel uses uid*1000+1, Slot uses uid*1000+2
   _trWheel(uid*1000+1);
   _trSlotInner(uid*1000+2);
+  // Zuordnen game instruction + buttons
+  const zuGame=document.getElementById('zu-game-'+uid);
+  if(zuGame){
+    const zuInstr=zuGame.querySelector('div[style*="font-size:.82em"]');
+    if(zuInstr) zuInstr.textContent=T('zuordnenInstr');
+    const zuCheckRow=document.getElementById('zu-check-row-'+uid);
+    if(zuCheckRow){
+      const btns=zuCheckRow.querySelectorAll('.wbtn');
+      if(btns[0]) btns[0].textContent='✔ '+T('pzPruefen').replace(' ✔','');
+      if(btns[1]) btns[1].textContent='↺ '+T('namesResetKurz');
+    }
+  }
+  // Ampel scene title + Start/Stop button label
+  const ampelScene=document.getElementById('ampel-scene-'+(uid*1000+3));
+  if(ampelScene) ampelScene.title=T('ttKlickenNeustart');
+  const auid=uid*1000+3;
+  const ampelLbl=document.getElementById('ampel-playbtn-label-'+auid);
+  if(ampelLbl){
+    const isRunning=!!(_apTimers&&_apTimers[auid]);
+    ampelLbl.textContent=isRunning?T('ampelStop'):T('ampelStart');
+  }
+  // Slot TXT label title
+  const spieleBody=document.getElementById('body-'+uid);
+  if(spieleBody){
+    spieleBody.querySelectorAll('[title]').forEach(el=>{
+      if(/TXT-Datei laden|TXTファイルを読み込む/.test(el.title)) el.title=T('ttTxtDateiLaden');
+    });
+  }
 }
 
 
@@ -3349,18 +3518,18 @@ setInterval(updateClock,1000); updateClock();
 // WIDGET FACTORY
 // ════════════════════════════════════════════════
 const WIDGET_DEFS={
-  clock:  {title:'Analoge Uhr',         icon:'🕰️',w:300,h:380, fitContent:false},
-  timer:  {title:'Timer',               icon:'⏱', w:300,h:370, fitContent:false},
-  dice:   {title:'Würfel',              icon:'🎲', w:300,h:400, fitContent:true},
-  names:  {title:'Zufälliger Name',     icon:'👤', w:290,h:330, fitContent:false},
-  draw:   {title:'Zeichenbrett',        icon:'✏️',w:580,h:450, fitContent:false},
-  qr:     {title:'QR-Code',             icon:'📱', w:260,h:310, fitContent:true},
-  textpad:{title:'Textfeld',            icon:'📝', w:340,h:310, fitContent:true},
-  jein:   {title:'Jein',                icon:'🤔', w:310,h:355, fitContent:true},
-  was:    {title:'Fotos',                icon:'🖼', w:420,h:400, fitContent:false},
-  wheel:  {title:'Frage-Rad',           icon:'🎡', w:820,h:900, fitContent:false},
-  slot:   {title:'Slot-Maschine',       icon:'🎰', w:560,h:580, fitContent:false, minw:400, minh:380},
-  spiele: {title:'Spiele',              icon:'🎮', w:580,h:520, fitContent:false, minw:420, minh:400},
+  clock:  {titleKey:'wtUhr',    icon:'🕰️',w:300,h:380, fitContent:false},
+  timer:  {titleKey:'wtTimer',  icon:'⏱', w:300,h:370, fitContent:false},
+  dice:   {titleKey:'wtWuerfel',icon:'🎲', w:300,h:400, fitContent:true},
+  names:  {titleKey:'wtNamen',  icon:'👤', w:290,h:330, fitContent:false},
+  draw:   {titleKey:'wtZeichnen',icon:'✏️',w:580,h:450, fitContent:false},
+  qr:     {titleKey:'wtQR',     icon:'📱', w:260,h:310, fitContent:true},
+  textpad:{titleKey:'wtText',   icon:'📝', w:340,h:310, fitContent:true},
+  jein:   {titleKey:'wtJein',   icon:'🤔', w:310,h:355, fitContent:true},
+  was:    {titleKey:'wtFotos',  icon:'🖼', w:420,h:400, fitContent:false},
+  wheel:  {titleKey:'wtRad',    icon:'🎡', w:820,h:900, fitContent:false},
+  slot:   {titleKey:'wtSlot',   icon:'🎰', w:560,h:580, fitContent:false, minw:400, minh:380},
+  spiele: {titleKey:'wtSpiele', icon:'🎮', w:580,h:520, fitContent:false, minw:420, minh:400},
 };
 
 
@@ -3437,11 +3606,12 @@ function spawnWidget(type){
   // Header
   const hdr=document.createElement('div');
   hdr.className='widget-header';
-  hdr.innerHTML=`<span class="widget-title">${def.title}</span>
+  hdr.dataset.titleKey = def.titleKey;
+  hdr.innerHTML=`<span class="widget-title">${T(def.titleKey)}</span>
     <div class="wh-btns">
-      <button class="wh-btn" title="Minimieren"  onclick="minimizeWidget('${id}')">−</button>
-      <button class="wh-btn" title="Maximieren"  onclick="maximizeWidget('${id}')">⛶</button>
-      <button class="wh-btn" title="Schließen"   onclick="killWidget('${id}')">✕</button>
+      <button class="wh-btn" title="${T('ttMinimieren')}"  onclick="minimizeWidget('${id}')">−</button>
+      <button class="wh-btn" title="${T('ttMaximieren')}"  onclick="maximizeWidget('${id}')">⛶</button>
+      <button class="wh-btn" title="${T('ttSchliessen')}"   onclick="killWidget('${id}')">✕</button>
     </div>`;
   el.appendChild(hdr);
 
@@ -3572,7 +3742,7 @@ function maximizeWidget(id){
     }
     // Button-Icon wechseln
     const btn=el.querySelector('.wh-btn[title="Maximieren"]');
-    if(btn){ btn.title='Wiederherstellen'; btn.textContent='⧉'; }
+    if(btn){ btn.title=T('ttWiederherstellen'); btn.textContent='⧉'; }
   } else {
     // Wiederherstellen
     el._maximized=false;
@@ -3588,7 +3758,7 @@ function maximizeWidget(id){
     el.style.width=s.width||'';
     el.style.maxWidth='';
     const btn=el.querySelector('.wh-btn[title="Wiederherstellen"]');
-    if(btn){ btn.title='Maximieren'; btn.textContent='⛶'; }
+    if(btn){ btn.title=T('ttMaximieren'); btn.textContent='⛶'; }
   }
   updateWidgetScale(el);
 }
@@ -3688,7 +3858,7 @@ function makeResizable(el,handle){
     if(el._maximized){
       el._maximized=false;
       const btn=el.querySelector('.wh-btn[title="Wiederherstellen"]');
-      if(btn){ btn.title='Maximieren'; btn.textContent='⛶'; }
+      if(btn){ btn.title=T('ttMaximieren'); btn.textContent='⛶'; }
     }
     updateWidgetScale(el);
     el.querySelectorAll('canvas.draw-canvas').forEach(cv=>requestAnimationFrame(()=>resizeDrawCanvas(cv)));
@@ -3752,7 +3922,7 @@ function buildClock(body, uid){
   body.style.display='flex'; body.style.flexDirection='column'; body.style.alignItems='center';
   body.innerHTML=`
 <div id="aclock-wrap-${uid}" style="width:100%;flex:1;display:flex;align-items:center;justify-content:center;min-height:80px;">
-  <canvas id="aclock-${uid}" style="display:block;cursor:pointer;" title="Klicken für zufällige Uhrzeit" onclick="randomClockTime(${uid})"></canvas>
+  <canvas id="aclock-${uid}" style="display:block;cursor:pointer;" title="${T('ttKlickenUhr')}" onclick="randomClockTime(${uid})"></canvas>
 </div>
 <div id="wctime-txt-${uid}" style="font-size:1.8em;font-weight:400;text-align:center;margin-top:8px;color:var(--accent);min-height:1.3em;font-variant-numeric:tabular-nums;letter-spacing:.04em;"></div>
 <div class="wclock-date" id="wcdate-${uid}" style="margin-top:3px;font-size:.82em;"></div>
@@ -3928,7 +4098,7 @@ function buildTimer(body,uid){
   <button id="tbtn-lauf-${uid}" class="timer-mode-btn" onclick="setTimerMode('laufer',${uid})">${T('timerLaufer')}</button>
 </div>
 <div id="tview-ring-${uid}" style="position:relative;width:100%;flex:1;min-height:100px;display:flex;align-items:center;justify-content:center;margin:.1em auto .2em;">
-  <svg id="timer-svg-${uid}" viewBox="0 0 160 160" style="width:100%;height:100%;max-width:100%;max-height:100%;display:block;cursor:pointer;" onclick="startTimer(${uid})" title="Klicken zum Starten / Pausieren">
+  <svg id="timer-svg-${uid}" viewBox="0 0 160 160" style="width:100%;height:100%;max-width:100%;max-height:100%;display:block;cursor:pointer;" onclick="startTimer(${uid})" title="${T('ttKlickenTimer')}">
     <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
     <circle id="sw-arc-${uid}" cx="80" cy="80" r="68" fill="none" stroke="#4ade80" stroke-width="8"
       stroke-linecap="round" stroke-dasharray="${CIRC}" stroke-dashoffset="0"
@@ -3942,9 +4112,9 @@ function buildTimer(body,uid){
   <div id="td-${uid}" style="display:none;">${fmtTime(timerSec)}</div>
 </div>
 <div id="tview-digi-${uid}" style="display:none;width:100%;text-align:center;padding:.8em 0 .4em;">
-  <div class="timer-disp" id="td-digi-${uid}" style="font-size:5em;margin:0;cursor:pointer;" onclick="startTimer(${uid})" title="Klicken zum Starten / Pausieren">${fmtTime(timerSec)}</div>
+  <div class="timer-disp" id="td-digi-${uid}" style="font-size:5em;margin:0;cursor:pointer;" onclick="startTimer(${uid})" title="${T('ttKlickenTimer')}">${fmtTime(timerSec)}</div>
 </div>
-<div id="tview-lauf-${uid}" style="display:none;width:100%;flex:1;min-height:130px;cursor:pointer;overflow:hidden;border-radius:10px;position:relative;" onclick="startTimer(${uid})" title="Klicken zum Starten / Pausieren">
+<div id="tview-lauf-${uid}" style="display:none;width:100%;flex:1;min-height:130px;cursor:pointer;overflow:hidden;border-radius:10px;position:relative;" onclick="startTimer(${uid})" title="${T('ttKlickenTimer')}">
   <svg id="lauf-svg-${uid}" viewBox="0 0 790 160" width="100%" height="100%" style="display:block;" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
     <!-- Himmel (Farbe wird per JS animiert) -->
     <rect id="lauf-sky-${uid}" x="0" y="0" width="790" height="160" fill="#f9c27a"/>
@@ -5221,7 +5391,7 @@ function dicePolySvg(sides,val){
 function buildDice(body,uid){
   body.style.display='flex'; body.style.flexDirection='column';
   body.innerHTML=`
-<div class="dice-wrap" id="dicewrap-${uid}" onclick="rollDice(${uid})" title="Hier klicken zum Würfeln">
+<div class="dice-wrap" id="dicewrap-${uid}" onclick="rollDice(${uid})" title="${T('ttKlickenWuerfeln')}">
   ${diceD6svg(6)}
 </div>
 <div class="dice-result" id="diceres-${uid}">${T('diceClickHint')}</div>
@@ -5247,7 +5417,7 @@ function buildDice(body,uid){
 <div style="display:flex;gap:.4em;justify-content:center;flex-wrap:wrap;padding:.2em 0 .4em;">
   <button class="jein-mode-btn" id="dtbtn-satzbau-${uid}" onclick="selectDiceType('satzbau',${uid})" title="Satzbau">${T('diceSatzbau')}</button>
   <button class="jein-mode-btn" id="dtbtn-jein-smiley-${uid}" onclick="selectDiceType('jein-smiley',${uid})" title="Smiley">😊</button>
-  <button class="jein-mode-btn" id="dtbtn-jein-janken-${uid}" onclick="selectDiceType('jein-janken',${uid})" title="Janken">✂️</button>
+  <button class="jein-mode-btn" id="dtbtn-jein-janken-${uid}" onclick="selectDiceType('jein-janken',${uid})" title="${T('ttJanken')}">✂️</button>
   <button class="jein-mode-btn" id="dtbtn-jein-color-${uid}"  onclick="selectDiceType('jein-color',${uid})"  title="Farbe">🎨</button>
   <button class="jein-mode-btn" id="dtbtn-zufall-${uid}" onclick="toggleDiceZufall(${uid})" title="Zufall an/aus" style="font-size:.75em;padding:.3em .6em;">${T('diceZufallAn')}</button>
 </div>
@@ -5963,8 +6133,8 @@ function showSatzbauSetup(uid){
   wrap.innerHTML = `
 <div id="satzbau-setup-${uid}" style="display:flex;flex-direction:column;gap:.5em;align-items:stretch;justify-content:flex-start;width:100%;height:100%;padding:.5em;box-sizing:border-box;">
   <div style="display:flex;gap:.4em;align-items:center;flex-wrap:wrap;">
-    <label class="satzbau-upload-btn" id="satzbau-lbl-${uid}" style="flex-shrink:0;">&#128194; TXT laden<input type="file" accept=".txt,text/plain" style="display:none;" id="satzbau-file-${uid}"></label>
-    <button id="satzbau-ok-${uid}" class="satzbau-upload-btn" style="flex-shrink:0;background:var(--accent);color:#fff;border-color:var(--accent);">&#10003; Fertig</button>
+    <label class="satzbau-upload-btn" id="satzbau-lbl-${uid}" style="flex-shrink:0;">${T('satzbauTxtLaden')}<input type="file" accept=".txt,text/plain" style="display:none;" id="satzbau-file-${uid}"></label>
+    <button id="satzbau-ok-${uid}" class="satzbau-upload-btn" style="flex-shrink:0;background:var(--accent);color:#fff;border-color:var(--accent);">${T('satzbauFertig')}</button>
   </div>
   <textarea class="satzbau-textarea" id="satzbau-ta-${uid}" placeholder="2–4 Wortgruppen möglich.&#10;Jede Gruppe mit Nummer einleiten:&#10;&#10;1&#10;ich&#10;du&#10;Sie&#10;&#10;2&#10;kommen&#10;gehen&#10;&#10;3&#10;nach Hause&#10;in die Schule&#10;&#10;→ Beim Würfeln erscheint aus jeder&#10;   Gruppe ein zufälliges Wort." style="flex:1;min-height:60px;"></textarea>
 
@@ -6131,7 +6301,7 @@ function buildNames(body,uid){
 body.style.flexDirection='column';
 body.style.overflow='hidden';
 body.innerHTML=`
-<div onclick="pickName(${uid})" title="Klicken zum Ziehen" style="cursor:pointer;flex:1 1 0;min-height:120px;display:flex;align-items:center;justify-content:center;padding:0 6px;overflow:visible;">
+<div onclick="pickName(${uid})" title="${T('ttKlickenZiehen')}" style="cursor:pointer;flex:1 1 0;min-height:120px;display:flex;align-items:center;justify-content:center;padding:0 6px;overflow:visible;">
   <div id="namedisp-${uid}" style="
     display:inline-flex;align-items:center;justify-content:center;
     width:fit-content;min-width:80px;max-width:calc(100% - 12px);
@@ -7289,7 +7459,7 @@ function buildTextpad(body,uid){
   </select>
   <select id="tp-sizesel-${uid}"
     style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;"
-    title="Schriftgröße für Auswahl / nächste Eingabe"
+    title="${T('ttSchriftgroesseAusw')}"
     onmousedown="tpSaveSel(${uid})"
     onchange="tpSizeSelectHandler(${uid},this)">
     <option value="inline:13">Klein (13 px)</option>
@@ -7533,7 +7703,7 @@ function buildJein(body,uid){
   <button class="jein-mode-btn" id="jmbtn-smiley-${uid}" onclick="setJeinMode('smiley',${uid})" title="Smiley">${T('jeinSmiley')}</button>
   <button class="jein-mode-btn" id="jmbtn-ampel-${uid}" onclick="setJeinMode('ampel',${uid})" title="Ampel">${T('jeinAmpel')}</button>
   <button class="jein-mode-btn" id="jmbtn-color-${uid}" onclick="setJeinMode('color',${uid})" title="Farbe">${T('jeinFarbe')}</button>
-  <button class="jein-mode-btn" id="jmbtn-janken-${uid}" onclick="setJeinMode('janken',${uid})" title="Janken">${T('jeinJanken')}</button>
+  <button class="jein-mode-btn" id="jmbtn-janken-${uid}" onclick="setJeinMode('janken',${uid})" title="${T('ttJanken')}">${T('jeinJanken')}</button>
 </div>
 <div id="jein-janken-btns-${uid}" style="display:none;justify-content:center;gap:.4em;margin-bottom:.5em;">
   ${SSP_CHOICES.map(c=>`<button onclick="playJanken('${c.id}',${uid})" style="background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:.45em .7em;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.15em;" onmouseover="this.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--accent');this.style.background=_accentRgb(0.15)" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.background='rgba(255,255,255,0.07)'">
@@ -7744,7 +7914,7 @@ function buildWas(body,uid){
     <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;">${T('wasFoto')} 1 / 1</div>
     <button class="wbtn primary" onclick="wasGoNext(${uid})" id="was-next-${uid}" style="padding:.3em .9em;font-size:.85em;">${T('wasWeiter')}</button>
   </div>
-  <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasRevealMore(${uid})" title="Klicken zum Enthüllen"></canvas>
+  <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasRevealMore(${uid})" title="${T('ttKlickenEnthuellen')}"></canvas>
   <div style="display:flex;gap:.4em;align-items:center;">
     <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;">${T('wasSchritt')} 1 / 8</div>
     <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="display:none;">🔀 Zufall an</button>
@@ -8576,15 +8746,15 @@ function buildSlot(body, uid){
 </div>
 
 <div id="slot-edit-${uid}" class="slot-edit-panel">
-  <div class="slot-edit-hint">Je Zeile <b style="color:var(--text);">2, 3 oder 4 Wörter</b> eingeben, getrennt durch <b style="color:var(--text);">Tab</b>, <b style="color:var(--text);">Komma</b>, <b style="color:var(--text);">Semikolon</b> oder <b style="color:var(--text);">Leerzeichen</b>.<br>Die Anzahl der Wörter pro Zeile bestimmt die Anzahl der Rollen.<br><span style="color:var(--yellow);">2 Wörter = 2 Rollen (Treffer: 1/3/– Pkt) &nbsp;·&nbsp; 3 Wörter = 3 Rollen (1/5/– Pkt) &nbsp;·&nbsp; 4 Wörter = 4 Rollen (1/10/– Pkt)</span></div>
+  <div class="slot-edit-hint">${T('slotEditHint')}</div>
   <textarea
     class="slot-edit-textarea"
     id="slot-textarea-${uid}"
     spellcheck="false"
     placeholder="Ich        komme      aus&#10;Wo         wohnst     du?&#10;Mein       Name       ist"></textarea>
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-    <button class="wbtn primary" style="font-size:.92em;padding:.45em 1.2em;" onclick="slotApplyTextarea(${uid})">&#10004; Übernehmen</button>
-    <label title="TXT-Datei laden (2–4 Wörter pro Zeile)" style="cursor:pointer;display:contents;">
+    <button class="wbtn primary" style="font-size:.92em;padding:.45em 1.2em;" onclick="slotApplyTextarea(${uid})">${T('slotUebernehmen')}</button>
+    <label title="${T('ttTxtDateiLaden')}" style="cursor:pointer;display:contents;">
       <span class="wbtn" style="font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;">${T('spieleTxtLaden')}</span>
       <input type="file" accept=".txt,text/plain" style="display:none" onchange="slotLoadTxtToTextarea(${uid},this)">
     </label>
@@ -9068,7 +9238,7 @@ function buildAmpelPanel(panel, uid){
   panel.style.position = 'relative';
 
   panel.innerHTML = `
-<div id="ampel-scene-${auid}" style="width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#0d1235 0%,#1a2060 40%,#252d7a 75%,#1e2650 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ampelPanelClick(${auid})" title="Klicken zum Neustart">
+<div id="ampel-scene-${auid}" style="width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#0d1235 0%,#1a2060 40%,#252d7a 75%,#1e2650 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ampelPanelClick(${auid})" title="${T('ttKlickenNeustart')}">
 
   <!-- Sterne -->
   <svg style="position:absolute;inset:0;width:100%;height:72%;pointer-events:none;" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
@@ -9340,7 +9510,7 @@ function buildAmpelPanel(panel, uid){
     onmouseup="this.style.transform='translateX(-50%) scale(1.07)'"
   >
     <span id="ampel-playbtn-icon-${auid}" style="font-size:1.2em;line-height:1;">&#9654;</span>
-    <span id="ampel-playbtn-label-${auid}">Start</span>
+    <span id="ampel-playbtn-label-${auid}">${T('ampelStart')}</span>
   </button>
 </div>`;
   // Ampel cycle is started by spieleShowTab when the ampel tab is first selected
@@ -9644,11 +9814,11 @@ function _ampelBtnSetRunning(auid, running){
   if(!btn) return;
   if(running){
     if(icon)  icon.innerHTML  = '&#9646;&#9646;';
-    if(label) label.textContent = 'Stop';
+    if(label) label.textContent = T('ampelStop');
     btn.style.background = 'linear-gradient(135deg,#ef4444 0%,#dc2626 100%)';
   } else {
     if(icon)  icon.innerHTML  = '&#9654;';
-    if(label) label.textContent = 'Start';
+    if(label) label.textContent = T('ampelStart');
     btn.style.background = 'linear-gradient(135deg,#22c55e 0%,#16a34a 100%)';
   }
 }
@@ -9885,7 +10055,7 @@ function pzShowEintraegeModal(uid){
   // Hint
   const hint = document.createElement('div');
   hint.style.cssText = 'font-size:.82em;color:var(--text2);line-height:1.5;';
-  hint.textContent = 'Ein Satz pro Zeile. Leerzeilen werden ignoriert.';
+  hint.textContent = T('pzHint');
   box.appendChild(hint);
 
   // Textarea — pre-fill with current sentences
@@ -9903,7 +10073,7 @@ function pzShowEintraegeModal(uid){
   const applyBtn = document.createElement('button');
   applyBtn.className = 'wbtn primary';
   applyBtn.style.cssText = 'font-size:.92em;padding:.45em 1.2em;';
-  applyBtn.textContent = '✔ Übernehmen';
+  applyBtn.textContent = T('slotUebernehmen');
   applyBtn.onclick = ()=>{
     const text = ta.value.trim();
     if(!text) return;
@@ -10411,7 +10581,7 @@ function zuShowEintraegeModal(uid){
   const applyBtn = document.createElement('button');
   applyBtn.className = 'wbtn primary';
   applyBtn.style.cssText = 'font-size:.92em;padding:.45em 1.2em;';
-  applyBtn.textContent = '✔ Übernehmen';
+  applyBtn.textContent = T('slotUebernehmen');
   applyBtn.onclick = ()=>{
     const text = ta.value.trim();
     if(!text) return;
@@ -10495,7 +10665,7 @@ function zuBuildGame(uid){
   // Instruction
   const instr = document.createElement('div');
   instr.style.cssText = 'font-size:.82em;font-weight:700;color:var(--text2);padding:0 2px 2px;flex-shrink:0;';
-  instr.textContent = 'Wähle einen Titel, dann klicke die passenden Wörter an:';
+  instr.textContent = T('zuordnenInstr');
   gameWrap.appendChild(instr);
 
   // ── Title chips row ──
@@ -10551,14 +10721,14 @@ function zuBuildGame(uid){
 
   const checkBtn = document.createElement('button');
   checkBtn.className = 'wbtn primary';
-  checkBtn.textContent = '✔ Prüfen';
+  checkBtn.textContent = '✔ '+T('pzPruefen').replace(' ✔','');
   checkBtn.style.touchAction = 'manipulation';
   checkBtn.onclick = () => zuPruefen(uid);
   checkRow.appendChild(checkBtn);
 
   const resetBtn = document.createElement('button');
   resetBtn.className = 'wbtn';
-  resetBtn.textContent = '↺ Reset';
+  resetBtn.textContent = '↺ '+T('namesResetKurz');
   resetBtn.style.touchAction = 'manipulation';
   resetBtn.onclick = () => zuReset(uid);
   checkRow.appendChild(resetBtn);
@@ -10781,25 +10951,25 @@ const wheelStates = {};
 function buildWheel(body, uid){
   body.innerHTML = `
 <div class="wheel-tabbar">
-  <button class="timer-mode-btn active-tmode" id="wheel-tab-play-${uid}" onclick="wheelShowTab('play',${uid})">&#9654; Drehen</button>
-  <button class="timer-mode-btn" id="wheel-tab-edit-${uid}" onclick="wheelShowTab('edit',${uid})">&#9999; Eintr&auml;ge</button>
+  <button class="timer-mode-btn active-tmode" id="wheel-tab-play-${uid}" onclick="wheelShowTab('play',${uid})">&#9654; ${T('slotSpielen').replace('▶ ','')}</button>
+  <button class="timer-mode-btn" id="wheel-tab-edit-${uid}" onclick="wheelShowTab('edit',${uid})">&#9999; ${T('spieleEintraege').replace('✏️ ','')}</button>
   <button class="wbtn wheel-fragen-btn" id="wheel-zufall-btn-${uid}" onclick="toggleWheelZufall(${uid})" title="Zufall an/aus" style="font-size:.82em;padding:.3em .75em;white-space:nowrap;margin-left:auto;">${T('diceZufallAn')}</button>
 </div>
 
 <div id="wheel-play-${uid}" class="wheel-box">
   <div class="wheel-stage">
     <div class="wheel-pointer" id="wheel-pointer-${uid}" onclick="stopQuestionWheel(${uid})" title="Stoppen"><svg viewBox="0 0 28 36" width="40" height="52" xmlns="http://www.w3.org/2000/svg"><polygon points="14,36 0,0 28,0" fill="#ffffff" filter="url(#ps)"/><defs><filter id="ps" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="rgba(0,0,0,0.55)"/></filter></defs></svg></div>
-    <canvas id="wheel-canvas-${uid}" class="wheel-canvas" onclick="spinQuestionWheel(${uid})" style="cursor:pointer;" title="Klicken zum Drehen"></canvas>
+    <canvas id="wheel-canvas-${uid}" class="wheel-canvas" onclick="spinQuestionWheel(${uid})" style="cursor:pointer;" title="${T('ttKlickenDrehen')}"></canvas>
   </div>
 </div>
 
 <div id="wheel-edit-panel-${uid}" class="wheel-edit-panel">
-  <div style="font-size:clamp(11px,1.5vw,13px);color:var(--text2);line-height:1.5;">Ein Eintrag pro Zeile. Leerzeilen werden ignoriert.</div>
+  <div style="font-size:clamp(11px,1.5vw,13px);color:var(--text2);line-height:1.5;">${T('wheelEditHint')}</div>
   <textarea id="wheel-text-${uid}" class="slot-edit-textarea" spellcheck="false">${WHEEL_QUESTIONS_DEFAULT.join('\n')}</textarea>
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
     <button class="wbtn primary" style="font-size:.92em;padding:.45em 1.2em;" onclick="saveWheelQuestions(${uid})">&#10004; ${T('wheelUebernehmen')}</button>
-    <label title="TXT-Datei laden" style="cursor:pointer;display:contents;">
-      <span class="wbtn" style="font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;">&#128194; TXT laden</span>
+    <label title="${T('ttTxtDateiLadenKurz')}" style="cursor:pointer;display:contents;">
+      <span class="wbtn" style="font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;">${T('wheelTxtLaden')}</span>
       <input type="file" accept=".txt,text/plain" style="display:none" onchange="wheelLoadTxt(${uid},this)">
     </label>
   </div>
@@ -11075,7 +11245,7 @@ function showWheelResultOverlay(uid, text, segColor){
   `;
 
   const hint = document.createElement('div');
-  hint.textContent = '▶ Tippen zum Schließen';
+  hint.textContent = T('ttTippenSchliessen');
   hint.style.cssText = `
     margin-top:clamp(12px,2.5vw,28px);
     font-family:Arial,sans-serif;
