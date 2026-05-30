@@ -391,6 +391,46 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   #clock-big{font-size:15px;}
 }
 
+/* ── HOCHFORMAT (Portrait) auf Handys/Tablets: Menü größer darstellen ── */
+@media (max-width:899px) and (orientation:portrait){
+  #topbar-row1{
+    height:52px;
+    padding:4px 10px;
+    gap:5px;
+  }
+  #launcher{
+    height:76px;
+    padding:5px 10px;
+    gap:6px;
+  }
+  #topbar-row1 .tool-btn{
+    width:58px;height:44px;flex:0 0 58px;
+    border-radius:9px;
+  }
+  #topbar-row1 .tool-btn .tb-icon{font-size:21px;}
+  #topbar-row1 .tool-btn .tb-label{font-size:9.5px;}
+  #launcher .tool-btn{
+    width:66px;height:66px;flex:0 0 66px;
+  }
+  #launcher .tool-btn .tb-icon{font-size:30px;}
+  #launcher .tool-btn span:not(.tb-icon){font-size:10px;}
+  #clock-big{font-size:19px;}
+  #date-big{display:none;}
+}
+
+/* ── SEHR KLEINES HANDY ≤ 380px Portrait: etwas kleiner als mittelgroß ── */
+@media (max-width:380px) and (orientation:portrait){
+  #topbar-row1 .tool-btn{
+    width:50px;height:40px;flex:0 0 50px;
+  }
+  #topbar-row1 .tool-btn .tb-icon{font-size:19px;}
+  #topbar-row1 .tool-btn .tb-label{font-size:8.5px;}
+  #launcher .tool-btn{
+    width:60px;height:62px;flex:0 0 60px;
+  }
+  #clock-big{font-size:17px;}
+}
+
 /* ── DESKTOP ≥ 900px: flache Einzeiler-Topbar (wie vorher) ── */
 @media (min-width:900px){
   #topbar{flex-direction:row;align-items:center;height:68px;padding:0 10px;gap:0;}
@@ -671,7 +711,7 @@ textarea.winput{resize:vertical;}
 #desktop-draw-toolbar{
   position:fixed;top:0;left:0;right:0;z-index:10001;
   height:68px;
-  background:rgba(240,242,250,0.97);
+  background:#ffffff;
   backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
   border-bottom:2px solid rgba(var(--accent-rgb),0.3);
   display:none;align-items:center;
@@ -685,7 +725,7 @@ textarea.winput{resize:vertical;}
 #desktop-draw-toolbar::-webkit-scrollbar{display:none;}
 #desktop-draw-toolbar{scrollbar-width:none;}
 body.light-mode #desktop-draw-toolbar{
-  background:rgba(240,242,250,0.97);
+  background:#ffffff;
   border-bottom:2px solid rgba(var(--accent-rgb),0.3);
 }
 .ddt-sep{width:1px;height:28px;background:rgba(0,0,0,0.12);flex-shrink:0;}
@@ -1391,11 +1431,11 @@ body.light-mode .pz-file-label{background:rgba(var(--accent-rgb),0.12);border-co
 }
 /* Title chips row */
 .zu-titles-row{
-  display:flex;flex-wrap:wrap;gap:8px;padding:6px 4px 4px;flex-shrink:0;
+  display:flex;flex-wrap:wrap;gap:6px;padding:4px 2px 2px;flex-shrink:0;
 }
 .zu-title{
-  font-size:calc(var(--uiscale,1)*26px);font-family:'Caveat',cursive;font-weight:900;
-  padding:calc(var(--uiscale,1)*5px) calc(var(--uiscale,1)*14px);
+  font-size:clamp(14px, calc(var(--uiscale,1)*22px), 28px);font-family:'Caveat',cursive;font-weight:900;
+  padding:calc(var(--uiscale,1)*4px) calc(var(--uiscale,1)*11px);
   border-radius:10px;
   border:3px solid;
   display:inline-flex;align-items:center;
@@ -1413,19 +1453,20 @@ body.light-mode .pz-file-label{background:rgba(var(--accent-rgb),0.12);border-co
 /* Text field with fixed word chips */
 .zu-textfield{
   border:2px solid rgba(180,195,220,0.6);border-radius:14px;
-  padding:calc(var(--uiscale,1)*12px) calc(var(--uiscale,1)*10px);
+  padding:clamp(6px, calc(var(--uiscale,1)*10px), 14px) clamp(6px, calc(var(--uiscale,1)*8px), 12px);
   background:rgba(235,240,255,0.92);
   width:100%;box-sizing:border-box;
-  display:flex;flex-wrap:wrap;gap:calc(var(--uiscale,1)*7px);
-  align-content:flex-start;min-height:80px;
+  display:flex;flex-wrap:wrap;gap:clamp(4px, calc(var(--uiscale,1)*6px), 9px);
+  align-content:flex-start;
+  overflow:hidden;
 }
 body.light-mode .zu-textfield{background:rgba(var(--accent-rgb),0.07);border-color:rgba(var(--accent-rgb),0.22);}
 /* Word chips — fixed, not draggable */
 .zu-word{
-  padding:calc(var(--uiscale,1)*7px) calc(var(--uiscale,1)*15px);
+  padding:clamp(4px, calc(var(--uiscale,1)*6px), 9px) clamp(8px, calc(var(--uiscale,1)*13px), 17px);
   border-radius:10px;
   border:2px solid rgba(255,255,255,0.5);
-  font-size:calc(var(--uiscale,1)*26px);font-family:'Caveat',cursive;font-weight:700;
+  font-size:clamp(13px, calc(var(--uiscale,1)*22px), 28px);font-family:'Caveat',cursive;font-weight:700;
   display:inline-block;
   cursor:pointer;user-select:none;-webkit-user-select:none;
   transition:transform .14s,box-shadow .14s,border-color .14s;
@@ -1442,7 +1483,7 @@ body.light-mode .zu-textfield{background:rgba(var(--accent-rgb),0.07);border-col
 body.light-mode .zu-word{color:#1a1f3a;}
 /* Prüfen button area */
 .zu-check-row{
-  display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:2px 4px 0;
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:2px 4px 0;flex-shrink:0;
 }
 @keyframes zu-flash{
   0%{box-shadow:0 0 0 0 rgba(255,255,255,1),0 0 40px 20px rgba(74,222,128,0.95);filter:brightness(2.2);}
@@ -1464,9 +1505,9 @@ body.light-mode .zu-word{color:#1a1f3a;}
   100%{transform:scale(1);opacity:1;}
 }
 .zu-win-banner{animation:zu-win-pop 0.45s cubic-bezier(.34,1.56,.64,1) both;}
-/* Panel scrollbar hidden for zuordnen */
+/* Panel scrollbar hidden for zuordnen — no scroll, fits window */
 [id^="spiele-panel-zuordnen-"]{
-  overflow-y:auto!important;
+  overflow:hidden!important;
   overflow-x:hidden!important;
   scrollbar-width:none!important;
 }
@@ -6507,13 +6548,21 @@ function buildDraw(body,uid){
   <!-- Tool buttons -->
   <div style="display:flex;gap:.25em;">
     <button class="draw-tool-btn active-tool" id="dtool-pen-${uid}" onclick="setDrawTool(${uid},'pen',this)" title="${T('drawTitelStift')}">✏️</button>
-    <button class="draw-tool-btn" id="dtool-marker-${uid}" onclick="setDrawTool(${uid},'marker',this)" title="${T('drawTitelMarker')}">🖊</button>
+    <button class="draw-tool-btn" id="dtool-marker-${uid}" onclick="setDrawTool(${uid},'marker',this)" title="${T('drawTitelMarker')}">
+      <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3" y="2" width="8" height="11" rx="1.5" fill="currentColor" opacity="0.18" stroke="currentColor" stroke-width="1.3"/>
+        <rect x="3" y="2" width="8" height="7" rx="1.5" fill="currentColor" opacity="0.55"/>
+        <polygon points="5,13 9,13 8,16 6,16" fill="currentColor" opacity="0.85"/>
+        <line x1="7" y1="13" x2="7" y2="16" stroke="white" stroke-width="0.8"/>
+      </svg>
+    </button>
     <button class="draw-tool-btn" id="dtool-text-${uid}" onclick="setDrawTool(${uid},'text',this)" title="${T('drawTitelText')}">T</button>
     <button class="draw-tool-btn" id="dtool-eraser-${uid}" onclick="setDrawTool(${uid},'eraser',this)" title="${T('drawTitelRadierer')}">
       <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <rect x="1" y="9" width="9" height="6" rx="1.5" fill="currentColor" opacity=".9"/>
-        <path d="M5 9L13 2.5Q14.5 1.5 15.5 2.5L16 3.5Q17 4.5 16 5.5L8 12Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-        <line x1="1" y1="16" x2="17" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        <rect x="1.5" y="7" width="15" height="7" rx="2" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.3"/>
+        <rect x="1.5" y="7" width="7" height="7" rx="2" fill="currentColor" opacity="0.75"/>
+        <line x1="1" y1="15.5" x2="17" y2="15.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <line x1="8.5" y1="7" x2="8.5" y2="14" stroke="currentColor" stroke-width="0.9" opacity="0.5"/>
       </svg>
     </button>
   </div>
@@ -10256,15 +10305,15 @@ const ZU_BG     = ['rgba(248,113,113,0.13)','rgba(96,165,250,0.13)','rgba(74,222
 function buildZuordnenPanel(panel, uid){
   if(!panel) return;
   panel.style.flexDirection  = 'column';
-  panel.style.overflow       = 'auto';
+  panel.style.overflow       = 'hidden';
   panel.style.overflowX      = 'hidden';
   panel.style.padding        = '0';
 
   zuState[uid] = { groups:[], rawText:'', numGroups:3, phase:'setup', activeGroup:null };
 
-  // ── Scroll area (TXT/Einträge buttons + game) ──
+  // ── Scroll area (TXT/Einträge buttons + game) — no scroll, fits window ──
   const scrollArea = document.createElement('div');
-  scrollArea.style.cssText = 'flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;padding:10px;display:flex;flex-direction:column;gap:8px;';
+  scrollArea.style.cssText = 'flex:1 1 0;min-height:0;overflow:hidden;padding:8px 10px;display:flex;flex-direction:column;gap:6px;';
   panel.appendChild(scrollArea);
 
   // Button row: TXT laden + Einträge
@@ -10306,7 +10355,7 @@ function buildZuordnenPanel(panel, uid){
   // ── Game area ──
   const gameWrap = document.createElement('div');
   gameWrap.id = `zu-game-${uid}`;
-  gameWrap.style.cssText = 'display:flex;flex-direction:column;gap:10px;flex-shrink:0;';
+  gameWrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;flex:1 1 0;min-height:0;overflow:hidden;';
   scrollArea.appendChild(gameWrap);
 
   // Beispiel-Einträge sofort anzeigen
@@ -10474,6 +10523,7 @@ function zuBuildGame(uid){
   const textfield = document.createElement('div');
   textfield.className = 'zu-textfield';
   textfield.id = `zu-textfield-${uid}`;
+  textfield.style.cssText = 'flex:1 1 0;min-height:0;overflow:hidden;';
   gameWrap.appendChild(textfield);
 
   // Collect all words shuffled
@@ -11173,13 +11223,23 @@ function spinQuestionWheel(uid){
   <div class="ddt-sep"></div>
   <!-- Tool buttons -->
   <button class="ddt-btn active-tool" id="ddt-pen"    onclick="ddtSetTool('pen',this)"    title="Stift">✏️</button>
-  <button class="ddt-btn"             id="ddt-marker" onclick="ddtSetTool('marker',this)" title="Marker">🖊</button>
+  <button class="ddt-btn"             id="ddt-marker" onclick="ddtSetTool('marker',this)" title="Marker">
+    <svg viewBox="0 0 18 18" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Textmarker / Highlighter -->
+      <rect x="3" y="2" width="8" height="11" rx="1.5" fill="currentColor" opacity="0.18" stroke="currentColor" stroke-width="1.3"/>
+      <rect x="3" y="2" width="8" height="7" rx="1.5" fill="currentColor" opacity="0.55"/>
+      <polygon points="5,13 9,13 8,16 6,16" fill="currentColor" opacity="0.85"/>
+      <line x1="7" y1="13" x2="7" y2="16" stroke="white" stroke-width="0.8"/>
+    </svg>
+  </button>
   <button class="ddt-btn"             id="ddt-text"   onclick="ddtSetTool('text',this)"   title="Text">T</button>
   <button class="ddt-btn"             id="ddt-eraser" onclick="ddtSetTool('eraser',this)" title="Radierer">
-    <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect x="1" y="9" width="9" height="6" rx="1.5" fill="currentColor" opacity=".9"/>
-      <path d="M5 9L13 2.5Q14.5 1.5 15.5 2.5L16 3.5Q17 4.5 16 5.5L8 12Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
-      <line x1="1" y1="16" x2="17" y2="16" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    <svg viewBox="0 0 18 18" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <!-- Radiergummi: Quader mit abgerundeten Ecken, diagonal -->
+      <rect x="1.5" y="7" width="15" height="7" rx="2" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.3"/>
+      <rect x="1.5" y="7" width="7" height="7" rx="2" fill="currentColor" opacity="0.75"/>
+      <line x1="1" y1="15.5" x2="17" y2="15.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <line x1="8.5" y1="7" x2="8.5" y2="14" stroke="currentColor" stroke-width="0.9" opacity="0.5"/>
     </svg>
   </button>
   <div class="ddt-sep"></div>
@@ -11217,7 +11277,15 @@ function spinQuestionWheel(uid){
   <!-- Undo / Save / Clear -->
   <button class="ddt-btn ddt-undo-btn" id="ddt-undo" onclick="ddtUndo()" title="Rückgängig (Strg+Z)">↩</button>
   <button class="ddt-btn" onclick="ddtSave()" title="Speichern">💾</button>
-  <button class="ddt-btn" onclick="ddtClear()" title="Löschen">🗑</button>
+  <button class="ddt-btn" onclick="ddtClear()" title="Löschen">
+    <svg viewBox="0 0 18 18" width="20" height="20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="5" width="12" height="11" rx="2" stroke="currentColor" stroke-width="1.4"/>
+      <line x1="1.5" y1="5" x2="16.5" y2="5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      <path d="M7 5V3.5Q7 2.5 8 2.5H10Q11 2.5 11 3.5V5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="7" y1="8" x2="7" y2="13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+      <line x1="11" y1="8" x2="11" y2="13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+    </svg>
+  </button>
   <!-- Close -->
   <button class="ddt-close" onclick="closeDesktopDraw()">✕</button>
 </div>
