@@ -999,70 +999,77 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 
 
 
-/* Frage-Rad Widget */
-.widget[data-type="wheel"] .widget-body{font-size:calc(var(--uiscale,1)*15px)!important;}
-.wheel-box{display:flex;flex-direction:column;gap:10px;flex:1 1 auto;min-height:0;overflow:hidden;}
-.wheel-stage{position:relative;display:flex;align-items:center;justify-content:center;min-height:300px;flex:1 1 auto;}
-.wheel-canvas{width:100%;height:auto;max-height:680px;aspect-ratio:1/1;display:block;filter:drop-shadow(0 10px 22px rgba(0,0,0,.35));}
-.wheel-pointer{position:absolute;left:50%;top:-14px;transform:translateX(-50%);z-index:2;line-height:0;}
-.wheel-result{font-size:1.75em;font-weight:900;text-align:center;color:#fff;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;padding:.55em;min-height:2.4em;display:flex;align-items:center;justify-content:center;}
-.wheel-controls{display:flex;gap:.6em;flex-wrap:wrap;justify-content:center;}
-.wheel-controls .wbtn{font-size:1.15em;padding:.72em 1.22em;}
-.wheel-edit{display:none;}
+/* ── Frage-Rad Widget ── */
+.widget[data-type="wheel"] .widget-body{
+  font-size:calc(var(--uiscale,1)*15px);
+  overflow:hidden;padding:0;display:flex;flex-direction:column;
+}
+.wheel-box{
+  display:flex;flex-direction:column;gap:8px;
+  flex:1 1 auto;min-height:0;overflow:hidden;
+  padding:10px;box-sizing:border-box;
+}
+.wheel-stage{
+  position:relative;display:flex;align-items:center;justify-content:center;
+  min-height:0;flex:1 1 auto;max-height:100%;
+}
+.wheel-canvas{
+  width:auto;height:auto;max-width:min(100%,560px);max-height:100%;
+  aspect-ratio:1/1;display:block;
+  filter:drop-shadow(0 10px 22px rgba(0,0,0,.35));
+}
+.wheel-pointer{
+  position:absolute;left:50%;top:-14px;
+  transform:translateX(-50%);z-index:2;line-height:0;
+  cursor:pointer;user-select:none;
+  transition:transform .15s, filter .15s;
+}
+.wheel-pointer.active{
+  transform:translateX(-50%) scale(1.15);
+  filter:brightness(1.45) drop-shadow(0 0 10px rgba(var(--accent-rgb),.9));
+}
+.wheel-result{
+  font-size:1.55em;font-weight:900;text-align:center;color:#fff;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;padding:.45em;min-height:2.05em;
+  display:flex;align-items:center;justify-content:center;flex:1 1 auto;
+}
+.wheel-title{display:none;}
+.wheel-help{display:none;}
+.wheel-bottom-row{display:flex;gap:.5em;align-items:stretch;flex:0 0 auto;}
+.wheel-fragen-btn{flex-shrink:0;font-size:1.05em;padding:.62em 1.05em;}
+.wheel-controls{display:flex;gap:.5em;flex-wrap:wrap;justify-content:center;flex:0 0 auto;}
+.wheel-controls .wbtn{font-size:1.05em;padding:.62em 1.05em;}
+.wheel-edit{display:none;flex:0 0 auto;}
 .wheel-edit.open{display:block;}
-.wheel-edit textarea{min-height:160px;font-size:1em;}
-/* Wheel tab bar – mirrors slot-tabbar */
+.wheel-edit textarea{min-height:120px;font-size:.95em;}
+/* Wheel tab bar */
 .wheel-tabbar{
-  display:flex;gap:6px;align-items:center;
-  padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;
+  display:flex;gap:6px;align-items:center;flex-shrink:0;
+  padding:6px 10px 5px;background:rgba(0,0,0,0.28);
   border-bottom:1px solid rgba(255,255,255,.08);
   width:100%;box-sizing:border-box;
 }
 .wheel-edit-panel{
   display:none;flex-direction:column;gap:10px;
-  padding:12px;overflow-y:auto;flex:1 1 auto;
+  padding:12px;overflow-y:auto;flex:1 1 auto;max-height:none;
 }
 .wheel-edit-panel.open{display:flex;}
 .wheel-edit-panel textarea{
-  width:100%;min-height:130px;background:var(--bg3);
+  width:100%;min-height:100px;background:var(--bg3);
   border:1px solid rgba(255,255,255,.15);border-radius:8px;
   color:var(--text);font-size:.92em;font-family:Arial,sans-serif;
   padding:.5em .6em;resize:vertical;box-sizing:border-box;
 }
 body.light-mode .wheel-edit-panel textarea{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
 body.light-mode .wheel-tabbar{background:rgba(var(--accent-rgb),0.08)!important;border-bottom:1px solid rgba(var(--accent-rgb),0.15)!important;}
-@media(max-width:700px){.wheel-pointer{left:50%;top:-14px;}.wheel-stage{min-height:300px}.wheel-result{font-size:1.75em}.wheel-controls .wbtn{font-size:1.15em}}
-
-/* T14 Auto-Fit Override: Rad bleibt oben, Ergebnis + Buttons bleiben sichtbar */
-.widget[data-type="wheel"] .widget-body{font-size:calc(var(--uiscale,1)*15px)!important;overflow:hidden!important;padding:0!important;display:flex!important;flex-direction:column!important;}
-.wheel-box{display:flex;flex-direction:column!important;gap:8px!important;flex:1 1 auto!important;min-height:0!important;overflow:hidden!important;padding:10px!important;box-sizing:border-box!important;}
-.wheel-title{font-size:1.05em!important;font-weight:900!important;color:var(--accent)!important;flex:0 0 auto!important;}
-.wheel-help{font-size:.78em!important;color:var(--text2)!important;line-height:1.25!important;flex:0 0 auto!important;}
-.wheel-title{display:none!important;}
-.wheel-help{display:none!important;}
-.wheel-stage{position:relative!important;display:flex!important;align-items:center!important;justify-content:center!important;min-height:0!important;flex:1 1 auto!important;max-height:100%!important;}
-.wheel-canvas{width:auto!important;height:auto!important;max-width:min(100%,560px)!important;max-height:100%!important;aspect-ratio:1/1!important;display:block!important;}
-.wheel-pointer{left:50%!important;top:-14px!important;transform:translateX(-50%)!important;cursor:pointer!important;user-select:none!important;transition:transform .15s, filter .15s!important;}
-.wheel-pointer.active{transform:translateX(-50%) scale(1.15)!important;filter:brightness(1.45) drop-shadow(0 0 10px rgba(var(--accent-rgb),.9))!important;}
-.wheel-result{font-size:1.55em!important;min-height:2.05em!important;padding:.45em!important;flex:1 1 auto!important;}
-.wheel-bottom-row{display:flex!important;gap:.5em!important;align-items:stretch!important;flex:0 0 auto!important;}
-.wheel-fragen-btn{flex-shrink:0!important;font-size:1.05em!important;padding:.62em 1.05em!important;}
-.wheel-controls{gap:.5em!important;flex:0 0 auto!important;}
-.wheel-controls .wbtn{font-size:1.05em!important;padding:.62em 1.05em!important;}
-.wheel-edit{flex:0 0 auto!important;}
-.wheel-edit textarea{min-height:120px!important;font-size:.95em!important;}
-.wheel-tabbar{flex-shrink:0!important;}
-.wheel-edit-panel{flex:1 1 auto!important;max-height:none!important;}
-.wheel-edit-panel textarea{min-height:100px!important;font-size:.92em!important;}
 @media(max-width:700px){
-  .widget[data-type="wheel"] .widget-body{padding:0!important;overflow:hidden!important;}
-  .wheel-box{gap:7px!important;padding:8px!important;}
-  .wheel-title{font-size:1em!important;}
-  .wheel-help{display:none!important;}
-  .wheel-stage{max-height:100%!important;}
-  .wheel-pointer{left:50%!important;top:-14px!important;}
-  .wheel-result{font-size:1.35em!important;min-height:2em!important;padding:.4em!important;}
-  .wheel-controls .wbtn{font-size:1em!important;padding:.58em .95em!important;}
+  .widget[data-type="wheel"] .widget-body{padding:0;}
+  .wheel-box{gap:7px;padding:8px;}
+  .wheel-stage{max-height:100%;}
+  .wheel-pointer{left:50%;top:-14px;}
+  .wheel-result{font-size:1.35em;min-height:2em;padding:.4em;}
+  .wheel-controls .wbtn{font-size:1em;padding:.58em .95em;}
 }
 
 /* Empty state */
@@ -2004,6 +2011,11 @@ const LANG = {
     ttKlickenWuerfeln:'Hier klicken zum Würfeln',
     ttKlickenZiehen:'Klicken zum Ziehen',
     ttSchriftgroesseAusw:'Schriftgröße für Auswahl / nächste Eingabe',
+    ttTpFett:'Fett (Strg+B)',
+    ttTpKursiv:'Kursiv (Strg+I)',
+    ttTpRtf:'Als RTF speichern',
+    ttTpTxt:'Als TXT speichern',
+    ttTpLoeschen:'Löschen',
     ttKlickenEnthuellen:'Klicken zum Enthüllen',
     ttTxtDateiLaden:'TXT-Datei laden (2–4 Wörter pro Zeile)',
     ttTxtDateiLadenKurz:'TXT-Datei laden',
@@ -2237,6 +2249,11 @@ const LANG = {
     ttKlickenWuerfeln:'クリックしてサイコロを振る',
     ttKlickenZiehen:'クリックして引く',
     ttSchriftgroesseAusw:'選択 / 次の入力の文字サイズ',
+    ttTpFett:'太字（Ctrl+B）',
+    ttTpKursiv:'斜体（Ctrl+I）',
+    ttTpRtf:'RTFとして保存',
+    ttTpTxt:'TXTとして保存',
+    ttTpLoeschen:'削除',
     ttKlickenEnthuellen:'クリックして公開',
     ttTxtDateiLaden:'TXTファイルを読み込む（1行に2〜4語）',
     ttTxtDateiLadenKurz:'TXTファイルを読み込む',
@@ -2589,12 +2606,32 @@ function _trTextpad(uid){
   const szSel=body.querySelector('select:nth-of-type(2)');
   if(szSel){
     const opts=szSel.options;
-    const map={Klein:T('textKlein'),Normal:T('textNormal'),'Groß':T('textGross'),'Sehr groß':T('textSehrGross'),'Riesig':T('textRiesig'),
-               小:T('textKlein'),普通:T('textNormal'),大:T('textGross'),特大:T('textSehrGross'),超大:T('textRiesig')};
+    const map={
+      Klein:T('textKlein'),Normal:T('textNormal'),'Groß':T('textGross'),'Sehr groß':T('textSehrGross'),'Riesig':T('textRiesig'),
+      小:T('textKlein'),普通:T('textNormal'),大:T('textGross'),特大:T('textSehrGross'),超大:T('textRiesig'),
+      'Klein (13 px)':T('textKlein')+' (13 px)',
+      'Normal (16 px)':T('textNormal')+' (16 px)',
+      'Groß (20 px)':T('textGross')+' (20 px)',
+      'Sehr groß (26 px)':T('textSehrGross')+' (26 px)',
+      '小 (13 px)':T('textKlein')+' (13 px)',
+      '普通 (16 px)':T('textNormal')+' (16 px)',
+      '大 (20 px)':T('textGross')+' (20 px)',
+      '特大 (26 px)':T('textSehrGross')+' (26 px)'
+    };
     for(let i=0;i<opts.length;i++){ if(map[opts[i].text]) opts[i].text=map[opts[i].text]; }
   }
   const pad=document.getElementById('textpad-'+uid);
   if(pad) pad.dataset.placeholder=T('textPlaceholder');
+  // button titles
+  const boldBtn=document.getElementById('tp-bold-'+uid);
+  const italicBtn=document.getElementById('tp-italic-'+uid);
+  if(boldBtn)   boldBtn.title   = T('ttTpFett');
+  if(italicBtn) italicBtn.title = T('ttTpKursiv');
+  body.querySelectorAll('button').forEach(btn=>{
+    if(/Als RTF speichern|RTFとして保存/.test(btn.title))  btn.title=T('ttTpRtf');
+    if(/Als TXT speichern|TXTとして保存/.test(btn.title))  btn.title=T('ttTpTxt');
+    if(/^Löschen$|^削除$/.test(btn.title))                 btn.title=T('ttTpLoeschen');
+  });
   // word counter
   const ctr=document.getElementById('tp-counter-'+uid);
   if(ctr){
@@ -7486,22 +7523,22 @@ function buildTextpad(body,uid){
     title="${T('ttSchriftgroesseAusw')}"
     onmousedown="tpSaveSel(${uid})"
     onchange="tpSizeSelectHandler(${uid},this)">
-    <option value="inline:13">Klein (13 px)</option>
-    <option value="inline:16" selected>Normal (16 px)</option>
-    <option value="inline:20">Groß (20 px)</option>
-    <option value="inline:26">Sehr groß (26 px)</option>
+    <option value="inline:13">${T('textKlein')} (13 px)</option>
+    <option value="inline:16" selected>${T('textNormal')} (16 px)</option>
+    <option value="inline:20">${T('textGross')} (20 px)</option>
+    <option value="inline:26">${T('textSehrGross')} (26 px)</option>
   </select>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
   <button id="tp-bold-${uid}" onmousedown="tpFormat(event,${uid},'bold')"
     style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;font-weight:900;cursor:pointer;font-family:'Arial',sans-serif;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;"
-    title="Fett (Strg+B)"><b>F</b></button>
+    title="${T('ttTpFett')}"><b>F</b></button>
   <button id="tp-italic-${uid}" onmousedown="tpFormat(event,${uid},'italic')"
     style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;cursor:pointer;font-family:'Georgia',serif;font-style:italic;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;"
-    title="Kursiv (Strg+I)"><i>K</i></button>
+    title="${T('ttTpKursiv')}"><i>K</i></button>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Als RTF speichern" onclick="saveTPasRtf(${uid})">💾 RTF</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Als TXT speichern" onclick="saveTPasTxt(${uid})">💾 TXT</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="Löschen" onclick="document.getElementById('textpad-${uid}').innerHTML='';updateTPCounter(${uid})">🗑</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="${T('ttTpRtf')}" onclick="saveTPasRtf(${uid})">💾 RTF</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="${T('ttTpTxt')}" onclick="saveTPasTxt(${uid})">💾 TXT</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="${T('ttTpLoeschen')}" onclick="document.getElementById('textpad-${uid}').innerHTML='';updateTPCounter(${uid})">🗑</button>
 </div>
 <div style="font-size:11px;color:var(--text2);text-align:right;" id="tp-counter-${uid}">0 Wörter · 0 Zeichen</div>
 <div
@@ -11137,11 +11174,11 @@ function drawQuestionWheel(uid){
     ctx.closePath();
     ctx.clip();
     ctx.rotate(mid);
-    ctx.fillStyle = '#FFD700';
+    ctx.fillStyle = '#ffffff';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    ctx.shadowColor='rgba(0,0,0,.30)';
-    ctx.shadowBlur=2;
+    ctx.shadowColor='rgba(0,0,0,.55)';
+    ctx.shadowBlur=3;
 
     // Verfügbare Bogenhöhe und radiale Breite
     // Einzeilige Darstellung: Schriftgröße so groß wie möglich, Text passt in maxW
@@ -11164,9 +11201,9 @@ function drawQuestionWheel(uid){
   ctx.strokeStyle='rgba(255,215,0,.95)'; ctx.lineWidth=Math.max(8,W*.01); ctx.stroke();
   // center hole
   const g = ctx.createRadialGradient(0,0,inner*0.1,0,0,inner);
-  g.addColorStop(0,'#fff'); g.addColorStop(1,'#e5e7eb');
+  g.addColorStop(0,'#fff9c0'); g.addColorStop(0.45,'#FFD700'); g.addColorStop(1,'#b8860b');
   ctx.beginPath(); ctx.arc(0,0,inner,0,Math.PI*2); ctx.fillStyle=g; ctx.fill();
-  ctx.strokeStyle='rgba(0,0,0,.18)'; ctx.lineWidth=Math.max(3,W*.004); ctx.stroke();
+  ctx.strokeStyle='rgba(0,0,0,.25)'; ctx.lineWidth=Math.max(3,W*.004); ctx.stroke();
   ctx.restore();
 }
 
