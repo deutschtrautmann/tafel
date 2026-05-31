@@ -1588,13 +1588,13 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 <div id="live-room-page">
   <div id="live-room-top">
     <div>
-      <div id="live-room-title">✏️ Schreibraum</div>
-      <div id="live-room-status">Warte auf Verbindung …</div>
+      <div id="live-room-title" data-i18n="room">✏️ Schreibraum</div>
+      <div id="live-room-status" data-i18n="noConnection">Warte auf Verbindung …</div>
     </div>
-    <button class="live-room-btn" onclick="liveRoomBackToBoard()">Tafel</button>
+    <button class="live-room-btn" onclick="liveRoomBackToBoard()" data-i18n="board">Tafel</button>
   </div>
-  <textarea id="live-room-text" placeholder="Hier gemeinsam schreiben …" oninput="liveRoomSend()"></textarea>
-  <div id="live-room-help">Hinweis: Echte Live-Synchronisation mit zwei Handys funktioniert erst, wenn Firebase-Daten in der HTML-Datei eingetragen sind.</div>
+  <textarea id="live-room-text" data-i18n-placeholder="together" placeholder="Hier gemeinsam schreiben …" oninput="liveRoomSend()"></textarea>
+  <div id="live-room-help" data-i18n="liveHelp">Hinweis: Echte Live-Synchronisation mit zwei Handys funktioniert erst, wenn Firebase-Daten in der HTML-Datei eingetragen sind.</div>
 </div>
 
 <div id="bg-layer"></div>
@@ -1618,7 +1618,7 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 
     <!-- Design -->
     <button class="tool-btn" onclick="toggleBgPanel()">
-      <span class="tb-icon material-symbols-rounded">palette</span><span id="design-label" class="tb-label">Design</span>
+      <span class="tb-icon material-symbols-rounded">palette</span><span id="design-label" class="tb-label" data-i18n="design">Design</span>
     </button>
 
     <!-- Sprache -->
@@ -1628,7 +1628,7 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 
     <!-- Fullscreen -->
     <button class="tool-btn" id="fullscreen-btn" onclick="toggleFullscreen()">
-      <span class="tb-icon" style="font-size:22px;">⛶</span><span id="fullscreen-label" class="tb-label">Vollbild</span>
+      <span class="tb-icon" style="font-size:22px;">⛶</span><span id="fullscreen-label" class="tb-label" data-i18n="fullscreen">Vollbild</span>
     </button>
 
     <!-- Uhrzeit inline (nur Desktop sichtbar, Handy hat eigene Uhr) -->
@@ -1647,47 +1647,47 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
         placeholder="Pad-Name?"
         autocomplete="off"
         onkeydown="if(event.key==='Enter') openZumpad()">
-      <button class="zumpad-los-btn" onclick="openZumpad()">Los!</button>
+      <button class="zumpad-los-btn" onclick="openZumpad()" data-i18n="los">Los!</button>
     </div>
 
     <button class="tool-btn" onclick="spawnWidget('names')">
       <span class="tb-icon material-symbols-rounded">groups</span>
-      <span id="lbl-namen">Namen</span>
+      <span id="lbl-namen" data-i18n="namen">Namen</span>
     </button>
 
     <button class="tool-btn" onclick="openDesktopDraw()">
       <span class="tb-icon material-symbols-rounded">edit</span>
-      <span id="lbl-zeichnen">Zeichnen</span>
+      <span id="lbl-zeichnen" data-i18n="zeichnen">Zeichnen</span>
     </button>
 
     <button class="tool-btn" onclick="spawnWidget('textpad')">
       <span class="tb-icon material-symbols-rounded">description</span>
-      <span id="lbl-text">Text</span>
+      <span id="lbl-text" data-i18n="text">Text</span>
     </button>
 
     <button class="tool-btn" onclick="spawnWidget('timer')">
       <span class="tb-icon material-symbols-rounded">timer</span>
-      <span id="lbl-timer">Timer</span>
+      <span id="lbl-timer" data-i18n="timer">Timer</span>
     </button>
 
     <button class="tool-btn" onclick="spawnWidget('clock')">
       <span class="tb-icon material-symbols-rounded">schedule</span>
-      <span id="lbl-uhr">Uhr</span>
+      <span id="lbl-uhr" data-i18n="uhr">Uhr</span>
     </button>
 
     <button class="tool-btn" onclick="spawnWidget('dice')">
       <span class="tb-icon material-symbols-rounded">casino</span>
-      <span id="lbl-wuerfel">Würfel</span>
+      <span id="lbl-wuerfel" data-i18n="wuerfel">Würfel</span>
     </button>
 
     <button class="tool-btn" onclick="spawnWidget('spiele')">
       <span class="tb-icon material-symbols-rounded">sports_esports</span>
-      <span id="lbl-spiele">Spiele</span>
+      <span id="lbl-spiele" data-i18n="spiele">Spiele</span>
     </button>
 
     <button class="tool-btn" onclick="spawnWidget('was')">
       <span class="tb-icon material-symbols-rounded">help</span>
-      <span id="lbl-was">Fotos</span>
+      <span id="lbl-was" data-i18n="was">Fotos</span>
     </button>
 
     <button class="tool-btn" onclick="spawnWidget('qr')">
@@ -1710,8 +1710,8 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       <rect x="44" y="37" width="11" height="5" rx="2.5" fill="currentColor" opacity=".5"/>
       <rect x="20" y="46" width="40" height="5" rx="2.5" fill="currentColor" opacity=".35"/>
     </svg>
-    <p id="empty-title">Kein Element geöffnet</p>
-    <small id="empty-sub">Wähle oben ein Element aus dem Menü</small>
+    <p id="empty-title" data-i18n="emptyTitle">Kein Element geöffnet</p>
+    <small id="empty-sub" data-i18n="emptySub">Wähle oben ein Element aus dem Menü</small>
   </div>
 </div>
 
@@ -1727,7 +1727,7 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
   <div class="bg-upload-zone" id="bg-dropzone" onclick="document.getElementById('bg-file-input').click()" ondragover="event.preventDefault()" ondrop="handleBgDrop(event)">
     <input type="file" id="bg-file-input" accept="image/*" onchange="handleBgFile(this.files[0])">
     <div style="font-size:22px;margin-bottom:3px;">📁</div>
-    <div style="font-weight:700;font-size:.85em;" id="bg-upload-label">Foto hochladen</div>
+    <div style="font-weight:700;font-size:.85em;" id="bg-upload-label" data-i18n="designFotoHochladen">Foto hochladen</div>
   </div>
 
   <div id="bg-photo-controls" style="display:none;">
@@ -1851,6 +1851,7 @@ const LANG = {
     diceSatzbau:'Satzbau',
     diceZufallAn:'Zufall an',
     diceZufallAus:'Zufall aus',
+    diceJaNein:'Ja / Nein',
     diceGruenDauer:'🟢 Grün-Dauer:',
     diceSek:'Sek.',
     // Names widget
@@ -2156,6 +2157,7 @@ const LANG = {
     slotSpielen:'▶ プレイ',
     slotWoerter:'✏ 単語',
     slotSpielpunkt:'スコア',
+    slotPkt:'点',
     slotNeuesSpiel:'新しいゲーム',
     slotTippen:'タップ',
     slotAnhalten:'停止',
@@ -2284,6 +2286,27 @@ const LANG = {
 // Translation helper — always returns text for current language
 function T(key){ return (LANG[currentLanguage]||LANG['de'])[key] || (LANG['de'][key] || key); }
 
+// ── data-i18n updater ─────────────────────────────────────
+// data-i18n="key"              → textContent
+// data-i18n-placeholder="key" → placeholder
+// data-i18n-title="key"       → title
+// Pass a DOM root to limit scope (default: entire document)
+function applyI18n(root){
+  root = root || document;
+  root.querySelectorAll('[data-i18n]').forEach(el=>{
+    const prefix = el.dataset.i18nPrefix || '';
+    const suffix = el.dataset.i18nSuffix || '';
+    el.textContent = prefix + T(el.dataset.i18n) + suffix;
+  });
+  root.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    el.placeholder = T(el.dataset.i18nPlaceholder);
+  });
+  root.querySelectorAll('[data-i18n-title]').forEach(el=>{
+    el.title = T(el.dataset.i18nTitle);
+  });
+}
+// ─────────────────────────────────────────────────────────
+
 function applyLanguage(lang){
   currentLanguage = lang;
   const t = LANG[lang];
@@ -2293,19 +2316,8 @@ function applyLanguage(lang){
     if(el) el.textContent=val;
   };
 
-  setTxt('lbl-namen', t.namen);
-  setTxt('lbl-zeichnen', t.zeichnen);
-  setTxt('lbl-text', t.text);
-  setTxt('lbl-wuerfel', t.wuerfel);
-  setTxt('lbl-was', t.was);
-  setTxt('lbl-timer', t.timer);
-  setTxt('lbl-uhr', t.uhr);
-  setTxt('lbl-qr', t.qr);
-  setTxt('lbl-spiele', t.spiele);
-  setTxt('design-label', t.design);
-  setTxt('fullscreen-label', t.fullscreen);
-  setTxt('empty-title', t.emptyTitle);
-  setTxt('empty-sub', t.emptySub);
+  // ── Statische UI-Texte via data-i18n ──
+  applyI18n();
 
   const langBtn = document.getElementById('lang-btn');
   if(langBtn){
@@ -2314,9 +2326,6 @@ function applyLanguage(lang){
 
   const zp = document.getElementById('zumpad-input');
   if(zp) zp.placeholder = t.zumpad;
-
-  const los = document.querySelector('.zumpad-los-btn');
-  if(los) los.textContent = t.los;
 
   const soundBtn = document.getElementById('sound-btn');
   if(soundBtn){
@@ -2329,22 +2338,6 @@ function applyLanguage(lang){
 
   const uploadZone = document.querySelector('.bg-upload-zone div:last-child');
   if(uploadZone) uploadZone.textContent = t.photo;
-
-  const roomTitle = document.getElementById('live-room-title');
-  if(roomTitle) roomTitle.textContent = t.room;
-
-  const roomStatus = document.getElementById('live-room-status');
-  if(roomStatus) roomStatus.textContent = t.noConnection;
-
-  const roomText = document.getElementById('live-room-text');
-  if(roomText) roomText.placeholder = t.together;
-
-  const roomHelp = document.getElementById('live-room-help');
-  if(roomHelp) roomHelp.textContent = t.liveHelp;
-
-  document.querySelectorAll('.live-room-btn').forEach(btn=>{
-    btn.textContent = t.board;
-  });
 
   // Hintergrund / Menüs
   document.querySelectorAll('.bg-upload-zone .font-bold, .bg-upload-zone div:last-child').forEach(el=>{
@@ -2363,13 +2356,7 @@ function applyLanguage(lang){
     const key = hdr.dataset.titleKey;
     const titleEl = hdr.querySelector('.widget-title');
     if(titleEl && key) titleEl.textContent = T(key);
-    // Fensterknöpfe
-    hdr.querySelectorAll('.wh-btn').forEach(btn=>{
-      if(/Minimieren|最小化/.test(btn.title))         btn.title = T('ttMinimieren');
-      if(/Maximieren|最大化/.test(btn.title))         btn.title = T('ttMaximieren');
-      if(/Wiederherstellen|元に戻す/.test(btn.title)) btn.title = T('ttWiederherstellen');
-      if(/Schließen|閉じる/.test(btn.title))          btn.title = T('ttSchliessen');
-    });
+    // wh-btn titles: covered by data-i18n-title via applyI18n() above
   });
 
   
@@ -2392,16 +2379,11 @@ function applyLanguage(lang){
     const _isLight=document.body.classList.contains('light-mode');
     _lmBtn.textContent=_isLight?T('designDunkel'):T('designHell');
   }
-  const bgUploadLbl=document.getElementById('bg-upload-label');
-  if(bgUploadLbl) bgUploadLbl.textContent=t.designFotoHochladen;
   const removeFotoBtn=document.querySelector('#bg-photo-controls .wbtn');
   if(removeFotoBtn) removeFotoBtn.textContent=t.designFotoEntfernen;
 
   // (Widget-Fenstertitel und -knöpfe werden über data-title-key oben übersetzt)
-  // ── Textpad font-size tooltip ──
-  document.querySelectorAll('[title]').forEach(el=>{
-    if(/Schriftgröße für Auswahl|選択.*文字サイズ/.test(el.title)) el.title=T('ttSchriftgroesseAusw');
-  });
+  // Textpad font-size tooltip: covered by data-i18n-title via applyI18n() above
   // ── Translate open widgets ──
   _translateOpenWidgets(lang);
   _translateDesktopDrawToolbar(lang);
@@ -2418,6 +2400,7 @@ function _translateOpenWidgets(lang){
   document.querySelectorAll('.widget').forEach(w=>{
     const type = w.dataset.type;
     const uid  = w.id.replace('widget-','');
+    // Update all data-i18n elements in this widget body first
     switch(type){
       case 'timer':   _trTimer(uid);   break;
       case 'clock':   _trClock(uid);   break;
@@ -2440,68 +2423,42 @@ function _setHTML(id,val){ const el=document.getElementById(id); if(el) el.inner
 
 function _trTimer(uid){
   const _q=(s)=>document.getElementById(s+'-'+uid);
-  const b=e=>e&&(e.textContent=e.textContent.trim());
-  if(_q('tbtn-ring'))  _q('tbtn-ring').textContent  = T('timerKreis');
-  if(_q('tbtn-digi'))  _q('tbtn-digi').textContent  = T('timerDigital');
-  if(_q('tbtn-lauf'))  _q('tbtn-lauf').textContent  = T('timerLaufer');
-  // start/pause/reset buttons are in .row inside timer body
   const body = document.getElementById('body-'+uid);
   if(!body) return;
-  body.querySelectorAll('.wbtn').forEach(btn=>{
-    const t=btn.textContent.trim();
-    if(/▶|Start/.test(t)||/スタート/.test(t))  btn.textContent=T('timerStart');
-    if(/⏸|Pause/.test(t)||/一時停止/.test(t)) btn.textContent=T('timerPause');
-    if(/↺|Reset/.test(t)||/リセット/.test(t)) btn.textContent=T('timerReset');
-  });
+  applyI18n(body);
+  // start/pause/reset: covered by data-i18n via applyI18n(body) above
   // Min/Sek labels
   body.querySelectorAll('span').forEach(s=>{
     if(s.textContent.trim()==='Min'||s.textContent.trim()==='分') s.textContent=T('timerMin');
     if(s.textContent.trim()==='Sek'||s.textContent.trim()==='秒') s.textContent=T('timerSek');
   });
-  // SVG texts HALBZEIT/ハーフタイム
+  // SVG text HALBZEIT
   const svg=document.getElementById('lauf-svg-'+uid);
   if(svg){
     svg.querySelectorAll('text').forEach(tx=>{
       if(/HALBZEIT|ハーフタイム/.test(tx.textContent)) tx.textContent=T('timerHalbzeit');
     });
   }
-  // Title attributes
-  const timerSvg=document.getElementById('timer-svg-'+uid);
-  if(timerSvg) timerSvg.title=T('ttKlickenTimer');
-  const timerDigi=document.getElementById('td-digi-'+uid);
-  if(timerDigi) timerDigi.title=T('ttKlickenTimer');
-  const timerLauf=document.getElementById('tview-lauf-'+uid);
-  if(timerLauf) timerLauf.title=T('ttKlickenTimer');
 }
 
 function _trClock(uid){
   const body=document.getElementById('body-'+uid); if(!body) return;
-  body.querySelectorAll('.wbtn').forEach(btn=>{
-    const t=btn.textContent.trim();
-    if(/Zufällige|ランダム時刻/.test(t))  btn.textContent=T('clockRandom');
-    if(/Echtzeit|現在時刻/.test(t))       btn.textContent=T('clockReset');
-  });
+  applyI18n(body);
+  // clockRandom/clockReset: covered by data-i18n via applyI18n(body)
   const dtEl=document.getElementById('wcdate-'+uid);
   if(dtEl && /5-Min|5分/.test(dtEl.textContent)) dtEl.textContent=T('clockRandomLabel');
-  // Title attribute on canvas
-  const cv=document.getElementById('aclock-'+uid);
-  if(cv) cv.title=T('ttKlickenUhr');
 }
 
 function _trDice(uid){
   const body=document.getElementById('body-'+uid); if(!body) return;
-  const res=document.getElementById('diceres-'+uid);
-  if(res && /Hier klicken|クリックして/.test(res.textContent)) res.textContent=T('diceClickHint');
-  // Satzbau button
-  const sbBtn2=document.getElementById('dtbtn-satzbau-'+uid);
-  if(sbBtn2) sbBtn2.textContent=T('diceSatzbau');
-  // Zufall button
+  applyI18n(body);
+  // Zufall button — state-dependent
   const zBtn=document.getElementById('dtbtn-zufall-'+uid);
   if(zBtn){
     if(/aus|オフ/.test(zBtn.textContent)) zBtn.textContent=T('diceZufallAus');
     else zBtn.textContent=T('diceZufallAn');
   }
-  // Ampel label
+  // Ampel label — state-dependent spans (no stable IDs)
   const acfg=document.getElementById('ampel-config-'+uid);
   if(acfg){
     acfg.querySelectorAll('span').forEach(sp=>{
@@ -2509,40 +2466,26 @@ function _trDice(uid){
       if(sp.textContent.trim()==='Sek.'||sp.textContent.trim()==='秒') sp.textContent=T('diceSek');
     });
   }
-  // Satzbau TXT / Fertig buttons
+  // Satzbau TXT label (contains hidden input — innerHTML needed)
   const sbLbl=document.getElementById('satzbau-lbl-'+uid);
   if(sbLbl){
     const inp=sbLbl.querySelector('input');
-    sbLbl.textContent=T('satzbauTxtLaden');
     if(inp) sbLbl.appendChild(inp);
   }
   const sbOk=document.getElementById('satzbau-ok-'+uid);
-  if(sbOk) sbOk.textContent=T('satzbauFertig');
-  // Title attributes
-  const diceWrap=document.getElementById('dicewrap-'+uid);
-  if(diceWrap) diceWrap.title=T('ttKlickenWuerfeln');
-  const jankenBtn=document.getElementById('dtbtn-jein-janken-'+uid);
-  if(jankenBtn) jankenBtn.title=T('ttJanken');
 }
 
 function _trNames(uid){
-  const ta=document.getElementById('namelist-'+uid);
-  if(ta) ta.placeholder=T('namesPlaceholder');
+  // List/reset buttons use innerHTML with emoji prefix — can't use data-i18n
   const listBtn=document.getElementById('names-list-btn-'+uid);
   if(listBtn) listBtn.innerHTML=`&#128196; ${T('namesListe')}`;
   const resetBtn=document.getElementById('names-reset-btn-'+uid);
   if(resetBtn) resetBtn.innerHTML=`&#8635; ${T('namesResetKurz')}`;
-  // Title on click-area
-  const body=document.getElementById('body-'+uid);
-  if(body){
-    body.querySelectorAll('[title]').forEach(el=>{
-      if(/Klicken zum Ziehen|クリックして引く/.test(el.title)) el.title=T('ttKlickenZiehen');
-    });
-  }
 }
 
 function _trDraw(uid){
   const body=document.getElementById('body-'+uid); if(!body) return;
+  applyI18n(body);
   body.querySelectorAll('span').forEach(sp=>{
     if(/Auf Zeichenfläche|キャンバスをクリック/.test(sp.textContent)) sp.textContent=T('drawKlicken');
   });
@@ -2602,24 +2545,9 @@ function _translateDesktopDrawToolbar(lang){
 }
 function _trTextpad(uid){
   const body=document.getElementById('body-'+uid); if(!body) return;
+  applyI18n(body);
   // Font size select options
-  const szSel=body.querySelector('select:nth-of-type(2)');
-  if(szSel){
-    const opts=szSel.options;
-    const map={
-      Klein:T('textKlein'),Normal:T('textNormal'),'Groß':T('textGross'),'Sehr groß':T('textSehrGross'),'Riesig':T('textRiesig'),
-      小:T('textKlein'),普通:T('textNormal'),大:T('textGross'),特大:T('textSehrGross'),超大:T('textRiesig'),
-      'Klein (13 px)':T('textKlein')+' (13 px)',
-      'Normal (16 px)':T('textNormal')+' (16 px)',
-      'Groß (20 px)':T('textGross')+' (20 px)',
-      'Sehr groß (26 px)':T('textSehrGross')+' (26 px)',
-      '小 (13 px)':T('textKlein')+' (13 px)',
-      '普通 (16 px)':T('textNormal')+' (16 px)',
-      '大 (20 px)':T('textGross')+' (20 px)',
-      '特大 (26 px)':T('textSehrGross')+' (26 px)'
-    };
-    for(let i=0;i<opts.length;i++){ if(map[opts[i].text]) opts[i].text=map[opts[i].text]; }
-  }
+  // font-size options: covered by data-i18n+data-i18n-suffix via applyI18n(body)
   const pad=document.getElementById('textpad-'+uid);
   if(pad) pad.dataset.placeholder=T('textPlaceholder');
   // button titles
@@ -2644,6 +2572,7 @@ function _trTextpad(uid){
 
 function _trQR(uid){
   const body=document.getElementById('body-'+uid); if(!body) return;
+  applyI18n(body);
   body.querySelectorAll('.wbtn').forEach(btn=>{
     if(/QR-Code erstellen|QRコード/.test(btn.textContent)) btn.textContent=T('qrCreate');
   });
@@ -2656,13 +2585,8 @@ function _trQR(uid){
 
 function _trWas(uid){
   const body=document.getElementById('body-'+uid); if(!body) return;
-  const mosaik=document.getElementById('wastab-mosaic-'+uid);
-  const blur=document.getElementById('wastab-blur-'+uid);
-  const kaese=document.getElementById('wastab-kaese-'+uid);
-  if(mosaik) mosaik.textContent=T('wasMosaik');
-  if(blur) blur.textContent=T('wasVerschwommen');
-  if(kaese) kaese.textContent=T('wasKaese');
-  // Upload hint texts
+  applyI18n(body);
+  // Upload hint texts — no stable IDs, regex match needed
   const upZone=document.getElementById('was-upload-'+uid);
   if(upZone){
     upZone.querySelectorAll('div').forEach(d=>{
@@ -2670,9 +2594,7 @@ function _trWas(uid){
       if(/Mehrere Fotos|複数の写真/.test(d.textContent)&&d.children.length===0) d.textContent=T('wasUploadSub');
     });
   }
-  // Title on canvas
-  const wasCv=document.getElementById('was-canvas-'+uid);
-  if(wasCv) wasCv.title=T('ttKlickenEnthuellen');
+  // State-dependent button label
   const btn=document.getElementById('was-btn-'+uid);
   if(btn&&!btn.disabled){
     const s=wasState[uid]?.mode;
@@ -2681,13 +2603,13 @@ function _trWas(uid){
     else btn.textContent=T('wasFeiner');
   }
   if(btn&&btn.disabled) btn.textContent=T('wasEnthuellung');
-  // Navigation
+  // Navigation — state-dependent
   const nextBtn=document.getElementById('was-next-'+uid);
   if(nextBtn){
     if(/Fertig|完了/.test(nextBtn.textContent)) nextBtn.textContent=T('wasFertig');
     else nextBtn.textContent=T('wasWeiter');
   }
-  // Schritt display
+  // Schritt display — contains dynamic numbers
   const stepEl=document.getElementById('was-step-'+uid);
   if(stepEl){
     const txt=stepEl.textContent;
@@ -2700,7 +2622,7 @@ function _trWas(uid){
       if(m) stepEl.textContent=`${T('wasSchaerfe')} ${m[1]} / ${m[2]}`;
     }
   }
-  // nav label
+  // nav label — contains dynamic numbers
   const navLabel=document.getElementById('was-nav-label-'+uid);
   if(navLabel){
     const m=navLabel.textContent.match(/(\d+)\s*\/\s*(\d+)/);
@@ -2710,28 +2632,24 @@ function _trWas(uid){
 
 function _trJein(uid){
   const body=document.getElementById('body-'+uid); if(!body) return;
-  body.querySelectorAll('.jein-mode-btn').forEach(btn=>{
-    const t=btn.textContent.trim();
-    if(/^Text$|^テキスト$/.test(t))          btn.textContent=T('jeinText');
-    if(/Smiley|スマイリー/.test(t))           btn.textContent=T('jeinSmiley');
-    if(/Ampel|信号機/.test(t))               btn.textContent=T('jeinAmpel');
-    if(/Farbe|色/.test(t)&&/🎨/.test(t))    btn.textContent=T('jeinFarbe');
-    if(/Janken|じゃんけん/.test(t)||/✂️/.test(t)) btn.textContent=T('jeinJanken');
-  });
-  body.querySelectorAll('.wbtn').forEach(btn=>{
-    if(/Auswählen|選ぶ/.test(btn.textContent)||/🎲/.test(btn.textContent)) btn.textContent=T('jeinRoll');
-  });
+  applyI18n(body);
+  // mode-btn and roll-btn: covered by data-i18n via applyI18n(body)
 }
 
 function _trWheel(uid){
-  const body=document.getElementById('body-'+uid); if(!body) return;
+  // body-${uid} exists for standalone wheel; in Spiele it's embedded in spiele-panel-rad-*
+  const body = document.getElementById('body-'+uid)
+             || document.getElementById('wheel-canvas-'+uid)?.closest('[id^="spiele-panel-"]')
+             || document.getElementById('wheel-canvas-'+uid)?.closest('.widget-body');
+  if(!body) return;
+  applyI18n(body);
   const res=document.getElementById('wheel-result-'+uid);
   if(res&&/Noch nicht gedreht|まだ回していません/.test(res.textContent)) res.textContent=T('wheelNochNicht');
-  // Tab buttons
+  // Tab buttons — use data-i18n where possible, update text node only
   const tabPlay=document.getElementById('wheel-tab-play-'+uid);
   const tabEdit=document.getElementById('wheel-tab-edit-'+uid);
-  if(tabPlay) tabPlay.innerHTML='&#9654; '+T('slotSpielen').replace('▶ ','');
-  if(tabEdit) tabEdit.innerHTML='&#9999; '+T('spieleEintraege').replace('✏️ ','');
+  if(tabPlay) tabPlay.textContent='▶︎ '+T('slotSpielen').replace('▶ ','').replace('▶︎ ','');
+  if(tabEdit) tabEdit.textContent='✏︎ '+T('spieleEintraege').replace('✏️ ','').replace('✏ ','');
   // Zufall button
   const zBtn=document.getElementById('wheel-zufall-btn-'+uid);
   if(zBtn){
@@ -2739,28 +2657,8 @@ function _trWheel(uid){
     if(st?.zufallAus) zBtn.textContent=T('diceZufallAus');
     else zBtn.textContent=T('diceZufallAn');
   }
-  // Save button inside edit panel
-  const editPanel=document.getElementById('wheel-edit-panel-'+uid);
-  if(editPanel){
-    editPanel.querySelectorAll('.wbtn.primary').forEach(btn=>{
-      if(/Übernehmen|保存|✓/.test(btn.textContent)) btn.textContent='✓ '+T('wheelUebernehmen');
-    });
-  }
-  // Edit-panel Hinweis und TXT-Knopf
-  const editHintEl=document.querySelector('#wheel-edit-panel-'+uid+' div[style*="clamp"]');
-  if(editHintEl) editHintEl.textContent=T('wheelEditHint');
-  const txtSpan=document.querySelector('#wheel-edit-panel-'+uid+' .wbtn:not(.primary)');
-  if(txtSpan) txtSpan.textContent=T('wheelTxtLaden');
-  // Title on canvas
-  const wheelCv=document.getElementById('wheel-canvas-'+uid);
-  if(wheelCv) wheelCv.title=T('ttKlickenDrehen');
-  // Title on txt file label
-  const body2=document.getElementById('body-'+uid);
-  if(body2){
-    body2.querySelectorAll('[title]').forEach(el=>{
-      if(/TXT-Datei laden|TXTファイルを読み込む/.test(el.title)) el.title=T('ttTxtDateiLadenKurz');
-    });
-  }
+  // Save/hint/TXT/canvas: covered by data-i18n* via applyI18n(body) above
+  // TXT label title: covered by data-i18n-title via applyI18n(body) above
 }
 
 function _trSlot(uid){
@@ -2769,6 +2667,12 @@ function _trSlot(uid){
   _trSlotInner(slotUid);
 }
 function _trSlotInner(uid){
+  const slotBody=document.querySelector('#slot-play-'+uid+',#slot-edit-'+uid);
+  // In standalone: closest .widget-body; in Spiele: closest spiele-panel-slot-*
+  const slotRoot=slotBody
+    ? (slotBody.closest('.widget-body') || slotBody.closest('[id^="spiele-panel-"]'))
+    : null;
+  if(slotRoot) applyI18n(slotRoot);
   const tabPlay=document.getElementById('slot-tab-play-'+uid);
   const tabEdit=document.getElementById('slot-tab-edit-'+uid);
   if(tabPlay) tabPlay.innerHTML='&#9654; '+T('slotSpielen').replace('▶ ','');
@@ -2777,7 +2681,6 @@ function _trSlotInner(uid){
   const editHint=document.querySelector('#slot-edit-'+uid+' .slot-edit-hint');
   if(editHint) editHint.innerHTML=T('slotEditHint');
   const applyBtn=document.querySelector('#slot-edit-'+uid+' .wbtn.primary');
-  if(applyBtn) applyBtn.textContent=T('slotUebernehmen');
   // Score bar title
   const scoreTitle=document.querySelector('#slot-play-'+uid+' .slot-scorebar-title');
   if(scoreTitle){
@@ -2800,11 +2703,13 @@ function _trSlotInner(uid){
   const ptsEl=document.getElementById('slot-pts-'+uid);
   if(ptsEl){
     const m=ptsEl.textContent.match(/(\d+)/);
-    if(m) ptsEl.textContent=m[1]+' PKT';
+    if(m) ptsEl.textContent=m[1]+' '+T('slotPkt');
   }
 }
 
 function _trSpiele(uid){
+  const spieleBody=document.getElementById('body-'+uid);
+  if(spieleBody) applyI18n(spieleBody);
   // Tab buttons
   ['rad','slot','puzzle','zuordnen','ampel'].forEach(tab=>{
     const btn=document.getElementById(`spiele-tab-${tab}-${uid}`);
@@ -2818,16 +2723,13 @@ function _trSpiele(uid){
   if(puzzlePanel && typeof pzState!=='undefined' && pzState[uid]){
     pzShowSentence(uid);
     const fileLabel=puzzlePanel.querySelector(`label.pz-file-label[for="pz-file-${uid}"]`);
-    if(fileLabel) fileLabel.textContent=T('pzDateiLaden');
   }
   // Wheel panel uses uid*1000+1, Slot uses uid*1000+2
   _trWheel(uid*1000+1);
   _trSlotInner(uid*1000+2);
-  // Zuordnen game instruction + buttons
+  // Zuordnen game buttons
   const zuGame=document.getElementById('zu-game-'+uid);
   if(zuGame){
-    const zuInstr=zuGame.querySelector('div[style*="font-size:.82em"]');
-    if(zuInstr) zuInstr.textContent=T('zuordnenInstr');
     const zuCheckRow=document.getElementById('zu-check-row-'+uid);
     if(zuCheckRow){
       const btns=zuCheckRow.querySelectorAll('.wbtn');
@@ -2844,13 +2746,7 @@ function _trSpiele(uid){
     const isRunning=!!(_apTimers&&_apTimers[auid]);
     ampelLbl.textContent=isRunning?T('ampelStop'):T('ampelStart');
   }
-  // Slot TXT label title
-  const spieleBody=document.getElementById('body-'+uid);
-  if(spieleBody){
-    spieleBody.querySelectorAll('[title]').forEach(el=>{
-      if(/TXT-Datei laden|TXTファイルを読み込む/.test(el.title)) el.title=T('ttTxtDateiLaden');
-    });
-  }
+  // Slot TXT label title: covered by data-i18n-title via applyI18n(spieleBody) above
 }
 
 
@@ -3670,9 +3566,9 @@ function spawnWidget(type){
   hdr.dataset.titleKey = def.titleKey;
   hdr.innerHTML=`<span class="widget-title">${T(def.titleKey)}</span>
     <div class="wh-btns">
-      <button class="wh-btn" title="${T('ttMinimieren')}"  onclick="minimizeWidget('${id}')">−</button>
-      <button class="wh-btn" title="${T('ttMaximieren')}"  onclick="maximizeWidget('${id}')">⛶</button>
-      <button class="wh-btn" title="${T('ttSchliessen')}"   onclick="killWidget('${id}')">✕</button>
+      <button class="wh-btn" title="" data-i18n-title="ttMinimieren"  onclick="minimizeWidget('${id}')">−</button>
+      <button class="wh-btn" title="" data-i18n-title="ttMaximieren"  onclick="maximizeWidget('${id}')">⛶</button>
+      <button class="wh-btn" title="" data-i18n-title="ttSchliessen"   onclick="killWidget('${id}')">✕</button>
     </div>`;
   el.appendChild(hdr);
 
@@ -3696,6 +3592,7 @@ function spawnWidget(type){
   makeResizable(el,rh);
   const builders={clock:buildClock,timer:buildTimer,dice:buildDice,names:buildNames,draw:buildDraw,qr:buildQR,textpad:buildTextpad,jein:buildJein,was:buildWas,wheel:buildWheel,slot:buildSlot,spiele:buildSpiele};
   if(builders[type]) builders[type](body,uid);
+  applyI18n(body);  // fill all data-i18n elements after build
   updateWidgetScale(el);
   updateEmptyHint();
   // Nach dem Rendern sicherstellen, dass fit-content-Widgets vollständig sichtbar sind
@@ -3983,13 +3880,13 @@ function buildClock(body, uid){
   body.style.display='flex'; body.style.flexDirection='column'; body.style.alignItems='center';
   body.innerHTML=`
 <div id="aclock-wrap-${uid}" style="width:100%;flex:1;display:flex;align-items:center;justify-content:center;min-height:80px;">
-  <canvas id="aclock-${uid}" style="display:block;cursor:pointer;" title="${T('ttKlickenUhr')}" onclick="randomClockTime(${uid})"></canvas>
+  <canvas id="aclock-${uid}" style="display:block;cursor:pointer;" data-i18n-title="ttKlickenUhr" title="" data-i18n-title="ttKlickenUhr" onclick="randomClockTime(${uid})"></canvas>
 </div>
 <div id="wctime-txt-${uid}" style="font-size:1.8em;font-weight:400;text-align:center;margin-top:8px;color:var(--accent);min-height:1.3em;font-variant-numeric:tabular-nums;letter-spacing:.04em;"></div>
 <div class="wclock-date" id="wcdate-${uid}" style="margin-top:3px;font-size:.82em;"></div>
 <div style="margin-top:10px;display:flex;gap:.4em;justify-content:center;">
-  <button class="wbtn" style="font-size:.78em;padding:.3em .7em;" onclick="randomClockTime(${uid})">${T('clockRandom')}</button>
-  <button class="wbtn" style="font-size:.78em;padding:.3em .7em;" onclick="resetClockTime(${uid})">${T('clockReset')}</button>
+  <button class="wbtn" style="font-size:.78em;padding:.3em .7em;" onclick="randomClockTime(${uid})" data-i18n="clockRandom"></button>
+  <button class="wbtn" style="font-size:.78em;padding:.3em .7em;" onclick="resetClockTime(${uid})" data-i18n="clockReset"></button>
 </div>`;
   clockOverrides[uid] = null;
 
@@ -4154,12 +4051,12 @@ function buildTimer(body,uid){
   const ticks=Array.from({length:12},(_,i)=>{const a=i*30*Math.PI/180;const r1=72,r2=i%3===0?80:76;const x1=80+r1*Math.sin(a),y1=80-r1*Math.cos(a),x2=80+r2*Math.sin(a),y2=80-r2*Math.cos(a);return`<line x1="${x1.toFixed(1)}" y1="${y1.toFixed(1)}" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="rgba(255,255,255,0.22)" stroke-width="${i%3===0?2:1}" stroke-linecap="round"/>`;}).join('');
   body.innerHTML=`
 <div style="display:flex;gap:calc(var(--uiscale,1)*3px);margin-bottom:.4em;background:rgba(0,0,0,0.25);border-radius:calc(var(--uiscale,1)*8px);padding:calc(var(--uiscale,1)*3px);" class="timer-mode-bar">
-  <button id="tbtn-ring-${uid}" class="timer-mode-btn active-tmode" onclick="setTimerMode('ring',${uid})">${T('timerKreis')}</button>
-  <button id="tbtn-digi-${uid}" class="timer-mode-btn" onclick="setTimerMode('digital',${uid})">${T('timerDigital')}</button>
-  <button id="tbtn-lauf-${uid}" class="timer-mode-btn" onclick="setTimerMode('laufer',${uid})">${T('timerLaufer')}</button>
+  <button id="tbtn-ring-${uid}" class="timer-mode-btn active-tmode" data-i18n="timerKreis" onclick="setTimerMode('ring',${uid})" data-i18n="timerKreis"></button>
+  <button id="tbtn-digi-${uid}" class="timer-mode-btn" data-i18n="timerDigital" onclick="setTimerMode('digital',${uid})" data-i18n="timerDigital"></button>
+  <button id="tbtn-lauf-${uid}" class="timer-mode-btn" data-i18n="timerLaufer" onclick="setTimerMode('laufer',${uid})" data-i18n="timerLaufer"></button>
 </div>
 <div id="tview-ring-${uid}" style="position:relative;width:100%;flex:1;min-height:100px;display:flex;align-items:center;justify-content:center;margin:.1em auto .2em;">
-  <svg id="timer-svg-${uid}" viewBox="0 0 160 160" style="width:100%;height:100%;max-width:100%;max-height:100%;display:block;cursor:pointer;" onclick="startTimer(${uid})" title="${T('ttKlickenTimer')}">
+  <svg id="timer-svg-${uid}" viewBox="0 0 160 160" style="width:100%;height:100%;max-width:100%;max-height:100%;display:block;cursor:pointer;" onclick="startTimer(${uid})" data-i18n-title="ttKlickenTimer" title="" data-i18n-title="ttKlickenTimer">
     <circle cx="80" cy="80" r="68" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="8"/>
     <circle id="sw-arc-${uid}" cx="80" cy="80" r="68" fill="none" stroke="#4ade80" stroke-width="8"
       stroke-linecap="round" stroke-dasharray="${CIRC}" stroke-dashoffset="0"
@@ -4173,9 +4070,9 @@ function buildTimer(body,uid){
   <div id="td-${uid}" style="display:none;">${fmtTime(timerSec)}</div>
 </div>
 <div id="tview-digi-${uid}" style="display:none;width:100%;text-align:center;padding:.8em 0 .4em;">
-  <div class="timer-disp" id="td-digi-${uid}" style="font-size:5em;margin:0;cursor:pointer;" onclick="startTimer(${uid})" title="${T('ttKlickenTimer')}">${fmtTime(timerSec)}</div>
+  <div class="timer-disp" id="td-digi-${uid}" style="font-size:5em;margin:0;cursor:pointer;" onclick="startTimer(${uid})" title="" data-i18n-title="ttKlickenTimer">${fmtTime(timerSec)}</div>
 </div>
-<div id="tview-lauf-${uid}" style="display:none;width:100%;flex:1;min-height:130px;cursor:pointer;overflow:hidden;border-radius:10px;position:relative;" onclick="startTimer(${uid})" title="${T('ttKlickenTimer')}">
+<div id="tview-lauf-${uid}" style="display:none;width:100%;flex:1;min-height:130px;cursor:pointer;overflow:hidden;border-radius:10px;position:relative;" onclick="startTimer(${uid})" title="" data-i18n-title="ttKlickenTimer">
   <svg id="lauf-svg-${uid}" viewBox="0 0 790 160" width="100%" height="100%" style="display:block;" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
     <!-- Himmel (Farbe wird per JS animiert) -->
     <rect id="lauf-sky-${uid}" x="0" y="0" width="790" height="160" fill="#f9c27a"/>
@@ -4413,16 +4310,16 @@ function buildTimer(body,uid){
   </svg>
 </div>
 <div class="row" style="justify-content:center;">
-  <button class="wbtn primary" onclick="startTimer(${uid})">${T('timerStart')}</button>
-  <button class="wbtn" onclick="pauseTimer()">${T('timerPause')}</button>
-  <button class="wbtn" onclick="resetTimer(${uid})">${T('timerReset')}</button>
+  <button class="wbtn primary" onclick="startTimer(${uid})" data-i18n="timerStart"></button>
+  <button class="wbtn" onclick="pauseTimer()" data-i18n="timerPause"></button>
+  <button class="wbtn" onclick="resetTimer(${uid})" data-i18n="timerReset"></button>
 </div>
 <div style="margin-top:.7em;border-top:1px solid rgba(255,255,255,0.07);padding-top:.5em;width:100%;">
   <div style="display:flex;gap:.4em;align-items:center;justify-content:center;margin-bottom:.3em;" id="timer-inputs-${uid}">
     <input class="winput" type="number" id="tmin-${uid}" value="5" min="0" max="99" style="width:calc(var(--uiscale,1)*3em);text-align:center;font-size:calc(var(--uiscale,1)*.78em);padding:.2em .3em;">
-    <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);">${T('timerMin')}</span>
+    <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);" data-i18n="timerMin"></span>
     <input class="winput" type="number" id="tsec-${uid}" value="0" min="0" max="59" style="width:calc(var(--uiscale,1)*3em);text-align:center;font-size:calc(var(--uiscale,1)*.78em);padding:.2em .3em;">
-    <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);">${T('timerSek')}</span>
+    <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);" data-i18n="timerSek"></span>
   </div>
   <div style="display:flex;gap:.25em;flex-wrap:wrap;justify-content:center;">
     <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(1,0,${uid})">1 Min</button>
@@ -5452,10 +5349,10 @@ function dicePolySvg(sides,val){
 function buildDice(body,uid){
   body.style.display='flex'; body.style.flexDirection='column';
   body.innerHTML=`
-<div class="dice-wrap" id="dicewrap-${uid}" onclick="rollDice(${uid})" title="${T('ttKlickenWuerfeln')}">
+<div class="dice-wrap" id="dicewrap-${uid}" onclick="rollDice(${uid})" data-i18n-title="ttKlickenWuerfeln" title="" data-i18n-title="ttKlickenWuerfeln">
   ${diceD6svg(6)}
 </div>
-<div class="dice-result" id="diceres-${uid}">${T('diceClickHint')}</div>
+<div class="dice-result" id="diceres-${uid}" data-i18n="diceClickHint" data-i18n="diceClickHint"></div>
 <div class="row" style="justify-content:center;flex-wrap:wrap;gap:.4em;margin:.3em 0;">
   <div style="display:flex;gap:.4em;align-items:center;justify-content:center;flex-wrap:wrap;">
     <button class="dice-type-btn active-dice" id="dtbtn-6-${uid}" onclick="selectDiceType(6,${uid})" title="W6">
@@ -5476,11 +5373,11 @@ function buildDice(body,uid){
   </div>
 </div>
 <div style="display:flex;gap:.4em;justify-content:center;flex-wrap:wrap;padding:.2em 0 .4em;">
-  <button class="jein-mode-btn" id="dtbtn-satzbau-${uid}" onclick="selectDiceType('satzbau',${uid})" title="Satzbau">${T('diceSatzbau')}</button>
+  <button class="jein-mode-btn" id="dtbtn-satzbau-${uid}" class="jein-mode-btn" onclick="selectDiceType('satzbau',${uid})" title="Satzbau" data-i18n="diceSatzbau" data-i18n="diceSatzbau"></button>
   <button class="jein-mode-btn" id="dtbtn-jein-smiley-${uid}" onclick="selectDiceType('jein-smiley',${uid})" title="Smiley">😊</button>
-  <button class="jein-mode-btn" id="dtbtn-jein-janken-${uid}" onclick="selectDiceType('jein-janken',${uid})" title="${T('ttJanken')}">✂️</button>
+  <button class="jein-mode-btn" id="dtbtn-jein-janken-${uid}" onclick="selectDiceType('jein-janken',${uid})" title="" data-i18n-title="ttJanken">✂️</button>
   <button class="jein-mode-btn" id="dtbtn-jein-color-${uid}"  onclick="selectDiceType('jein-color',${uid})"  title="Farbe">🎨</button>
-  <button class="jein-mode-btn" id="dtbtn-zufall-${uid}" onclick="toggleDiceZufall(${uid})" title="Zufall an/aus" style="font-size:.75em;padding:.3em .6em;">${T('diceZufallAn')}</button>
+  <button class="jein-mode-btn" id="dtbtn-zufall-${uid}" onclick="toggleDiceZufall(${uid})" title="Zufall an/aus" style="font-size:.75em;padding:.3em .6em;" data-i18n="diceZufallAn"></button>
 </div>
 <input type="hidden" id="dicetype-${uid}" value="6">
 <input type="hidden" id="dicecount-${uid}" value="1">`;
@@ -5559,7 +5456,7 @@ function selectDiceType(sides, uid){
     stopSmileyAutoRotate(uid);
     if(wrap){
       if(mode==='text'){
-        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(1.6em,6vw,3em);font-weight:900;color:var(--text2);opacity:.5;">${T('diceJaNein')}</span></div>`;
+        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(1.6em,6vw,3em);font-weight:900;color:var(--text2);opacity:.5;" data-i18n="diceJaNein"></span></div>`;
       } else if(mode==='smiley'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;"><span style="font-size:clamp(6em,24vw,13em);opacity:.35;">😊</span></div>`;
         startSmileyAutoRotate(uid);
@@ -5656,7 +5553,7 @@ function updateDiceGraphic(uid){
       <text x="${230-8}" y="132" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="12" fill="#f0c090">1</text>
       <text x="${230+2}" y="132" text-anchor="start" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="700" font-size="7" fill="#f0c090">Cent</text>
       <!-- Hinweis-Text -->
-      <text x="150" y="6" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.40)">${T('diceClickHint')}</text>
+      <text x="150" y="6" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.40)" data-i18n="diceClickHint"></text>
     </svg>`;
   } else {
     const tnum=parseInt(t||6);
@@ -6194,8 +6091,8 @@ function showSatzbauSetup(uid){
   wrap.innerHTML = `
 <div id="satzbau-setup-${uid}" style="display:flex;flex-direction:column;gap:.5em;align-items:stretch;justify-content:flex-start;width:100%;height:100%;padding:.5em;box-sizing:border-box;">
   <div style="display:flex;gap:.4em;align-items:center;flex-wrap:wrap;">
-    <label class="satzbau-upload-btn" id="satzbau-lbl-${uid}" style="flex-shrink:0;">${T('satzbauTxtLaden')}<input type="file" accept=".txt,text/plain" style="display:none;" id="satzbau-file-${uid}"></label>
-    <button id="satzbau-ok-${uid}" class="satzbau-upload-btn" style="flex-shrink:0;background:var(--accent);color:#fff;border-color:var(--accent);">${T('satzbauFertig')}</button>
+    <label class="satzbau-upload-btn" id="satzbau-lbl-${uid}" style="flex-shrink:0;" data-i18n="satzbauTxtLaden"><input type="file" accept=".txt,text/plain" style="display:none;" id="satzbau-file-${uid}"></label>
+    <button id="satzbau-ok-${uid}" class="satzbau-upload-btn" style="flex-shrink:0;background:var(--accent);color:#fff;border-color:var(--accent);" data-i18n="satzbauFertig"></button>
   </div>
   <textarea class="satzbau-textarea" id="satzbau-ta-${uid}" placeholder="2–4 Wortgruppen möglich.&#10;Jede Gruppe mit Nummer einleiten:&#10;&#10;1&#10;ich&#10;du&#10;Sie&#10;&#10;2&#10;kommen&#10;gehen&#10;&#10;3&#10;nach Hause&#10;in die Schule&#10;&#10;→ Beim Würfeln erscheint aus jeder&#10;   Gruppe ein zufälliges Wort." style="flex:1;min-height:60px;"></textarea>
 
@@ -6362,7 +6259,7 @@ function buildNames(body,uid){
 body.style.flexDirection='column';
 body.style.overflow='hidden';
 body.innerHTML=`
-<div onclick="pickName(${uid})" title="${T('ttKlickenZiehen')}" style="cursor:pointer;flex:1 1 0;min-height:120px;display:flex;align-items:center;justify-content:center;padding:0 6px;overflow:visible;">
+<div onclick="pickName(${uid})" title="" data-i18n-title="ttKlickenZiehen" style="cursor:pointer;flex:1 1 0;min-height:120px;display:flex;align-items:center;justify-content:center;padding:0 6px;overflow:visible;">
   <div id="namedisp-${uid}" style="
     display:inline-flex;align-items:center;justify-content:center;
     width:fit-content;min-width:80px;max-width:calc(100% - 12px);
@@ -6389,17 +6286,17 @@ body.innerHTML=`
     line-height:1.15;
     white-space:nowrap;
     overflow:visible;
-  ">${T('namesHierKlicken')}</div>
+  " data-i18n="namesHierKlicken"></div>
 </div>
 <div style="flex:0 0 auto;display:flex;justify-content:center;margin-top:2px;">
   <span id="namesleft-${uid}" style="font-size:11px;color:var(--text2);text-align:center;min-height:14px;line-height:1.3;"></span>
 </div>
 <div style="flex:0 0 auto;display:flex;justify-content:center;gap:8px;padding:4px 0 6px;">
-  <button id="names-list-btn-${uid}" class="satzbau-upload-btn" style="font-size:12px;padding:5px 14px;" onclick="toggleNameList(${uid})">&#128196; ${T('namesListe')}</button>
-  <button id="names-reset-btn-${uid}" class="satzbau-upload-btn" style="font-size:12px;padding:5px 14px;" onclick="resetNames(${uid})">&#8635; ${T('namesResetKurz')}</button>
+  <button id="names-list-btn-${uid}" class="satzbau-upload-btn" style="font-size:12px;padding:5px 14px;" onclick="toggleNameList(${uid})" data-i18n="namesListe" data-i18n-prefix="&#128196; ">&#128196; </button>
+  <button id="names-reset-btn-${uid}" class="satzbau-upload-btn" style="font-size:12px;padding:5px 14px;" onclick="resetNames(${uid})" data-i18n="namesResetKurz" data-i18n-prefix="&#8635; ">&#8635; </button>
 </div>
 <div id="namelist-wrap-${uid}" style="display:none;">
-<textarea id="namelist-${uid}" rows="5" placeholder="${T('namesPlaceholder')}"
+<textarea id="namelist-${uid}" rows="5" data-i18n-placeholder="namesPlaceholder" placeholder="" data-i18n-placeholder="namesPlaceholder"
   style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.45em .75em;font-size:13px;font-family:'Arial',sans-serif;width:100%;resize:vertical;">Anna
 Ben
 Clara
@@ -6778,8 +6675,8 @@ function buildDraw(body,uid){
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
   <!-- Tool buttons -->
   <div style="display:flex;gap:.25em;">
-    <button class="draw-tool-btn active-tool" id="dtool-pen-${uid}" onclick="setDrawTool(${uid},'pen',this)" title="${T('drawTitelStift')}">✏️</button>
-    <button class="draw-tool-btn" id="dtool-marker-${uid}" onclick="setDrawTool(${uid},'marker',this)" title="${T('drawTitelMarker')}">
+    <button class="draw-tool-btn active-tool" id="dtool-pen-${uid}" onclick="setDrawTool(${uid},'pen',this)" title="" data-i18n-title="drawTitelStift">✏️</button>
+    <button class="draw-tool-btn" id="dtool-marker-${uid}" onclick="setDrawTool(${uid},'marker',this)" title="" data-i18n-title="drawTitelMarker">
       <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="3" y="2" width="8" height="11" rx="1.5" fill="currentColor" opacity="0.18" stroke="currentColor" stroke-width="1.3"/>
         <rect x="3" y="2" width="8" height="7" rx="1.5" fill="currentColor" opacity="0.55"/>
@@ -6787,8 +6684,8 @@ function buildDraw(body,uid){
         <line x1="7" y1="13" x2="7" y2="16" stroke="white" stroke-width="0.8"/>
       </svg>
     </button>
-    <button class="draw-tool-btn" id="dtool-text-${uid}" onclick="setDrawTool(${uid},'text',this)" title="${T('drawTitelText')}">T</button>
-    <button class="draw-tool-btn" id="dtool-eraser-${uid}" onclick="setDrawTool(${uid},'eraser',this)" title="${T('drawTitelRadierer')}">
+    <button class="draw-tool-btn" id="dtool-text-${uid}" onclick="setDrawTool(${uid},'text',this)" title="" data-i18n-title="drawTitelText">T</button>
+    <button class="draw-tool-btn" id="dtool-eraser-${uid}" onclick="setDrawTool(${uid},'eraser',this)" title="" data-i18n-title="drawTitelRadierer">
       <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="1.5" y="7" width="15" height="7" rx="2" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.3"/>
         <rect x="1.5" y="7" width="7" height="7" rx="2" fill="currentColor" opacity="0.75"/>
@@ -6800,13 +6697,13 @@ function buildDraw(body,uid){
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
   <!-- Text tool options (shown only when text tool active) -->
   <div id="dtool-text-opts-${uid}" style="display:none;gap:.25em;align-items:center;flex-wrap:wrap;">
-    <select id="dtextfont-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" title="${T('drawTitelSchriftart')}" onchange="updateDrawTextCursor(${uid})">
+    <select id="dtextfont-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" title="" data-i18n-title="drawTitelSchriftart" onchange="updateDrawTextCursor(${uid})">
       <option value="Arial">Arial</option>
       <option value="Georgia">Georgia</option>
       <option value="'Courier New'">Monospace</option>
       <option value="Impact">Impact</option>
     </select>
-    <select id="dtextsize-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" title="${T('drawTitelSchriftgroesse')}" onchange="updateDrawTextCursor(${uid})">
+    <select id="dtextsize-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" title="" data-i18n-title="drawTitelSchriftgroesse" onchange="updateDrawTextCursor(${uid})">
       <option value="14">14</option>
       <option value="20" selected>20</option>
       <option value="28">28</option>
@@ -6814,22 +6711,22 @@ function buildDraw(body,uid){
       <option value="60">60</option>
     </select>
     <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
-    <span style="font-size:10px;color:var(--text2);">${T('drawKlicken')}</span>
+    <span style="font-size:10px;color:var(--text2);" data-i18n="drawKlicken"></span>
   </div>
   <!-- Size (pen/marker) -->
-  <select id="dtool-sz-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:12px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" onchange="drawStates[${uid}].sz=parseInt(this.value)" title="${T('drawTitelStiftgroesse')}">
+  <select id="dtool-sz-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:12px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" onchange="drawStates[${uid}].sz=parseInt(this.value)" title="" data-i18n-title="drawTitelStiftgroesse">
     <option value="2">2px</option><option value="5" selected>5px</option>
     <option value="10">10px</option><option value="20">20px</option><option value="40">40px</option>
   </select>
   <!-- Photo upload -->
-  <label style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;display:flex;align-items:center;" title="${T('drawTitelFoto')}">
+  <label style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;display:flex;align-items:center;" title="" data-i18n-title="drawTitelFoto">
     🖼
     <input type="file" accept="image/*" style="display:none;" onchange="insertDrawPhoto(${uid},this.files[0]);this.value=''">
   </label>
   <!-- Actions -->
-  <button id="dbtn-undo-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;opacity:0.4;" onclick="undoDraw(${uid})" title="${T('drawTitelRueckgaengig')}">↩</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="saveDraw(${uid})" title="${T('drawTitelSpeichern')}">💾</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="clearDraw(${uid})" title="${T('drawTitelLoeschen')}">🗑</button>
+  <button id="dbtn-undo-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;opacity:0.4;" onclick="undoDraw(${uid})" title="" data-i18n-title="drawTitelRueckgaengig">↩</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="saveDraw(${uid})" title="" data-i18n-title="drawTitelSpeichern">💾</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="clearDraw(${uid})" title="" data-i18n-title="drawTitelLoeschen">🗑</button>
 </div>
 <canvas class="draw-canvas" id="dcanvas-${uid}" style="flex:1;min-height:180px;"></canvas>`;
   drawStates[uid]={color:'#000000',sz:5,tool:'pen',drawing:false,lx:0,ly:0,undoStack:[]};
@@ -7285,39 +7182,39 @@ function buildCardMixer(body,uid){
   body.style.flexDirection='column';
   body.style.gap='8px';
   body.innerHTML=`
-    <div style="font-weight:900;font-size:1.08em;color:var(--accent);">${T('kartenMixerTitle')}</div>
-    <div style="font-size:.86em;color:var(--text2);line-height:1.45;">${T('kartenMixerDesc')}</div>
+    <div style="font-weight:900;font-size:1.08em;color:var(--accent);" data-i18n="kartenMixerTitle"></div>
+    <div style="font-size:.86em;color:var(--text2);line-height:1.45;" data-i18n="kartenMixerDesc"></div>
 
     <div class="classroom-box">
-      <div style="font-weight:900;margin-bottom:6px;">${T('kartenHeuteBenutzt')}</div>
+      <div style="font-weight:900;margin-bottom:6px;" data-i18n="kartenHeuteBenutzt"></div>
       <div class="row" style="margin-top:0;align-items:center;">
-        <label style="font-size:.88em;color:var(--text2);font-weight:800;">${T('kartenAnzahl')}</label>
+        <label style="font-size:.88em;color:var(--text2);font-weight:800;" data-i18n="kartenAnzahl"></label>
         <input class="winput" id="cardmixer-count-${uid}" type="number" min="1" max="20" value="6" inputmode="numeric" style="width:92px;text-align:center;font-size:1.35em;font-weight:900;" oninput="cardMixerSetCount(${uid})">
         <button class="wbtn" onclick="cardMixerMinus(${uid})">−</button>
         <button class="wbtn" onclick="cardMixerPlus(${uid})">＋</button>
       </div>
-      <div style="margin-top:8px;font-size:.82em;color:var(--text2);">${T('kartenAktiv')}<b>${T('kartenBis')}<span id="cardmixer-active-max-${uid}">6</span></b></div>
+      <div style="margin-top:8px;font-size:.82em;color:var(--text2);" data-i18n="kartenAktiv"><b data-i18n="kartenBis"><span id="cardmixer-active-max-${uid}">6</span></b></div>
       <div id="cardmixer-active-${uid}" style="margin-top:6px;"></div>
     </div>
 
     <div class="classroom-box">
-      <div style="font-weight:900;margin-bottom:6px;">${T('kartenMischen')}</div>
+      <div style="font-weight:900;margin-bottom:6px;" data-i18n="kartenMischen"></div>
       <div class="row" style="margin-top:0;">
-        <button id="cardmixer-pairs-${uid}" class="wbtn primary" onclick="cardMixerPairs(${uid})">${T('kartenPaare')}</button>
-        <button id="cardmixer-groups3-${uid}" class="wbtn" onclick="cardMixerGroups3(${uid})">${T('kartenGruppen3')}</button>
-        <button id="cardmixer-repeat-${uid}" class="wbtn" onclick="cardMixerRepeat(${uid})">${T('kartenNeuMischen')}</button>
-        <button id="cardmixer-full-${uid}" class="wbtn primary cardmixer-full-btn" onclick="showCardMixerFullscreen(${uid})">${T('kartenVollbild')}</button>
+        <button id="cardmixer-pairs-${uid}" class="wbtn primary" onclick="cardMixerPairs(${uid})" data-i18n="kartenPaare"></button>
+        <button id="cardmixer-groups3-${uid}" class="wbtn" onclick="cardMixerGroups3(${uid})" data-i18n="kartenGruppen3"></button>
+        <button id="cardmixer-repeat-${uid}" class="wbtn" onclick="cardMixerRepeat(${uid})" data-i18n="kartenNeuMischen"></button>
+        <button id="cardmixer-full-${uid}" class="wbtn primary cardmixer-full-btn" onclick="showCardMixerFullscreen(${uid})" data-i18n="kartenVollbild"></button>
       </div>
-      <div style="font-size:.8em;color:var(--text2);margin-top:7px;line-height:1.45;">${T('kartenOdd')}</div>
+      <div style="font-size:.8em;color:var(--text2);margin-top:7px;line-height:1.45;" data-i18n="kartenOdd"></div>
     </div>
 
     <div class="classroom-box">
-      <div style="font-weight:900;margin-bottom:6px;">${T('kartenErgebnis')}</div>
-      <div id="cardmixer-result-${uid}" class="cardmixer-result" style="margin-top:6px;color:var(--text);">${T('kartenNochNicht')}</div>
+      <div style="font-weight:900;margin-bottom:6px;" data-i18n="kartenErgebnis"></div>
+      <div id="cardmixer-result-${uid}" class="cardmixer-result" style="margin-top:6px;color:var(--text);" data-i18n="kartenNochNicht"></div>
     </div>
 
     <details class="classroom-box">
-      <summary style="cursor:pointer;font-weight:900;">${T('kartenAlle')}</summary>
+      <summary style="cursor:pointer;font-weight:900;" data-i18n="kartenAlle"></summary>
       <div id="cardmixer-all-${uid}" style="margin-top:8px;"></div>
     </details>`;
   cardMixerRender(uid);
@@ -7485,10 +7382,10 @@ setTimeout(liveRoomStart,100);
 // ════════════════════════════════════════════════
 function buildQR(body,uid){
   body.innerHTML=`
-<input class="winput" type="text" id="qrurl-${uid}" value="https://deutschtrautmann.github.io/tafel/" placeholder="${T('qrPlaceholder')}">
-<div class="row"><button class="wbtn primary" style="flex:1" onclick="genQR(${uid})">${T('qrCreate')}</button></div>
+<input class="winput" type="text" id="qrurl-${uid}" value="https://deutschtrautmann.github.io/tafel/" placeholder="" data-i18n-placeholder="qrPlaceholder">
+<div class="row"><button class="wbtn primary" style="flex:1" onclick="genQR(${uid})" data-i18n="qrCreate"></button></div>
 <canvas class="qr-canvas" id="qrcanvas-${uid}" width="180" height="180"></canvas>
-<div style="font-size:.8em;color:var(--text2);text-align:center;margin-top:.3em;">${T('qrHint')}</div>`;
+<div style="font-size:.8em;color:var(--text2);text-align:center;margin-top:.3em;" data-i18n="qrHint"></div>`;
   loadQRious(()=>setTimeout(()=>genQR(uid),60));
 }
 function loadQRious(cb){
@@ -7520,32 +7417,32 @@ function buildTextpad(body,uid){
   </select>
   <select id="tp-sizesel-${uid}"
     style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;"
-    title="${T('ttSchriftgroesseAusw')}"
+    title="" data-i18n-title="ttSchriftgroesseAusw"
     onmousedown="tpSaveSel(${uid})"
     onchange="tpSizeSelectHandler(${uid},this)">
-    <option value="inline:13">${T('textKlein')} (13 px)</option>
-    <option value="inline:16" selected>${T('textNormal')} (16 px)</option>
-    <option value="inline:20">${T('textGross')} (20 px)</option>
-    <option value="inline:26">${T('textSehrGross')} (26 px)</option>
+    <option value="inline:13" data-i18n="textKlein" data-i18n-suffix=" (13 px)"> (13 px)</option>
+    <option value="inline:16" selected data-i18n="textNormal" data-i18n-suffix=" (16 px)"> (16 px)</option>
+    <option value="inline:20" data-i18n="textGross" data-i18n-suffix=" (20 px)"> (20 px)</option>
+    <option value="inline:26" data-i18n="textSehrGross" data-i18n-suffix=" (26 px)"> (26 px)</option>
   </select>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
   <button id="tp-bold-${uid}" onmousedown="tpFormat(event,${uid},'bold')"
     style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;font-weight:900;cursor:pointer;font-family:'Arial',sans-serif;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;"
-    title="${T('ttTpFett')}"><b>F</b></button>
+    title="" data-i18n-title="ttTpFett"><b>F</b></button>
   <button id="tp-italic-${uid}" onmousedown="tpFormat(event,${uid},'italic')"
     style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;cursor:pointer;font-family:'Georgia',serif;font-style:italic;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;"
-    title="${T('ttTpKursiv')}"><i>K</i></button>
+    title="" data-i18n-title="ttTpKursiv"><i>K</i></button>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="${T('ttTpRtf')}" onclick="saveTPasRtf(${uid})">💾 RTF</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="${T('ttTpTxt')}" onclick="saveTPasTxt(${uid})">💾 TXT</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="${T('ttTpLoeschen')}" onclick="document.getElementById('textpad-${uid}').innerHTML='';updateTPCounter(${uid})">🗑</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="" data-i18n-title="ttTpRtf" onclick="saveTPasRtf(${uid})">💾 RTF</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="" data-i18n-title="ttTpTxt" onclick="saveTPasTxt(${uid})">💾 TXT</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="" data-i18n-title="ttTpLoeschen" onclick="document.getElementById('textpad-${uid}').innerHTML='';updateTPCounter(${uid})">🗑</button>
 </div>
 <div style="font-size:11px;color:var(--text2);text-align:right;" id="tp-counter-${uid}">0 Wörter · 0 Zeichen</div>
 <div
   id="textpad-${uid}"
   contenteditable="true"
   spellcheck="true"
-  data-placeholder="${T('textPlaceholder')}"
+  data-placeholder="" data-i18n-placeholder="textPlaceholder"
   style="flex:1;min-height:120px;background:#ffffff;border:1px solid rgba(0,0,0,0.15);color:#111111;border-radius:10px;padding:.7em;font-size:16px;font-family:'Arial',sans-serif;font-weight:normal;line-height:1.6;overflow-y:auto;outline:none;cursor:text;white-space:pre-wrap;"
   oninput="updateTPCounter(${uid})"
   onkeydown="handleTPKeydown(event,${uid})"
@@ -7760,11 +7657,11 @@ function buildJein(body,uid){
   <span style="font-size:2em;color:var(--text2);opacity:.4;">?</span>
 </div>
 <div style="display:flex;gap:.35em;justify-content:center;margin-bottom:.6em;flex-wrap:wrap;">
-  <button class="jein-mode-btn active-jmode" id="jmbtn-text-${uid}" onclick="setJeinMode('text',${uid})" title="Ja/Nein">${T('jeinText')}</button>
-  <button class="jein-mode-btn" id="jmbtn-smiley-${uid}" onclick="setJeinMode('smiley',${uid})" title="Smiley">${T('jeinSmiley')}</button>
-  <button class="jein-mode-btn" id="jmbtn-ampel-${uid}" onclick="setJeinMode('ampel',${uid})" title="Ampel">${T('jeinAmpel')}</button>
-  <button class="jein-mode-btn" id="jmbtn-color-${uid}" onclick="setJeinMode('color',${uid})" title="Farbe">${T('jeinFarbe')}</button>
-  <button class="jein-mode-btn" id="jmbtn-janken-${uid}" onclick="setJeinMode('janken',${uid})" title="${T('ttJanken')}">${T('jeinJanken')}</button>
+  <button class="jein-mode-btn active-jmode" id="jmbtn-text-${uid}" onclick="setJeinMode('text',${uid})" title="Ja/Nein" data-i18n="jeinText"></button>
+  <button class="jein-mode-btn" id="jmbtn-smiley-${uid}" onclick="setJeinMode('smiley',${uid})" title="Smiley" data-i18n="jeinSmiley"></button>
+  <button class="jein-mode-btn" id="jmbtn-ampel-${uid}" onclick="setJeinMode('ampel',${uid})" title="Ampel" data-i18n="jeinAmpel"></button>
+  <button class="jein-mode-btn" id="jmbtn-color-${uid}" onclick="setJeinMode('color',${uid})" title="Farbe" data-i18n="jeinFarbe"></button>
+  <button class="jein-mode-btn" id="jmbtn-janken-${uid}" onclick="setJeinMode('janken',${uid})" title="" data-i18n-title="ttJanken" data-i18n="jeinJanken"></button>
 </div>
 <div id="jein-janken-btns-${uid}" style="display:none;justify-content:center;gap:.4em;margin-bottom:.5em;">
   ${SSP_CHOICES.map(c=>`<button onclick="playJanken('${c.id}',${uid})" style="background:rgba(255,255,255,0.07);border:2px solid rgba(255,255,255,0.15);border-radius:10px;padding:.45em .7em;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;align-items:center;gap:.15em;" onmouseover="this.style.borderColor=getComputedStyle(document.documentElement).getPropertyValue('--accent');this.style.background=_accentRgb(0.15)" onmouseout="this.style.borderColor='rgba(255,255,255,0.15)';this.style.background='rgba(255,255,255,0.07)'">
@@ -7772,7 +7669,7 @@ function buildJein(body,uid){
     <span style="font-size:.65em;font-weight:700;color:var(--text2);">${c.label}</span>
   </button>`).join('')}
 </div>
-<button class="wbtn primary" id="jein-roll-btn-${uid}" style="width:100%;font-size:1.1em;padding:.5em;" onclick="rollJein(${uid})">${T('jeinRoll')}</button>`;
+<button class="wbtn primary" id="jein-roll-btn-${uid}" style="width:100%;font-size:1.1em;padding:.5em;" onclick="rollJein(${uid})" data-i18n="jeinRoll"></button>`;
 }
 
 // Smiley-Modus: nur die Gesichter aus „Befinden"
@@ -7955,31 +7852,31 @@ function buildWas(body,uid){
   body.innerHTML=`
 <!-- Mode tabs -->
 <div style="display:flex;gap:3px;margin-bottom:.5em;background:rgba(0,0,0,0.25);border-radius:8px;padding:3px;">
-  <button id="wastab-diashow-${uid}" class="timer-mode-btn active-tmode" onclick="wasDiashowToggle(${uid})">${T('wasDiashow')}</button>
-  <button id="wastab-mosaic-${uid}" class="timer-mode-btn" onclick="setWasMode('mosaic',${uid})">${T('wasMosaik')}</button>
-  <button id="wastab-blur-${uid}" class="timer-mode-btn" onclick="setWasMode('blur',${uid})">${T('wasVerschwommen')}</button>
-  <button id="wastab-kaese-${uid}" class="timer-mode-btn" onclick="setWasMode('kaese',${uid})">${T('wasKaese')}</button>
+  <button id="wastab-diashow-${uid}" class="timer-mode-btn active-tmode" onclick="wasDiashowToggle(${uid})" data-i18n="wasDiashow"></button>
+  <button id="wastab-mosaic-${uid}" class="timer-mode-btn" data-i18n="wasMosaik" onclick="setWasMode('mosaic',${uid})" data-i18n="wasMosaik"></button>
+  <button id="wastab-blur-${uid}" class="timer-mode-btn" data-i18n="wasVerschwommen" onclick="setWasMode('blur',${uid})" data-i18n="wasVerschwommen"></button>
+  <button id="wastab-kaese-${uid}" class="timer-mode-btn" data-i18n="wasKaese" onclick="setWasMode('kaese',${uid})" data-i18n="wasKaese"></button>
 </div>
 <div id="was-upload-${uid}" style="text-align:center;">
   <div class="bg-upload-zone" onclick="document.getElementById('was-file-${uid}').click()" style="padding:20px 10px;">
     <input type="file" id="was-file-${uid}" accept="image/*" multiple style="display:none" onchange="loadWasImages(${uid},this.files)">
     <div style="font-size:32px;margin-bottom:6px;">🖼</div>
-    <div style="font-weight:700;font-size:.9em;">${T('wasUploadHint')}</div>
-    <div style="font-size:11px;margin-top:3px;color:var(--text2);">${T('wasUploadSub')}</div>
+    <div style="font-weight:700;font-size:.9em;" data-i18n="wasUploadHint"></div>
+    <div style="font-size:11px;margin-top:3px;color:var(--text2);" data-i18n="wasUploadSub"></div>
   </div>
 </div>
 <div id="was-canvas-wrap-${uid}" style="display:none;flex:1;flex-direction:column;gap:6px;">
   <!-- Photo nav bar (visible only when >1 photo) -->
   <div id="was-nav-${uid}" style="display:none;align-items:center;gap:6px;background:rgba(0,0,0,0.25);border-radius:8px;padding:4px 8px;">
     <button class="wbtn" onclick="wasGoPrev(${uid})" id="was-prev-${uid}" style="padding:.3em .7em;font-size:.85em;">◀</button>
-    <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;">${T('wasFoto')} 1 / 1</div>
-    <button class="wbtn primary" onclick="wasGoNext(${uid})" id="was-next-${uid}" style="padding:.3em .9em;font-size:.85em;">${T('wasWeiter')}</button>
+    <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;" data-i18n="wasFoto" data-i18n-suffix=" 1 / 1">1 / 1</div>
+    <button class="wbtn primary" onclick="wasGoNext(${uid})" id="was-next-${uid}" style="padding:.3em .9em;font-size:.85em;" data-i18n="wasWeiter"></button>
   </div>
-  <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasRevealMore(${uid})" title="${T('ttKlickenEnthuellen')}"></canvas>
+  <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasRevealMore(${uid})" data-i18n-title="ttKlickenEnthuellen" title="" data-i18n-title="ttKlickenEnthuellen"></canvas>
   <div style="display:flex;gap:.4em;align-items:center;">
-    <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;">${T('wasSchritt')} 1 / 8</div>
+    <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;" data-i18n="wasSchritt" data-i18n-suffix=" 1 / 8">1 / 8</div>
     <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="display:none;">🔀 Zufall an</button>
-    <button class="wbtn" onclick="wasRevealMore(${uid})" id="was-btn-${uid}">${T('wasFeiner')}</button>
+    <button class="wbtn" onclick="wasRevealMore(${uid})" id="was-btn-${uid}" data-i18n="wasFeiner"></button>
     <button class="wbtn" onclick="wasReset(${uid})">↺</button>
   </div>
 </div>`;
@@ -8650,7 +8547,7 @@ function playJanken(playerChoice, uid){
       <div style="display:flex;gap:.8em;align-items:center;font-size:3.4em;line-height:1;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:.15em;">
           <span style="font-size:1em;">${player.icon}</span>
-          <span style="font-size:.28em;color:var(--accent);font-weight:700;">${T('jeinDu')}</span>
+          <span style="font-size:.28em;color:var(--accent);font-weight:700;" data-i18n="jeinDu"></span>
         <div style="display:flex;flex-direction:column;align-items:center;gap:.15em;">
           <span style="font-size:1em;animation:jk-spin 0.16s steps(1) infinite" id="jk-q-${uid}">　</span>
           <span style="font-size:.28em;color:var(--text2);font-weight:700;">PC</span>
@@ -8705,8 +8602,8 @@ function playJanken(playerChoice, uid){
     disp.innerHTML=`<div style="display:flex;flex-direction:column;align-items:center;gap:.55em;">
       <div style="display:flex;gap:.9em;align-items:center;font-size:5em;line-height:1;animation:jk-reveal .4s cubic-bezier(.34,1.56,.64,1) both;">
         <div style="display:flex;flex-direction:column;align-items:center;gap:.15em;">
-          <span title="${T('jeinDu')}">${player.icon}</span>
-          <span style="font-size:.28em;color:var(--accent);font-weight:700;">${T('jeinDu')}</span>
+          <span title="" data-i18n-title="jeinDu">${player.icon}</span>
+          <span style="font-size:.28em;color:var(--accent);font-weight:700;" data-i18n="jeinDu"></span>
         </div>
         <span style="font-size:.32em;color:var(--text2);">vs</span>
         <div style="display:flex;flex-direction:column;align-items:center;gap:.15em;">
@@ -8769,9 +8666,7 @@ function buildSlot(body, uid){
 
   <div class="slot-scorebar">
     <div class="slot-scorebar-title">
-      <span class="slot-score-star" id="slot-star-l-${uid}">&#9733;</span>
-      ${T('slotSpielpunkt')}
-    </div>
+      <span class="slot-score-star" id="slot-star-l-${uid}">&#9733;</span data-i18n="slotSpielpunkt"></div>
     <div class="slot-score-val" id="slot-pts-${uid}">0 PKT</div>
     <span class="slot-score-star" id="slot-star-r-${uid}">&#9733;</span>
   </div>
@@ -8800,23 +8695,23 @@ function buildSlot(body, uid){
   <div class="slot-btn-row" id="slot-btn-row-${uid}">
     <button class="slot-btn-stop-main idle" id="slot-btn-stop-${uid}" onclick="slotBigBtn(${uid})">
       <span id="slot-btn-label-${uid}">START</span>
-      <span class="slot-btn-stop-sub" id="slot-btn-sub-${uid}">${T('slotTippen')}</span>
+      <span class="slot-btn-stop-sub" id="slot-btn-sub-${uid}" data-i18n="slotTippen"></span>
     </button>
   </div>
 
 </div>
 
 <div id="slot-edit-${uid}" class="slot-edit-panel">
-  <div class="slot-edit-hint">${T('slotEditHint')}</div>
+  <div class="slot-edit-hint" data-i18n="slotEditHint"></div>
   <textarea
     class="slot-edit-textarea"
     id="slot-textarea-${uid}"
     spellcheck="false"
     placeholder="Ich        komme      aus&#10;Wo         wohnst     du?&#10;Mein       Name       ist"></textarea>
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-    <button class="wbtn primary" style="font-size:.92em;padding:.45em 1.2em;" onclick="slotApplyTextarea(${uid})">${T('slotUebernehmen')}</button>
-    <label title="${T('ttTxtDateiLaden')}" style="cursor:pointer;display:contents;">
-      <span class="wbtn" style="font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;">${T('spieleTxtLaden')}</span>
+    <button class="wbtn primary" style="font-size:.92em;padding:.45em 1.2em;" onclick="slotApplyTextarea(${uid})" data-i18n="slotUebernehmen"></button>
+    <label title="" data-i18n-title="ttTxtDateiLaden" style="cursor:pointer;display:contents;">
+      <span class="wbtn" style="font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;" data-i18n="spieleTxtLaden"></span>
       <input type="file" accept=".txt,text/plain" style="display:none" onchange="slotLoadTxtToTextarea(${uid},this)">
     </label>
   </div>
@@ -9300,7 +9195,7 @@ function buildAmpelPanel(panel, uid){
   panel.style.position = 'relative';
 
   panel.innerHTML = `
-<div id="ampel-scene-${auid}" style="width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#0d1235 0%,#1a2060 40%,#252d7a 75%,#1e2650 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ampelPanelClick(${auid})" title="${T('ttKlickenNeustart')}">
+<div id="ampel-scene-${auid}" style="width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#0d1235 0%,#1a2060 40%,#252d7a 75%,#1e2650 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ampelPanelClick(${auid})" title="" data-i18n-title="ttKlickenNeustart">
 
   <!-- Sterne -->
   <svg style="position:absolute;inset:0;width:100%;height:72%;pointer-events:none;" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
@@ -9572,7 +9467,7 @@ function buildAmpelPanel(panel, uid){
     onmouseup="this.style.transform='translateX(-50%) scale(1.07)'"
   >
     <span id="ampel-playbtn-icon-${auid}" style="font-size:1.2em;line-height:1;">&#9654;</span>
-    <span id="ampel-playbtn-label-${auid}">${T('ampelStart')}</span>
+    <span id="ampel-playbtn-label-${auid}" data-i18n="ampelStart"></span>
   </button>
 </div>`;
   // Ampel cycle is started by spieleShowTab when the ampel tab is first selected
@@ -10045,7 +9940,7 @@ function buildPuzzlePanel(panel, uid){
   // File button — compact, not full width
   const fileLabel = document.createElement('label');
   fileLabel.className = 'pz-file-label';
-  fileLabel.textContent = T('pzDateiLaden');
+  fileLabel.dataset.i18n='pzDateiLaden'; fileLabel.textContent=T('pzDateiLaden');
   fileLabel.htmlFor = `pz-file-${uid}`;
   fileLabel.style.marginBottom = '0';
   btnRow.appendChild(fileLabel);
@@ -10070,7 +9965,7 @@ function buildPuzzlePanel(panel, uid){
   const eintraegeBtn = document.createElement('button');
   eintraegeBtn.className = 'pz-file-label';
   eintraegeBtn.style.cssText += ';margin-bottom:0;cursor:pointer;border:none;';
-  eintraegeBtn.textContent = T('spieleEintraege');
+  eintraegeBtn.dataset.i18n='spieleEintraege'; eintraegeBtn.textContent=T('spieleEintraege');
   eintraegeBtn.onclick = () => pzShowEintraegeModal(uid);
   btnRow.appendChild(eintraegeBtn);
 
@@ -10557,7 +10452,7 @@ function buildZuordnenPanel(panel, uid){
   const fileLabel = document.createElement('label');
   fileLabel.className = 'pz-file-label';
   fileLabel.style.marginBottom = '0';
-  fileLabel.textContent = T('zuordnenDatei');
+  fileLabel.dataset.i18n='zuordnenDatei'; fileLabel.textContent=T('zuordnenDatei');
   fileLabel.htmlFor = `zu-file-${uid}`;
   const fileInput = document.createElement('input');
   fileInput.type = 'file'; fileInput.accept = '.txt'; fileInput.id = `zu-file-${uid}`;
@@ -10580,7 +10475,7 @@ function buildZuordnenPanel(panel, uid){
   const eintraegeBtn = document.createElement('button');
   eintraegeBtn.className = 'pz-file-label';
   eintraegeBtn.style.cssText += ';margin-bottom:0;cursor:pointer;border:none;';
-  eintraegeBtn.textContent = T('spieleEintraege');
+  eintraegeBtn.dataset.i18n='spieleEintraege'; eintraegeBtn.textContent=T('spieleEintraege');
   eintraegeBtn.onclick = () => zuShowEintraegeModal(uid);
   btnRow.appendChild(eintraegeBtn);
 
@@ -10723,12 +10618,6 @@ function zuBuildGame(uid){
   if(!gameWrap) return;
   gameWrap.innerHTML = '';
   st.activeGroup = null;
-
-  // Instruction
-  const instr = document.createElement('div');
-  instr.style.cssText = 'font-size:.82em;font-weight:700;color:var(--text2);padding:0 2px 2px;flex-shrink:0;';
-  instr.textContent = T('zuordnenInstr');
-  gameWrap.appendChild(instr);
 
   // ── Title chips row ──
   const titlesRow = document.createElement('div');
@@ -11015,23 +10904,23 @@ function buildWheel(body, uid){
 <div class="wheel-tabbar">
   <button class="timer-mode-btn active-tmode" id="wheel-tab-play-${uid}" onclick="wheelShowTab('play',${uid})">&#9654; ${T('slotSpielen').replace('▶ ','')}</button>
   <button class="timer-mode-btn" id="wheel-tab-edit-${uid}" onclick="wheelShowTab('edit',${uid})">&#9999; ${T('spieleEintraege').replace('✏️ ','')}</button>
-  <button class="wbtn wheel-fragen-btn" id="wheel-zufall-btn-${uid}" onclick="toggleWheelZufall(${uid})" title="Zufall an/aus" style="font-size:.82em;padding:.3em .75em;white-space:nowrap;margin-left:auto;">${T('diceZufallAn')}</button>
+  <button class="wbtn wheel-fragen-btn" id="wheel-zufall-btn-${uid}" onclick="toggleWheelZufall(${uid})" title="Zufall an/aus" style="font-size:.82em;padding:.3em .75em;white-space:nowrap;margin-left:auto;" data-i18n="diceZufallAn"></button>
 </div>
 
 <div id="wheel-play-${uid}" class="wheel-box">
   <div class="wheel-stage">
     <div class="wheel-pointer" id="wheel-pointer-${uid}" onclick="stopQuestionWheel(${uid})" title="Stoppen"><svg viewBox="0 0 28 36" width="40" height="52" xmlns="http://www.w3.org/2000/svg"><polygon points="14,36 0,0 28,0" fill="#ffffff" filter="url(#ps)"/><defs><filter id="ps" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="rgba(0,0,0,0.55)"/></filter></defs></svg></div>
-    <canvas id="wheel-canvas-${uid}" class="wheel-canvas" onclick="spinQuestionWheel(${uid})" style="cursor:pointer;" title="${T('ttKlickenDrehen')}"></canvas>
+    <canvas id="wheel-canvas-${uid}" class="wheel-canvas" onclick="spinQuestionWheel(${uid})" style="cursor:pointer;" data-i18n-title="ttKlickenDrehen" title="" data-i18n-title="ttKlickenDrehen"></canvas>
   </div>
 </div>
 
 <div id="wheel-edit-panel-${uid}" class="wheel-edit-panel">
-  <div style="font-size:clamp(11px,1.5vw,13px);color:var(--text2);line-height:1.5;">${T('wheelEditHint')}</div>
+  <div style="font-size:clamp(11px,1.5vw,13px);color:var(--text2);line-height:1.5;" data-i18n="wheelEditHint"></div>
   <textarea id="wheel-text-${uid}" class="slot-edit-textarea" spellcheck="false">${WHEEL_QUESTIONS_DEFAULT.join('\n')}</textarea>
   <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-    <button class="wbtn primary" style="font-size:.92em;padding:.45em 1.2em;" onclick="saveWheelQuestions(${uid})">&#10004; ${T('wheelUebernehmen')}</button>
-    <label title="${T('ttTxtDateiLadenKurz')}" style="cursor:pointer;display:contents;">
-      <span class="wbtn" style="font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;">${T('wheelTxtLaden')}</span>
+    <button class="wbtn primary" style="font-size:.92em;padding:.45em 1.2em;" onclick="saveWheelQuestions(${uid})" data-i18n="wheelUebernehmen" data-i18n-prefix="&#10004; ">&#10004; </button>
+    <label title="" data-i18n-title="ttTxtDateiLadenKurz" style="cursor:pointer;display:contents;">
+      <span class="wbtn" style="font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;" data-i18n="wheelTxtLaden"></span>
       <input type="file" accept=".txt,text/plain" style="display:none" onchange="wheelLoadTxt(${uid},this)">
     </label>
   </div>
