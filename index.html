@@ -2646,9 +2646,7 @@ function _trWheel(uid){
   const res=document.getElementById('wheel-result-'+uid);
   if(res&&/Noch nicht gedreht|まだ回していません/.test(res.textContent)) res.textContent=T('wheelNochNicht');
   // Tab buttons — use data-i18n where possible, update text node only
-  const tabPlay=document.getElementById('wheel-tab-play-'+uid);
   const tabEdit=document.getElementById('wheel-tab-edit-'+uid);
-  if(tabPlay) tabPlay.textContent='▶︎ '+T('slotSpielen').replace('▶ ','').replace('▶︎ ','');
   if(tabEdit) tabEdit.textContent='✏︎ '+T('spieleEintraege').replace('✏️ ','').replace('✏ ','');
   // Zufall button
   const zBtn=document.getElementById('wheel-zufall-btn-'+uid);
@@ -2673,10 +2671,8 @@ function _trSlotInner(uid){
     ? (slotBody.closest('.widget-body') || slotBody.closest('[id^="spiele-panel-"]'))
     : null;
   if(slotRoot) applyI18n(slotRoot);
-  const tabPlay=document.getElementById('slot-tab-play-'+uid);
   const tabEdit=document.getElementById('slot-tab-edit-'+uid);
-  if(tabPlay) tabPlay.innerHTML='&#9654; '+T('slotSpielen').replace('▶ ','');
-  if(tabEdit) tabEdit.innerHTML='&#9999; '+T('slotWoerter').replace('✏ ','');
+  if(tabEdit) tabEdit.innerHTML='&#9999; '+T('spieleEintraege').replace('✏️ ','').replace('✏ ','');
   // Anleitung und Übernehmen
   const editHint=document.querySelector('#slot-edit-'+uid+' .slot-edit-hint');
   if(editHint) editHint.innerHTML=T('slotEditHint');
@@ -6086,29 +6082,101 @@ function parseSatzbauText(text){
 }
 
 function showSatzbauSetup(uid){
-  const wrap = document.getElementById('dicewrap-'+uid);
-  if(!wrap) return;
-  wrap.innerHTML = `
-<div id="satzbau-setup-${uid}" style="display:flex;flex-direction:column;gap:.5em;align-items:stretch;justify-content:flex-start;width:100%;height:100%;padding:.5em;box-sizing:border-box;">
-  <div style="display:flex;gap:.4em;align-items:center;flex-wrap:wrap;">
-    <label class="satzbau-upload-btn" id="satzbau-lbl-${uid}" style="flex-shrink:0;" data-i18n="satzbauTxtLaden"><input type="file" accept=".txt,text/plain" style="display:none;" id="satzbau-file-${uid}"></label>
-    <button id="satzbau-ok-${uid}" class="satzbau-upload-btn" style="flex-shrink:0;background:var(--accent);color:#fff;border-color:var(--accent);" data-i18n="satzbauFertig"></button>
-  </div>
-  <textarea class="satzbau-textarea" id="satzbau-ta-${uid}" placeholder="2–4 Wortgruppen möglich.&#10;Jede Gruppe mit Nummer einleiten:&#10;&#10;1&#10;ich&#10;du&#10;Sie&#10;&#10;2&#10;kommen&#10;gehen&#10;&#10;3&#10;nach Hause&#10;in die Schule&#10;&#10;→ Beim Würfeln erscheint aus jeder&#10;   Gruppe ein zufälliges Wort." style="flex:1;min-height:60px;"></textarea>
+  // Open modal dialog instead of inline setup
+  satzbauShowEintraegeModal(uid);
+}
 
-</div>`;
-  // Block events from bubbling up to dicewrap — use bubble phase so child handlers still fire first
-  const _setup = document.getElementById('satzbau-setup-'+uid);
-  if(_setup){
-    ['click','mousedown','mouseup','touchstart','touchend','keydown','keyup','input','focus','focusin']
-      .forEach(ev => _setup.addEventListener(ev, e=>e.stopPropagation()));
-  }
-  const _ta = document.getElementById('satzbau-ta-'+uid);
-  if(_ta && satzbauWords[uid]?._draftText) _ta.value = satzbauWords[uid]._draftText;
-  const _file = document.getElementById('satzbau-file-'+uid);
-  if(_file) _file.addEventListener('change', e=>satzbauLoadFile(e, uid));
-  const _ok = document.getElementById('satzbau-ok-'+uid);
-  if(_ok) _ok.addEventListener('click', e=>{ e.stopPropagation(); satzbauCommit(uid); });
+function satzbauShowEintraegeModal(uid){
+  const existing = document.getElementById('satzbau-eintraege-modal-'+uid);
+  if(existing){ existing.remove(); return; }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'satzbau-eintraege-modal-'+uid;
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:50000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);';
+  overlay.addEventListener('mousedown', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  const box = document.createElement('div');
+  box.style.cssText = 'background:var(--card);border-radius:16px;padding:20px 22px 18px;box-shadow:0 12px 48px rgba(0,0,0,0.55);min-width:320px;max-width:520px;width:90vw;display:flex;flex-direction:column;gap:12px;';
+
+  // Header
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
+  const titleEl = document.createElement('div');
+  titleEl.style.cssText = 'font-weight:700;font-size:1.05em;color:var(--text);';
+  titleEl.textContent = T('spieleEintraege');
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'wh-btn';
+  closeBtn.style.cssText = 'font-size:1.15em;padding:2px 8px;border-radius:7px;cursor:pointer;background:none;border:none;color:var(--text2);';
+  closeBtn.textContent = '✕';
+  closeBtn.onclick = ()=>overlay.remove();
+  hdr.appendChild(titleEl); hdr.appendChild(closeBtn);
+  box.appendChild(hdr);
+
+  // Hint
+  const hintEl = document.createElement('div');
+  hintEl.style.cssText = 'font-size:.82em;color:var(--text2);line-height:1.5;white-space:pre-line;';
+  hintEl.textContent = '2–4 Wortgruppen möglich.\nJede Gruppe mit Nummer einleiten:\n\n1\nich / du / Sie\n\n2\nkommen / gehen\n\n3\nnach Hause / in die Schule';
+  box.appendChild(hintEl);
+
+  // Textarea
+  const ta = document.createElement('textarea');
+  ta.className = 'slot-edit-textarea';
+  ta.spellcheck = false;
+  ta.style.cssText += ';min-height:160px;';
+  ta.placeholder = '1\nich\ndu\nSie\n\n2\nkommen\ngehen\n\n3\nnach Hause\nin die Schule';
+  if(satzbauWords[uid]?._draftText) ta.value = satzbauWords[uid]._draftText;
+  box.appendChild(ta);
+
+  // Button row
+  const btnRow2 = document.createElement('div');
+  btnRow2.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+
+  const applyBtn = document.createElement('button');
+  applyBtn.className = 'wbtn primary';
+  applyBtn.style.cssText = 'font-size:.92em;padding:.45em 1.2em;';
+  applyBtn.textContent = T('slotUebernehmen');
+  applyBtn.onclick = ()=>{
+    const text = ta.value;
+    if(!satzbauWords[uid]) satzbauWords[uid]={};
+    satzbauWords[uid]._draftText = text;
+    const parsed = parseSatzbauText(text);
+    parsed._draftText = text;
+    parsed._bags = {};
+    satzbauWords[uid] = parsed;
+    overlay.remove();
+    showSatzbauIdle(uid);
+  };
+  btnRow2.appendChild(applyBtn);
+
+  // TXT laden
+  const fileLabelM = document.createElement('label');
+  fileLabelM.style.cssText = 'cursor:pointer;display:contents;';
+  const fileSpan = document.createElement('span');
+  fileSpan.className = 'wbtn';
+  fileSpan.style.cssText = 'font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;';
+  fileSpan.textContent = T('spieleTxtLaden');
+  const fileInputM = document.createElement('input');
+  fileInputM.type = 'file'; fileInputM.accept = '.txt,text/plain';
+  fileInputM.style.display = 'none';
+  fileInputM.addEventListener('change', function(){
+    const file = fileInputM.files?.[0]; if(!file) return;
+    const apply = text => { ta.value = (text||'').replace(/\r\n/g,'\n'); fileInputM.value=''; };
+    const r1 = new FileReader();
+    r1.onload = e => {
+      const t = e.target.result||'';
+      if(t.includes('\uFFFD')){ const r2=new FileReader(); r2.onload=e2=>apply(e2.target.result||''); r2.readAsText(file,'windows-1252'); }
+      else apply(t);
+    };
+    r1.readAsText(file,'UTF-8');
+  });
+  fileLabelM.appendChild(fileSpan);
+  fileLabelM.appendChild(fileInputM);
+  btnRow2.appendChild(fileLabelM);
+
+  box.appendChild(btnRow2);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  setTimeout(()=>ta.focus(),80);
 }
 
 function showSatzbauIdle(uid){
@@ -6117,9 +6185,15 @@ function showSatzbauIdle(uid){
   const data = satzbauWords[uid] || {1:[],2:[],3:[],4:[]};
   const hasCols = [1,2,3,4].some(i=>data[i]&&data[i].length>0);
   if(!hasCols){
-    showSatzbauSetup(uid);
+    // Show placeholder with Einträge button
+    wrap.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;gap:.7em;">
+  <span style="font-size:2.5em;opacity:.3;">📝</span>
+  <button class="satzbau-upload-btn" id="satzbau-eintraege-${uid}" style="background:rgba(var(--accent-rgb),0.15);border-color:var(--accent);color:var(--text);">${T('spieleEintraege')}</button>
+</div>`;
+    const _btn = document.getElementById('satzbau-eintraege-'+uid);
+    if(_btn) _btn.addEventListener('click', e=>{ e.stopPropagation(); satzbauShowEintraegeModal(uid); });
   } else {
-    // Show idle columns with small edit button
+    // Show idle columns with Einträge button
     const colsHtml = [1,2,3,4].filter(i=>data[i]&&data[i].length>0).map(i=>{
       return `<div class="satzbau-col" id="satzbau-field-${uid}-${i}">?</div>`;
     }).join('');
@@ -6127,18 +6201,18 @@ function showSatzbauIdle(uid){
 <div style="display:flex;flex-direction:column;width:100%;height:100%;gap:.3em;">
   <div class="satzbau-cols" id="satzbau-cols-${uid}" style="flex:1;">${colsHtml}</div>
   <div style="display:flex;justify-content:center;">
-    <button id="satzbau-edit-${uid}" class="satzbau-upload-btn" style="font-size:.7em;padding:.25em .7em;">&#9998; Bearbeiten</button>
+    <button id="satzbau-edit-${uid}" class="satzbau-upload-btn" style="font-size:.7em;padding:.25em .7em;">&#9998; ${T('spieleEintraege').replace('✏️ ','').replace('✏ ','')}</button>
   </div>
 </div>`;
     const _edit = document.getElementById('satzbau-edit-'+uid);
-    if(_edit) _edit.addEventListener('click', e=>{ e.stopPropagation(); showSatzbauSetup(uid); });
+    if(_edit) _edit.addEventListener('click', e=>{ e.stopPropagation(); satzbauShowEintraegeModal(uid); });
   }
 }
 
 function satzbauCommit(uid){
-  // Read textarea and activate
+  // Now handled by satzbauShowEintraegeModal apply button
   const ta = document.getElementById('satzbau-ta-'+uid);
-  const text = ta ? ta.value : '';
+  const text = ta ? ta.value : (satzbauWords[uid]?._draftText || '');
   if(!satzbauWords[uid]) satzbauWords[uid]={};
   satzbauWords[uid]._draftText = text;
   const parsed = parseSatzbauText(text);
@@ -8658,8 +8732,7 @@ function buildSlot(body, uid){
 
   body.innerHTML = `
 <div class="slot-tabbar">
-  <button class="timer-mode-btn active-tmode" id="slot-tab-play-${uid}" onclick="slotShowTab('play',${uid})">&#9654; ${T('slotSpielen').replace('▶ ','')}</button>
-  <button class="timer-mode-btn" id="slot-tab-edit-${uid}" onclick="slotShowTab('edit',${uid})">&#9999; ${T('slotWoerter').replace('✏ ','')}</button>
+  <button class="timer-mode-btn active-tmode" id="slot-tab-edit-${uid}" onclick="slotShowEintraegeModal(${uid})">&#9999; ${T('spieleEintraege').replace('✏️ ','').replace('✏ ','')}</button>
 </div>
 
 <div id="slot-play-${uid}" class="slot-machine">
@@ -8804,10 +8877,12 @@ function slotSizeReels(uid){
 function slotShowTab(tab, uid){
   const play = document.getElementById('slot-play-'+uid);
   const edit = document.getElementById('slot-edit-'+uid);
-  if(tab==='play'){ play.style.display='flex'; } else { play.style.display='none'; }
-  edit.classList.toggle('open', tab==='edit');
-  document.getElementById('slot-tab-play-'+uid).classList.toggle('active-tmode', tab==='play');
-  document.getElementById('slot-tab-edit-'+uid).classList.toggle('active-tmode', tab==='edit');
+  if(play){ if(tab==='play'){ play.style.display='flex'; } else { play.style.display='none'; } }
+  if(edit) edit.classList.toggle('open', tab==='edit');
+  const tabPlay = document.getElementById('slot-tab-play-'+uid);
+  const tabEdit = document.getElementById('slot-tab-edit-'+uid);
+  if(tabPlay) tabPlay.classList.toggle('active-tmode', tab==='play');
+  if(tabEdit) tabEdit.classList.toggle('active-tmode', tab==='edit');
   if(tab==='edit'){ slotFillTextarea(uid); }
   if(tab==='play') requestAnimationFrame(()=>slotSizeReels(uid));
 }
@@ -9932,34 +10007,10 @@ function buildPuzzlePanel(panel, uid){
   scrollArea.style.cssText = 'flex:1 1 0;min-height:0;height:0;overflow-y:auto;overflow-x:hidden;padding:10px 10px 10px;display:flex;flex-direction:column;gap:6px;';
   panel.appendChild(scrollArea);
 
-  // Button row: file button + Einträge button
+  // Button row: Einträge button only
   const btnRow = document.createElement('div');
   btnRow.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;';
   scrollArea.appendChild(btnRow);
-
-  // File button — compact, not full width
-  const fileLabel = document.createElement('label');
-  fileLabel.className = 'pz-file-label';
-  fileLabel.dataset.i18n='pzDateiLaden'; fileLabel.textContent=T('pzDateiLaden');
-  fileLabel.htmlFor = `pz-file-${uid}`;
-  fileLabel.style.marginBottom = '0';
-  btnRow.appendChild(fileLabel);
-
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file'; fileInput.accept = '.txt'; fileInput.id = `pz-file-${uid}`;
-  fileInput.style.display = 'none';
-  fileInput.addEventListener('change', function(e){
-    const file = e.target.files[0]; if(!file) return;
-    const apply = text => { pzState[uid].lastData = text; pzProcessData(uid, text); };
-    const r1 = new FileReader();
-    r1.onload = ev => {
-      const text = ev.target.result || '';
-      if(text.includes('\uFFFD')){ const r2=new FileReader(); r2.onload=e2=>apply(e2.target.result||''); r2.readAsText(file,'windows-1252'); }
-      else apply(text);
-    };
-    r1.readAsText(file, 'UTF-8');
-  });
-  btnRow.appendChild(fileInput);
 
   // Einträge button — opens manual text entry modal (same style as Rad)
   const eintraegeBtn = document.createElement('button');
@@ -10443,33 +10494,10 @@ function buildZuordnenPanel(panel, uid){
   scrollArea.style.cssText = 'flex:1 1 0;min-height:0;overflow:hidden;padding:8px 10px;display:flex;flex-direction:column;gap:6px;';
   panel.appendChild(scrollArea);
 
-  // Button row: TXT laden + Einträge
+  // Button row: Einträge only
   const btnRow = document.createElement('div');
   btnRow.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0;';
   scrollArea.appendChild(btnRow);
-
-  // TXT laden
-  const fileLabel = document.createElement('label');
-  fileLabel.className = 'pz-file-label';
-  fileLabel.style.marginBottom = '0';
-  fileLabel.dataset.i18n='zuordnenDatei'; fileLabel.textContent=T('zuordnenDatei');
-  fileLabel.htmlFor = `zu-file-${uid}`;
-  const fileInput = document.createElement('input');
-  fileInput.type = 'file'; fileInput.accept = '.txt'; fileInput.id = `zu-file-${uid}`;
-  fileInput.style.display = 'none';
-  fileInput.addEventListener('change', function(){
-    const file = fileInput.files?.[0]; if(!file) return;
-    const apply = text => { zuState[uid].rawText = text; fileInput.value=''; zuStartGame(uid, text); };
-    const r1 = new FileReader();
-    r1.onload = e => {
-      const t = e.target.result||'';
-      if(t.includes('\uFFFD')){ const r2=new FileReader(); r2.onload=e2=>apply(e2.target.result||''); r2.readAsText(file,'windows-1252'); }
-      else apply(t);
-    };
-    r1.readAsText(file,'UTF-8');
-  });
-  fileLabel.appendChild(fileInput);
-  btnRow.appendChild(fileLabel);
 
   // Einträge button
   const eintraegeBtn = document.createElement('button');
@@ -10902,8 +10930,7 @@ const wheelStates = {};
 function buildWheel(body, uid){
   body.innerHTML = `
 <div class="wheel-tabbar">
-  <button class="timer-mode-btn active-tmode" id="wheel-tab-play-${uid}" onclick="wheelShowTab('play',${uid})">&#9654; ${T('slotSpielen').replace('▶ ','')}</button>
-  <button class="timer-mode-btn" id="wheel-tab-edit-${uid}" onclick="wheelShowTab('edit',${uid})">&#9999; ${T('spieleEintraege').replace('✏️ ','')}</button>
+  <button class="timer-mode-btn active-tmode" id="wheel-tab-edit-${uid}" onclick="wheelShowEintraegeModal(${uid})">&#9999; ${T('spieleEintraege').replace('✏️ ','').replace('✏ ','')}</button>
   <button class="wbtn wheel-fragen-btn" id="wheel-zufall-btn-${uid}" onclick="toggleWheelZufall(${uid})" title="Zufall an/aus" style="font-size:.82em;padding:.3em .75em;white-space:nowrap;margin-left:auto;" data-i18n="diceZufallAn"></button>
 </div>
 
@@ -10911,18 +10938,6 @@ function buildWheel(body, uid){
   <div class="wheel-stage">
     <div class="wheel-pointer" id="wheel-pointer-${uid}" onclick="stopQuestionWheel(${uid})" title="Stoppen"><svg viewBox="0 0 28 36" width="40" height="52" xmlns="http://www.w3.org/2000/svg"><polygon points="14,36 0,0 28,0" fill="#ffffff" filter="url(#ps)"/><defs><filter id="ps" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="rgba(0,0,0,0.55)"/></filter></defs></svg></div>
     <canvas id="wheel-canvas-${uid}" class="wheel-canvas" onclick="spinQuestionWheel(${uid})" style="cursor:pointer;" data-i18n-title="ttKlickenDrehen" title="" data-i18n-title="ttKlickenDrehen"></canvas>
-  </div>
-</div>
-
-<div id="wheel-edit-panel-${uid}" class="wheel-edit-panel">
-  <div style="font-size:clamp(11px,1.5vw,13px);color:var(--text2);line-height:1.5;" data-i18n="wheelEditHint"></div>
-  <textarea id="wheel-text-${uid}" class="slot-edit-textarea" spellcheck="false">${WHEEL_QUESTIONS_DEFAULT.join('\n')}</textarea>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-    <button class="wbtn primary" style="font-size:.92em;padding:.45em 1.2em;" onclick="saveWheelQuestions(${uid})" data-i18n="wheelUebernehmen" data-i18n-prefix="&#10004; ">&#10004; </button>
-    <label title="" data-i18n-title="ttTxtDateiLadenKurz" style="cursor:pointer;display:contents;">
-      <span class="wbtn" style="font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;" data-i18n="wheelTxtLaden"></span>
-      <input type="file" accept=".txt,text/plain" style="display:none" onchange="wheelLoadTxt(${uid},this)">
-    </label>
   </div>
 </div>`;
 
@@ -10970,6 +10985,196 @@ function wheelShowTab(tab, uid){
   const tabEdit = document.getElementById('wheel-tab-edit-'+uid);
   if(tabPlay) tabPlay.classList.toggle('active-tmode', tab==='play');
   if(tabEdit) tabEdit.classList.toggle('active-tmode', tab==='edit');
+}
+
+/* ── Einträge modal for Wheel (Rad) ── */
+function wheelShowEintraegeModal(uid){
+  const existing = document.getElementById('wheel-eintraege-modal-'+uid);
+  if(existing){ existing.remove(); return; }
+
+  const st = wheelStates[uid];
+
+  const overlay = document.createElement('div');
+  overlay.id = 'wheel-eintraege-modal-'+uid;
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:50000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);';
+  overlay.addEventListener('mousedown', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  const box = document.createElement('div');
+  box.style.cssText = 'background:var(--card);border-radius:16px;padding:20px 22px 18px;box-shadow:0 12px 48px rgba(0,0,0,0.55);min-width:320px;max-width:520px;width:90vw;display:flex;flex-direction:column;gap:12px;';
+
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
+  const titleEl = document.createElement('div');
+  titleEl.style.cssText = 'font-weight:700;font-size:1.05em;color:var(--text);';
+  titleEl.textContent = T('spieleEintraege');
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'wh-btn';
+  closeBtn.style.cssText = 'font-size:1.15em;padding:2px 8px;border-radius:7px;cursor:pointer;background:none;border:none;color:var(--text2);';
+  closeBtn.textContent = '✕';
+  closeBtn.onclick = ()=>overlay.remove();
+  hdr.appendChild(titleEl); hdr.appendChild(closeBtn);
+  box.appendChild(hdr);
+
+  const hintEl = document.createElement('div');
+  hintEl.style.cssText = 'font-size:.82em;color:var(--text2);line-height:1.5;';
+  hintEl.textContent = T('wheelEditHint');
+  box.appendChild(hintEl);
+
+  const ta = document.createElement('textarea');
+  ta.className = 'slot-edit-textarea';
+  ta.spellcheck = false;
+  ta.style.cssText += ';min-height:140px;';
+  ta.value = (st && st.questions) ? st.questions.join('\n') : WHEEL_QUESTIONS_DEFAULT.join('\n');
+  box.appendChild(ta);
+
+  const btnRow2 = document.createElement('div');
+  btnRow2.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+
+  const applyBtn = document.createElement('button');
+  applyBtn.className = 'wbtn primary';
+  applyBtn.style.cssText = 'font-size:.92em;padding:.45em 1.2em;';
+  applyBtn.textContent = T('slotUebernehmen');
+  applyBtn.onclick = ()=>{
+    const text = ta.value;
+    // reuse existing saveWheelQuestions logic via textarea swap
+    const tmpId = 'wheel-text-'+uid;
+    let tmpTa = document.getElementById(tmpId);
+    const created = !tmpTa;
+    if(created){ tmpTa = document.createElement('textarea'); tmpTa.id = tmpId; tmpTa.style.display='none'; document.body.appendChild(tmpTa); }
+    tmpTa.value = text;
+    saveWheelQuestions(uid);
+    if(created) tmpTa.remove();
+    overlay.remove();
+  };
+  btnRow2.appendChild(applyBtn);
+
+  const fileLabelM = document.createElement('label');
+  fileLabelM.style.cssText = 'cursor:pointer;display:contents;';
+  const fileSpan = document.createElement('span');
+  fileSpan.className = 'wbtn';
+  fileSpan.style.cssText = 'font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;';
+  fileSpan.textContent = T('spieleTxtLaden');
+  const fileInputM = document.createElement('input');
+  fileInputM.type = 'file'; fileInputM.accept = '.txt,text/plain';
+  fileInputM.style.display = 'none';
+  fileInputM.addEventListener('change', function(){
+    const file = fileInputM.files?.[0]; if(!file) return;
+    const apply = text => { ta.value = (text||'').replace(/\r\n/g,'\n'); fileInputM.value=''; };
+    const r1 = new FileReader();
+    r1.onload = e => {
+      const text = e.target.result || '';
+      if(text.includes('\uFFFD')){ const r2=new FileReader(); r2.onload=e2=>apply(e2.target.result||''); r2.readAsText(file,'windows-1252'); }
+      else apply(text);
+    };
+    r1.readAsText(file,'UTF-8');
+  });
+  fileLabelM.appendChild(fileSpan);
+  fileLabelM.appendChild(fileInputM);
+  btnRow2.appendChild(fileLabelM);
+
+  box.appendChild(btnRow2);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  setTimeout(()=>ta.focus(),80);
+}
+
+/* ── Einträge modal for Slot ── */
+function slotShowEintraegeModal(uid){
+  const existing = document.getElementById('slot-eintraege-modal-'+uid);
+  if(existing){ existing.remove(); return; }
+
+  const st = slotState[uid];
+
+  const overlay = document.createElement('div');
+  overlay.id = 'slot-eintraege-modal-'+uid;
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:50000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);';
+  overlay.addEventListener('mousedown', e=>{ if(e.target===overlay) overlay.remove(); });
+
+  const box = document.createElement('div');
+  box.style.cssText = 'background:var(--card);border-radius:16px;padding:20px 22px 18px;box-shadow:0 12px 48px rgba(0,0,0,0.55);min-width:320px;max-width:520px;width:90vw;display:flex;flex-direction:column;gap:12px;';
+
+  const hdr = document.createElement('div');
+  hdr.style.cssText = 'display:flex;align-items:center;justify-content:space-between;';
+  const titleEl = document.createElement('div');
+  titleEl.style.cssText = 'font-weight:700;font-size:1.05em;color:var(--text);';
+  titleEl.textContent = T('spieleEintraege');
+  const closeBtn = document.createElement('button');
+  closeBtn.className = 'wh-btn';
+  closeBtn.style.cssText = 'font-size:1.15em;padding:2px 8px;border-radius:7px;cursor:pointer;background:none;border:none;color:var(--text2);';
+  closeBtn.textContent = '✕';
+  closeBtn.onclick = ()=>overlay.remove();
+  hdr.appendChild(titleEl); hdr.appendChild(closeBtn);
+  box.appendChild(hdr);
+
+  const hintEl = document.createElement('div');
+  hintEl.style.cssText = 'font-size:.82em;color:var(--text2);line-height:1.5;';
+  hintEl.innerHTML = T('slotEditHint');
+  box.appendChild(hintEl);
+
+  const ta = document.createElement('textarea');
+  ta.className = 'slot-edit-textarea';
+  ta.spellcheck = false;
+  ta.style.cssText += ';min-height:140px;';
+  ta.placeholder = 'Ich\tkomme\taus\nWo\twohnst\tdu?\nMein\tName\tist';
+  if(st) ta.value = slotRowsToText(st.rows);
+  box.appendChild(ta);
+
+  const btnRow2 = document.createElement('div');
+  btnRow2.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;';
+
+  const applyBtn = document.createElement('button');
+  applyBtn.className = 'wbtn primary';
+  applyBtn.style.cssText = 'font-size:.92em;padding:.45em 1.2em;';
+  applyBtn.textContent = T('slotUebernehmen');
+  applyBtn.onclick = ()=>{
+    const text = ta.value;
+    let rows = slotTextToRows(text);
+    if(!rows.length) rows = [['Wort 1','Wort 2','Wort 3']];
+    const s = slotState[uid];
+    s.rows = rows;
+    const n = slotDetectNumReels(rows);
+    s.numReels = n;
+    s.stoppedReels = Array(4).fill(false);
+    s.rafIds = Array(4).fill(0);
+    s.pixelPos = Array(4).fill(0);
+    s.centerIdx = Array(4).fill(0);
+    s.currentWords = [];
+    for(let c=0;c<n;c++) s.currentWords.push(rows.map(r=>r[c]||'—'));
+    slotApplyNumReels(uid);
+    slotInitReels(uid);
+    requestAnimationFrame(()=>slotSizeReels(uid));
+    overlay.remove();
+  };
+  btnRow2.appendChild(applyBtn);
+
+  const fileLabelM = document.createElement('label');
+  fileLabelM.style.cssText = 'cursor:pointer;display:contents;';
+  const fileSpan = document.createElement('span');
+  fileSpan.className = 'wbtn';
+  fileSpan.style.cssText = 'font-size:.88em;padding:.42em .9em;white-space:nowrap;cursor:pointer;';
+  fileSpan.textContent = T('spieleTxtLaden');
+  const fileInputM = document.createElement('input');
+  fileInputM.type = 'file'; fileInputM.accept = '.txt,text/plain';
+  fileInputM.style.display = 'none';
+  fileInputM.addEventListener('change', function(){
+    const file = fileInputM.files?.[0]; if(!file) return;
+    const apply = text => { ta.value = (text||'').replace(/\r\n/g,'\n'); fileInputM.value=''; };
+    const r1 = new FileReader();
+    r1.onload = e => {
+      const text = e.target.result || '';
+      if(text.includes('\uFFFD')){ const r2=new FileReader(); r2.onload=e2=>apply(e2.target.result||''); r2.readAsText(file,'windows-1252'); }
+      else apply(text);
+    };
+    r1.readAsText(file,'UTF-8');
+  });
+  fileLabelM.appendChild(fileSpan);
+  fileLabelM.appendChild(fileInputM);
+  btnRow2.appendChild(fileLabelM);
+
+  box.appendChild(btnRow2);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  setTimeout(()=>ta.focus(),80);
 }
 
 function wheelLoadTxt(uid, inputEl){
