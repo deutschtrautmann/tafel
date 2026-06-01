@@ -40,7 +40,7 @@ body.light-mode .sound-btn,.light-mode .bg-btn,.light-mode .zumpad-inline{backgr
 body.light-mode .sound-btn:hover,.light-mode .bg-btn:hover{background:var(--card2);}
 body.light-mode .sound-preview{background:var(--bg3);color:var(--text2);}
 body.light-mode .sound-preview:hover{background:var(--card2);color:var(--text);}
-body.light-mode .slot-tabbar{background:rgba(var(--accent-rgb),0.08);}
+body.light-mode .slot-tabbar{background:transparent;}
 body.light-mode .timer-mode-btn{color:var(--text2);}
 body.light-mode .timer-mode-btn.active-tmode{background:var(--accent);color:#fff;}
 body.light-mode .bg-panel-close{color:var(--text2);}
@@ -164,7 +164,7 @@ body.light-mode .satzbau-upload-btn:hover{background:var(--card2)!important;bord
 body.light-mode [id^="was-step-"]{color:var(--text2)!important;}
 
 /* Slot */
-body.light-mode .slot-tabbar{background:rgba(var(--accent-rgb),0.08)!important;}
+body.light-mode .slot-tabbar{background:transparent!important;}
 body.light-mode [class*="slot-reel"]{background:var(--bg3)!important;border-color:rgba(0,0,0,0.12)!important;color:var(--text)!important;}
 body.light-mode [id^="slot-result"]{color:var(--text)!important;}
 
@@ -1045,9 +1045,8 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .wheel-edit textarea{min-height:120px;font-size:.95em;}
 /* Wheel tab bar */
 .wheel-tabbar{
-  display:flex;gap:6px;align-items:center;flex-shrink:0;
-  padding:6px 10px 5px;background:rgba(0,0,0,0.28);
-  border-bottom:1px solid rgba(255,255,255,.08);
+  display:flex;gap:6px;align-items:center;justify-content:flex-start;flex-shrink:0;
+  padding:8px 10px 6px;background:transparent;
   width:100%;box-sizing:border-box;
 }
 .wheel-edit-panel{
@@ -1062,7 +1061,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   padding:.5em .6em;resize:vertical;box-sizing:border-box;
 }
 body.light-mode .wheel-edit-panel textarea{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
-body.light-mode .wheel-tabbar{background:rgba(var(--accent-rgb),0.08)!important;border-bottom:1px solid rgba(var(--accent-rgb),0.15)!important;}
+body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:none!important;}
 @media(max-width:700px){
   .widget[data-type="wheel"] .widget-body{padding:0;}
   .wheel-box{gap:7px;padding:8px;}
@@ -1091,8 +1090,8 @@ body.light-mode .wheel-tabbar{background:rgba(var(--accent-rgb),0.08)!important;
 
 /* Tab bar lives outside the machine */
 .slot-tabbar{
-  display:flex;gap:6px;align-items:center;
-  padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;
+  display:flex;gap:6px;align-items:center;justify-content:flex-start;
+  padding:8px 10px 6px;background:transparent;flex-shrink:0;
 }
 
 /* The machine fills all remaining space — richer dark-wood gradient */
@@ -1606,6 +1605,16 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
   <!-- ── Zeile 1: Utility-Leiste (Audio, Design, Sprache, Vollbild + Uhrzeit) ── -->
   <div id="topbar-row1">
 
+    <!-- Sprache -->
+    <button class="tool-btn" id="lang-btn" onclick="toggleLanguage()">
+      <span class="tb-icon material-symbols-rounded">language</span><span class="tb-label">Sprache</span>
+    </button>
+
+    <!-- Design -->
+    <button class="tool-btn" onclick="toggleBgPanel()">
+      <span class="tb-icon material-symbols-rounded">palette</span><span id="design-label" class="tb-label" data-i18n="design">Design</span>
+    </button>
+
     <!-- Sound control -->
     <div class="sound-wrap" id="sound-wrap">
       <button class="tool-btn" id="sound-btn" onclick="toggleSoundMenu()">
@@ -1615,16 +1624,6 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
         <div id="sound-opts"></div>
       </div>
     </div>
-
-    <!-- Design -->
-    <button class="tool-btn" onclick="toggleBgPanel()">
-      <span class="tb-icon material-symbols-rounded">palette</span><span id="design-label" class="tb-label" data-i18n="design">Design</span>
-    </button>
-
-    <!-- Sprache -->
-    <button class="tool-btn" id="lang-btn" onclick="toggleLanguage()">
-      <span class="tb-icon material-symbols-rounded">language</span><span class="tb-label">Sprache</span>
-    </button>
 
     <!-- Fullscreen -->
     <button class="tool-btn" id="fullscreen-btn" onclick="toggleFullscreen()">
@@ -1995,6 +1994,9 @@ const LANG = {
     drawEinbetten:'✓ Einbetten',
     // Spiele Eingabe
     spieleEintraege:'✏️ Einträge',
+    satzbauHint:'2–4 Wortgruppen möglich.\nJede Gruppe mit Nummer einleiten:',
+    satzbauBearbeiten:'✏️ Bearbeiten',
+    timerMin:'Min',
     spieleTxtLaden:'📂 TXT laden',
     slotUebernehmen:'✔ Übernehmen',
     ampelStart:'Start',
@@ -2234,6 +2236,9 @@ const LANG = {
     drawEinbetten:'✓ 埋め込む',
     // Spiele Eingabe
     spieleEintraege:'✏️ 入力',
+    satzbauHint:'2～4の単語グループが使えます。\n各グループを番号で始めてください：',
+    satzbauBearbeiten:'✏️ 編集',
+    timerMin:'分',
     spieleTxtLaden:'📂 TXTを読み込む',
     slotUebernehmen:'✔ 保存',
     ampelStart:'スタート',
@@ -2431,6 +2436,10 @@ function _trTimer(uid){
   body.querySelectorAll('span').forEach(s=>{
     if(s.textContent.trim()==='Min'||s.textContent.trim()==='分') s.textContent=T('timerMin');
     if(s.textContent.trim()==='Sek'||s.textContent.trim()==='秒') s.textContent=T('timerSek');
+  });
+  // Preset buttons (1 Min, 3 Min, …)
+  body.querySelectorAll('[data-timer-min]').forEach(btn=>{
+    btn.textContent = btn.dataset.timerMin + ' ' + T('timerMin');
   });
   // SVG text HALBZEIT
   const svg=document.getElementById('lauf-svg-'+uid);
@@ -2647,7 +2656,7 @@ function _trWheel(uid){
   if(res&&/Noch nicht gedreht|まだ回していません/.test(res.textContent)) res.textContent=T('wheelNochNicht');
   // Tab buttons — use data-i18n where possible, update text node only
   const tabEdit=document.getElementById('wheel-tab-edit-'+uid);
-  if(tabEdit) tabEdit.textContent='✏︎ '+T('spieleEintraege').replace('✏️ ','').replace('✏ ','');
+  if(tabEdit) tabEdit.textContent=T('spieleEintraege');
   // Zufall button
   const zBtn=document.getElementById('wheel-zufall-btn-'+uid);
   if(zBtn){
@@ -2672,7 +2681,7 @@ function _trSlotInner(uid){
     : null;
   if(slotRoot) applyI18n(slotRoot);
   const tabEdit=document.getElementById('slot-tab-edit-'+uid);
-  if(tabEdit) tabEdit.innerHTML='&#9999; '+T('spieleEintraege').replace('✏️ ','').replace('✏ ','');
+  if(tabEdit) tabEdit.textContent=T('spieleEintraege');
   // Anleitung und Übernehmen
   const editHint=document.querySelector('#slot-edit-'+uid+' .slot-edit-hint');
   if(editHint) editHint.innerHTML=T('slotEditHint');
@@ -3457,6 +3466,8 @@ function setWidgetAlpha(val){
 // ════════════════════════════════════════════════
 const DAYS=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
 const MONTHS=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+const DAYS_JA=['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];
+const MONTHS_JA=['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
 
 function pad(n){return String(n).padStart(2,'0');}
 function updateClock(){
@@ -4006,7 +4017,11 @@ function drawAnalogClock(uid){
   const dtEl=document.getElementById('wcdate-'+uid);
   if(dtEl && !isRandom){
     const d=new Date();
-    dtEl.textContent=DAYS[d.getDay()]+', '+d.getDate()+'. '+MONTHS[d.getMonth()]+' '+d.getFullYear();
+    if(currentLanguage==='ja'){
+      dtEl.textContent=d.getFullYear()+'年'+MONTHS_JA[d.getMonth()]+d.getDate()+'日（'+DAYS_JA[d.getDay()]+'）';
+    } else {
+      dtEl.textContent=DAYS[d.getDay()]+', '+d.getDate()+'. '+MONTHS[d.getMonth()]+' '+d.getFullYear();
+    }
   } else if(dtEl && isRandom){
     dtEl.textContent=T('clockRandomLabel');
   }
@@ -4318,12 +4333,12 @@ function buildTimer(body,uid){
     <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);" data-i18n="timerSek"></span>
   </div>
   <div style="display:flex;gap:.25em;flex-wrap:wrap;justify-content:center;">
-    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(1,0,${uid})">1 Min</button>
-    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(3,0,${uid})">3 Min</button>
-    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(5,0,${uid})">5 Min</button>
-    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(10,0,${uid})">10 Min</button>
-    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(15,0,${uid})">15 Min</button>
-    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(20,0,${uid})">20 Min</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(1,0,${uid})" data-i18n-suffix=" " data-timer-min="1">1 ${T('timerMin')}</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(3,0,${uid})" data-i18n-suffix=" " data-timer-min="3">3 ${T('timerMin')}</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(5,0,${uid})" data-i18n-suffix=" " data-timer-min="5">5 ${T('timerMin')}</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(10,0,${uid})" data-i18n-suffix=" " data-timer-min="10">10 ${T('timerMin')}</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(15,0,${uid})" data-i18n-suffix=" " data-timer-min="15">15 ${T('timerMin')}</button>
+    <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(20,0,${uid})" data-i18n-suffix=" " data-timer-min="20">20 ${T('timerMin')}</button>
   </div>
 </div>`;
   timerTotalMap[uid] = 300;
@@ -5433,6 +5448,11 @@ function selectDiceType(sides, uid){
     // Stop other modes
     if(ampelTimers[uid]){clearTimeout(ampelTimers[uid]);delete ampelTimers[uid];}
     stopSmileyAutoRotate(uid);
+    if(!satzbauWords[uid] || ![1,2,3,4].some(i=>satzbauWords[uid][i]&&satzbauWords[uid][i].length>0)){
+      const _defaultSb = '1\nich\ndu\nSie\n\n2\nheißen\nwohnen\nkommen';
+      satzbauWords[uid] = parseSatzbauText(_defaultSb);
+      satzbauWords[uid]._draftText = _defaultSb;
+    }
     const _sbData=satzbauWords[uid];
     const _sbHas=_sbData&&[1,2,3,4].some(i=>_sbData[i]&&_sbData[i].length>0);
     if(_sbHas) showSatzbauIdle(uid); else showSatzbauSetup(uid);
@@ -6115,7 +6135,8 @@ function satzbauShowEintraegeModal(uid){
   // Hint
   const hintEl = document.createElement('div');
   hintEl.style.cssText = 'font-size:.82em;color:var(--text2);line-height:1.5;white-space:pre-line;';
-  hintEl.textContent = '2–4 Wortgruppen möglich.\nJede Gruppe mit Nummer einleiten:\n\n1\nich / du / Sie\n\n2\nkommen / gehen\n\n3\nnach Hause / in die Schule';
+  hintEl.dataset.i18n = 'satzbauHint';
+  hintEl.textContent = T('satzbauHint');
   box.appendChild(hintEl);
 
   // Textarea
@@ -6188,7 +6209,7 @@ function showSatzbauIdle(uid){
     // Show placeholder with Einträge button
     wrap.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;height:100%;gap:.7em;">
   <span style="font-size:2.5em;opacity:.3;">📝</span>
-  <button class="satzbau-upload-btn" id="satzbau-eintraege-${uid}" style="background:rgba(var(--accent-rgb),0.15);border-color:var(--accent);color:var(--text);">${T('spieleEintraege')}</button>
+  <button class="pz-file-label" id="satzbau-eintraege-${uid}">${T('spieleEintraege')}</button>
 </div>`;
     const _btn = document.getElementById('satzbau-eintraege-'+uid);
     if(_btn) _btn.addEventListener('click', e=>{ e.stopPropagation(); satzbauShowEintraegeModal(uid); });
@@ -6201,7 +6222,7 @@ function showSatzbauIdle(uid){
 <div style="display:flex;flex-direction:column;width:100%;height:100%;gap:.3em;">
   <div class="satzbau-cols" id="satzbau-cols-${uid}" style="flex:1;">${colsHtml}</div>
   <div style="display:flex;justify-content:center;">
-    <button id="satzbau-edit-${uid}" class="satzbau-upload-btn" style="font-size:.7em;padding:.25em .7em;">&#9998; ${T('spieleEintraege').replace('✏️ ','').replace('✏ ','')}</button>
+    <button id="satzbau-edit-${uid}" class="pz-file-label" style="margin-bottom:0;" data-i18n="spieleEintraege">${T('spieleEintraege')}</button>
   </div>
 </div>`;
     const _edit = document.getElementById('satzbau-edit-'+uid);
@@ -6288,7 +6309,7 @@ function rollSatzbau(uid){
     return `<div class="satzbau-col animate has-value" style="animation-delay:${delay}ms">${escHtml(val)}</div>`;
   }).join('');
   if(wrap) setTimeout(()=>{
-    wrap.innerHTML = `<div style="display:flex;flex-direction:column;width:100%;height:100%;gap:.3em;"><div class="satzbau-cols" style="flex:1;">${colsHtml}</div><div style="display:flex;justify-content:center;"><button id="satzbau-edit-${uid}" class="satzbau-upload-btn" style="font-size:.7em;padding:.25em .7em;">&#9998; Bearbeiten</button></div></div>`;
+    wrap.innerHTML = `<div style="display:flex;flex-direction:column;width:100%;height:100%;gap:.3em;"><div class="satzbau-cols" style="flex:1;">${colsHtml}</div><div style="display:flex;justify-content:flex-start;padding:0 2px;"><button id="satzbau-edit-${uid}" class="pz-file-label" style="margin-bottom:0;" data-i18n="satzbauBearbeiten">${T('satzbauBearbeiten')}</button></div></div>`;
     const _edit = document.getElementById('satzbau-edit-'+uid);
     if(_edit) _edit.addEventListener('click', e=>{ e.stopPropagation(); showSatzbauSetup(uid); });
   },120);
@@ -6333,22 +6354,21 @@ function buildNames(body,uid){
 body.style.flexDirection='column';
 body.style.overflow='hidden';
 body.innerHTML=`
-<div onclick="pickName(${uid})" title="" data-i18n-title="ttKlickenZiehen" style="cursor:pointer;flex:1 1 0;min-height:120px;display:flex;align-items:center;justify-content:center;padding:0 6px;overflow:visible;">
+<div onclick="pickName(${uid})" title="" data-i18n-title="ttKlickenZiehen" style="cursor:pointer;flex:1 1 0;min-height:120px;display:flex;align-items:stretch;justify-content:stretch;padding:6px;overflow:hidden;">
   <div id="namedisp-${uid}" style="
-    display:inline-flex;align-items:center;justify-content:center;
-    width:fit-content;min-width:80px;max-width:calc(100% - 12px);
-    border-radius:3px 16px 14px 4px;
+    display:flex;align-items:center;justify-content:center;
+    width:100%;min-width:80px;max-width:100%;
+    border-radius:10px;
     background:#fef08a;
     font-family:'Caveat',cursive;
     font-weight:700;
-    color:rgba(30,26,14,0.35);
+    color:rgba(30,26,14,0.75);
     text-align:center;
     word-break:keep-all;
     padding:8px 14px;
     position:relative;
     box-shadow:3px 5px 14px rgba(0,0,0,0.45), inset 0 -2px 0 rgba(0,0,0,0.06);
-    transform:rotate(-1deg);
-    transition:color .25s, transform .25s, box-shadow .25s;
+    transition:color .25s, box-shadow .25s;
     background-image:repeating-linear-gradient(
       to bottom,
       transparent 0px,
@@ -6356,10 +6376,10 @@ body.innerHTML=`
       rgba(99,120,50,0.18) calc(1.8em - 1px),
       rgba(99,120,50,0.18) 1.8em
     );
-    font-size:36px;
+    font-size:22px;
     line-height:1.15;
-    white-space:nowrap;
-    overflow:visible;
+    white-space:normal;
+    overflow:hidden;
   " data-i18n="namesHierKlicken"></div>
 </div>
 <div style="flex:0 0 auto;display:flex;justify-content:center;margin-top:2px;">
@@ -6385,6 +6405,7 @@ Lea</textarea>
 `;
 
   // Keep only the standard header buttons (minimize, maximize, close) — no extra buttons needed
+  requestAnimationFrame(()=>calcNameFontSize(uid, true));
 }
 function toggleNameList(uid){
   // Open a floating modal dialog with the name list
@@ -6530,10 +6551,12 @@ function pickName(uid){
     disp.style.color='#1e1a0e';
     disp.style.boxShadow='4px 6px 18px rgba(0,0,0,0.55), inset 0 -2px 0 rgba(0,0,0,0.08)';
     disp.style.transform='rotate(-1deg) scale(.8)';disp.style.opacity='0';
-    setTimeout(()=>{disp.textContent=name;disp.style.opacity='1';disp.style.transform='rotate(-1deg) scale(1)';},150);
+    setTimeout(()=>{
+      disp.textContent=name;
+      calcNameFontSize(uid, true);
+      disp.style.opacity='1';disp.style.transform='rotate(-1deg) scale(1)';
+    },150);
     disp.style.transition='all .2s';
-    // Apply font size fitted to longest name; recompute only if not yet cached
-    requestAnimationFrame(()=>calcNameFontSize(uid, false));
   }
   const remAfter=list.filter(n=>!(pickedMap[uid]||[]).includes(n));
   if(left && left.textContent!==T('namesNeuRunde')) left.textContent=`${T('namesVerbleibend')} ${remAfter.length} ${T('namesVerbleibend2')} ${list.length}`;
@@ -6542,7 +6565,7 @@ function pickName(uid){
 function resetNames(uid){
   pickedMap[uid]=[];
   const d=document.getElementById('namedisp-'+uid);
-  if(d){ d.textContent='–'; d.style.color='rgba(30,26,14,0.35)'; d.style.fontSize='36px'; d.style.boxShadow='3px 5px 14px rgba(0,0,0,0.45), inset 0 -2px 0 rgba(0,0,0,0.06)'; }
+  if(d){ d.textContent=T('namesHierKlicken'); d.style.color='rgba(30,26,14,0.75)'; d.style.boxShadow='3px 5px 14px rgba(0,0,0,0.45), inset 0 -2px 0 rgba(0,0,0,0.06)'; _nameFontCache[uid]=null; requestAnimationFrame(()=>calcNameFontSize(uid,true)); }
   const l=document.getElementById('namesleft-'+uid);if(l)l.textContent='';
 }
 
@@ -6679,52 +6702,49 @@ function calcNameFontSize(uid, forceRecompute){
   const widget = disp.closest('.widget');
   if(!widget) return;
 
-  // Determine the longest text to fit: scan all names in the textarea list
+  // Determine the longest text to fit: only real names, NOT the placeholder
   const ta = document.getElementById('namelist-' + uid);
   const names = ta ? ta.value.split('\n').map(s=>s.trim()).filter(Boolean) : [];
-  // Also consider current displayed text (in case list is empty but name was picked)
+  const placeholder = T('namesHierKlicken');
   const curText = disp.textContent;
-  if(curText && curText !== T('namesHierKlicken') && curText !== '–') names.push(curText);
-  if(!names.length) return;
+  const isPlaceholder = !curText || curText === placeholder || curText === '–';
+  if(!isPlaceholder) names.push(curText);
 
-  // Only recompute font size when forced (resize) or not yet cached
-  if(forceRecompute || _nameFontCache[uid] == null){
-    const headerH = widget.querySelector('.widget-header')?.offsetHeight || 38;
-    const bodyPad = 24; // 12px top + 12px bottom
-    const reservedH = 80; // status text ~20px + buttons ~36px + gaps ~24px
-    const availW = (widget.offsetWidth || 290) - 40;
-    const availH = Math.max(60, (widget.offsetHeight || 330) - headerH - bodyPad - reservedH);
-
-    // Find the longest name by rendered pixel width using canvas
-    const cvs = document.createElement('canvas');
-    const ctx = cvs.getContext('2d');
-    const fontWeight = '700';
-    const fontFamily = 'Caveat, cursive';
-
-    // Binary search for font size that fits the widest name within availW and availH
-    // Use 85% of availW as target to compensate for canvas under-measuring Caveat vs browser
-    const targetW = availW * 0.85;
-    let lo = 10, hi = Math.min(availW, availH * 1.5);
-    for(let i = 0; i < 18; i++){
-      const mid = (lo + hi) / 2;
-      ctx.font = `${fontWeight} ${mid}px ${fontFamily}`;
-      const maxW = names.reduce((m, n) => Math.max(m, ctx.measureText(n).width), 0);
-      if(maxW <= targetW && mid <= availH){
-        lo = mid;
-      } else {
-        hi = mid;
+  if(isPlaceholder){
+    // Placeholder: fixed smaller size, no cache needed
+    disp.style.fontSize = '22px';
+  } else {
+    // Real name: compute best fit from names list
+    if(forceRecompute || _nameFontCache[uid] == null){
+      const headerH = widget.querySelector('.widget-header')?.offsetHeight || 38;
+      const bodyPad = 24;
+      const reservedH = 80;
+      const availW = (widget.offsetWidth || 290) - 40;
+      const availH = Math.max(60, (widget.offsetHeight || 330) - headerH - bodyPad - reservedH);
+      const cvs = document.createElement('canvas');
+      const ctx = cvs.getContext('2d');
+      const fontWeight = '700';
+      const fontFamily = 'Caveat, cursive';
+      const targetW = availW * 0.85;
+      const candidates = names.length ? names : [placeholder];
+      let lo = 10, hi = Math.min(availW, availH * 1.5);
+      for(let i = 0; i < 18; i++){
+        const mid = (lo + hi) / 2;
+        ctx.font = `${fontWeight} ${mid}px ${fontFamily}`;
+        const maxW = candidates.reduce((m, n) => Math.max(m, ctx.measureText(n).width), 0);
+        if(maxW <= targetW && mid <= availH){ lo = mid; } else { hi = mid; }
       }
+      _nameFontCache[uid] = Math.max(14, Math.floor(lo));
     }
-    _nameFontCache[uid] = Math.max(14, Math.floor(lo));
+    disp.style.fontSize = _nameFontCache[uid] + 'px';
   }
-
-  const fs = _nameFontCache[uid];
-  disp.style.fontSize = fs + 'px';
+  const fs = isPlaceholder ? 22 : _nameFontCache[uid];
+  void fs; // used above
   disp.style.whiteSpace = 'nowrap';
-  disp.style.overflow = 'visible';
+  disp.style.overflow = 'hidden';
   disp.style.textOverflow = 'clip';
-  disp.style.width = 'fit-content';
-  disp.style.maxWidth = 'calc(100% - 12px)';
+  disp.style.width = '100%';
+  disp.style.maxWidth = '100%';
   disp.style.minWidth = '80px';
 }
 
@@ -8732,7 +8752,7 @@ function buildSlot(body, uid){
 
   body.innerHTML = `
 <div class="slot-tabbar">
-  <button class="timer-mode-btn active-tmode" id="slot-tab-edit-${uid}" onclick="slotShowEintraegeModal(${uid})">&#9999; ${T('spieleEintraege').replace('✏️ ','').replace('✏ ','')}</button>
+  <button class="pz-file-label" id="slot-tab-edit-${uid}" onclick="slotShowEintraegeModal(${uid})">${T('spieleEintraege')}</button>
 </div>
 
 <div id="slot-play-${uid}" class="slot-machine">
@@ -9992,9 +10012,9 @@ function pzPlayWrong()   { pzBeep(360,'sine',0.22,0.15,80); pzBeep(270,'sine',0.
 
 function buildPuzzlePanel(panel, uid){
   pzState[uid] = {
-    sentences: ["eins zwei drei vier f\xFCnf sechs sieben acht neun zehn"],
+    sentences: ["eins zwei drei vier f\xFCnf sechs sieben acht neun zehn elf zw\xF6lf"],
     current: 0,
-    lastData: "eins zwei drei vier f\xFCnf sechs sieben acht neun zehn"
+    lastData: "eins zwei drei vier f\xFCnf sechs sieben acht neun zehn elf zw\xF6lf"
   };
 
   // Panel-Layout: nur Flex-Richtung und Overflow setzen, display wird von spieleShowTab gesteuert
@@ -10015,7 +10035,7 @@ function buildPuzzlePanel(panel, uid){
   // Einträge button — opens manual text entry modal (same style as Rad)
   const eintraegeBtn = document.createElement('button');
   eintraegeBtn.className = 'pz-file-label';
-  eintraegeBtn.style.cssText += ';margin-bottom:0;cursor:pointer;border:none;';
+  eintraegeBtn.style.cssText += ';margin-bottom:0;cursor:pointer;';
   eintraegeBtn.dataset.i18n='spieleEintraege'; eintraegeBtn.textContent=T('spieleEintraege');
   eintraegeBtn.onclick = () => pzShowEintraegeModal(uid);
   btnRow.appendChild(eintraegeBtn);
@@ -10502,7 +10522,7 @@ function buildZuordnenPanel(panel, uid){
   // Einträge button
   const eintraegeBtn = document.createElement('button');
   eintraegeBtn.className = 'pz-file-label';
-  eintraegeBtn.style.cssText += ';margin-bottom:0;cursor:pointer;border:none;';
+  eintraegeBtn.style.cssText += ';margin-bottom:0;cursor:pointer;';
   eintraegeBtn.dataset.i18n='spieleEintraege'; eintraegeBtn.textContent=T('spieleEintraege');
   eintraegeBtn.onclick = () => zuShowEintraegeModal(uid);
   btnRow.appendChild(eintraegeBtn);
@@ -10930,8 +10950,8 @@ const wheelStates = {};
 function buildWheel(body, uid){
   body.innerHTML = `
 <div class="wheel-tabbar">
-  <button class="timer-mode-btn active-tmode" id="wheel-tab-edit-${uid}" onclick="wheelShowEintraegeModal(${uid})">&#9999; ${T('spieleEintraege').replace('✏️ ','').replace('✏ ','')}</button>
-  <button class="wbtn wheel-fragen-btn" id="wheel-zufall-btn-${uid}" onclick="toggleWheelZufall(${uid})" title="Zufall an/aus" style="font-size:.82em;padding:.3em .75em;white-space:nowrap;margin-left:auto;" data-i18n="diceZufallAn"></button>
+  <button class="pz-file-label" id="wheel-tab-edit-${uid}" onclick="wheelShowEintraegeModal(${uid})">${T('spieleEintraege')}</button>
+  <button class="wbtn wheel-fragen-btn" id="wheel-zufall-btn-${uid}" onclick="toggleWheelZufall(${uid})" title="Zufall an/aus" style="font-size:.82em;padding:.3em .75em;white-space:nowrap;" data-i18n="diceZufallAn"></button>
 </div>
 
 <div id="wheel-play-${uid}" class="wheel-box">
