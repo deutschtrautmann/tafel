@@ -1467,7 +1467,7 @@ body.light-mode .pz-file-label{background:rgba(var(--accent-rgb),0.12);border-co
 }
 /* Title chips row */
 .zu-titles-row{
-  display:flex;flex-wrap:wrap;gap:6px;padding:4px 2px 2px;flex-shrink:0;
+  display:flex;flex-wrap:wrap;gap:6px;padding:4px 2px 2px;flex-shrink:0;justify-content:center;
 }
 .zu-title{
   font-size:clamp(14px, calc(var(--uiscale,1)*22px), 28px);font-family:'Caveat',cursive;font-weight:900;
@@ -1479,23 +1479,24 @@ body.light-mode .pz-file-label{background:rgba(var(--accent-rgb),0.12);border-co
   cursor:pointer;user-select:none;-webkit-user-select:none;
   flex-shrink:0;
   transition:transform .15s,box-shadow .15s,opacity .15s;
-  opacity:0.75;
+  opacity:1;
 }
 .zu-title.zu-active-title{
   transform:scale(1.08);
   opacity:1;
-  box-shadow:0 0 0 4px rgba(255,255,255,0.55),0 4px 18px rgba(0,0,0,0.4);
 }
 /* Text field with fixed word chips */
 .zu-textfield{
-  border:2px solid rgba(180,195,220,0.6);border-radius:14px;
+  border:2px solid #b4c3dc;border-radius:14px;
   padding:clamp(6px, calc(var(--uiscale,1)*10px), 14px) clamp(6px, calc(var(--uiscale,1)*8px), 12px);
-  background:rgba(235,240,255,0.92);
+  background:#e8eeff;
   width:100%;box-sizing:border-box;
   display:flex;flex-wrap:wrap;gap:clamp(4px, calc(var(--uiscale,1)*6px), 9px);
   align-content:flex-start;
-  overflow:hidden;
+  overflow:auto;
+  scrollbar-width:none;
 }
+.zu-textfield::-webkit-scrollbar{display:none;}
 body.light-mode .zu-textfield{background:rgba(var(--accent-rgb),0.07);border-color:rgba(var(--accent-rgb),0.22);}
 /* Word chips — fixed, not draggable */
 .zu-word{
@@ -1505,7 +1506,7 @@ body.light-mode .zu-textfield{background:rgba(var(--accent-rgb),0.07);border-col
   font-size:clamp(13px, calc(var(--uiscale,1)*22px), 28px);font-family:'Caveat',cursive;font-weight:700;
   display:inline-block;
   cursor:pointer;user-select:none;-webkit-user-select:none;
-  transition:transform .14s,box-shadow .14s,border-color .14s;
+  transition:transform .14s,box-shadow .14s,border-color .14s,color .14s;
   color:#1a1f3a;
   background:#fff9c4;
   box-shadow:0 2px 6px rgba(0,0,0,0.35);
@@ -1513,8 +1514,6 @@ body.light-mode .zu-textfield{background:rgba(var(--accent-rgb),0.07);border-col
 .zu-word:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,0.45);}
 .zu-word.zu-marked{
   border-width:3px;
-  box-shadow:0 0 0 3px rgba(255,255,255,0.4),0 3px 10px rgba(0,0,0,0.4);
-  color:#1a1f3a;
 }
 body.light-mode .zu-word{color:#1a1f3a;}
 /* Prüfen button area */
@@ -2467,14 +2466,9 @@ function _trDice(uid){
     if(/aus|オフ/.test(zBtn.textContent)) zBtn.textContent=T('diceZufallAus');
     else zBtn.textContent=T('diceZufallAn');
   }
-  // Ampel label — state-dependent spans (no stable IDs)
-  const acfg=document.getElementById('ampel-config-'+uid);
-  if(acfg){
-    acfg.querySelectorAll('span').forEach(sp=>{
-      if(/Grün-Dauer|青信号/.test(sp.textContent)) sp.textContent=T('diceGruenDauer');
-      if(sp.textContent.trim()==='Sek.'||sp.textContent.trim()==='秒') sp.textContent=T('diceSek');
-    });
-  }
+  // Ampel label — update via stable IDs
+  const acfgLabel=document.getElementById('ampel-gruen-label-'+uid);
+  if(acfgLabel) acfgLabel.textContent=T('diceGruenDauer');
   // Satzbau TXT label (contains hidden input — innerHTML needed)
   const sbLbl=document.getElementById('satzbau-lbl-'+uid);
   if(sbLbl){
@@ -2739,18 +2733,23 @@ function _trSpiele(uid){
     if(zuCheckRow){
       const btns=zuCheckRow.querySelectorAll('.wbtn');
       if(btns[0]) btns[0].textContent='✔ '+T('pzPruefen').replace(' ✔','');
-      if(btns[1]) btns[1].textContent='↺ '+T('namesResetKurz');
     }
   }
+  // Zuordnen top reset button
+  const zuTopReset=document.getElementById('zu-top-reset-'+uid);
+  if(zuTopReset) zuTopReset.textContent='↺ '+T('namesResetKurz');
   // Ampel scene title + Start/Stop button label
-  const ampelScene=document.getElementById('ampel-scene-'+(uid*1000+3));
+  const ampelScene=document.getElementById('ampel-scene-'+(uid*1000+5));
   if(ampelScene) ampelScene.title=T('ttKlickenNeustart');
-  const auid=uid*1000+3;
+  const auid=uid*1000+5;
   const ampelLbl=document.getElementById('ampel-playbtn-label-'+auid);
   if(ampelLbl){
     const isRunning=!!(_apTimers&&_apTimers[auid]);
     ampelLbl.textContent=isRunning?T('ampelStop'):T('ampelStart');
   }
+  // Ampel Grün-Dauer label
+  const ampelGruenLabel=document.getElementById('ampel-gruen-label-'+auid);
+  if(ampelGruenLabel) ampelGruenLabel.textContent=T('diceGruenDauer');
   // Slot TXT label title: covered by data-i18n-title via applyI18n(spieleBody) above
 }
 
@@ -8724,14 +8723,15 @@ function buildSlot(body, uid){
   body.style.cssText = 'padding:0;display:flex;flex-direction:column;overflow:hidden;height:100%;box-sizing:border-box;';
 
   const defaultRows = [
-    ['Ich','komme','aus'],
-    ['Wo','wohnst','du?'],
-    ['Mein','Name','ist'],
+    ['Ich','komme','aus','Japan'],
+    ['Er','wohnt','in','Berlin'],
+    ['Sie','haben','keine','Kinder'],
+    ['Sind','Sie','Frau','Meier'],
   ];
 
   slotState[uid] = {
     rows:         defaultRows.map(r=>[...r]),
-    numReels:     3,
+    numReels:     4,
     phase:        'idle',
     nextStopReel: 0,
     stoppedReels: [false,false,false,false],
@@ -8744,7 +8744,7 @@ function buildSlot(body, uid){
       defaultRows.map(r=>r[0]),
       defaultRows.map(r=>r[1]),
       defaultRows.map(r=>r[2]),
-      defaultRows.map(r=>r[0]),
+      defaultRows.map(r=>r[3]),
     ],
     points: 0,
     resizeObs: null,
@@ -9543,15 +9543,6 @@ function buildAmpelPanel(panel, uid){
     <rect x="54" y="230" width="12" height="130" rx="4" fill="#3a3d44" stroke="#2a2d34" stroke-width="1.5"/>
   </svg>
 
-  <!-- Timer-Konfiguration -->
-  <div id="ampel-cfg-${auid}" onclick="event.stopPropagation()" style="position:absolute;top:10px;right:10px;display:flex;align-items:center;gap:.5em;background:rgba(0,0,0,0.55);border-radius:12px;padding:.55em 1em;font-size:1em;font-weight:700;color:rgba(255,255,255,0.9);">
-    <span style="white-space:nowrap;">${(typeof T!=='undefined'?T('diceGruenDauer'):'Grün-Dauer:')}</span>
-    <input type="number" id="sa-min-${auid}" value="10" min="1" max="600" onclick="event.stopPropagation()" style="width:52px;padding:.25em .4em;border-radius:7px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.5);color:inherit;font-size:1em;text-align:center;">
-    <span>&#8211;</span>
-    <input type="number" id="sa-max-${auid}" value="30" min="1" max="600" onclick="event.stopPropagation()" style="width:52px;padding:.25em .4em;border-radius:7px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.5);color:inherit;font-size:1em;text-align:center;">
-    <span>s</span>
-  </div>
-
   <!-- Start / Pause Knopf -->
   <button id="ampel-playbtn-${auid}"
     onclick="event.stopPropagation();ampelPanelToggle(${auid})"
@@ -9564,6 +9555,15 @@ function buildAmpelPanel(panel, uid){
     <span id="ampel-playbtn-icon-${auid}" style="font-size:1.2em;line-height:1;">&#9654;</span>
     <span id="ampel-playbtn-label-${auid}" data-i18n="ampelStart"></span>
   </button>
+
+  <!-- Timer-Konfiguration -->
+  <div id="ampel-cfg-${auid}" onclick="event.stopPropagation()" style="position:absolute;bottom:4%;left:50%;transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:.5em;background:rgba(0,0,0,0.55);border-radius:12px;padding:.55em 1em;font-size:1em;font-weight:700;color:rgba(255,255,255,0.9);white-space:nowrap;">
+    <span id="ampel-gruen-label-${auid}" style="white-space:nowrap;">${(typeof T!=='undefined'?T('diceGruenDauer'):'Grün-Dauer:')}</span>
+    <input type="number" id="sa-min-${auid}" value="10" min="1" max="600" onclick="event.stopPropagation()" style="width:52px;padding:.25em .4em;border-radius:7px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.5);color:inherit;font-size:1em;text-align:center;">
+    <span>&#8211;</span>
+    <input type="number" id="sa-max-${auid}" value="30" min="1" max="600" onclick="event.stopPropagation()" style="width:52px;padding:.25em .4em;border-radius:7px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.5);color:inherit;font-size:1em;text-align:center;">
+    <span>s</span>
+  </div>
 </div>`;
   // Ampel cycle is started by spieleShowTab when the ampel tab is first selected
 }
@@ -10511,7 +10511,7 @@ function buildZuordnenPanel(panel, uid){
 
   // ── Scroll area (TXT/Einträge buttons + game) — no scroll, fits window ──
   const scrollArea = document.createElement('div');
-  scrollArea.style.cssText = 'flex:1 1 0;min-height:0;overflow:hidden;padding:8px 10px;display:flex;flex-direction:column;gap:6px;';
+  scrollArea.style.cssText = 'flex:1 1 0;min-height:0;overflow:hidden;padding:8px 10px;display:flex;flex-direction:column;gap:6px;scrollbar-width:none;';
   panel.appendChild(scrollArea);
 
   // Button row: Einträge only
@@ -10527,6 +10527,16 @@ function buildZuordnenPanel(panel, uid){
   eintraegeBtn.onclick = () => zuShowEintraegeModal(uid);
   btnRow.appendChild(eintraegeBtn);
 
+  // Reset button (next to Einträge, same style)
+  const topResetBtn = document.createElement('button');
+  topResetBtn.id = `zu-top-reset-${uid}`;
+  topResetBtn.className = 'pz-file-label';
+  topResetBtn.style.cssText += ';margin-bottom:0;cursor:pointer;';
+  topResetBtn.textContent = '↺ '+T('namesResetKurz');
+  topResetBtn.style.touchAction = 'manipulation';
+  topResetBtn.onclick = () => zuReset(uid);
+  btnRow.appendChild(topResetBtn);
+
   // ── Game area ──
   const gameWrap = document.createElement('div');
   gameWrap.id = `zu-game-${uid}`;
@@ -10534,7 +10544,7 @@ function buildZuordnenPanel(panel, uid){
   scrollArea.appendChild(gameWrap);
 
   // Beispiel-Einträge sofort anzeigen
-  const defaultText = '1\nder\nHerr\nStudent\nApfel\nHund\n\n2\ndie\nFrau\nStudentin\nBanane\nKatze\n\n3\ndas\nKind\nWasser\nBier\nHaus';
+  const defaultText = '1\nDas ist mein\nBruder\nVater\nSohn\nGroßvater\nOnkel\nNeffe\nMann\n2\nDas ist meine\nMutter\nFrau\nTante\nGroßmutter\nTochter\nNichte\nFamilie\nSchwester\n3\nDas sind meine\nEltern\nGroßeltern\nGeschwister';
   zuState[uid].rawText = defaultText;
   zuStartGame(uid, defaultText);
 }
@@ -10679,8 +10689,8 @@ function zuBuildGame(uid){
     const titleEl = document.createElement('div');
     titleEl.className = 'zu-title';
     titleEl.style.borderColor = color;
-    titleEl.style.background  = bg;
-    titleEl.style.color       = color;
+    titleEl.style.background  = '#fff9c4';
+    titleEl.style.color       = '#1a1f3a';
     titleEl.textContent = g.title;
     titleEl.dataset.zuGroup = gi;
     titleEl.dataset.zuUid   = uid;
@@ -10713,7 +10723,7 @@ function zuBuildGame(uid){
     textfield.appendChild(el);
   });
 
-  // ── Prüfen + Reset row ──
+  // ── Prüfen row (only) ──
   const checkRow = document.createElement('div');
   checkRow.className = 'zu-check-row';
   checkRow.id = `zu-check-row-${uid}`;
@@ -10721,16 +10731,9 @@ function zuBuildGame(uid){
   const checkBtn = document.createElement('button');
   checkBtn.className = 'wbtn primary';
   checkBtn.textContent = '✔ '+T('pzPruefen').replace(' ✔','');
-  checkBtn.style.touchAction = 'manipulation';
+  checkBtn.style.cssText = 'touch-action:manipulation;font-size:clamp(14px,calc(var(--uiscale,1)*16px),22px);padding:calc(var(--uiscale,1)*8px) calc(var(--uiscale,1)*20px);';
   checkBtn.onclick = () => zuPruefen(uid);
   checkRow.appendChild(checkBtn);
-
-  const resetBtn = document.createElement('button');
-  resetBtn.className = 'wbtn';
-  resetBtn.textContent = '↺ '+T('namesResetKurz');
-  resetBtn.style.touchAction = 'manipulation';
-  resetBtn.onclick = () => zuReset(uid);
-  checkRow.appendChild(resetBtn);
 
   gameWrap.appendChild(checkRow);
 }
@@ -10745,10 +10748,15 @@ function zuSelectTitle(uid, gi){
   } else {
     st.activeGroup = gi;
   }
-  // Update title highlight
+  // Update title highlight — use each title's own color for the glow ring
   document.querySelectorAll(`[data-zu-uid="${uid}"].zu-title`).forEach(el => {
     const elGi = parseInt(el.dataset.zuGroup);
-    el.classList.toggle('zu-active-title', elGi === st.activeGroup);
+    const isActive = elGi === st.activeGroup;
+    el.classList.toggle('zu-active-title', isActive);
+    const color = ZU_COLORS[elGi % ZU_COLORS.length];
+    el.style.boxShadow = isActive
+      ? `0 0 0 4px ${color}, 0 4px 18px rgba(0,0,0,0.4)`
+      : '0 2px 8px rgba(0,0,0,0.25)';
   });
 }
 
@@ -10764,8 +10772,11 @@ function zuMarkWord(uid, el){
     // No title active — clicking removes mark
     el.dataset.zuMarked = '';
     el.classList.remove('zu-marked');
-    el.style.background = '#fff9c4';
+    el.style.background  = '#fff9c4';
     el.style.borderColor = 'rgba(255,255,255,0.5)';
+    el.style.boxShadow   = '0 2px 6px rgba(0,0,0,0.35)';
+    el.style.borderWidth = '2px';
+    el.style.color       = '#1a1f3a';
     return;
   }
 
@@ -10773,17 +10784,21 @@ function zuMarkWord(uid, el){
     // Already marked with this colour → toggle off
     el.dataset.zuMarked = '';
     el.classList.remove('zu-marked');
-    el.style.background = '#fff9c4';
+    el.style.background  = '#fff9c4';
     el.style.borderColor = 'rgba(255,255,255,0.5)';
+    el.style.boxShadow   = '0 2px 6px rgba(0,0,0,0.35)';
+    el.style.borderWidth = '2px';
+    el.style.color       = '#1a1f3a';
   } else {
     // Mark with active group colour
     const color = ZU_COLORS[gi % ZU_COLORS.length];
     const bg    = ZU_BG[gi % ZU_BG.length];
-    el.dataset.zuMarked = gi;
+    el.dataset.zuMarked  = gi;
     el.classList.add('zu-marked');
-    el.style.background   = bg.replace('0.13','0.38');
-    el.style.borderColor  = color;
-    el.style.boxShadow    = `0 0 0 3px ${color}55, 0 3px 10px rgba(0,0,0,0.4)`;
+    el.style.background  = '#fff9c4';
+    el.style.borderColor = color;
+    el.style.borderWidth = '3px';
+    el.style.boxShadow   = `0 0 0 3px ${color}66, 0 3px 10px rgba(0,0,0,0.4)`;
   }
 }
 
@@ -10832,6 +10847,8 @@ function zuPruefen(uid){
           el.classList.remove('zu-marked');
           el.style.background  = '#fff9c4';
           el.style.borderColor = 'rgba(255,255,255,0.5)';
+          el.style.borderWidth = '2px';
+          el.style.color       = '#1a1f3a';
           el.style.boxShadow   = '0 2px 6px rgba(0,0,0,0.35)';
         }, {once:true});
       });
