@@ -648,7 +648,10 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   min-width:200px;min-height:80px;
   display:flex;flex-direction:column;
   overflow:hidden;
-  max-width:calc(100vw - 16px);
+  /* Hard caps: never wider/taller than the desktop area */
+  max-width:calc(100vw - 4px);
+  max-height:calc(100dvh - 120px); /* topbar + margin */
+  box-sizing:border-box;
 }
 /* Widgets deren Inhalt eine feste Höhe hat: Fenster schrumpft auf Inhalt */
 .widget.fit-content{
@@ -868,12 +871,17 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .widget.fit-content[data-type="dice"] .dice-wrap{flex:0 0 auto;min-height:0;height:120px;}
 
 
-/* iPhone: Widget darf nicht aus dem sichtbaren Desktop herauswachsen. */
+/* ── Mobile: Touch-freundliche Header-Buttons ── */
 @media (max-width: 900px){
-  .widget{max-width:calc(100vw - 24px);}
   .widget-body{overscroll-behavior:contain;}
+  .widget-header{min-height:40px;}
+  .wh-btn{
+    min-width:32px;min-height:32px;
+    font-size:17px;
+    padding:2px 8px;
+    display:flex;align-items:center;justify-content:center;
+  }
 }
-
 
 
 /* ── VERSION 9: FULL RESPONSIVE SYSTEM ──
@@ -1005,16 +1013,17 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   overflow:hidden;padding:0;display:flex;flex-direction:column;
 }
 .wheel-box{
-  display:flex;flex-direction:column;gap:8px;
+  display:flex;flex-direction:column;gap:6px;
   flex:1 1 auto;min-height:0;overflow:hidden;
-  padding:10px;box-sizing:border-box;
+  padding:8px;box-sizing:border-box;
 }
 .wheel-stage{
   position:relative;display:flex;align-items:center;justify-content:center;
-  min-height:0;flex:1 1 auto;max-height:100%;
+  flex:1 1 auto;min-height:0;max-height:100%;overflow:hidden;
 }
 .wheel-canvas{
-  width:auto;height:auto;max-width:min(100%,560px);max-height:100%;
+  width:auto;height:auto;
+  max-width:100%;max-height:100%;
   aspect-ratio:1/1;display:block;
   filter:drop-shadow(0 10px 22px rgba(0,0,0,.35));
 }
@@ -1032,13 +1041,14 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   font-size:1.55em;font-weight:900;text-align:center;color:#fff;
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
   border-radius:14px;padding:.45em;min-height:2.05em;
-  display:flex;align-items:center;justify-content:center;flex:1 1 auto;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0; /* never compress — canvas gets the space */
 }
 .wheel-title{display:none;}
 .wheel-help{display:none;}
-.wheel-bottom-row{display:flex;gap:.5em;align-items:stretch;flex:0 0 auto;}
+.wheel-bottom-row{display:flex;gap:.5em;align-items:stretch;flex:0 0 auto;flex-shrink:0;}
 .wheel-fragen-btn{flex-shrink:0;font-size:1.05em;padding:.62em 1.05em;}
-.wheel-controls{display:flex;gap:.5em;flex-wrap:wrap;justify-content:center;flex:0 0 auto;}
+.wheel-controls{display:flex;gap:.5em;flex-wrap:wrap;justify-content:center;flex:0 0 auto;flex-shrink:0;}
 .wheel-controls .wbtn{font-size:1.05em;padding:.62em 1.05em;}
 .wheel-edit{display:none;flex:0 0 auto;}
 .wheel-edit.open{display:block;}
@@ -1062,13 +1072,71 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 }
 body.light-mode .wheel-edit-panel textarea{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
 body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:none!important;}
+
+/* ── MOBILE: Spiele-Widget allgemein ── */
 @media(max-width:700px){
-  .widget[data-type="wheel"] .widget-body{padding:0;}
-  .wheel-box{gap:7px;padding:8px;}
-  .wheel-stage{max-height:100%;}
-  .wheel-pointer{left:50%;top:-14px;}
-  .wheel-result{font-size:1.35em;min-height:2em;padding:.4em;}
-  .wheel-controls .wbtn{font-size:1em;padding:.58em .95em;}
+  /* Tabbar: kleinere Schrift, scrollbar */
+  .widget[data-type="spiele"] .timer-mode-bar{
+    gap:4px;padding:4px 6px;flex-wrap:nowrap;
+    overflow-x:auto;scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .widget[data-type="spiele"] .timer-mode-bar::-webkit-scrollbar{display:none;}
+  .spiele-tab-btn{
+    font-size:11px!important;padding:5px 9px!important;
+    border-radius:7px!important;white-space:nowrap;flex-shrink:0;
+  }
+
+  /* Rad: stage füllt Platz, Ergebnis bleibt kompakt */
+  .widget[data-type="spiele"] .wheel-box{gap:4px;padding:4px;}
+  .widget[data-type="spiele"] .wheel-result{
+    font-size:1.1em;min-height:1.8em;padding:.3em .5em;
+  }
+  .widget[data-type="spiele"] .wbtn{
+    font-size:.88em!important;padding:.4em .7em!important;
+  }
+  .widget[data-type="spiele"] .pz-file-label{
+    font-size:.82em;padding:.3em .7em;
+  }
+
+  /* Slot: alles kompakter */
+  .widget[data-type="spiele"] .slot-machine{padding:2% 2%;gap:2%;}
+  .widget[data-type="spiele"] .slot-scorebar{padding:1% 3%;min-height:0;}
+  .widget[data-type="spiele"] .slot-scorebar-title{font-size:clamp(10px,3vw,18px);letter-spacing:1px;}
+  .widget[data-type="spiele"] .slot-score-val{font-size:clamp(10px,3vw,18px);padding:1% 2%;}
+  .widget[data-type="spiele"] .slot-btn-row{
+    min-height:clamp(56px,13%,90px);height:clamp(56px,13%,90px);gap:3%;
+  }
+  .widget[data-type="spiele"] .slot-btn-stop-main{font-size:clamp(11px,3.5vw,22px);}
+
+  /* Puzzle: Container füllt Platz */
+  .widget[data-type="spiele"] .pz-container{overflow-y:auto;align-content:flex-start;}
+  .widget[data-type="spiele"] .pz-word{
+    font-size:clamp(15px,4.5vw,24px)!important;padding:5px 9px!important;
+  }
+  .widget[data-type="spiele"] .pz-btn{
+    font-size:clamp(13px,3.5vw,17px)!important;padding:7px 16px!important;flex-shrink:0;
+  }
+  .widget[data-type="spiele"] .pz-progress,
+  .widget[data-type="spiele"] .pz-label{font-size:clamp(11px,3vw,14px)!important;}
+
+  /* Zuordnen: Wortfeld füllt Platz */
+  .widget[data-type="spiele"] .zu-textfield{overflow-y:auto;align-content:flex-start;}
+  .widget[data-type="spiele"] .zu-word{
+    font-size:clamp(13px,4vw,20px)!important;padding:4px 8px!important;
+  }
+  .widget[data-type="spiele"] .zu-title{
+    font-size:clamp(12px,3.8vw,20px)!important;padding:3px 7px!important;
+  }
+  .widget[data-type="spiele"] .zu-titles-row{gap:4px;padding:2px 0;}
+  .widget[data-type="spiele"] .zu-check-row{padding:3px 2px 0;flex-shrink:0;}
+
+  /* Ampel: Config-Zeile kompakter */
+  .widget[data-type="spiele"] [id^="ampel-cfg-"]{
+    font-size:.82em;padding:.4em .7em;gap:.3em;
+  }
+  .widget[data-type="spiele"] [id^="sa-min-"],
+  .widget[data-type="spiele"] [id^="sa-max-"]{width:42px;padding:.2em .3em;}
 }
 
 /* Empty state */
@@ -1433,7 +1501,7 @@ body.light-mode .slot-scorebar-title{
 
 
 /* ── Wörter-Puzzle (Spiele-Tab) ── */
-.pz-container{min-height:calc(var(--uiscale,1)*60px);border:2px solid rgba(180,195,220,0.7);border-radius:14px;padding:calc(var(--uiscale,1)*12px);display:flex;flex-wrap:wrap;gap:calc(var(--uiscale,1)*8px);background:rgba(235,240,255,0.92);align-content:flex-start;}
+.pz-container{min-height:calc(var(--uiscale,1)*60px);border:2px solid rgba(180,195,220,0.7);border-radius:14px;padding:calc(var(--uiscale,1)*12px);display:flex;flex-wrap:wrap;gap:calc(var(--uiscale,1)*8px);background:rgba(235,240,255,0.92);align-content:flex-start;box-sizing:border-box;}
 .pz-container.drag-over{background:rgba(74,222,128,0.22);border-color:rgba(74,222,128,0.6);}
 .pz-word{padding:calc(var(--uiscale,1)*10px) calc(var(--uiscale,1)*18px);border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.55);cursor:grab;user-select:none;-webkit-user-select:none;border:1px solid rgba(255,255,255,0.5);font-size:calc(var(--uiscale,1)*32px);font-family:'Caveat',cursive;font-weight:700;display:inline-block;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;color:#1a1f3a;}
 .pz-word:active{cursor:grabbing;}
@@ -1493,7 +1561,8 @@ body.light-mode .pz-file-label{background:rgba(var(--accent-rgb),0.12);border-co
   width:100%;box-sizing:border-box;
   display:flex;flex-wrap:wrap;gap:clamp(4px, calc(var(--uiscale,1)*6px), 9px);
   align-content:flex-start;
-  overflow:auto;
+  overflow-y:auto;
+  overflow-x:hidden;
   scrollbar-width:none;
 }
 .zu-textfield::-webkit-scrollbar{display:none;}
@@ -1783,6 +1852,8 @@ function setDesktopTop(){
   const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   desktop.style.top = topbarH + 'px';
   desktop.style.height = Math.max(240, vh - topbarH) + 'px';
+  // After resize: clamp all open widgets into new bounds
+  document.querySelectorAll('.widget').forEach(w => clampWidget(w));
   updateClockVisibility();
 }
 
@@ -1790,8 +1861,8 @@ function updateClockVisibility(){
   // Clock is now inline in topbar-row1 — no overlap check needed
 }
 
-window.addEventListener('resize', ()=>{ setDesktopTop(); document.querySelectorAll('.widget').forEach(updateWidgetScale); });
-if(window.visualViewport){ window.visualViewport.addEventListener('resize', setDesktopTop); }
+window.addEventListener('resize', ()=>{ setDesktopTop(); document.querySelectorAll('.widget').forEach(w=>{ updateWidgetScale(w); clampWidget(w); }); });
+if(window.visualViewport){ window.visualViewport.addEventListener('resize', ()=>{ setDesktopTop(); document.querySelectorAll('.widget').forEach(clampWidget); }); }
 document.fonts.ready.then(setDesktopTop);
 setTimeout(setDesktopTop, 200);
 setTimeout(()=>{ applyLanguage('de'); applyTheme('midnight','dark'); },120);
@@ -3491,24 +3562,57 @@ const WIDGET_DEFS={
   jein:   {titleKey:'wtJein',   icon:'🤔', w:310,h:355, fitContent:true},
   was:    {titleKey:'wtFotos',  icon:'🖼', w:420,h:400, fitContent:false},
   wheel:  {titleKey:'wtRad',    icon:'🎡', w:820,h:900, fitContent:false},
-  slot:   {titleKey:'wtSlot',   icon:'🎰', w:560,h:580, fitContent:false, minw:400, minh:380},
-  spiele: {titleKey:'wtSpiele', icon:'🎮', w:580,h:520, fitContent:false, minw:420, minh:400},
+  slot:   {titleKey:'wtSlot',   icon:'🎰', w:560,h:580, fitContent:false, minw:320, minh:300},
+  spiele: {titleKey:'wtSpiele', icon:'🎮', w:580,h:520, fitContent:false, minw:320, minh:300},
 };
 
+// ── Zentrale Hilfsfunktion: Desktop-Abmessungen zuverlässig ermitteln ──
+function getDesktopBounds(){
+  // desktop.clientWidth/Height sind die verlässlichsten Werte, aber nur wenn
+  // das Element bereits gerendert ist. Falls nicht, Fallback auf visualViewport.
+  const dw = desktop.clientWidth  > 0 ? desktop.clientWidth  : (window.visualViewport ? window.visualViewport.width  : window.innerWidth)  || 390;
+  const dh = desktop.clientHeight > 0 ? desktop.clientHeight : (window.visualViewport ? window.visualViewport.height : window.innerHeight) - (document.getElementById('topbar')?.offsetHeight||116) || 500;
+  return { dw: Math.max(200, dw), dh: Math.max(200, dh) };
+}
+
+// ── Widget in Desktop-Grenzen einklemmen (Position + Größe) ──
+function clampWidget(el){
+  const { dw, dh } = getDesktopBounds();
+  const GAP = 4;
+  let w = el.offsetWidth;
+  let h = el.offsetHeight;
+  // Breite/Höhe nie größer als Desktop
+  if(w > dw - GAP){ w = dw - GAP; el.style.width  = w + 'px'; }
+  if(h > dh - GAP){ h = dh - GAP; el.style.height = h + 'px'; }
+  // Position: nie rechts oder unten raus, nie negativ
+  let l = parseInt(el.style.left) || 0;
+  let t = parseInt(el.style.top)  || 0;
+  if(l + w > dw - GAP) l = Math.max(0, dw - w - GAP);
+  if(t + h > dh - GAP) t = Math.max(0, dh - h - GAP);
+  if(l < 0) l = 0;
+  if(t < 0) t = 0;
+  el.style.left = l + 'px';
+  el.style.top  = t + 'px';
+}
 
 function getInitialWidgetSize(type, def){
-  const dw = Math.max(1, desktop.clientWidth || window.innerWidth || 390);
-  const dh = Math.max(1, desktop.clientHeight || (window.innerHeight - 80) || 650);
-  let w = def.w;
-  let h = def.h;
+  const { dw, dh } = getDesktopBounds();
+  const isPhone = dw < 700;
 
-  if(dw < 700){
-    w = Math.min(Math.round(def.w * 1.12), Math.round(dw * 0.86));
-    h = Math.min(Math.round(def.h * 1.10), Math.round(dh * 0.62));
+  let w, h;
+  if(isPhone){
+    // Handy: immer fast Vollbild-Breite
+    w = dw - 8;
+    // Spiele-Widgets: fast volle Höhe; andere: 75%
+    const bigTypes = ['spiele','slot','wheel','draw','was'];
+    h = Math.round(dh * (bigTypes.includes(type) ? 0.92 : 0.75));
+  } else {
+    w = Math.min(def.w, dw - 24);
+    h = Math.min(def.h, dh - 24);
   }
-
-  w = Math.min(w, Math.max(220, dw - 24));
-  h = Math.min(h, Math.max(180, dh - 24));
+  // Absolute Grenzen
+  w = Math.max(parseInt(def.minw)||200, Math.min(w, dw - 8));
+  h = Math.max(parseInt(def.minh)||180, Math.min(h, dh - 8));
   return {w, h};
 }
 
@@ -3528,41 +3632,31 @@ function spawnWidget(type){
   const alpha=getComputedStyle(document.documentElement).getPropertyValue('--widget-alpha').trim()||'0.70';
   el.style.background=`rgba(${getComputedStyle(document.body).getPropertyValue('--card-rgb').trim()},${alpha})`;
 
+  const { dw, dh } = getDesktopBounds();
+  const isPhone = dw < 700;
   const startSize = getInitialWidgetSize(type, def);
 
-  // Neue Stapel-Logik: neue Widgets erscheinen nicht irgendwo auf der Stage,
-  // sondern sauber übereinander versetzt. So bleiben die Kopfleisten sichtbar
-  // und man erkennt sofort alle geöffneten Fenster.
+  // Startposition: auf Handy immer oben links mit minimalem Abstand
+  // auf Desktop gestaffelt
   const openCount = desktop.querySelectorAll('.widget').length;
-  const isPhone = (desktop.clientWidth || window.innerWidth) < 700;
-  const baseLeft = isPhone ? Math.max(12, Math.round((desktop.clientWidth - startSize.w) * 0.10)) : 28;
-  const baseTop  = isPhone ? 24 : 28;
   const stepX = isPhone ? 0 : 26;
-  const stepY = isPhone ? 54 : 30;
-  const stackIndex = openCount % 7;
-  const maxLeft = Math.max(0, desktop.clientWidth - startSize.w - 8);
-  const estimatedH = def.fitContent ? Math.max(startSize.h, 360) : startSize.h;
-  const maxTop  = Math.max(0, desktop.clientHeight - estimatedH - 8);
-  const startLeft = Math.min(baseLeft + stackIndex * stepX, maxLeft);
-  const startTop  = Math.min(baseTop  + stackIndex * stepY, maxTop);
-  el.style.left=startLeft+'px';
-  el.style.top =startTop+'px';
-  el.style.width=startSize.w+'px';
+  const stepY = isPhone ? 0 : 30;
+  const baseLeft = isPhone ? Math.round((dw - startSize.w) / 2) : 28;
+  const baseTop  = isPhone ? 2 : 28;
+  const stackIdx = openCount % 7;
+  let startLeft = baseLeft + stackIdx * stepX;
+  let startTop  = baseTop  + stackIdx * stepY;
+  // Sicherstellen dass Widget in Desktop bleibt
+  startLeft = Math.max(0, Math.min(startLeft, dw - startSize.w - 4));
+  startTop  = Math.max(0, Math.min(startTop,  dh - startSize.h - 4));
+
+  el.style.left   = startLeft + 'px';
+  el.style.top    = startTop  + 'px';
+  el.style.width  = startSize.w + 'px';
   if(def.fitContent){
     el.classList.add('fit-content');
-    // keine feste Höhe – Widget passt sich dem Inhalt an
   } else {
-    el.style.height=startSize.h+'px';
-  }
-  if(type === 'wheel'){
-    const dw = desktop.clientWidth || window.innerWidth || 390;
-    const dh = desktop.clientHeight || Math.max(300, (window.innerHeight||700)-80);
-    const ww = Math.min(Math.max(360, Math.round(dw * 0.94)), 860);
-    const wh = Math.min(Math.max(560, Math.round(dh * 0.82)), 780);
-    el.style.width = ww + 'px';
-    el.style.height = wh + 'px';
-    el.style.left = Math.max(4, Math.round((dw - ww) / 2)) + 'px';
-    el.style.top = '8px';
+    el.style.height = startSize.h + 'px';
   }
   el.style.zIndex=++zTop;
 
@@ -3594,30 +3688,16 @@ function spawnWidget(type){
 
   desktop.appendChild(el);
   el.addEventListener('mousedown',()=>el.style.zIndex=++zTop);
+  el.addEventListener('touchstart',()=>el.style.zIndex=++zTop, {passive:true});
   makeDraggable(el,hdr);
   makeResizable(el,rh);
   const builders={clock:buildClock,timer:buildTimer,dice:buildDice,names:buildNames,draw:buildDraw,qr:buildQR,textpad:buildTextpad,jein:buildJein,was:buildWas,wheel:buildWheel,slot:buildSlot,spiele:buildSpiele};
   if(builders[type]) builders[type](body,uid);
-  applyI18n(body);  // fill all data-i18n elements after build
+  applyI18n(body);
   updateWidgetScale(el);
   updateEmptyHint();
-  // Nach dem Rendern sicherstellen, dass fit-content-Widgets vollständig sichtbar sind
-  if(def.fitContent){
-    requestAnimationFrame(()=>{
-      requestAnimationFrame(()=>{
-        const deskH = desktop.clientHeight || window.innerHeight;
-        const deskW = desktop.clientWidth  || window.innerWidth;
-        const elH   = el.offsetHeight;
-        const elW   = el.offsetWidth;
-        let   t     = parseInt(el.style.top)  || 0;
-        let   l     = parseInt(el.style.left) || 0;
-        if(t + elH > deskH - 4) t = Math.max(0, deskH - elH - 4);
-        if(l + elW > deskW - 4) l = Math.max(0, deskW - elW - 4);
-        el.style.top  = t + 'px';
-        el.style.left = l + 'px';
-      });
-    });
-  }
+  // Final clamp after render (layout may have changed widget size)
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ clampWidget(el); }); });
   return el;
 }
 
@@ -3679,36 +3759,29 @@ function maximizeWidget(id){
   const el=document.getElementById(id); if(!el)return;
   const isMax=el._maximized;
   if(!isMax){
-    // Speichern: Position, Größe, fit-content-Status
     el._savedMaxState={
       left:el.style.left, top:el.style.top,
       width:el.style.width, height:el.style.height,
       fitContent:el.classList.contains('fit-content')
     };
     el._maximized=true;
-    // Vollbild auf Desktop-Fläche
     el.classList.remove('fit-content');
-    const deskH = desktop.clientHeight || Math.max(240,
-      (window.visualViewport ? window.visualViewport.height : window.innerHeight)
-      - document.getElementById('topbar').offsetHeight);
+    const { dw, dh } = getDesktopBounds();
     el.style.left='0px';
     el.style.top='0px';
-    el.style.width=desktop.clientWidth+'px';
+    el.style.width=dw+'px';
     el.style.maxWidth='none';
-    el.style.height=deskH+'px';
+    el.style.height=dh+'px';
     el.style.zIndex=++zTop;
-    // Body einblenden falls minimiert
     const body=el.querySelector('.widget-body');
     const rh=el.querySelector('.resize-handle');
     if(body && body.style.display==='none'){
       body.style.display='';
       if(rh) rh.style.display='';
     }
-    // Button-Icon wechseln
     const btn=el.querySelector('.wh-btn[title="Maximieren"]');
     if(btn){ btn.title=T('ttWiederherstellen'); btn.textContent='⧉'; }
   } else {
-    // Wiederherstellen
     el._maximized=false;
     const s=el._savedMaxState||{};
     if(s.fitContent){
@@ -3723,6 +3796,7 @@ function maximizeWidget(id){
     el.style.maxWidth='';
     const btn=el.querySelector('.wh-btn[title="Wiederherstellen"]');
     if(btn){ btn.title=T('ttMaximieren'); btn.textContent='⛶'; }
+    clampWidget(el);
   }
   updateWidgetScale(el);
 }
@@ -3770,25 +3844,57 @@ function updateWidgetScale(el){
 // ════════════════════════════════════════════════
 function makeDraggable(el,handle){
   let ox,oy,sx,sy;
-  handle.addEventListener('mousedown',e=>{
-    if(e.button!==0||e.target.classList.contains('wh-btn'))return;
+
+  function dragTo(cx, cy){
+    const { dw, dh } = getDesktopBounds();
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    // Allow header to always be reachable (40px visible minimum)
+    const newL = Math.max(-(w-60), Math.min(dw-40, ox + cx - sx));
+    const newT = Math.max(0,         Math.min(dh-36, oy + cy - sy));
+    el.style.left = newL + 'px';
+    el.style.top  = newT + 'px';
+  }
+
+  // Mouse
+  handle.addEventListener('mousedown', e=>{
+    if(e.button!==0 || e.target.classList.contains('wh-btn')) return;
     e.preventDefault();
-    ox=parseInt(el.style.left)||0; oy=parseInt(el.style.top)||0; sx=e.clientX; sy=e.clientY;
+    ox=parseInt(el.style.left)||0; oy=parseInt(el.style.top)||0;
+    sx=e.clientX; sy=e.clientY;
     el.classList.add('dragging');
-    const mv=e=>{
-      el.style.left=Math.max(-el.offsetWidth+60,Math.min(desktop.clientWidth-40,ox+e.clientX-sx))+'px';
-      el.style.top =Math.max(0,Math.min(desktop.clientHeight-36,oy+e.clientY-sy))+'px';
-    };
-    const up=()=>{el.classList.remove('dragging');document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
-    document.addEventListener('mousemove',mv); document.addEventListener('mouseup',up);
+    const mv = e=>dragTo(e.clientX, e.clientY);
+    const up = ()=>{ el.classList.remove('dragging'); document.removeEventListener('mousemove',mv); document.removeEventListener('mouseup',up); };
+    document.addEventListener('mousemove',mv);
+    document.addEventListener('mouseup',up);
   });
-  handle.addEventListener('touchstart',e=>{
-    if(e.target.classList.contains('wh-btn'))return;
-    const t=e.touches[0]; ox=parseInt(el.style.left)||0; oy=parseInt(el.style.top)||0; sx=t.clientX; sy=t.clientY;
-    const mv=e=>{const t=e.touches[0];el.style.left=Math.max(0,ox+t.clientX-sx)+'px';el.style.top=Math.max(0,oy+t.clientY-sy)+'px';};
-    const up=()=>{handle.removeEventListener('touchmove',mv);handle.removeEventListener('touchend',up);};
-    handle.addEventListener('touchmove',mv,{passive:true}); handle.addEventListener('touchend',up);
-  },{passive:true});
+
+  // Touch (Pointer Events preferred for better cancellation)
+  if(window.PointerEvent){
+    handle.addEventListener('pointerdown', e=>{
+      if(e.pointerType==='mouse') return; // handled above
+      if(e.target.classList.contains('wh-btn')) return;
+      ox=parseInt(el.style.left)||0; oy=parseInt(el.style.top)||0;
+      sx=e.clientX; sy=e.clientY;
+      try{ handle.setPointerCapture(e.pointerId); }catch(_){}
+      const mv = e=>{ e.preventDefault(); dragTo(e.clientX, e.clientY); };
+      const up = ()=>{ document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up); document.removeEventListener('pointercancel',up); };
+      document.addEventListener('pointermove',mv,{passive:false});
+      document.addEventListener('pointerup',up);
+      document.addEventListener('pointercancel',up);
+    },{passive:true});
+  } else {
+    handle.addEventListener('touchstart', e=>{
+      if(e.target.classList.contains('wh-btn')) return;
+      const t=e.touches[0];
+      ox=parseInt(el.style.left)||0; oy=parseInt(el.style.top)||0;
+      sx=t.clientX; sy=t.clientY;
+      const mv=e=>dragTo(e.touches[0].clientX, e.touches[0].clientY);
+      const up=()=>{ handle.removeEventListener('touchmove',mv); handle.removeEventListener('touchend',up); };
+      handle.addEventListener('touchmove',mv,{passive:true});
+      handle.addEventListener('touchend',up);
+    },{passive:true});
+  }
 }
 
 // ════════════════════════════════════════════════
@@ -3798,27 +3904,19 @@ function makeResizable(el,handle){
   const minW=()=> parseInt(el.dataset.minw)||200;
   const minH=()=> parseInt(el.dataset.minh)||120;
 
-  function clampWidgetIntoDesktop(){
-    const left=parseInt(el.style.left)||0;
-    const top=parseInt(el.style.top)||0;
-    const maxLeft=Math.max(0, desktop.clientWidth-40);
-    const maxTop=Math.max(0, desktop.clientHeight-40);
-    if(left>maxLeft) el.style.left=maxLeft+'px';
-    if(top>maxTop) el.style.top=maxTop+'px';
-  }
-
   const resizeTo=(clientX,clientY,start)=>{
-    const left=parseInt(el.style.left)||0;
-    const top=parseInt(el.style.top)||0;
+    const { dw, dh } = getDesktopBounds();
+    const left = parseInt(el.style.left)||0;
+    const top  = parseInt(el.style.top) ||0;
     const mw=minW(), mh=minH();
-    const maxW=Math.max(mw, desktop.clientWidth-left-6);
-    const maxH=Math.max(mh, desktop.clientHeight-top-6);
-    const newW=Math.min(maxW, Math.max(mw, start.sw + clientX - start.sx));
-    const newH=Math.min(maxH, Math.max(mh, start.sh + clientY - start.sy));
+    // Max size: never extend beyond desktop right/bottom edge
+    const maxW = Math.max(mw, dw - left - 4);
+    const maxH = Math.max(mh, dh - top  - 4);
+    const newW = Math.min(maxW, Math.max(mw, start.sw + clientX - start.sx));
+    const newH = Math.min(maxH, Math.max(mh, start.sh + clientY - start.sy));
     el.classList.remove('fit-content');
-    el.style.width = newW + 'px';
-    el.style.height= newH + 'px';
-    // Maximiert-Zustand zurücksetzen, wenn manuell skaliert
+    el.style.width  = newW + 'px';
+    el.style.height = newH + 'px';
     if(el._maximized){
       el._maximized=false;
       const btn=el.querySelector('.wh-btn[title="Wiederherstellen"]');
@@ -3828,52 +3926,38 @@ function makeResizable(el,handle){
     el.querySelectorAll('canvas.draw-canvas').forEach(cv=>requestAnimationFrame(()=>resizeDrawCanvas(cv)));
   };
 
-  // Pointer Events: Maus + iPhone/iPad Touch.
-  if(window.PointerEvent){
-    handle.addEventListener('pointerdown',e=>{
-      if(e.pointerType==='mouse' && e.button!==0) return;
-      e.preventDefault(); e.stopPropagation();
-      el.style.zIndex=++zTop;
-      clampWidgetIntoDesktop();
-      const start={sw:el.offsetWidth,sh:el.offsetHeight,sx:e.clientX,sy:e.clientY};
-      try{ handle.setPointerCapture(e.pointerId); }catch(_){ }
+  // Unified pointer/touch/mouse handler
+  const onDown=(e, cx, cy, isTouch)=>{
+    e.preventDefault(); e.stopPropagation();
+    el.style.zIndex=++zTop;
+    clampWidget(el); // snap into bounds before resizing
+    const start={sw:el.offsetWidth,sh:el.offsetHeight,sx:cx,sy:cy};
+
+    if(!isTouch && window.PointerEvent){
+      try{ handle.setPointerCapture(e.pointerId); }catch(_){}
       const mv=ev=>{ ev.preventDefault(); resizeTo(ev.clientX,ev.clientY,start); };
-      const up=ev=>{
-        try{ handle.releasePointerCapture(ev.pointerId); }catch(_){ }
-        document.removeEventListener('pointermove',mv);
-        document.removeEventListener('pointerup',up);
-        document.removeEventListener('pointercancel',up);
-      };
+      const up=ev=>{ try{handle.releasePointerCapture(ev.pointerId);}catch(_){} document.removeEventListener('pointermove',mv); document.removeEventListener('pointerup',up); document.removeEventListener('pointercancel',up); clampWidget(el); };
       document.addEventListener('pointermove',mv,{passive:false});
       document.addEventListener('pointerup',up);
       document.addEventListener('pointercancel',up);
+    } else {
+      const mv=ev=>{ if(ev.touches){ ev.preventDefault(); resizeTo(ev.touches[0].clientX,ev.touches[0].clientY,start); } else resizeTo(ev.clientX,ev.clientY,start); };
+      const up=()=>{ document.removeEventListener('mousemove',mv); document.removeEventListener('mouseup',up); document.removeEventListener('touchmove',mv); document.removeEventListener('touchend',up); document.removeEventListener('touchcancel',up); clampWidget(el); };
+      document.addEventListener(isTouch?'touchmove':'mousemove',mv,{passive:false});
+      document.addEventListener(isTouch?'touchend':'mouseup',up);
+      if(isTouch) document.addEventListener('touchcancel',up);
+    }
+  };
+
+  if(window.PointerEvent){
+    handle.addEventListener('pointerdown',e=>{
+      if(e.pointerType==='mouse' && e.button!==0) return;
+      onDown(e, e.clientX, e.clientY, e.pointerType!=='mouse');
     },{passive:false});
-    return;
+  } else {
+    handle.addEventListener('mousedown',e=>{ if(e.button!==0)return; onDown(e,e.clientX,e.clientY,false); });
+    handle.addEventListener('touchstart',e=>{ const t=e.touches[0]; if(!t)return; onDown(e,t.clientX,t.clientY,true); },{passive:false});
   }
-
-  // Fallback: Maus.
-  handle.addEventListener('mousedown',e=>{
-    if(e.button!==0)return;
-    e.preventDefault(); e.stopPropagation();
-    clampWidgetIntoDesktop();
-    const start={sw:el.offsetWidth,sh:el.offsetHeight,sx:e.clientX,sy:e.clientY};
-    const mv=e=>resizeTo(e.clientX,e.clientY,start);
-    const up=()=>{document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);};
-    document.addEventListener('mousemove',mv); document.addEventListener('mouseup',up);
-  });
-
-  // Fallback: ältere iOS-WebViews.
-  handle.addEventListener('touchstart',e=>{
-    const t=e.touches[0]; if(!t)return;
-    e.preventDefault(); e.stopPropagation();
-    clampWidgetIntoDesktop();
-    const start={sw:el.offsetWidth,sh:el.offsetHeight,sx:t.clientX,sy:t.clientY};
-    const mv=e=>{const t=e.touches[0]; if(t){ e.preventDefault(); resizeTo(t.clientX,t.clientY,start); }};
-    const up=()=>{document.removeEventListener('touchmove',mv);document.removeEventListener('touchend',up);document.removeEventListener('touchcancel',up);};
-    document.addEventListener('touchmove',mv,{passive:false});
-    document.addEventListener('touchend',up);
-    document.addEventListener('touchcancel',up);
-  },{passive:false});
 }
 
 // ════════════════════════════════════════════════
@@ -9230,7 +9314,8 @@ function buildSpiele(body, uid){
 
   // Tab bar
   const tabBar=document.createElement('div');
-  tabBar.style.cssText='display:flex;gap:6px;align-items:center;padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;flex-wrap:wrap;';
+  tabBar.style.cssText='display:flex;gap:6px;align-items:center;padding:6px 10px 5px;background:rgba(0,0,0,0.28);flex-shrink:0;flex-wrap:wrap;overflow-x:auto;scrollbar-width:none;-webkit-overflow-scrolling:touch;';
+  tabBar.style.cssText += '-webkit-scrollbar{display:none}';
   tabBar.classList.add('timer-mode-bar');
   ['rad','slot','puzzle','zuordnen','ampel'].forEach((tab,i)=>{
     const labelKeys={rad:'spieleRad',slot:'spieleSlot',puzzle:'spielePuzzle',ampel:'spieleAmpel',zuordnen:'spieleZuordnen'};
@@ -9965,6 +10050,28 @@ function spieleShowTab(tab, uid){
     requestAnimationFrame(()=>slotSizeReels(uid*1000+2));
     setTimeout(()=>slotSizeReels(uid*1000+2), 120);
   }
+  if(tab==='rad'){
+    // Trigger wheel canvas resize after display:flex is applied
+    requestAnimationFrame(()=>{
+      const wuid = uid*1000+1;
+      const cv = document.getElementById('wheel-canvas-'+wuid);
+      if(cv){
+        const stage = cv.closest('.wheel-stage');
+        if(stage && stage.clientWidth > 0){
+          const size = Math.max(120, Math.min(stage.clientWidth, stage.clientHeight, 680));
+          const dpr = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+          cv.width = Math.round(size*dpr); cv.height = Math.round(size*dpr);
+          cv.style.width = size+'px'; cv.style.height = size+'px';
+          try{ drawQuestionWheel(wuid); }catch(_){}
+        }
+      }
+    });
+    setTimeout(()=>{
+      const wuid = uid*1000+1;
+      const cv = document.getElementById('wheel-canvas-'+wuid);
+      if(cv){ const stage=cv.closest('.wheel-stage'); if(stage){ const size=Math.max(120,Math.min(stage.clientWidth,stage.clientHeight,680)); const dpr=Math.max(1,Math.min(2,window.devicePixelRatio||1)); cv.width=Math.round(size*dpr); cv.height=Math.round(size*dpr); cv.style.width=size+'px'; cv.style.height=size+'px'; try{drawQuestionWheel(wuid);}catch(_){} }}
+    }, 150);
+  }
   // Refresh scale for any tab switch so --uiscale is propagated
   const widgetEl = document.getElementById(`spiele-panel-rad-${uid}`)?.closest('.widget');
   if(widgetEl) updateWidgetScale(widgetEl);
@@ -10024,12 +10131,12 @@ function buildPuzzlePanel(panel, uid){
 
   // ── Scroll area (file button + game + check button) ──
   const scrollArea = document.createElement('div');
-  scrollArea.style.cssText = 'flex:1 1 0;min-height:0;height:0;overflow-y:auto;overflow-x:hidden;padding:10px 10px 10px;display:flex;flex-direction:column;gap:6px;';
+  scrollArea.style.cssText = 'flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 10px 8px;display:flex;flex-direction:column;gap:6px;';
   panel.appendChild(scrollArea);
 
   // Button row: Einträge button only
   const btnRow = document.createElement('div');
-  btnRow.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;';
+  btnRow.style.cssText = 'display:flex;gap:8px;align-items:center;flex-wrap:wrap;flex-shrink:0;';
   scrollArea.appendChild(btnRow);
 
   // Einträge button — opens manual text entry modal (same style as Rad)
@@ -10042,7 +10149,7 @@ function buildPuzzlePanel(panel, uid){
 
   const game = document.createElement('div');
   game.id = `pz-game-${uid}`;
-  game.style.cssText = 'display:flex;flex-direction:column;gap:6px;flex-shrink:0;';
+  game.style.cssText = 'display:flex;flex-direction:column;gap:6px;flex:1 1 0;min-height:0;';
   scrollArea.appendChild(game);
 
   pzShowSentence(uid);
@@ -10185,7 +10292,9 @@ function pzShowSentence(uid){
 
   const pool = pzCreateZone(uid);
   pool.dataset.correct = correct;
-  pool.style.flexShrink = '0';
+  pool.style.flex = '1 1 0';
+  pool.style.minHeight = '0';
+  pool.style.alignContent = 'flex-start';
   words.forEach(w => pool.appendChild(pzCreateWord(w, uid)));
   game.appendChild(pool);
 
@@ -10702,7 +10811,8 @@ function zuBuildGame(uid){
   const textfield = document.createElement('div');
   textfield.className = 'zu-textfield';
   textfield.id = `zu-textfield-${uid}`;
-  textfield.style.cssText = 'flex:1 1 0;min-height:0;overflow:hidden;';
+  // flex:1 füllt den verbleibenden Platz zwischen Titelleiste und Prüfen-Button
+  textfield.style.cssText = 'flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;align-content:flex-start;';
   gameWrap.appendChild(textfield);
 
   // Collect all words shuffled
@@ -10991,17 +11101,20 @@ function buildWheel(body, uid){
   const cv = document.getElementById('wheel-canvas-'+uid);
   function resize(){
     const stage = cv.closest('.wheel-stage');
-    const size = Math.max(260, Math.min(stage.clientWidth || 560, stage.clientHeight || 560, 680));
+    if(!stage) return;
+    const sw = stage.clientWidth  || 300;
+    const sh = stage.clientHeight || 300;
+    const size = Math.max(120, Math.min(sw, sh, 680));
     const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
-    cv.width = Math.round(size*dpr);
-    cv.height = Math.round(size*dpr);
-    cv.style.width = size+'px';
-    cv.style.height = size+'px';
+    cv.width  = Math.round(size * dpr);
+    cv.height = Math.round(size * dpr);
+    cv.style.width  = size + 'px';
+    cv.style.height = size + 'px';
     const pointer = document.getElementById('wheel-pointer-'+uid);
     if(pointer){
       const scale = size / 560;
-      const pw = Math.round(40 * scale);
-      const ph = Math.round(52 * scale);
+      const pw = Math.max(18, Math.round(40 * scale));
+      const ph = Math.max(24, Math.round(52 * scale));
       const pt = Math.round(-14 * scale);
       const svg = pointer.querySelector('svg');
       if(svg){ svg.setAttribute('width', pw); svg.setAttribute('height', ph); }
