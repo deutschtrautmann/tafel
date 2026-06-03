@@ -3733,17 +3733,18 @@ function minimizeWidget(id){
   const el=document.getElementById(id); if(!el)return;
   const body=el.querySelector('.widget-body');
   const rh=el.querySelector('.resize-handle');
-  const mini=body.style.display==='none';
+  const mini=el._isMinimized===true;
   if(!mini){
     // Minimieren
     el._savedH=el.style.height;
+    el._isMinimized=true;
     body.style.display='none';
     rh.style.display='none';
     el.classList.remove('fit-content');
     el.style.height='36px';
   } else {
+    el._isMinimized=false;
     // Wiederherstellen
-    body.style.display='';
     rh.style.display='';
     const def=WIDGET_DEFS[el.dataset.type];
     if(def && def.fitContent){
@@ -3752,13 +3753,21 @@ function minimizeWidget(id){
     } else {
       el.style.height=el._savedH||'';
     }
-    // Spiele-Widget: Panels nach Restore neu layouten (Zuordnen/Puzzle werden sonst abgeschnitten)
     if(el.dataset.type === 'spiele'){
+      const spieleUid = parseInt(id.replace('widget-',''));
+      body.style.cssText='padding:0;display:flex;flex-direction:column;overflow:hidden;flex:1 1 auto;min-height:0;box-sizing:border-box;';
       requestAnimationFrame(()=>{
-        const panels = body.querySelectorAll('[id^="spiele-panel-"]');
-        panels.forEach(p=>{ if(p.style.display!=='none'){ p.style.display='none'; void p.offsetWidth; p.style.display='flex'; } });
-        updateWidgetScale(el);
+        requestAnimationFrame(()=>{
+          const activeBtn = body.querySelector('.spiele-tab-btn.active-tmode');
+          const activeTab = activeBtn
+            ? activeBtn.id.replace('spiele-tab-','').replace('-'+spieleUid,'')
+            : 'rad';
+          spieleShowTab(activeTab, spieleUid);
+          updateWidgetScale(el);
+        });
       });
+    } else {
+      body.style.display='';
     }
   }
 }
@@ -3783,7 +3792,8 @@ function maximizeWidget(id){
     el.style.zIndex=++zTop;
     const body=el.querySelector('.widget-body');
     const rh=el.querySelector('.resize-handle');
-    if(body && body.style.display==='none'){
+    if(el._isMinimized){
+      el._isMinimized=false;
       body.style.display='';
       if(rh) rh.style.display='';
     }
@@ -9318,7 +9328,7 @@ function slotCheckResult(uid){
 // WIDGET: SPIELE (Rad · Slot · Janken)
 // ════════════════════════════════════════════════
 function buildSpiele(body, uid){
-  body.style.cssText='padding:0;display:flex;flex-direction:column;overflow:hidden;height:100%;box-sizing:border-box;';
+  body.style.cssText='padding:0;display:flex;flex-direction:column;overflow:hidden;flex:1 1 auto;min-height:0;box-sizing:border-box;';
 
   // Tab bar
   const tabBar=document.createElement('div');
@@ -10157,7 +10167,7 @@ function buildPuzzlePanel(panel, uid){
 
   const game = document.createElement('div');
   game.id = `pz-game-${uid}`;
-  game.style.cssText = 'display:flex;flex-direction:column;gap:6px;flex:1 1 0;min-height:0;';
+  game.style.cssText = 'display:flex;flex-direction:column;gap:6px;flex:1 1 0;min-height:0;overflow:hidden;';
   scrollArea.appendChild(game);
 
   pzShowSentence(uid);
@@ -10302,6 +10312,7 @@ function pzShowSentence(uid){
   pool.dataset.correct = correct;
   pool.style.flex = '1 1 0';
   pool.style.minHeight = '0';
+  pool.style.overflow = 'auto';
   pool.style.alignContent = 'flex-start';
   words.forEach(w => pool.appendChild(pzCreateWord(w, uid)));
   game.appendChild(pool);
