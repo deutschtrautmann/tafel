@@ -1503,7 +1503,7 @@ body.light-mode .slot-scorebar-title{
 /* ── Wörter-Puzzle (Spiele-Tab) ── */
 .pz-container{min-height:calc(var(--uiscale,1)*60px);border:2px solid rgba(180,195,220,0.7);border-radius:14px;padding:calc(var(--uiscale,1)*12px);display:flex;flex-wrap:wrap;gap:calc(var(--uiscale,1)*8px);background:rgba(235,240,255,0.92);align-content:flex-start;box-sizing:border-box;}
 .pz-container.drag-over{background:rgba(74,222,128,0.22);border-color:rgba(74,222,128,0.6);}
-.pz-word{padding:calc(var(--uiscale,1)*10px) calc(var(--uiscale,1)*18px);border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.55);cursor:grab;user-select:none;-webkit-user-select:none;border:1px solid rgba(255,255,255,0.5);font-size:calc(var(--uiscale,1)*32px);font-family:'Caveat',cursive;font-weight:700;display:inline-block;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;color:#1a1f3a;}
+.pz-word{padding:calc(var(--uiscale,1)*10px) calc(var(--uiscale,1)*18px);border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.55);cursor:grab;user-select:none;-webkit-user-select:none;border:1px solid rgba(255,255,255,0.5);font-size:calc(var(--uiscale,1)*32px);font-family:'Arial',sans-serif;font-weight:700;display:inline-block;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;color:#1a1f3a;}
 .pz-word:active{cursor:grabbing;}
 .pz-word:nth-child(7n+1){background:#fff9c4;}
 .pz-word:nth-child(7n+2){background:#ffd6e0;}
@@ -1525,7 +1525,7 @@ body.light-mode .slot-scorebar-title{
 .pz-btn{margin-top:calc(var(--uiscale,1)*4px);width:auto;align-self:flex-start;padding:calc(var(--uiscale,1)*10px) calc(var(--uiscale,1)*28px);font-size:calc(var(--uiscale,1)*16px);border:none;border-radius:12px;background:var(--accent);color:#fff;cursor:pointer;touch-action:manipulation;}
 .pz-btn:active{filter:brightness(0.88);}
 .pz-file-label{display:inline-block;background:rgba(var(--accent-rgb),0.15);border:1.5px solid var(--accent);border-radius:9px;padding:calc(var(--uiscale,1)*7px) calc(var(--uiscale,1)*14px);font-size:calc(var(--uiscale,1)*13px);cursor:pointer;margin-bottom:calc(var(--uiscale,1)*8px);color:var(--text);touch-action:manipulation;}
-body.light-mode .pz-word{background:#fff;border-color:rgba(0,0,0,0.12);color:#1a1f3a;font-family:'Caveat',cursive;font-weight:700;}
+body.light-mode .pz-word{background:#fff;border-color:rgba(0,0,0,0.12);color:#1a1f3a;font-family:'Arial',sans-serif;font-weight:700;}
 body.light-mode .pz-container{background:rgba(var(--accent-rgb),0.10);border:2px solid rgba(var(--accent-rgb),0.25);}
 body.light-mode .pz-file-label{background:rgba(var(--accent-rgb),0.12);border-color:var(--accent);color:var(--text);}
 
@@ -1538,7 +1538,7 @@ body.light-mode .pz-file-label{background:rgba(var(--accent-rgb),0.12);border-co
   display:flex;flex-wrap:wrap;gap:6px;padding:4px 2px 2px;flex-shrink:0;justify-content:center;
 }
 .zu-title{
-  font-size:clamp(14px, calc(var(--uiscale,1)*22px), 28px);font-family:'Caveat',cursive;font-weight:900;
+  font-size:clamp(14px, calc(var(--uiscale,1)*22px), 28px);font-family:'Arial',sans-serif;font-weight:900;
   padding:calc(var(--uiscale,1)*4px) calc(var(--uiscale,1)*11px);
   border-radius:10px;
   border:3px solid;
@@ -1572,7 +1572,7 @@ body.light-mode .zu-textfield{background:rgba(var(--accent-rgb),0.07);border-col
   padding:clamp(4px, calc(var(--uiscale,1)*6px), 9px) clamp(8px, calc(var(--uiscale,1)*13px), 17px);
   border-radius:10px;
   border:2px solid rgba(255,255,255,0.5);
-  font-size:clamp(13px, calc(var(--uiscale,1)*22px), 28px);font-family:'Caveat',cursive;font-weight:700;
+  font-size:clamp(13px, calc(var(--uiscale,1)*22px), 28px);font-family:'Arial',sans-serif;font-weight:700;
   display:inline-block;
   cursor:pointer;user-select:none;-webkit-user-select:none;
   transition:transform .14s,box-shadow .14s,border-color .14s,color .14s;
@@ -3751,6 +3751,14 @@ function minimizeWidget(id){
       el.classList.add('fit-content');
     } else {
       el.style.height=el._savedH||'';
+    }
+    // Spiele-Widget: Panels nach Restore neu layouten (Zuordnen/Puzzle werden sonst abgeschnitten)
+    if(el.dataset.type === 'spiele'){
+      requestAnimationFrame(()=>{
+        const panels = body.querySelectorAll('[id^="spiele-panel-"]');
+        panels.forEach(p=>{ if(p.style.display!=='none'){ p.style.display='none'; void p.offsetWidth; p.style.display='flex'; } });
+        updateWidgetScale(el);
+      });
     }
   }
 }
@@ -10798,8 +10806,8 @@ function zuBuildGame(uid){
     const titleEl = document.createElement('div');
     titleEl.className = 'zu-title';
     titleEl.style.borderColor = color;
-    titleEl.style.background  = '#fff9c4';
-    titleEl.style.color       = '#1a1f3a';
+    titleEl.style.background  = color;
+    titleEl.style.color       = '#fff';
     titleEl.textContent = g.title;
     titleEl.dataset.zuGroup = gi;
     titleEl.dataset.zuUid   = uid;
@@ -10905,7 +10913,8 @@ function zuMarkWord(uid, el){
     const bg    = ZU_BG[gi % ZU_BG.length];
     el.dataset.zuMarked  = gi;
     el.classList.add('zu-marked');
-    el.style.background  = '#fff9c4';
+    el.style.background  = color;
+    el.style.color       = '#fff';
     el.style.borderColor = color;
     el.style.borderWidth = '3px';
     el.style.boxShadow   = `0 0 0 3px ${color}66, 0 3px 10px rgba(0,0,0,0.4)`;
@@ -10920,76 +10929,97 @@ function zuPruefen(uid){
   const textfield = document.getElementById(`zu-textfield-${uid}`);
   if(!textfield) return;
 
-  const words = textfield.querySelectorAll('.zu-word');
+  const words = Array.from(textfield.querySelectorAll('.zu-word'));
   let correct = 0, wrong = 0, unmarked = 0;
 
-  words.forEach(el => {
+  // First pass: classify each word
+  const results = words.map(el => {
     const trueGroup  = parseInt(el.dataset.zuGroup);
     const markedStr  = el.dataset.zuMarked;
-    if(markedStr === ''){
-      unmarked++;
-      // Shake to indicate unassigned
-      el.style.animation = 'none';
-      requestAnimationFrame(() => {
-        el.style.animation = 'zu-shake 0.35s ease-out both';
-        el.addEventListener('animationend', () => { el.style.animation = ''; }, {once:true});
-      });
-      return;
-    }
-    const markedGroup = parseInt(markedStr);
-    if(markedGroup === trueGroup){
-      correct++;
-      // Brief green glow
-      const origShadow = el.style.boxShadow;
-      el.style.outline = '3px solid rgba(74,222,128,0.9)';
-      setTimeout(() => { el.style.outline = ''; }, 800);
-    } else {
-      wrong++;
-      // Red flash + shake, then reset to neutral
-      el.style.outline = '3px solid rgba(248,113,113,0.9)';
-      el.style.animation = 'none';
-      requestAnimationFrame(() => {
-        el.style.animation = 'zu-shake 0.35s ease-out both';
-        el.addEventListener('animationend', () => {
-          el.style.animation   = '';
-          el.style.outline     = '';
-          el.dataset.zuMarked  = '';
-          el.classList.remove('zu-marked');
-          el.style.background  = '#fff9c4';
-          el.style.borderColor = 'rgba(255,255,255,0.5)';
-          el.style.borderWidth = '2px';
-          el.style.color       = '#1a1f3a';
-          el.style.boxShadow   = '0 2px 6px rgba(0,0,0,0.35)';
-        }, {once:true});
-      });
-    }
+    if(markedStr === '') return { el, status: 'unmarked' };
+    return { el, status: parseInt(markedStr) === trueGroup ? 'correct' : 'wrong' };
+  });
+
+  results.forEach(r => {
+    if(r.status === 'unmarked') unmarked++;
+    else if(r.status === 'correct') correct++;
+    else wrong++;
+  });
+
+  // Shake unmarked immediately
+  results.filter(r => r.status === 'unmarked').forEach(r => {
+    r.el.style.animation = 'none';
+    requestAnimationFrame(() => {
+      r.el.style.animation = 'zu-shake 0.35s ease-out both';
+      r.el.addEventListener('animationend', () => { r.el.style.animation = ''; }, {once:true});
+    });
+  });
+
+  // Sequential flash for marked words
+  const marked = results.filter(r => r.status !== 'unmarked');
+  const DELAY = 180; // ms between each word
+
+  marked.forEach((r, idx) => {
+    setTimeout(() => {
+      const el = r.el;
+      if(r.status === 'correct'){
+        // Green flash
+        const prevBg = el.style.background;
+        const prevColor = el.style.color;
+        el.style.transition = 'background 0.05s, color 0.05s';
+        el.style.background = '#4ade80';
+        el.style.color = '#fff';
+        el.style.outline = '3px solid rgba(74,222,128,0.9)';
+        pzBeep(660, 'sine', 0.18, 0.18, 0);
+        setTimeout(() => {
+          el.style.outline = '';
+          el.style.transition = 'background 0.3s, color 0.3s';
+          el.style.background = prevBg;
+          el.style.color = prevColor;
+        }, 350);
+      } else {
+        // Red flash + shake + reset
+        el.style.transition = 'background 0.05s, color 0.05s';
+        el.style.background = '#f87171';
+        el.style.color = '#fff';
+        el.style.outline = '3px solid rgba(248,113,113,0.9)';
+        pzBeep(220, 'sawtooth', 0.18, 0.18, 0);
+        el.style.animation = 'none';
+        requestAnimationFrame(() => {
+          el.style.animation = 'zu-shake 0.35s ease-out both';
+          el.addEventListener('animationend', () => {
+            el.style.animation   = '';
+            el.style.outline     = '';
+            el.style.transition  = '';
+            el.dataset.zuMarked  = '';
+            el.classList.remove('zu-marked');
+            el.style.background  = '#fff9c4';
+            el.style.color       = '#1a1f3a';
+            el.style.borderColor = 'rgba(255,255,255,0.5)';
+            el.style.borderWidth = '2px';
+            el.style.boxShadow   = '0 2px 6px rgba(0,0,0,0.35)';
+          }, {once:true});
+        });
+      }
+    }, idx * DELAY);
   });
 
   const total = words.length;
+  const afterAllMs = marked.length * DELAY + 500;
 
   if(wrong === 0 && unmarked === 0 && correct === total){
-    // All correct!
-    st.phase = 'won';
-    pzPlayWin();
-
-
-    // Flash the textfield
-    const tf = document.getElementById(`zu-textfield-${uid}`);
-    if(tf){
-      tf.classList.remove('zu-flash');
-      void tf.offsetWidth;
-      tf.classList.add('zu-flash');
-      tf.addEventListener('animationend', () => tf.classList.remove('zu-flash'), {once:true});
-    }
-
-
-  } else {
-    pzPlayWrong && pzPlayWrong();
-    const parts = [];
-    if(correct > 0) parts.push(`✓ ${correct}`);
-    if(wrong > 0)   parts.push(`✗ ${wrong}`);
-    if(unmarked > 0) parts.push(`? ${unmarked}`);
-
+    // All correct — win after flash sequence
+    setTimeout(() => {
+      st.phase = 'won';
+      pzPlayWin();
+      const tf = document.getElementById(`zu-textfield-${uid}`);
+      if(tf){
+        tf.classList.remove('zu-flash');
+        void tf.offsetWidth;
+        tf.classList.add('zu-flash');
+        tf.addEventListener('animationend', () => tf.classList.remove('zu-flash'), {once:true});
+      }
+    }, afterAllMs);
   }
 }
 
