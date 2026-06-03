@@ -1878,7 +1878,7 @@ const LANG = {
     text:'Text',
     wuerfel:'Würfel',
     was:'Fotos',
-    wasDiashow:'▶ Diashow',
+    wasDiashow:'▶ Diashow starten',
     wasPause:'⏸ Pause',
     timer:'Timer',
     uhr:'Uhr',
@@ -1950,9 +1950,9 @@ const LANG = {
     qrHint:'Schüler*innen können den Code scannen',
     qrPlaceholder:'URL oder Text...',
     // Was widget
-    wasMosaik:'🔲 Mosaik',
-    wasVerschwommen:'🌫 Verschwommen',
-    wasKaese:'🧀 Käse',
+    wasMosaik:'🔲 Verpixeln',
+    wasVerschwommen:'🌫 Verwischen',
+    wasKaese:'🧀 Käselöcher',
     wasUploadHint:'Fotos hier hochladen',
     wasUploadSub:'Mehrere Fotos möglich – werden schrittweise enthüllt',
     wasFeiner:'🔍 Feiner',
@@ -8027,13 +8027,6 @@ function buildWas(body,uid){
   wasState[uid]={imgs:[],imgIndex:0,step:0,maxSteps:8,canvas:null,revealed:false,mode:'diashow',blurInterval:null,diashowActive:false,diashowTimer:null,diashowRandom:false};
   body.style.display='flex';body.style.flexDirection='column';body.style.padding='8px';
   body.innerHTML=`
-<!-- Mode tabs -->
-<div style="display:flex;gap:3px;margin-bottom:.5em;background:rgba(0,0,0,0.25);border-radius:8px;padding:3px;">
-  <button id="wastab-diashow-${uid}" class="timer-mode-btn active-tmode" onclick="wasDiashowToggle(${uid})" data-i18n="wasDiashow"></button>
-  <button id="wastab-mosaic-${uid}" class="timer-mode-btn" data-i18n="wasMosaik" onclick="setWasMode('mosaic',${uid})" data-i18n="wasMosaik"></button>
-  <button id="wastab-blur-${uid}" class="timer-mode-btn" data-i18n="wasVerschwommen" onclick="setWasMode('blur',${uid})" data-i18n="wasVerschwommen"></button>
-  <button id="wastab-kaese-${uid}" class="timer-mode-btn" data-i18n="wasKaese" onclick="setWasMode('kaese',${uid})" data-i18n="wasKaese"></button>
-</div>
 <div id="was-upload-${uid}" style="text-align:center;">
   <div class="bg-upload-zone" onclick="document.getElementById('was-file-${uid}').click()" style="padding:20px 10px;">
     <input type="file" id="was-file-${uid}" accept="image/*" multiple style="display:none" onchange="loadWasImages(${uid},this.files)">
@@ -8055,6 +8048,13 @@ function buildWas(body,uid){
     <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="display:none;">🔀 Zufall an</button>
     <button class="wbtn" onclick="wasRevealMore(${uid})" id="was-btn-${uid}" data-i18n="wasFeiner"></button>
     <button class="wbtn" onclick="wasReset(${uid})">↺</button>
+  </div>
+  <!-- Mode tabs — nur sichtbar wenn Bilder geladen -->
+  <div style="display:flex;gap:3px;background:rgba(0,0,0,0.25);border-radius:8px;padding:3px;">
+    <button id="wastab-diashow-${uid}" class="timer-mode-btn active-tmode" onclick="wasDiashowToggle(${uid})" data-i18n="wasDiashow"></button>
+    <button id="wastab-mosaic-${uid}" class="timer-mode-btn" data-i18n="wasMosaik" onclick="setWasMode('mosaic',${uid})"></button>
+    <button id="wastab-blur-${uid}" class="timer-mode-btn" data-i18n="wasVerschwommen" onclick="setWasMode('blur',${uid})"></button>
+    <button id="wastab-kaese-${uid}" class="timer-mode-btn" data-i18n="wasKaese" onclick="setWasMode('kaese',${uid})"></button>
   </div>
 </div>`;
 }
@@ -11004,13 +11004,233 @@ function zuReset(uid){
 // ════════════════════════════════════════════════
 // ZUMPAD
 // ════════════════════════════════════════════════
-function openZumpad(){
+// ── ZUMpad Import-Logik ──────────────────────────────────────────────
+// Format im Pad:
+//   !FunktionName
+//   Inhalt Zeile 1
+//   Inhalt Zeile 2
+//   ...
+//   !NächsteFunktion
+//   ...
+// Unterstützte Funktionsnamen (Groß-/Kleinschreibung egal):
+//   textpad, namen, namenliste, satzbau, rad, wheel, slot
+
+function _zumpadParseBlocks(text){
+  // Gibt Array von {name, content} zurück
+  const blocks = [];
+  let cur = null;
+  for(const rawLine of text.split(/\r?\n/)){
+    const line = rawLine.trimEnd();
+    if(line.startsWith('!')){
+      if(cur) blocks.push(cur);
+      cur = {name: line.slice(1).trim().toLowerCase(), lines: []};
+    } else if(cur){
+      cur.lines.push(rawLine);
+    }
+  }
+  if(cur) blocks.push(cur);
+  return blocks;
+}
+
+const _ZUMPAD_FUNC_ALIASES = {
+  textpad:['textpad','text','notiz','note'],
+  namen:['namen','namenliste','names','namensliste'],
+  satzbau:['satzbau','sb'],
+  wheel:['rad','wheel','glücksrad','dreh'],
+  slot:['slot','einarmiger','slotmaschine','slots'],
+  puzzle:['puzzle','wortpuzzle','satzpuzzle'],
+  zuordnen:['zuordnen','zuordnung','kategorien'],
+};
+
+function _zumpadDetectType(name){
+  for(const [key, aliases] of Object.entries(_ZUMPAD_FUNC_ALIASES)){
+    if(aliases.includes(name)) return key;
+  }
+  return null;
+}
+
+function _zumpadImportBlocks(blocks, onDone){
+  // uid als Integer aus Widget-Element extrahieren
+  function _elUid(el){
+    if(!el) return null;
+    const raw = (el.id||'').match(/(\d+)$/)?.[1];
+    return raw != null ? parseInt(raw) : null;
+  }
+
+  // Gibt uid eines vorhandenen Widgets zurück, oder spawnt es neu
+  function _ensureWidget(domType){
+    let w = document.querySelector(`.widget[data-type="${domType}"]`);
+    if(!w) w = spawnWidget(domType);
+    return _elUid(w);
+  }
+
+  // Vorab alle benötigten Widgets spawnen, damit das DOM vollständig aufgebaut ist
+  const needsSpiele = blocks.some(b => ['wheel','slot','puzzle','zuordnen'].includes(_zumpadDetectType(b.name)));
+  const needsNames  = blocks.some(b => _zumpadDetectType(b.name) === 'namen');
+  const needsDice   = blocks.some(b => _zumpadDetectType(b.name) === 'satzbau');
+  const needsText   = blocks.some(b => _zumpadDetectType(b.name) === 'textpad');
+
+  let spieleUid = null;
+  if(needsSpiele) spieleUid = _ensureWidget('spiele');
+  if(needsNames)  _ensureWidget('names');
+  if(needsDice)   _ensureWidget('dice');
+  if(needsText)   _ensureWidget('textpad');
+
+  // Nach einem Frame importieren — DOM ist dann vollständig gerendert
+  requestAnimationFrame(() => setTimeout(() => {
+    const handled = [];
+
+    for(const block of blocks){
+      const type = _zumpadDetectType(block.name);
+      if(!type) continue;
+      const content = block.lines.join('\n').trim();
+      if(!content) continue;
+
+      if(type === 'textpad'){
+        const uid = _elUid(document.querySelector('.widget[data-type="textpad"]'));
+        if(uid != null){
+          const el = document.getElementById('textpad-'+uid);
+          if(el){ el.innerText = content; typeof updateTPCounter==='function' && updateTPCounter(uid); }
+          handled.push('Textpad');
+        }
+
+      } else if(type === 'namen'){
+        const uid = _elUid(document.querySelector('.widget[data-type="names"]'));
+        if(uid != null){
+          const ta = document.getElementById('namelist-'+uid);
+          if(ta) ta.value = content;
+          if(typeof _nameFontCache !== 'undefined') _nameFontCache[uid] = null;
+          handled.push('Namen');
+        }
+
+      } else if(type === 'satzbau'){
+        const uid = _elUid(document.querySelector('.widget[data-type="dice"]'));
+        if(uid != null){
+          if(!satzbauWords[uid]) satzbauWords[uid]={};
+          satzbauWords[uid]._draftText = content;
+          const parsed = parseSatzbauText(content);
+          Object.assign(satzbauWords[uid], parsed);
+          satzbauWords[uid]._bags = {};
+          handled.push('Satzbau');
+        }
+
+      } else if(type === 'wheel'){
+        if(spieleUid != null){
+          const uid = spieleUid * 1000 + 1;
+          if(typeof wheelStates !== 'undefined' && wheelStates[uid]){
+            const qs = content.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+            if(qs.length >= 1){
+              wheelStates[uid].questions = qs;
+              wheelStates[uid].selected  = -1;
+              wheelStates[uid].bag       = [];
+              const ta = document.getElementById('wheel-text-'+uid);
+              if(ta) ta.value = content;
+              typeof drawQuestionWheel==='function' && drawQuestionWheel(uid);
+              const res = document.getElementById('wheel-result-'+uid);
+              if(res) res.textContent = T('wheelUebernommen');
+            }
+            handled.push('Rad');
+          }
+        }
+
+      } else if(type === 'slot'){
+        if(spieleUid != null){
+          const uid = spieleUid * 1000 + 2;
+          const ta = document.getElementById('slot-textarea-'+uid);
+          if(ta){
+            ta.value = content;
+            typeof slotApplyTextarea==='function' && slotApplyTextarea(uid);
+          }
+          handled.push('Slot');
+        }
+
+      } else if(type === 'puzzle'){
+        if(spieleUid != null && typeof pzState !== 'undefined' && pzState[spieleUid]){
+          pzState[spieleUid].lastData = content;
+          typeof pzProcessData==='function' && pzProcessData(spieleUid, content);
+          handled.push('Puzzle');
+        }
+
+      } else if(type === 'zuordnen'){
+        if(spieleUid != null && typeof zuState !== 'undefined' && zuState[spieleUid]){
+          typeof zuStartGame==='function' && zuStartGame(spieleUid, content);
+          handled.push('Zuordnen');
+        }
+      }
+    }
+
+    if(onDone) onDone(handled);
+  }, 0));
+}
+
+function _zumpadFindUidByType(type){
+  // Suche im DOM nach einem Widget des Typs, gib uid zurück
+  const w = document.querySelector(`.widget[data-type="${type}"]`);
+  if(!w) return null;
+  // uid steht als data-uid oder lässt sich aus id ableiten
+  if(w.dataset.uid) return w.dataset.uid;
+  const id = w.id || '';
+  const m = id.match(/(\d+)$/);
+  return m ? m[1] : null;
+}
+
+function _zumpadShowImportToast(handled){
+  // Kurze Statusmeldung
+  let toast = document.getElementById('_zumpad-toast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = '_zumpad-toast';
+    toast.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:99999;'
+      +'background:rgba(36,44,86,0.97);border:1px solid rgba(108,143,255,0.4);border-radius:12px;'
+      +'color:#eef0ff;padding:10px 22px;font-size:14px;font-weight:700;pointer-events:none;'
+      +'box-shadow:0 4px 24px rgba(0,0,0,0.5);transition:opacity .4s;white-space:nowrap;';
+    document.body.appendChild(toast);
+  }
+  toast.style.opacity='1';
+  if(handled.length > 0){
+    toast.textContent = '✅ Importiert: ' + handled.join(', ');
+  } else {
+    toast.textContent = '⚠️ Keine bekannten Funktionsdaten gefunden';
+  }
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>{ toast.style.opacity='0'; }, 3200);
+}
+
+async function openZumpad(){
   const val = (document.getElementById('zumpad-input')?.value||'').trim();
   if(!val){document.getElementById('zumpad-input')?.focus();return;}
-  const url = 'https://zumpad.zum.de/p/' + encodeURIComponent(val);
-  // iOS Safari: window.open in click handler works; use location as fallback
-  const w = window.open(url, '_blank');
-  if(!w){ window.location.href = url; }
+
+  // ZUMpad Plaintext-Export URL
+  const exportUrl = 'https://zumpad.zum.de/p/' + encodeURIComponent(val) + '/export/txt';
+  const padUrl    = 'https://zumpad.zum.de/p/' + encodeURIComponent(val);
+
+  // Versuche den Textinhalt abzurufen
+  let text = null;
+  try{
+    const resp = await fetch(exportUrl, {signal: AbortSignal.timeout(6000)});
+    if(resp.ok) text = await resp.text();
+  } catch(e){ text = null; }
+
+  if(text == null){
+    // Netzwerkfehler oder kein Zugriff → normales Tab-Öffnen
+    const w = window.open(padUrl, '_blank');
+    if(!w){ window.location.href = padUrl; }
+    return;
+  }
+
+  // Enthält das Pad Funktionsdaten (mind. eine !-Zeile)?
+  const blocks = _zumpadParseBlocks(text);
+  const hasBlocks = blocks.some(b => _zumpadDetectType(b.name) !== null);
+
+  if(!hasBlocks){
+    // Kein bekanntes Schema → in neuem Tab öffnen wie bisher
+    const w = window.open(padUrl, '_blank');
+    if(!w){ window.location.href = padUrl; }
+    return;
+  }
+
+  // Import durchführen (async: wartet auf DOM-Frame)
+  _zumpadImportBlocks(blocks, handled => _zumpadShowImportToast(handled));
 }
 
 // ════════════════════════════════════════════════
