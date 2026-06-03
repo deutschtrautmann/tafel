@@ -3733,17 +3733,15 @@ function minimizeWidget(id){
   const el=document.getElementById(id); if(!el)return;
   const body=el.querySelector('.widget-body');
   const rh=el.querySelector('.resize-handle');
-  const mini=el._isMinimized===true;
+  const mini=body.style.display==='none';
   if(!mini){
     // Minimieren
     el._savedH=el.style.height;
-    el._isMinimized=true;
     body.style.display='none';
     rh.style.display='none';
     el.classList.remove('fit-content');
     el.style.height='36px';
   } else {
-    el._isMinimized=false;
     // Wiederherstellen
     rh.style.display='';
     const def=WIDGET_DEFS[el.dataset.type];
@@ -3756,6 +3754,8 @@ function minimizeWidget(id){
     if(el.dataset.type === 'spiele'){
       const spieleUid = parseInt(id.replace('widget-',''));
       body.style.cssText='padding:0;display:flex;flex-direction:column;overflow:hidden;flex:1 1 auto;min-height:0;box-sizing:border-box;';
+      // Zwei verschachtelte rAFs: erster wartet auf Layout mit neuer Widget-Hoehe,
+      // zweiter wartet auf den daraus folgenden Reflow - erst dann ist offsetHeight korrekt.
       requestAnimationFrame(()=>{
         requestAnimationFrame(()=>{
           const activeBtn = body.querySelector('.spiele-tab-btn.active-tmode');
@@ -3792,8 +3792,7 @@ function maximizeWidget(id){
     el.style.zIndex=++zTop;
     const body=el.querySelector('.widget-body');
     const rh=el.querySelector('.resize-handle');
-    if(el._isMinimized){
-      el._isMinimized=false;
+    if(body && body.style.display==='none'){
       body.style.display='';
       if(rh) rh.style.display='';
     }
