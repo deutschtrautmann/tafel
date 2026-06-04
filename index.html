@@ -664,6 +664,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 }
 
 .widget.dragging{box-shadow:0 20px 60px rgba(0,0,0,0.7);opacity:.93;z-index:5000!important;}
+.widget._maximized-state{max-height:none!important;border-radius:0!important;}
 
 .widget-header{
   display:flex;align-items:center;justify-content:space-between;
@@ -714,6 +715,52 @@ textarea.winput{resize:vertical;}
   display:block;
   pointer-events:auto;
 }
+/* ── Vollbild-Overlay für Puzzle & Zuordnen ── */
+#spiel-overlay{
+  position:fixed;inset:0;z-index:9999;
+  display:none;flex-direction:column;
+  background:#f4f6fb;
+  pointer-events:none;
+}
+#spiel-overlay.active{
+  display:flex;
+  pointer-events:auto;
+}
+#spiel-overlay-bar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 14px;height:52px;flex-shrink:0;
+  background:#ffffff;
+  border-bottom:2px solid rgba(108,143,255,0.25);
+}
+#spiel-overlay-title{
+  font-size:1.1em;font-weight:800;color:#1a1f3a;letter-spacing:.02em;
+}
+#spiel-overlay-close,
+#spiel-overlay-fs{
+  background:none;border:none;color:#555e7a;font-size:1.5em;
+  cursor:pointer;padding:4px 8px;border-radius:8px;line-height:1;
+  transition:background .15s,color .15s;
+}
+#spiel-overlay-close:hover,
+#spiel-overlay-fs:hover{background:rgba(0,0,0,0.08);color:#1a1f3a;}
+#spiel-overlay-content{
+  flex:1;min-height:0;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+/* Alle CSS-Variablen im Overlay auf helle Werte setzen */
+#spiel-overlay{
+  --bg:#f4f6fb;--bg2:#eef0fa;--bg3:#e2e6f5;
+  --card:#ffffff;--card2:#dde2f5;
+  --accent:#6c8fff;--accent2:#a78bfa;
+  --accent-rgb:108,143,255;--accent2-rgb:167,139,250;
+  --card-rgb:255,255,255;
+  --text:#1a1f3a;--text2:#555e7a;
+}
+/* Scrollbar im Overlay hell */
+#spiel-overlay-content ::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);}
+/* pz-ghost muss über dem Overlay liegen */
+.pz-ghost{z-index:60000!important;}
 #desktop-draw-canvas{
   position:absolute;inset:0;
   width:100%;height:100%;
@@ -1112,24 +1159,37 @@ body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:non
   /* Puzzle: Container füllt Platz */
   .widget[data-type="spiele"] .pz-container{overflow-y:auto;align-content:flex-start;}
   .widget[data-type="spiele"] .pz-word{
-    font-size:clamp(15px,4.5vw,24px)!important;padding:5px 9px!important;
+    font-size:clamp(16px,calc(var(--uiscale,1)*28px),52px)!important;
+    padding:clamp(6px,calc(var(--uiscale,1)*10px),18px) clamp(10px,calc(var(--uiscale,1)*18px),30px)!important;
   }
   .widget[data-type="spiele"] .pz-btn{
-    font-size:clamp(13px,3.5vw,17px)!important;padding:7px 16px!important;flex-shrink:0;
+    font-size:clamp(14px,calc(var(--uiscale,1)*16px),26px)!important;
+    padding:clamp(8px,calc(var(--uiscale,1)*10px),18px) clamp(20px,calc(var(--uiscale,1)*28px),48px)!important;
+    flex-shrink:0;
   }
   .widget[data-type="spiele"] .pz-progress,
-  .widget[data-type="spiele"] .pz-label{font-size:clamp(11px,3vw,14px)!important;}
+  .widget[data-type="spiele"] .pz-label{font-size:clamp(12px,calc(var(--uiscale,1)*13px),20px)!important;}
+  .widget[data-type="spiele"] .pz-container{
+    gap:clamp(6px,calc(var(--uiscale,1)*8px),16px)!important;
+    padding:clamp(8px,calc(var(--uiscale,1)*12px),22px)!important;
+  }
 
   /* Zuordnen: Wortfeld füllt Platz */
-  .widget[data-type="spiele"] .zu-textfield{overflow-y:auto;align-content:flex-start;}
+  .widget[data-type="spiele"] .zu-textfield{
+    overflow-y:auto;align-content:flex-start;
+    gap:clamp(5px,calc(var(--uiscale,1)*7px),14px)!important;
+    padding:clamp(8px,calc(var(--uiscale,1)*10px),18px) clamp(8px,calc(var(--uiscale,1)*10px),16px)!important;
+  }
   .widget[data-type="spiele"] .zu-word{
-    font-size:clamp(13px,4vw,20px)!important;padding:4px 8px!important;
+    font-size:clamp(14px,calc(var(--uiscale,1)*22px),40px)!important;
+    padding:clamp(5px,calc(var(--uiscale,1)*7px),14px) clamp(10px,calc(var(--uiscale,1)*14px),26px)!important;
   }
   .widget[data-type="spiele"] .zu-title{
-    font-size:clamp(12px,3.8vw,20px)!important;padding:3px 7px!important;
+    font-size:clamp(13px,calc(var(--uiscale,1)*20px),36px)!important;
+    padding:clamp(4px,calc(var(--uiscale,1)*5px),10px) clamp(10px,calc(var(--uiscale,1)*13px),24px)!important;
   }
-  .widget[data-type="spiele"] .zu-titles-row{gap:4px;padding:2px 0;}
-  .widget[data-type="spiele"] .zu-check-row{padding:3px 2px 0;flex-shrink:0;}
+  .widget[data-type="spiele"] .zu-titles-row{gap:clamp(4px,calc(var(--uiscale,1)*6px),12px);padding:2px 0;}
+  .widget[data-type="spiele"] .zu-check-row{padding:clamp(3px,calc(var(--uiscale,1)*5px),10px) 2px 0;flex-shrink:0;}
 
   /* Ampel: Config-Zeile kompakter */
   .widget[data-type="spiele"] [id^="ampel-cfg-"]{
@@ -1541,23 +1601,24 @@ body.light-mode .pz-file-label{background:rgba(var(--accent-rgb),0.12);border-co
   font-size:clamp(14px, calc(var(--uiscale,1)*22px), 28px);font-family:'Arial',sans-serif;font-weight:900;
   padding:calc(var(--uiscale,1)*4px) calc(var(--uiscale,1)*11px);
   border-radius:10px;
-  border:3px solid;
+  border:none;
   display:inline-flex;align-items:center;
   box-shadow:0 2px 8px rgba(0,0,0,0.25);
   cursor:pointer;user-select:none;-webkit-user-select:none;
   flex-shrink:0;
-  transition:transform .15s,box-shadow .15s,opacity .15s;
-  opacity:1;
+  transition:transform .15s,opacity .15s,box-shadow .15s;
+  opacity:0.65;
 }
 .zu-title.zu-active-title{
   transform:scale(1.08);
   opacity:1;
+  box-shadow:0 4px 16px rgba(0,0,0,0.35);
 }
 /* Text field with fixed word chips */
 .zu-textfield{
-  border:2px solid #b4c3dc;border-radius:14px;
+  border:2px solid rgba(180,195,220,0.7);border-radius:14px;
   padding:clamp(6px, calc(var(--uiscale,1)*10px), 14px) clamp(6px, calc(var(--uiscale,1)*8px), 12px);
-  background:#e8eeff;
+  background:rgba(235,240,255,0.92);
   width:100%;box-sizing:border-box;
   display:flex;flex-wrap:wrap;gap:clamp(4px, calc(var(--uiscale,1)*6px), 9px);
   align-content:flex-start;
@@ -1571,19 +1632,19 @@ body.light-mode .zu-textfield{background:rgba(var(--accent-rgb),0.07);border-col
 .zu-word{
   padding:clamp(4px, calc(var(--uiscale,1)*6px), 9px) clamp(8px, calc(var(--uiscale,1)*13px), 17px);
   border-radius:10px;
-  border:2px solid rgba(255,255,255,0.5);
+  border:none;
   font-size:clamp(13px, calc(var(--uiscale,1)*22px), 28px);font-family:'Arial',sans-serif;font-weight:700;
   display:inline-block;
   cursor:pointer;user-select:none;-webkit-user-select:none;
-  transition:transform .14s,box-shadow .14s,border-color .14s,color .14s;
-  color:#1a1f3a;
-  background:#fff9c4;
+  transition:transform .14s,box-shadow .14s,color .14s,background .14s;
+  color:#111;
+  background:#fff;
   box-shadow:0 2px 6px rgba(0,0,0,0.35);
 }
 .zu-word:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(0,0,0,0.45);}
-.zu-word.zu-marked{
-  border-width:3px;
-}
+.zu-word.zu-marked{}
+.zu-word.zu-correct-locked{cursor:default;opacity:0.75;}
+.zu-word.zu-correct-locked:hover{transform:none;box-shadow:0 2px 6px rgba(0,0,0,0.35);}
 body.light-mode .zu-word{color:#1a1f3a;}
 /* Prüfen button area */
 .zu-check-row{
@@ -1709,14 +1770,6 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
   <!-- ── Zeile 2: Werkzeug-Launcher (scrollbar) ── -->
   <div id="launcher">
 
-    <div class="zumpad-inline" id="zumpad-inline">
-      <input type="text" id="zumpad-input" class="zumpad-input"
-        placeholder="Pad-Name?"
-        autocomplete="off"
-        onkeydown="if(event.key==='Enter') openZumpad()">
-      <button class="zumpad-los-btn" onclick="openZumpad()" data-i18n="los">Los!</button>
-    </div>
-
     <button class="tool-btn" onclick="spawnWidget('names')">
       <span class="tb-icon material-symbols-rounded">groups</span>
       <span id="lbl-namen" data-i18n="namen">Namen</span>
@@ -1761,6 +1814,14 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       <span class="tb-icon material-symbols-rounded">qr_code</span>
       <span id="lbl-qr">QR</span>
     </button>
+
+    <div class="zumpad-inline" id="zumpad-inline">
+      <input type="text" id="zumpad-input" class="zumpad-input"
+        placeholder="Pad-Name?"
+        autocomplete="off"
+        onkeydown="if(event.key==='Enter') openZumpad()">
+      <button class="zumpad-los-btn" onclick="openZumpad()" data-i18n="los">Los!</button>
+    </div>
 
   </div>
 
@@ -3783,11 +3844,13 @@ function maximizeWidget(id){
     };
     el._maximized=true;
     el.classList.remove('fit-content');
+    el.classList.add('_maximized-state');
     const { dw, dh } = getDesktopBounds();
     el.style.left='0px';
     el.style.top='0px';
     el.style.width=dw+'px';
     el.style.maxWidth='none';
+    el.style.maxHeight='none';
     el.style.height=dh+'px';
     el.style.zIndex=++zTop;
     const body=el.querySelector('.widget-body');
@@ -3800,6 +3863,7 @@ function maximizeWidget(id){
     if(btn){ btn.title=T('ttWiederherstellen'); btn.textContent='⧉'; }
   } else {
     el._maximized=false;
+    el.classList.remove('_maximized-state');
     const s=el._savedMaxState||{};
     if(s.fitContent){
       el.classList.add('fit-content');
@@ -3811,11 +3875,31 @@ function maximizeWidget(id){
     el.style.top=s.top||'0px';
     el.style.width=s.width||'';
     el.style.maxWidth='';
+    el.style.maxHeight='';
     const btn=el.querySelector('.wh-btn[title="Wiederherstellen"]');
     if(btn){ btn.title=T('ttMaximieren'); btn.textContent='⛶'; }
     clampWidget(el);
   }
   updateWidgetScale(el);
+  // Wenn Spiele-Widget: aktiven Puzzle/Zuordnen-Tab nach Resize neu skalieren
+  if(el.dataset.type === 'spiele'){
+    const uid = parseInt(el.id.replace('widget-',''));
+    const activeBtn = el.querySelector('.spiele-tab-btn.active-tmode');
+    const activeTab = activeBtn ? activeBtn.id.replace('spiele-tab-','').replace('-'+uid,'') : null;
+    if(activeTab === 'puzzle' || activeTab === 'zuordnen'){
+      requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
+        updateWidgetScale(el);
+        if(activeTab === 'puzzle'){
+          const game = document.getElementById(`pz-game-${uid}`);
+          _pzFitContainer(uid, game);
+        }
+        if(activeTab === 'zuordnen'){
+          const gw = document.getElementById(`zu-game-${uid}`);
+          if(gw){ const tf=gw.querySelector('.zu-textfield'); if(tf){ tf.style.height=''; tf.style.maxHeight=''; tf.style.flex='1 1 0'; tf.style.minHeight='0'; }}
+        }
+      }); });
+    }
+  }
 }
 
 function updateWidgetScale(el){
@@ -10039,6 +10123,101 @@ function ampelPanelClick(auid){
   ampelPanelStart(auid);
 }
 
+// ══════════════════════════════════════════════════════
+//  SPIEL-OVERLAY — Vollbild für Puzzle & Zuordnen
+// ══════════════════════════════════════════════════════
+let _spielOverlayState = null; // { tab, uid, panel, placeholder }
+
+function openSpielOverlay(tab, uid){
+  const overlay  = document.getElementById('spiel-overlay');
+  const content  = document.getElementById('spiel-overlay-content');
+  const titleEl  = document.getElementById('spiel-overlay-title');
+  const panel    = document.getElementById(`spiele-panel-${tab}-${uid}`);
+  if(!overlay || !panel) return;
+
+  // Wenn schon geöffnet für genau diesen Tab/uid – nichts tun
+  if(_spielOverlayState && _spielOverlayState.tab===tab && _spielOverlayState.uid===uid) return;
+
+  // Vorherigen Zustand zurückbauen (anderer Tab/uid)
+  if(_spielOverlayState) _restoreSpielPanel();
+
+  // Platzhalter im Widget einsetzen, damit Layout stabil bleibt
+  const placeholder = document.createElement('div');
+  placeholder.id = `spiel-ph-${tab}-${uid}`;
+  panel.parentNode.insertBefore(placeholder, panel);
+
+  // Panel ins Overlay verschieben
+  panel.style.display = 'flex';
+  panel.style.flex    = '1';
+  panel.style.minHeight = '0';
+  content.appendChild(panel);
+
+  // Titel
+  const labels = { puzzle:'🧩 Puzzle', zuordnen:'🔗 Zuordnen' };
+  titleEl.textContent = labels[tab] || tab;
+
+  // Topbar verstecken wie beim Zeichnen
+  const topbar    = document.getElementById('topbar');
+  const clockWrap = document.getElementById('clock-wrap');
+  if(topbar)    topbar.style.display    = 'none';
+  if(clockWrap) clockWrap.style.display = 'none';
+
+  overlay.classList.add('active');
+
+  _spielOverlayState = { tab, uid, panel, placeholder };
+
+  // Neu skalieren nach Anzeige
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      const widgetEl = document.getElementById(`spiele-panel-rad-${uid}`)?.closest('.widget');
+      if(widgetEl) updateWidgetScale(widgetEl);
+      if(tab==='puzzle'){
+        const game = document.getElementById(`pz-game-${uid}`);
+        _pzFitContainer(uid, game);
+      }
+      if(tab==='zuordnen'){
+        const gameWrap = document.getElementById(`zu-game-${uid}`);
+        if(gameWrap){
+          const tf = gameWrap.querySelector('.zu-textfield');
+          if(tf){ tf.style.height=''; tf.style.maxHeight=''; tf.style.flex='1 1 0'; tf.style.minHeight='0'; }
+        }
+      }
+    });
+  });
+}
+
+function _restoreSpielPanel(){
+  if(!_spielOverlayState) return;
+  const { tab, uid, panel, placeholder } = _spielOverlayState;
+  if(placeholder && placeholder.parentNode){
+    placeholder.parentNode.insertBefore(panel, placeholder);
+    placeholder.remove();
+  }
+  panel.style.display = 'none';
+  _spielOverlayState = null;
+}
+
+function closeSpielOverlay(){
+  if(!_spielOverlayState) return;
+  const { uid } = _spielOverlayState;
+  const overlay = document.getElementById('spiel-overlay');
+  overlay.classList.remove('active');
+  _restoreSpielPanel();
+  // Topbar wiederherstellen
+  const topbar    = document.getElementById('topbar');
+  const clockWrap = document.getElementById('clock-wrap');
+  if(topbar)    topbar.style.display    = '';
+  if(clockWrap) clockWrap.style.display = '';
+  // Tab-Buttons im Widget: keiner aktiv markiert für Puzzle/Zuordnen
+  // (zeigt nur noch Rad/Slot/Ampel aktiv – wir wechseln zurück zu Rad)
+  ['rad','slot','puzzle','zuordnen','ampel'].forEach(t=>{
+    const btn = document.getElementById(`spiele-tab-${t}-${uid}`);
+    if(btn) btn.classList.toggle('active-tmode', t==='rad');
+    const panel = document.getElementById(`spiele-panel-${t}-${uid}`);
+    if(panel) panel.style.display = t==='rad' ? 'flex' : 'none';
+  });
+}
+
 function spieleShowTab(tab, uid){
   // City sounds: stop when leaving ampel tab
   const auid = uid * 1000 + 5;
@@ -10057,10 +10236,27 @@ function spieleShowTab(tab, uid){
     _apPaused[auid] = false;
     ampelAnimStop(auid); // Animation stoppen beim Tab-Wechsel
   }
+
+  // ── Vollbild-Overlay für Puzzle & Zuordnen ──
+  const fullscreenTabs = ['puzzle','zuordnen'];
+  if(fullscreenTabs.includes(tab)){
+    openSpielOverlay(tab, uid);
+  } else {
+    closeSpielOverlay();
+  }
+
+  // Nur Widget-Panels für Nicht-Overlay-Tabs umschalten
+  // (Puzzle/Zuordnen-Panels wurden ggf. ins Overlay verschoben – nicht anfassen)
+  const widgetEl = document.getElementById(`spiele-panel-rad-${uid}`)?.closest('.widget');
   ['rad','slot','puzzle','zuordnen','ampel'].forEach(t=>{
     const panel=document.getElementById(`spiele-panel-${t}-${uid}`);
     const btn  =document.getElementById(`spiele-tab-${t}-${uid}`);
-    if(panel) panel.style.display = t===tab ? 'flex' : 'none';
+    // Panel überspringen, wenn es sich bereits im Overlay befindet
+    if(panel && document.getElementById('spiel-overlay-content')?.contains(panel)) {
+      if(btn) btn.classList.toggle('active-tmode', t===tab);
+      return;
+    }
+    if(panel) panel.style.display = (t===tab && !['puzzle','zuordnen'].includes(t)) ? 'flex' : 'none';
     if(btn)   btn.classList.toggle('active-tmode', t===tab);
   });
   if(tab==='slot'){
@@ -10090,8 +10286,28 @@ function spieleShowTab(tab, uid){
     }, 150);
   }
   // Refresh scale for any tab switch so --uiscale is propagated
-  const widgetEl = document.getElementById(`spiele-panel-rad-${uid}`)?.closest('.widget');
   if(widgetEl) updateWidgetScale(widgetEl);
+
+  // ── Puzzle & Zuordnen: Inhalte nach Overlay-Öffnung neu skalieren ──
+  if((tab==='puzzle'||tab==='zuordnen') && widgetEl){
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        updateWidgetScale(widgetEl);
+        // Puzzle: pz-container Höhe optimal ausfüllen
+        if(tab==='puzzle'){
+          const game = document.getElementById(`pz-game-${uid}`);
+          _pzFitContainer(uid, game);
+        }
+        if(tab==='zuordnen'){
+          const gameWrap = document.getElementById(`zu-game-${uid}`);
+          if(gameWrap){
+            const tf = gameWrap.querySelector('.zu-textfield');
+            if(tf){ tf.style.height=''; tf.style.maxHeight=''; tf.style.flex='1 1 0'; tf.style.minHeight='0'; }
+          }
+        }
+      });
+    });
+  }
 }
 
 
@@ -10148,7 +10364,7 @@ function buildPuzzlePanel(panel, uid){
 
   // ── Scroll area (file button + game + check button) ──
   const scrollArea = document.createElement('div');
-  scrollArea.style.cssText = 'flex:1 1 0;min-height:0;overflow-y:auto;overflow-x:hidden;padding:8px 10px 8px;display:flex;flex-direction:column;gap:6px;';
+  scrollArea.style.cssText = 'flex:1 1 0;min-height:0;overflow:hidden;padding:8px 10px 8px;display:flex;flex-direction:column;gap:6px;';
   panel.appendChild(scrollArea);
 
   // Button row: Einträge button only
@@ -10323,6 +10539,31 @@ function pzShowSentence(uid){
   checkBtn.textContent = T('pzPruefen');
   checkBtn.onclick = () => pzCheck(uid);
   game.appendChild(checkBtn);
+
+  // ResizeObserver: container immer optimal ausfüllen
+  _pzAttachResizeObserver(uid, game);
+}
+
+function _pzFitContainer(uid, game){
+  if(!game) return;
+  const container = game.querySelector('.pz-container');
+  if(!container) return;
+  // flex:1 sollte reichen — nur explizite height entfernen falls gesetzt
+  container.style.height = '';
+  container.style.maxHeight = '';
+  // flex:1 1 0 übernimmt den Platz; nur bei overflow sicherstellen
+  container.style.flex = '1 1 0';
+  container.style.minHeight = '0';
+  container.style.overflow = 'auto';
+}
+
+const _pzResizeObservers = {};
+function _pzAttachResizeObserver(uid, game){
+  if(_pzResizeObservers[uid]){ _pzResizeObservers[uid].disconnect(); }
+  if(!window.ResizeObserver) return;
+  const ro = new ResizeObserver(() => _pzFitContainer(uid, game));
+  ro.observe(game);
+  _pzResizeObservers[uid] = ro;
 }
 
 function pzCreateWord(text, uid){
@@ -10815,9 +11056,9 @@ function zuBuildGame(uid){
     const bg    = ZU_BG[gi % ZU_BG.length];
     const titleEl = document.createElement('div');
     titleEl.className = 'zu-title';
-    titleEl.style.borderColor = color;
     titleEl.style.background  = color;
     titleEl.style.color       = '#fff';
+    titleEl.style.opacity     = '0.65';
     titleEl.textContent = g.title;
     titleEl.dataset.zuGroup = gi;
     titleEl.dataset.zuUid   = uid;
@@ -10876,15 +11117,14 @@ function zuSelectTitle(uid, gi){
   } else {
     st.activeGroup = gi;
   }
-  // Update title highlight — use each title's own color for the glow ring
+  // Update title highlight — active = full opacity, inactive = dimmed
   document.querySelectorAll(`[data-zu-uid="${uid}"].zu-title`).forEach(el => {
     const elGi = parseInt(el.dataset.zuGroup);
     const isActive = elGi === st.activeGroup;
     el.classList.toggle('zu-active-title', isActive);
-    const color = ZU_COLORS[elGi % ZU_COLORS.length];
-    el.style.boxShadow = isActive
-      ? `0 0 0 4px ${color}, 0 4px 18px rgba(0,0,0,0.4)`
-      : '0 2px 8px rgba(0,0,0,0.25)';
+    el.style.opacity   = isActive ? '1' : (st.activeGroup === null ? '0.65' : '0.45');
+    el.style.transform = isActive ? 'scale(1.08)' : 'scale(1)';
+    el.style.boxShadow = isActive ? '0 4px 16px rgba(0,0,0,0.35)' : '0 2px 8px rgba(0,0,0,0.25)';
   });
 }
 
@@ -10892,6 +11132,8 @@ function zuSelectTitle(uid, gi){
 function zuMarkWord(uid, el){
   const st = zuState[uid];
   if(st.phase !== 'playing') return;
+  // Korrekt markierte Wörter sind gesperrt
+  if(el.dataset.zuCorrect === '1') return;
 
   const gi = st.activeGroup;
   const prevMarked = el.dataset.zuMarked !== '' ? parseInt(el.dataset.zuMarked) : null;
@@ -10900,11 +11142,9 @@ function zuMarkWord(uid, el){
     // No title active — clicking removes mark
     el.dataset.zuMarked = '';
     el.classList.remove('zu-marked');
-    el.style.background  = '#fff9c4';
-    el.style.borderColor = 'rgba(255,255,255,0.5)';
-    el.style.boxShadow   = '0 2px 6px rgba(0,0,0,0.35)';
-    el.style.borderWidth = '2px';
-    el.style.color       = '#1a1f3a';
+    el.style.background = '#fff';
+    el.style.color      = '#111';
+    el.style.boxShadow  = '0 2px 6px rgba(0,0,0,0.35)';
     return;
   }
 
@@ -10912,22 +11152,17 @@ function zuMarkWord(uid, el){
     // Already marked with this colour → toggle off
     el.dataset.zuMarked = '';
     el.classList.remove('zu-marked');
-    el.style.background  = '#fff9c4';
-    el.style.borderColor = 'rgba(255,255,255,0.5)';
-    el.style.boxShadow   = '0 2px 6px rgba(0,0,0,0.35)';
-    el.style.borderWidth = '2px';
-    el.style.color       = '#1a1f3a';
+    el.style.background = '#fff';
+    el.style.color      = '#111';
+    el.style.boxShadow  = '0 2px 6px rgba(0,0,0,0.35)';
   } else {
     // Mark with active group colour
     const color = ZU_COLORS[gi % ZU_COLORS.length];
-    const bg    = ZU_BG[gi % ZU_BG.length];
-    el.dataset.zuMarked  = gi;
+    el.dataset.zuMarked = gi;
     el.classList.add('zu-marked');
-    el.style.background  = color;
-    el.style.color       = '#fff';
-    el.style.borderColor = color;
-    el.style.borderWidth = '3px';
-    el.style.boxShadow   = `0 0 0 3px ${color}66, 0 3px 10px rgba(0,0,0,0.4)`;
+    el.style.background = color;
+    el.style.color      = '#fff';
+    el.style.boxShadow  = `0 3px 10px rgba(0,0,0,0.4)`;
   }
 }
 
@@ -10942,18 +11177,19 @@ function zuPruefen(uid){
   const words = Array.from(textfield.querySelectorAll('.zu-word'));
   let correct = 0, wrong = 0, unmarked = 0;
 
-  // First pass: classify each word
+  // First pass: classify each word (skip already-locked correct ones)
   const results = words.map(el => {
-    const trueGroup  = parseInt(el.dataset.zuGroup);
-    const markedStr  = el.dataset.zuMarked;
+    if(el.dataset.zuCorrect === '1') return { el, status: 'already_correct' };
+    const trueGroup = parseInt(el.dataset.zuGroup);
+    const markedStr = el.dataset.zuMarked;
     if(markedStr === '') return { el, status: 'unmarked' };
     return { el, status: parseInt(markedStr) === trueGroup ? 'correct' : 'wrong' };
   });
 
   results.forEach(r => {
     if(r.status === 'unmarked') unmarked++;
-    else if(r.status === 'correct') correct++;
-    else wrong++;
+    else if(r.status === 'correct' || r.status === 'already_correct') correct++;
+    else if(r.status === 'wrong') wrong++;
   });
 
   // Shake unmarked immediately
@@ -10965,49 +11201,46 @@ function zuPruefen(uid){
     });
   });
 
-  // Sequential flash for marked words
-  const marked = results.filter(r => r.status !== 'unmarked');
+  // Sequential flash for newly-marked words only
+  const marked = results.filter(r => r.status === 'correct' || r.status === 'wrong');
   const DELAY = 180; // ms between each word
 
   marked.forEach((r, idx) => {
     setTimeout(() => {
       const el = r.el;
       if(r.status === 'correct'){
-        // Green flash
-        const prevBg = el.style.background;
-        const prevColor = el.style.color;
+        // Green flash, then lock the word
+        const lockColor = ZU_COLORS[parseInt(el.dataset.zuGroup) % ZU_COLORS.length];
         el.style.transition = 'background 0.05s, color 0.05s';
         el.style.background = '#4ade80';
         el.style.color = '#fff';
-        el.style.outline = '3px solid rgba(74,222,128,0.9)';
         pzBeep(660, 'sine', 0.18, 0.18, 0);
         setTimeout(() => {
-          el.style.outline = '';
-          el.style.transition = 'background 0.3s, color 0.3s';
-          el.style.background = prevBg;
-          el.style.color = prevColor;
+          el.style.transition = 'background 0.4s, color 0.2s, opacity 0.4s';
+          el.style.background = lockColor;
+          el.style.color      = '#fff';
+          el.style.opacity    = '0.72';
+          el.style.boxShadow  = '0 1px 4px rgba(0,0,0,0.25)';
+          el.dataset.zuCorrect = '1';
+          el.classList.add('zu-correct-locked');
         }, 350);
       } else {
-        // Red flash + shake + reset
+        // Red flash + shake + reset to unmarked
         el.style.transition = 'background 0.05s, color 0.05s';
         el.style.background = '#f87171';
         el.style.color = '#fff';
-        el.style.outline = '3px solid rgba(248,113,113,0.9)';
         pzBeep(220, 'sawtooth', 0.18, 0.18, 0);
         el.style.animation = 'none';
         requestAnimationFrame(() => {
           el.style.animation = 'zu-shake 0.35s ease-out both';
           el.addEventListener('animationend', () => {
-            el.style.animation   = '';
-            el.style.outline     = '';
-            el.style.transition  = '';
-            el.dataset.zuMarked  = '';
+            el.style.animation  = '';
+            el.style.transition = '';
+            el.dataset.zuMarked = '';
             el.classList.remove('zu-marked');
-            el.style.background  = '#fff9c4';
-            el.style.color       = '#1a1f3a';
-            el.style.borderColor = 'rgba(255,255,255,0.5)';
-            el.style.borderWidth = '2px';
-            el.style.boxShadow   = '0 2px 6px rgba(0,0,0,0.35)';
+            el.style.background = '#fff';
+            el.style.color      = '#111';
+            el.style.boxShadow  = '0 2px 6px rgba(0,0,0,0.35)';
           }, {once:true});
         });
       }
@@ -11188,12 +11421,16 @@ function _zumpadImportBlocks(blocks, onDone){
         if(spieleUid != null && typeof pzState !== 'undefined' && pzState[spieleUid]){
           pzState[spieleUid].lastData = content;
           typeof pzProcessData==='function' && pzProcessData(spieleUid, content);
+          // Direkt auf Puzzle-Tab wechseln (löst Auto-Vollbild aus)
+          typeof spieleShowTab==='function' && spieleShowTab('puzzle', spieleUid);
           handled.push('Puzzle');
         }
 
       } else if(type === 'zuordnen'){
         if(spieleUid != null && typeof zuState !== 'undefined' && zuState[spieleUid]){
           typeof zuStartGame==='function' && zuStartGame(spieleUid, content);
+          // Direkt auf Zuordnen-Tab wechseln (löst Auto-Vollbild aus)
+          typeof spieleShowTab==='function' && spieleShowTab('zuordnen', spieleUid);
           handled.push('Zuordnen');
         }
       }
@@ -11295,6 +11532,9 @@ document.addEventListener('fullscreenchange', ()=>{
   // Small delay so the viewport has settled after the transition
   setTimeout(setDesktopTop, 80);
   setTimeout(setDesktopTop, 300);
+  // Overlay-Fullscreen-Button aktualisieren
+  const fsBtn = document.getElementById('spiel-overlay-fs');
+  if(fsBtn) fsBtn.textContent = document.fullscreenElement ? '⧉' : '⛶';
 });
 
 // ════════════════════════════════════════════════
@@ -11941,6 +12181,17 @@ function spinQuestionWheel(uid){
 
 
 <!-- ══ DESKTOP DRAW OVERLAY ══ -->
+<!-- Vollbild-Overlay für Puzzle & Zuordnen -->
+<div id="spiel-overlay">
+  <div id="spiel-overlay-bar">
+    <span id="spiel-overlay-title"></span>
+    <div style="display:flex;align-items:center;gap:6px;">
+      <button id="spiel-overlay-fs" onclick="toggleFullscreen()" title="Vollbild">⛶</button>
+      <button id="spiel-overlay-close" onclick="closeSpielOverlay()">✕</button>
+    </div>
+  </div>
+  <div id="spiel-overlay-content"></div>
+</div>
 <div id="desktop-draw-toolbar">
   <!-- Tool buttons -->
   <button class="ddt-btn active-tool" id="ddt-pen"    onclick="ddtSetTool('pen',this)"    title="Stift">✏️</button>
