@@ -653,6 +653,10 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   max-height:calc(100dvh - 120px); /* topbar + margin */
   box-sizing:border-box;
 }
+/* Spiele-Widget: keine max-height, füllt volle Desktop-Höhe */
+.widget[data-type="spiele"]{
+  max-height:none;
+}
 /* Widgets deren Inhalt eine feste Höhe hat: Fenster schrumpft auf Inhalt */
 .widget.fit-content{
   height:auto !important;
@@ -797,8 +801,11 @@ textarea.winput{resize:vertical;}
     flex-wrap:wrap;
     padding:4px 0 2px;
   }
-  #desktop-draw-toolbar .ddt-close{
+  #desktop-draw-toolbar .ddt-fs{
     margin-left:auto;
+  }
+  #desktop-draw-toolbar .ddt-close{
+    margin-left:0;
   }
 }
 #desktop-draw-toolbar::-webkit-scrollbar{display:none;}
@@ -825,16 +832,20 @@ body.light-mode .ddt-btn{background:rgba(0,0,0,0.06);border-color:rgba(0,0,0,0.1
 body.light-mode .ddt-btn:hover{background:rgba(0,0,0,0.12);}
 body.light-mode .ddt-btn.active-tool{background:rgba(var(--accent-rgb),0.15);border-color:var(--accent);}
 .ddt-close{
-  background:rgba(220,50,50,0.12);
-  border:1.5px solid rgba(220,50,50,0.4);
-  color:#c0392b;border-radius:8px;
-  width:34px;height:34px;
-  font-size:16px;font-weight:800;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;padding:0;
-  transition:all .15s;margin-left:auto;
+  background:none;border:none;color:#c0392b;
+  font-size:1.5em;font-weight:800;
+  cursor:pointer;padding:4px 8px;border-radius:8px;line-height:1;
+  flex-shrink:0;
+  transition:background .15s,color .15s;
 }
-.ddt-close:hover{background:rgba(220,50,50,0.22);border-color:#c0392b;}
+.ddt-close:hover{background:rgba(220,50,50,0.12);color:#a93226;}
+.ddt-fs{
+  background:none;border:none;color:#555e7a;font-size:1.5em;
+  cursor:pointer;padding:4px 8px;border-radius:8px;line-height:1;
+  flex-shrink:0;margin-left:auto;
+  transition:background .15s,color .15s;
+}
+.ddt-fs:hover{background:rgba(0,0,0,0.08);color:#1a1f3a;}
 .ddt-size-sel,.ddt-text-sel{
   background:#ffffff;border:1.5px solid rgba(0,0,0,0.18);
   color:#1a1f3a;border-radius:8px;
@@ -3639,7 +3650,8 @@ function getDesktopBounds(){
 // ── Widget in Desktop-Grenzen einklemmen (Position + Größe) ──
 function clampWidget(el){
   const { dw, dh } = getDesktopBounds();
-  const GAP = 4;
+  const type = el.dataset.type;
+  const GAP = (type === 'spiele') ? 0 : 4;
   let w = el.offsetWidth;
   let h = el.offsetHeight;
   // Breite/Höhe nie größer als Desktop
@@ -3669,11 +3681,14 @@ function getInitialWidgetSize(type, def){
     h = Math.round(dh * (bigTypes.includes(type) ? 0.92 : 0.75));
   } else {
     w = Math.min(def.w, dw - 24);
-    h = Math.min(def.h, dh - 24);
+    // spiele: immer volle Höhe
+    const fullHeightTypes = ['spiele'];
+    h = fullHeightTypes.includes(type) ? dh : Math.min(def.h, dh - 24);
   }
-  // Absolute Grenzen
+  // Absolute Grenzen (spiele darf volle dh nutzen)
+  const fullH = ['spiele'].includes(type);
   w = Math.max(parseInt(def.minw)||200, Math.min(w, dw - 8));
-  h = Math.max(parseInt(def.minh)||180, Math.min(h, dh - 8));
+  h = Math.max(parseInt(def.minh)||180, Math.min(h, fullH ? dh : dh - 8));
   return {w, h};
 }
 
@@ -3707,9 +3722,15 @@ function spawnWidget(type){
   const stackIdx = openCount % 7;
   let startLeft = baseLeft + stackIdx * stepX;
   let startTop  = baseTop  + stackIdx * stepY;
-  // Sicherstellen dass Widget in Desktop bleibt
-  startLeft = Math.max(0, Math.min(startLeft, dw - startSize.w - 4));
-  startTop  = Math.max(0, Math.min(startTop,  dh - startSize.h - 4));
+  // spiele: immer oben beginnen (volle Höhe), kein Clamping
+  if(type === 'spiele'){
+    startTop  = 0;
+    startLeft = Math.max(0, Math.min(startLeft, dw - startSize.w - 4));
+  } else {
+    // Sicherstellen dass Widget in Desktop bleibt
+    startLeft = Math.max(0, Math.min(startLeft, dw - startSize.w - 4));
+    startTop  = Math.max(0, Math.min(startTop,  dh - startSize.h - 4));
+  }
 
   el.style.left   = startLeft + 'px';
   el.style.top    = startTop  + 'px';
@@ -3758,7 +3779,29 @@ function spawnWidget(type){
   updateWidgetScale(el);
   updateEmptyHint();
   // Final clamp after render (layout may have changed widget size)
-  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ clampWidget(el); }); });
+  requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
+    clampWidget(el);
+    // Spiele: Rad-Canvas nach vollständigem Render neu berechnen
+    if(type === 'spiele'){
+      const wuid = uid*1000+1;
+      const triggerWheelResize = ()=>{
+        const cv = document.getElementById('wheel-canvas-'+wuid);
+        if(!cv) return;
+        const stage = cv.closest('.wheel-stage');
+        if(stage && stage.clientWidth > 0){
+          const size = Math.max(120, Math.min(stage.clientWidth, stage.clientHeight, 680));
+          const dpr  = Math.max(1, Math.min(2, window.devicePixelRatio||1));
+          cv.width  = Math.round(size*dpr);
+          cv.height = Math.round(size*dpr);
+          cv.style.width  = size+'px';
+          cv.style.height = size+'px';
+          try{ drawQuestionWheel(wuid); }catch(_){}
+        }
+      };
+      setTimeout(triggerWheelResize, 50);
+      setTimeout(triggerWheelResize, 200);
+    }
+  }); });
   return el;
 }
 
@@ -3797,7 +3840,8 @@ function minimizeWidget(id){
   const mini=body.style.display==='none';
   if(!mini){
     // Minimieren
-    el._savedH=el.style.height;
+    el._savedH   = el.style.height;
+    el._savedTop = el.style.top;
     body.style.display='none';
     rh.style.display='none';
     el.classList.remove('fit-content');
@@ -3812,11 +3856,11 @@ function minimizeWidget(id){
     } else {
       el.style.height=el._savedH||'';
     }
+    // Top-Position wiederherstellen (wird beim Minimieren gespeichert)
+    if(el._savedTop !== undefined) el.style.top = el._savedTop;
     if(el.dataset.type === 'spiele'){
       const spieleUid = parseInt(id.replace('widget-',''));
       body.style.cssText='padding:0;display:flex;flex-direction:column;overflow:hidden;flex:1 1 auto;min-height:0;box-sizing:border-box;';
-      // Zwei verschachtelte rAFs: erster wartet auf Layout mit neuer Widget-Hoehe,
-      // zweiter wartet auf den daraus folgenden Reflow - erst dann ist offsetHeight korrekt.
       requestAnimationFrame(()=>{
         requestAnimationFrame(()=>{
           const activeBtn = body.querySelector('.spiele-tab-btn.active-tmode');
@@ -12273,8 +12317,9 @@ function spinQuestionWheel(uid){
     <div class="ddt-color"          style="background:#9b59b6"                                      id="ddtc-9"  onclick="ddtSetColor('#9b59b6',this)"  title="Lila"></div>
     <div class="ddt-color"          style="background:#e91e8c"                                      id="ddtc-10" onclick="ddtSetColor('#e91e8c',this)"  title="Rosa"></div>
   </div>
-  <!-- Close -->
-  <button class="ddt-close" onclick="closeDesktopDraw()">✕</button>
+  <!-- Fullscreen / Close -->
+  <button class="ddt-fs" onclick="toggleFullscreen()" title="Vollbild">⛶</button>
+  <button class="ddt-close" onclick="closeDesktopDraw()" title="Schließen">✕</button>
 </div>
 <div id="desktop-draw-overlay">
   <canvas id="desktop-draw-canvas"></canvas>
