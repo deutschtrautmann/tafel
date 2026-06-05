@@ -1170,8 +1170,8 @@ body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:non
   /* Puzzle: Container füllt Platz */
   .widget[data-type="spiele"] .pz-container{overflow-y:auto;align-content:flex-start;}
   .widget[data-type="spiele"] .pz-word{
-    font-size:clamp(16px,calc(var(--uiscale,1)*28px),52px)!important;
-    padding:clamp(6px,calc(var(--uiscale,1)*10px),18px) clamp(10px,calc(var(--uiscale,1)*18px),30px)!important;
+    font-size:clamp(14px,calc(var(--uiscale,1)*20px),36px)!important;
+    padding:clamp(6px,calc(var(--uiscale,1)*7px),14px) clamp(8px,calc(var(--uiscale,1)*13px),22px)!important;
   }
   .widget[data-type="spiele"] .pz-btn{
     font-size:clamp(14px,calc(var(--uiscale,1)*16px),26px)!important;
@@ -1574,7 +1574,7 @@ body.light-mode .slot-scorebar-title{
 /* ── Wörter-Puzzle (Spiele-Tab) ── */
 .pz-container{min-height:calc(var(--uiscale,1)*60px);border:2px solid rgba(180,195,220,0.7);border-radius:14px;padding:calc(var(--uiscale,1)*12px);display:flex;flex-wrap:wrap;gap:calc(var(--uiscale,1)*8px);background:rgba(235,240,255,0.92);align-content:flex-start;box-sizing:border-box;}
 .pz-container.drag-over{background:rgba(74,222,128,0.22);border-color:rgba(74,222,128,0.6);}
-.pz-word{padding:calc(var(--uiscale,1)*10px) calc(var(--uiscale,1)*18px);border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.55);cursor:grab;user-select:none;-webkit-user-select:none;border:1px solid rgba(255,255,255,0.5);font-size:calc(var(--uiscale,1)*32px);font-family:'Arial',sans-serif;font-weight:700;display:inline-block;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;color:#1a1f3a;}
+.pz-word{padding:calc(var(--uiscale,1)*7px) calc(var(--uiscale,1)*13px);border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.55);cursor:grab;user-select:none;-webkit-user-select:none;border:1px solid rgba(255,255,255,0.5);font-size:calc(var(--uiscale,1)*22px);font-family:'Arial',sans-serif;font-weight:700;display:inline-block;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;color:#1a1f3a;}
 .pz-word:active{cursor:grabbing;}
 .pz-word:nth-child(7n+1){background:#fff9c4;}
 .pz-word:nth-child(7n+2){background:#ffd6e0;}
@@ -11213,7 +11213,6 @@ function zuMarkWord(uid, el){
     el.style.background = color;
     el.style.color      = '#fff';
     el.style.boxShadow  = `0 3px 10px rgba(0,0,0,0.4)`;
-    try{ const ac=new(window.AudioContext||window.webkitAudioContext)(); playPop(ac,0.8); }catch(_){}
   }
 }
 
@@ -11312,24 +11311,6 @@ function zuPruefen(uid){
         void tf.offsetWidth;
         tf.classList.add('zu-flash');
         tf.addEventListener('animationend', () => tf.classList.remove('zu-flash'), {once:true});
-      }
-      // Prüfen-Button ausblenden, Nochmal-Button einblenden (gleiche Optik wie Puzzle)
-      const checkRow = document.getElementById(`zu-check-row-${uid}`);
-      if(checkRow){
-        const checkBtn = checkRow.querySelector('.wbtn.primary');
-        if(checkBtn) checkBtn.style.display = 'none';
-        if(!checkRow.querySelector('.zu-replay-btn')){
-          const replayBtn = document.createElement('button');
-          replayBtn.className = 'pz-btn zu-replay-btn';
-          replayBtn.style.background = 'var(--accent2)';
-          replayBtn.textContent = T('pzNochmal');
-          replayBtn.onclick = () => {
-            replayBtn.remove();
-            if(checkBtn) checkBtn.style.display = '';
-            zuReset(uid);
-          };
-          checkRow.appendChild(replayBtn);
-        }
       }
     }, afterAllMs);
   }
