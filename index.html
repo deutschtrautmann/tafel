@@ -10260,6 +10260,12 @@ function closeSpielOverlay(){
     const panel = document.getElementById(`spiele-panel-${t}-${uid}`);
     if(panel) panel.style.display = t==='rad' ? 'flex' : 'none';
   });
+  // Widget neu einpassen nachdem Topbar wieder sichtbar ist
+  requestAnimationFrame(()=>{
+    setDesktopTop();
+    const widgetEl = document.getElementById(`spiele-panel-rad-${uid}`)?.closest('.widget');
+    if(widgetEl) clampWidget(widgetEl);
+  });
 }
 
 function spieleShowTab(tab, uid){
@@ -11207,6 +11213,7 @@ function zuMarkWord(uid, el){
     el.style.background = color;
     el.style.color      = '#fff';
     el.style.boxShadow  = `0 3px 10px rgba(0,0,0,0.4)`;
+    try{ const ac=new(window.AudioContext||window.webkitAudioContext)(); playPop(ac,0.8); }catch(_){}
   }
 }
 
@@ -11305,6 +11312,24 @@ function zuPruefen(uid){
         void tf.offsetWidth;
         tf.classList.add('zu-flash');
         tf.addEventListener('animationend', () => tf.classList.remove('zu-flash'), {once:true});
+      }
+      // Prüfen-Button ausblenden, Nochmal-Button einblenden (gleiche Optik wie Puzzle)
+      const checkRow = document.getElementById(`zu-check-row-${uid}`);
+      if(checkRow){
+        const checkBtn = checkRow.querySelector('.wbtn.primary');
+        if(checkBtn) checkBtn.style.display = 'none';
+        if(!checkRow.querySelector('.zu-replay-btn')){
+          const replayBtn = document.createElement('button');
+          replayBtn.className = 'pz-btn zu-replay-btn';
+          replayBtn.style.background = 'var(--accent2)';
+          replayBtn.textContent = T('pzNochmal');
+          replayBtn.onclick = () => {
+            replayBtn.remove();
+            if(checkBtn) checkBtn.style.display = '';
+            zuReset(uid);
+          };
+          checkRow.appendChild(replayBtn);
+        }
       }
     }, afterAllMs);
   }
