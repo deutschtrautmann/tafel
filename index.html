@@ -1003,7 +1003,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   padding:8px!important;
 }
 .widget[data-type="was"] .timer-mode-btn{
-  font-size:11px!important;
+  font-size:13px!important;
   padding:4px 10px!important;
 }
 .widget[data-type="was"] .wbtn{
@@ -2024,6 +2024,8 @@ const LANG = {
     // Was widget
     wasMosaik:'🔲 Verpixeln',
     wasVerschwommen:'🌫 Verwischen',
+    wasVerdrehen:'🌀 Verdrehen',
+    wasPuzzle:'🧩 Puzzle',
     wasKaese:'🧀 Käselöcher',
     wasUploadHint:'Fotos hier hochladen',
     wasUploadSub:'Mehrere Fotos möglich – werden schrittweise enthüllt',
@@ -2265,6 +2267,8 @@ const LANG = {
     // Was widget
     wasMosaik:'🔲 モザイク',
     wasVerschwommen:'🌫 ぼかし',
+    wasVerdrehen:'🌀 ねじれ',
+    wasPuzzle:'🧩 パズル',
     wasKaese:'🧀 チーズ',
     wasUploadHint:'写真をここにアップロード',
     wasUploadSub:'複数の写真が可能 – 段階的に公開されます',
@@ -8178,22 +8182,29 @@ function buildWas(body,uid){
   <!-- Photo nav bar (visible only when >1 photo) -->
   <div id="was-nav-${uid}" style="display:none;align-items:center;gap:6px;background:rgba(0,0,0,0.25);border-radius:8px;padding:4px 8px;">
     <button class="wbtn" onclick="wasGoPrev(${uid})" id="was-prev-${uid}" style="padding:.3em .7em;font-size:.85em;">◀</button>
-    <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;" data-i18n="wasFoto" data-i18n-suffix=" 1 / 1">1 / 1</div>
     <button class="wbtn primary" onclick="wasGoNext(${uid})" id="was-next-${uid}" style="padding:.3em .9em;font-size:.85em;" data-i18n="wasWeiter"></button>
+    <button id="wastab-diashow-${uid}" class="wbtn" onclick="wasDiashowToggle(${uid})" style="font-size:.82em;padding:.3em .7em;" data-i18n="wasDiashow"></button>
+    <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="display:none;font-size:.82em;padding:.3em .7em;">Zufall an</button>
+    <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;" data-i18n="wasFoto" data-i18n-suffix=" 1 / 1">1 / 1</div>
   </div>
-  <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasRevealMore(${uid})" data-i18n-title="ttKlickenEnthuellen" title="" data-i18n-title="ttKlickenEnthuellen"></canvas>
-  <div style="display:flex;gap:.4em;align-items:center;">
-    <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;" data-i18n="wasSchritt" data-i18n-suffix=" 1 / 8">1 / 8</div>
-    <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="display:none;">🔀 Zufall an</button>
-    <button class="wbtn" onclick="wasRevealMore(${uid})" id="was-btn-${uid}" data-i18n="wasFeiner"></button>
-    <button class="wbtn" onclick="wasReset(${uid})">↺</button>
-  </div>
-  <!-- Mode tabs — nur sichtbar wenn Bilder geladen -->
-  <div style="display:flex;gap:3px;background:rgba(0,0,0,0.25);border-radius:8px;padding:3px;">
-    <button id="wastab-diashow-${uid}" class="timer-mode-btn active-tmode" onclick="wasDiashowToggle(${uid})" data-i18n="wasDiashow"></button>
-    <button id="wastab-mosaic-${uid}" class="timer-mode-btn" data-i18n="wasMosaik" onclick="setWasMode('mosaic',${uid})"></button>
-    <button id="wastab-blur-${uid}" class="timer-mode-btn" data-i18n="wasVerschwommen" onclick="setWasMode('blur',${uid})"></button>
-    <button id="wastab-kaese-${uid}" class="timer-mode-btn" data-i18n="wasKaese" onclick="setWasMode('kaese',${uid})"></button>
+  <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasCanvasClick(${uid})" data-i18n-title="ttKlickenEnthuellen" title=""></canvas>
+  <!-- Effekt-Steuerung: nur sichtbar wenn Diashow NICHT aktiv -->
+  <div id="was-effect-controls-${uid}">
+    <div style="display:flex;gap:.4em;align-items:center;">
+      <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;" data-i18n="wasSchritt" data-i18n-suffix=" 1 / 8">1 / 8</div>
+      <button class="wbtn" onclick="wasRevealMore(${uid})" id="was-btn-${uid}" data-i18n="wasFeiner"></button>
+      <button class="wbtn" onclick="wasReset(${uid})">↺</button>
+    </div>
+    <!-- Mode tabs -->
+    <div style="display:flex;gap:3px;background:rgba(0,0,0,0.25);border-radius:8px;padding:3px;">
+      <button id="wastab-mosaic-${uid}" class="timer-mode-btn" data-i18n="wasMosaik" onclick="setWasMode('mosaic',${uid})"></button>
+      <button id="wastab-blur-${uid}" class="timer-mode-btn" data-i18n="wasVerschwommen" onclick="setWasMode('blur',${uid})"></button>
+      <button id="wastab-twirl-${uid}" class="timer-mode-btn" data-i18n="wasVerdrehen" onclick="setWasMode('twirl',${uid})"></button>
+      <button id="wastab-puzzle-${uid}" class="timer-mode-btn" data-i18n="wasPuzzle" onclick="setWasMode('puzzle',${uid})"></button>
+      <button id="wastab-kaese-${uid}" class="timer-mode-btn" data-i18n="wasKaese" onclick="setWasMode('kaese',${uid})"></button>
+      <!-- Diashow-Tab für Einzel-Bild (kein nav-bar) -->
+      <button id="wastab-diashow-single-${uid}" class="timer-mode-btn" style="display:none;" onclick="wasDiashowToggle(${uid})" data-i18n="wasDiashow"></button>
+    </div>
   </div>
 </div>`;
 }
@@ -8276,6 +8287,14 @@ function wasActivatePhoto(uid, index){
   const navLabel=document.getElementById('was-nav-label-'+uid);
   const prevBtn=document.getElementById('was-prev-'+uid);
   const nextBtn=document.getElementById('was-next-'+uid);
+  const diashowNavBtn=document.getElementById('wastab-diashow-'+uid);
+  const diashowSingleBtn=document.getElementById('wastab-diashow-single-'+uid);
+  // Sync mode tab highlighting
+  document.getElementById('wastab-mosaic-'+uid)?.classList.toggle('active-tmode', s.mode==='mosaic');
+  document.getElementById('wastab-blur-'+uid)?.classList.toggle('active-tmode', s.mode==='blur');
+  document.getElementById('wastab-twirl-'+uid)?.classList.toggle('active-tmode', s.mode==='twirl');
+  document.getElementById('wastab-puzzle-'+uid)?.classList.toggle('active-tmode', s.mode==='puzzle');
+  document.getElementById('wastab-kaese-'+uid)?.classList.toggle('active-tmode', s.mode==='kaese');
   if(s.imgs.length>1){
     nav.style.display='flex';
     navLabel.textContent=`${T('wasFoto')} ${index+1} / ${s.imgs.length}`;
@@ -8284,14 +8303,22 @@ function wasActivatePhoto(uid, index){
     nextBtn.disabled=(index===s.imgs.length-1);
     nextBtn.style.opacity=(index===s.imgs.length-1)?'0.35':'1';
     nextBtn.textContent=index===s.imgs.length-1?T('wasFertig'):T('wasWeiter');
+    // Sync diashow button state in nav
+    if(diashowNavBtn){
+      diashowNavBtn.textContent=s.diashowActive?T('wasPause'):T('wasDiashow');
+      diashowNavBtn.classList.toggle('primary',s.diashowActive);
+    }
+    if(diashowSingleBtn) diashowSingleBtn.style.display='none';
   } else {
     nav.style.display='none';
+    // For single image, show diashow button in bottom bar
+    if(diashowSingleBtn) diashowSingleBtn.style.display='';
   }
   // Erst nach dem nächsten Render-Frame messen (wrap ist gerade erst auf display:flex gesetzt)
   requestAnimationFrame(()=>{
     _wasSetCanvasSize();
     if(s.mode==='diashow'){
-      // Diashow: show photo fully, hide puzzle controls
+      // Diashow: Bild vollständig anzeigen
       const ctx=cv.getContext('2d');
       ctx.drawImage(img,0,0,cv.width,cv.height);
       const stepEl=document.getElementById('was-step-'+uid);
@@ -8299,6 +8326,7 @@ function wasActivatePhoto(uid, index){
       if(btn) btn.style.visibility='hidden';
     } else {
       if(btn) btn.style.visibility='';
+      // Bild NICHT unbearbeitet zeigen – Effekt-Modus ab Schritt 0 rendern
       wasRenderStep(uid);
     }
   });
@@ -8362,15 +8390,21 @@ function wasGoPrev(uid){
 function setWasMode(mode, uid){
   wasDiashowStop(uid);
   wasState[uid].mode = mode;
+  wasState[uid].step = 0;
+  wasState[uid].revealed = false;
   document.getElementById('wastab-mosaic-'+uid)?.classList.toggle('active-tmode', mode==='mosaic');
   document.getElementById('wastab-blur-'+uid)?.classList.toggle('active-tmode', mode==='blur');
+  document.getElementById('wastab-twirl-'+uid)?.classList.toggle('active-tmode', mode==='twirl');
+  document.getElementById('wastab-puzzle-'+uid)?.classList.toggle('active-tmode', mode==='puzzle');
   document.getElementById('wastab-kaese-'+uid)?.classList.toggle('active-tmode', mode==='kaese');
   // Update button label
   const btn = document.getElementById('was-btn-'+uid);
   if(btn && !wasState[uid].revealed){
     if(mode==='blur') btn.textContent=T('wasSchaerfer');
     else if(mode==='kaese') btn.textContent=T('wasMehrZeigen');
+    else if(mode==='twirl') btn.textContent=T('wasFeiner');
     else btn.textContent=T('wasFeiner');
+    btn.style.visibility='';
     btn.disabled = false;
   }
   if(wasState[uid].imgs&&wasState[uid].imgs.length) wasRenderStep(uid);
@@ -8440,6 +8474,118 @@ function wasRenderStep(uid){
     return;
   }
 
+  if(mode==='twirl'){
+    // Twirl/Wirbel: Stärke nimmt mit jedem Schritt ab (max → 0 = enthüllt)
+    if(s.step>=s.maxSteps-1){
+      ctx.drawImage(s.img,0,0,cv.width,cv.height);
+      s.revealed=true;
+      const btn=document.getElementById('was-btn-'+uid);
+      if(btn){btn.textContent=T('wasEnthuellung');btn.disabled=true;}
+      document.getElementById('was-step-'+uid).textContent=T('wasVollstaendig');
+      return;
+    }
+    const maxAngle = Math.PI * 4; // 720° maximale Verdrehung bei Stufe 0
+    const twirlAngle = maxAngle * (1 - s.step / (s.maxSteps - 1));
+
+    // Bild in Offscreen-Canvas zeichnen
+    const off = document.createElement('canvas');
+    off.width = cv.width; off.height = cv.height;
+    const offCtx = off.getContext('2d');
+    offCtx.drawImage(s.img, 0, 0, cv.width, cv.height);
+    const srcData = offCtx.getImageData(0, 0, cv.width, cv.height);
+    const dstData = ctx.createImageData(cv.width, cv.height);
+    const w = cv.width, h = cv.height;
+    const cx2 = w / 2, cy2 = h / 2;
+    const maxR = Math.sqrt(cx2 * cx2 + cy2 * cy2);
+    const src = srcData.data, dst = dstData.data;
+    for(let y = 0; y < h; y++){
+      for(let x = 0; x < w; x++){
+        const dx = x - cx2, dy = y - cy2;
+        const r = Math.sqrt(dx*dx + dy*dy);
+        // Wirbel fällt nach außen hin ab
+        const factor = Math.max(0, 1 - r / maxR);
+        const angle = twirlAngle * factor * factor;
+        const cos = Math.cos(angle), sin = Math.sin(angle);
+        const sx = Math.round(cx2 + dx*cos - dy*sin);
+        const sy = Math.round(cy2 + dx*sin + dy*cos);
+        const di = (y * w + x) * 4;
+        if(sx >= 0 && sx < w && sy >= 0 && sy < h){
+          const si = (sy * w + sx) * 4;
+          dst[di]   = src[si];
+          dst[di+1] = src[si+1];
+          dst[di+2] = src[si+2];
+          dst[di+3] = src[si+3];
+        } else {
+          dst[di+3] = 255;
+        }
+      }
+    }
+    ctx.putImageData(dstData, 0, 0);
+    const stepDisp = document.getElementById('was-step-'+uid);
+    if(stepDisp) stepDisp.textContent = T('wasSchritt')+' '+(s.step+1)+' / '+s.maxSteps;
+    return;
+  }
+
+  if(mode==='puzzle'){
+    // Puzzle: Stufe 0 = viele kleine Teile zufällig angeordnet, jede Stufe weniger & größere Teile
+    // Stufe maxSteps-1 = ein einziges Stück = vollständiges Bild
+    if(s.step>=s.maxSteps-1){
+      ctx.drawImage(s.img,0,0,cv.width,cv.height);
+      s.revealed=true;
+      const btn=document.getElementById('was-btn-'+uid);
+      if(btn){btn.textContent=T('wasEnthuellung');btn.disabled=true;}
+      document.getElementById('was-step-'+uid).textContent=T('wasVollstaendig');
+      return;
+    }
+
+    // Anzahl Teile: von ~64 (8×8) auf 2 abnehmend
+    const maxPieces = 64;
+    const minPieces = 2;
+    // Exponentiell abnehmen: Stufe 0 → maxPieces, Stufe maxSteps-2 → minPieces
+    const t = s.step / (s.maxSteps - 2);
+    const totalPieces = Math.max(minPieces, Math.round(maxPieces * Math.pow(1 - t, 2)));
+    // Gitter-Aufteilung so quadratisch wie möglich
+    const cols = Math.max(1, Math.round(Math.sqrt(totalPieces * cv.width / cv.height)));
+    const rows = Math.max(1, Math.round(totalPieces / cols));
+    const pw = cv.width  / cols;  // Stück-Breite
+    const ph = cv.height / rows;  // Stück-Höhe
+
+    // Deterministischer Shuffle der Stück-Positionen (Seed = step, damit stabil pro Stufe)
+    const total = cols * rows;
+    const rng = (seed) => { let x = Math.sin(seed * 9301 + 49297) * 233280; return x - Math.floor(x); };
+    // Erstelle Array aller Quell-Indizes, mische es
+    const indices = Array.from({length: total}, (_, i) => i);
+    for(let i = total - 1; i > 0; i--){
+      const j = Math.floor(rng(i + s.step * 1000) * (i + 1));
+      [indices[i], indices[j]] = [indices[j], indices[i]];
+    }
+
+    // Hintergrund: dunkles Raster sichtbar machen
+    ctx.fillStyle = 'rgba(30,30,50,1)';
+    ctx.fillRect(0, 0, cv.width, cv.height);
+
+    // Jedes Ziel-Kästchen bekommt ein zufälliges Quell-Stück
+    for(let dstI = 0; dstI < total; dstI++){
+      const srcI  = indices[dstI];
+      const srcCol = srcI % cols, srcRow = Math.floor(srcI / cols);
+      const dstCol = dstI % cols, dstRow = Math.floor(dstI / cols);
+      // Quell-Koordinaten aus Original
+      const sx = srcCol * pw, sy = srcRow * ph;
+      // Ziel-Koordinaten auf Canvas
+      const dx = dstCol * pw, dy = dstRow * ph;
+      // Kleiner Spalt zwischen Teilen (1px)
+      const gap = Math.max(1, Math.round(Math.min(pw, ph) * 0.04));
+      ctx.drawImage(s.img,
+        sx, sy, pw, ph,
+        dx + gap, dy + gap, pw - gap*2, ph - gap*2
+      );
+    }
+
+    const stepDisp = document.getElementById('was-step-'+uid);
+    if(stepDisp) stepDisp.textContent = T('wasSchritt')+' '+(s.step+1)+' / '+s.maxSteps;
+    return;
+  }
+
   if(mode==='blur'){
     // Blur reveal: step 0 = very blurry, step maxSteps-1 = sharp
     const maxBlur=40;
@@ -8486,6 +8632,29 @@ function wasRenderStep(uid){
   if(stepDisp) stepDisp.textContent=T('wasSchritt')+' '+(s.step+1)+' / '+s.maxSteps;
 }
 
+function wasUpdateControlsVisibility(uid){
+  const s = wasState[uid]; if(!s) return;
+  const effectEl  = document.getElementById('was-effect-controls-'+uid);
+  const zufallBtn = document.getElementById('was-zufall-btn-'+uid);
+  if(s.diashowActive){
+    if(effectEl)  effectEl.style.display  = 'none';
+    if(zufallBtn) zufallBtn.style.display = '';
+  } else {
+    if(effectEl)  effectEl.style.display  = '';
+    if(zufallBtn) zufallBtn.style.display = 'none';
+  }
+}
+
+function wasCanvasClick(uid){
+  const s=wasState[uid]; if(!s)return;
+  if(s.mode==='diashow'){
+    // In Diashow-Modus: zum nächsten Bild springen (wie Weiter-Knopf)
+    if(s.imgs&&s.imgs.length>1) wasGoNext(uid);
+    return;
+  }
+  wasRevealMore(uid);
+}
+
 function wasRevealMore(uid){
   const s=wasState[uid]; if(!s||s.revealed)return;
   try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
@@ -8503,7 +8672,6 @@ function wasReset(uid){
     else btn.textContent=T('wasFeiner');
     btn.disabled=false;
   }
-  // Reset to first photo
   if(s.imgs&&s.imgs.length) wasActivatePhoto(uid,0);
   else wasRenderStep(uid);
 }
@@ -8512,23 +8680,45 @@ function wasReset(uid){
 // DIASHOW für Was?-Widget
 function wasDiashowToggle(uid){
   const s=wasState[uid]; if(!s)return;
+  // Button kann in der Nav-Bar (was-nav) ODER im single-Modus sein
   const btn=document.getElementById('wastab-diashow-'+uid);
+  const btnSingle=document.getElementById('wastab-diashow-single-'+uid);
   if(s.diashowActive){
-    // Pause
+    // Pause/Stop
     s.diashowActive=false;
+    s.mode='diashow';
     if(s.diashowTimer){clearTimeout(s.diashowTimer);s.diashowTimer=null;}
-    if(btn) btn.textContent=T('wasDiashow');
-    btn && btn.classList.remove('active-tmode');
-    const zBtnP=document.getElementById('was-zufall-btn-'+uid);
-    if(zBtnP) zBtnP.style.display='none';
+    if(btn){btn.textContent=T('wasDiashow');btn.classList.remove('primary','active-tmode');}
+    if(btnSingle){btnSingle.textContent=T('wasDiashow');btnSingle.classList.remove('active-tmode');}
+    // Alle Effekt-Tabs deaktiviert lassen
+    document.getElementById('wastab-mosaic-'+uid)?.classList.remove('active-tmode');
+    document.getElementById('wastab-blur-'+uid)?.classList.remove('active-tmode');
+    document.getElementById('wastab-twirl-'+uid)?.classList.remove('active-tmode');
+    document.getElementById('wastab-puzzle-'+uid)?.classList.remove('active-tmode');
+    document.getElementById('wastab-kaese-'+uid)?.classList.remove('active-tmode');
+    // Bild unbearbeitet anzeigen
+    if(s.imgs&&s.imgs.length&&s.canvas){
+      const ctx=s.canvas.getContext('2d');
+      const img=s.imgs[s.imgIndex];
+      if(img) ctx.drawImage(img,0,0,s.canvas.width,s.canvas.height);
+    }
+    const revealBtn2=document.getElementById('was-btn-'+uid);
+    if(revealBtn2) revealBtn2.style.visibility='hidden';
+    wasUpdateControlsVisibility(uid);
   } else {
     // Start – mind. 1 Bild muss geladen sein
     if(!s.imgs||!s.imgs.length){alert('Bitte zuerst Fotos hochladen.');return;}
     s.diashowActive=true;
-    if(btn){btn.textContent=T('wasPause');btn.classList.add('active-tmode');}
-    // Show Zufall button
-    const zBtn=document.getElementById('was-zufall-btn-'+uid);
-    if(zBtn) zBtn.style.display='';
+    s.mode='diashow';
+    if(btn){btn.textContent=T('wasPause');btn.classList.add('primary');}
+    if(btnSingle){btnSingle.textContent=T('wasPause');btnSingle.classList.add('active-tmode');}
+    // Effekt-Tabs deaktivieren während Diashow
+    document.getElementById('wastab-mosaic-'+uid)?.classList.remove('active-tmode');
+    document.getElementById('wastab-blur-'+uid)?.classList.remove('active-tmode');
+    document.getElementById('wastab-twirl-'+uid)?.classList.remove('active-tmode');
+    document.getElementById('wastab-puzzle-'+uid)?.classList.remove('active-tmode');
+    document.getElementById('wastab-kaese-'+uid)?.classList.remove('active-tmode');
+    wasUpdateControlsVisibility(uid);
     // Shuffle-Reihenfolge erstellen
     if(!s.diashowQueue||!s.diashowQueue.length) s.diashowQueue=wasDiashowShuffle(s.imgs.length);
     wasDiashowStep(uid);
@@ -8570,11 +8760,12 @@ function wasDiashowStop(uid){
   s.diashowActive=false;
   if(s.diashowTimer){clearTimeout(s.diashowTimer);s.diashowTimer=null;}
   const btn=document.getElementById('wastab-diashow-'+uid);
-  if(btn){btn.textContent=T('wasDiashow');btn.classList.remove('active-tmode');}
+  if(btn){btn.textContent=T('wasDiashow');btn.classList.remove('primary','active-tmode');}
+  const btnSingle=document.getElementById('wastab-diashow-single-'+uid);
+  if(btnSingle){btnSingle.textContent=T('wasDiashow');btnSingle.classList.remove('active-tmode');}
   const revealBtn=document.getElementById('was-btn-'+uid);
   if(revealBtn) revealBtn.style.visibility='';
-  const zBtnS=document.getElementById('was-zufall-btn-'+uid);
-  if(zBtnS) zBtnS.style.display='none';
+  wasUpdateControlsVisibility(uid);
 }
 
 function wasDiashowToggleZufall(uid){
@@ -8583,8 +8774,13 @@ function wasDiashowToggleZufall(uid){
   s.diashowQueue=[];  // reset queue so new mode takes effect immediately
   const btn=document.getElementById('was-zufall-btn-'+uid);
   if(btn){
-    btn.textContent=s.diashowRandom ? '🔀 Zufall an' : '➡️ Zufall aus';
+    btn.textContent=s.diashowRandom ? 'Zufall aus' : 'Zufall an';
     btn.classList.toggle('primary', s.diashowRandom);
+  }
+  // Laufenden Timer abbrechen und sofort nächsten Schritt ausführen
+  if(s.diashowActive){
+    if(s.diashowTimer){clearTimeout(s.diashowTimer);s.diashowTimer=null;}
+    wasDiashowStep(uid);
   }
 }
 
