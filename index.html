@@ -8184,7 +8184,7 @@ function buildWas(body,uid){
     <button class="wbtn" onclick="wasGoPrev(${uid})" id="was-prev-${uid}" style="padding:.3em .7em;font-size:.85em;">◀</button>
     <button class="wbtn primary" onclick="wasGoNext(${uid})" id="was-next-${uid}" style="padding:.3em .9em;font-size:.85em;" data-i18n="wasWeiter"></button>
     <button id="wastab-diashow-${uid}" class="wbtn" onclick="wasDiashowToggle(${uid})" style="font-size:.82em;padding:.3em .7em;" data-i18n="wasDiashow"></button>
-    <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="display:none;font-size:.82em;padding:.3em .7em;">Zufall an</button>
+    <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="display:none;font-size:.82em;padding:.3em .7em;" data-i18n="diceZufallAn"></button>
     <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;" data-i18n="wasFoto" data-i18n-suffix=" 1 / 1">1 / 1</div>
   </div>
   <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasCanvasClick(${uid})" data-i18n-title="ttKlickenEnthuellen" title=""></canvas>
@@ -8311,8 +8311,8 @@ function wasActivatePhoto(uid, index){
     if(diashowSingleBtn) diashowSingleBtn.style.display='none';
   } else {
     nav.style.display='none';
-    // For single image, show diashow button in bottom bar
-    if(diashowSingleBtn) diashowSingleBtn.style.display='';
+    // For single image, hide diashow button (Diashow needs multiple photos)
+    if(diashowSingleBtn) diashowSingleBtn.style.display='none';
   }
   // Erst nach dem nächsten Render-Frame messen (wrap ist gerade erst auf display:flex gesetzt)
   requestAnimationFrame(()=>{
@@ -8547,8 +8547,11 @@ function wasRenderStep(uid){
     // Gitter-Aufteilung so quadratisch wie möglich
     const cols = Math.max(1, Math.round(Math.sqrt(totalPieces * cv.width / cv.height)));
     const rows = Math.max(1, Math.round(totalPieces / cols));
-    const pw = cv.width  / cols;  // Stück-Breite
-    const ph = cv.height / rows;  // Stück-Höhe
+    const pw = cv.width  / cols;  // Stück-Breite (Canvas)
+    const ph = cv.height / rows;  // Stück-Höhe (Canvas)
+    // Quell-Stückgröße im natürlichen Bild (für korrekte drawImage-Quellkoordinaten)
+    const spw = s.img.naturalWidth  / cols;
+    const sph = s.img.naturalHeight / rows;
 
     // Deterministischer Shuffle der Stück-Positionen (Seed = step, damit stabil pro Stufe)
     const total = cols * rows;
@@ -8560,24 +8563,18 @@ function wasRenderStep(uid){
       [indices[i], indices[j]] = [indices[j], indices[i]];
     }
 
-    // Hintergrund: dunkles Raster sichtbar machen
-    ctx.fillStyle = 'rgba(30,30,50,1)';
-    ctx.fillRect(0, 0, cv.width, cv.height);
-
-    // Jedes Ziel-Kästchen bekommt ein zufälliges Quell-Stück
+    // Jedes Ziel-Kästchen bekommt ein zufälliges Quell-Stück (kein Spalt, kein Hintergrund)
     for(let dstI = 0; dstI < total; dstI++){
       const srcI  = indices[dstI];
       const srcCol = srcI % cols, srcRow = Math.floor(srcI / cols);
       const dstCol = dstI % cols, dstRow = Math.floor(dstI / cols);
-      // Quell-Koordinaten aus Original
-      const sx = srcCol * pw, sy = srcRow * ph;
-      // Ziel-Koordinaten auf Canvas
+      // Quell-Koordinaten aus natürlichem Bild
+      const sx = srcCol * spw, sy = srcRow * sph;
+      // Ziel-Koordinaten auf Canvas (nahtlos, kein Spalt)
       const dx = dstCol * pw, dy = dstRow * ph;
-      // Kleiner Spalt zwischen Teilen (1px)
-      const gap = Math.max(1, Math.round(Math.min(pw, ph) * 0.04));
       ctx.drawImage(s.img,
-        sx, sy, pw, ph,
-        dx + gap, dy + gap, pw - gap*2, ph - gap*2
+        sx, sy, spw, sph,
+        dx, dy, pw, ph
       );
     }
 
@@ -8774,7 +8771,7 @@ function wasDiashowToggleZufall(uid){
   s.diashowQueue=[];  // reset queue so new mode takes effect immediately
   const btn=document.getElementById('was-zufall-btn-'+uid);
   if(btn){
-    btn.textContent=s.diashowRandom ? 'Zufall aus' : 'Zufall an';
+    btn.textContent=s.diashowRandom ? T('diceZufallAus') : T('diceZufallAn');
     btn.classList.toggle('primary', s.diashowRandom);
   }
   // Laufenden Timer abbrechen und sofort nächsten Schritt ausführen
