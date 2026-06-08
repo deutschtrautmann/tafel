@@ -30,6 +30,7 @@ body.light-mode .bg-upload-zone{border-color:rgba(0,0,0,0.2);color:var(--text2);
 body.light-mode .bg-upload-zone:hover{border-color:var(--accent);background:rgba(var(--accent-rgb),0.05);}
 body.light-mode .sound-divider{background:rgba(0,0,0,0.1);}
 body.light-mode .textpad{background:#fff;color:#111;border-color:rgba(0,0,0,0.15);}
+
 body.light-mode .winput{background:var(--bg3);border-color:rgba(0,0,0,0.15);color:var(--text);}
 body.light-mode .wbtn{background:var(--bg3);border-color:rgba(0,0,0,0.12);color:var(--text);}
 body.light-mode .wbtn:hover{background:var(--card2);}
@@ -1796,6 +1797,11 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       <span id="lbl-text" data-i18n="text">Text</span>
     </button>
 
+    <button class="tool-btn" onclick="spawnWidget('sticky')">
+      <span class="tb-icon material-symbols-rounded">sticky_note_2</span>
+      <span id="lbl-sticky" data-i18n="sticky">Notiz</span>
+    </button>
+
     <button class="tool-btn" onclick="spawnWidget('timer')">
       <span class="tb-icon material-symbols-rounded">timer</span>
       <span id="lbl-timer" data-i18n="timer">Timer</span>
@@ -1948,7 +1954,7 @@ const LANG = {
     namen:'Namen',
     zeichnen:'Zeichnen',
     text:'Text',
-    wuerfel:'Würfel',
+    sticky:'Notiz',
     was:'Fotos',
     wasDiashow:'▶ Diashow starten',
     wasPause:'⏸ Pause',
@@ -2163,6 +2169,14 @@ const LANG = {
     ttTpRtf:'Als RTF speichern',
     ttTpTxt:'Als TXT speichern',
     ttTpLoeschen:'Löschen',
+    ttTpUnterstrichen:'Unterstrichen (Strg+U)',
+    ttTpLinkEinfuegen:'Hyperlink einfügen (Strg+K)',
+    ttTpLinkEntfernen:'Link entfernen (Strg+K)',
+    ttTpSchriftart:'Schriftart (auf Auswahl anwenden)',
+    tpLinkDialogTitel:'🔗 Hyperlink einfügen',
+    tpLinkDialogPlaceholder:'https://beispiel.de',
+    tpLinkDialogAbbrechen:'Abbrechen',
+    tpLinkDialogEinfuegen:'Einfügen',
     ttKlickenEnthuellen:'Klicken zum Enthüllen',
     ttTxtDateiLaden:'TXT-Datei laden (2–4 Wörter pro Zeile)',
     ttTxtDateiLadenKurz:'TXT-Datei laden',
@@ -2179,6 +2193,7 @@ const LANG = {
     wtQR:'QR-Code',
     wtText:'Textfeld',
     wtJein:'Jein',
+    wtSticky:'Notizzettel',
     wtFotos:'Fotos',
     wtRad:'Frage-Rad',
     wtSlot:'Slot-Maschine',
@@ -2192,7 +2207,7 @@ const LANG = {
     namen:'名前',
     zeichnen:'描画',
     text:'テキスト',
-    wuerfel:'サイコロ',
+    sticky:'付箋',
     was:'画像',
     wasDiashow:'▶ スライドショー',
     wasPause:'⏸ 一時停止',
@@ -2407,6 +2422,14 @@ const LANG = {
     ttTpRtf:'RTFとして保存',
     ttTpTxt:'TXTとして保存',
     ttTpLoeschen:'削除',
+    ttTpUnterstrichen:'下線（Ctrl+U）',
+    ttTpLinkEinfuegen:'ハイパーリンクを挿入（Ctrl+K）',
+    ttTpLinkEntfernen:'リンクを削除（Ctrl+K）',
+    ttTpSchriftart:'フォント（選択範囲に適用）',
+    tpLinkDialogTitel:'🔗 ハイパーリンクを挿入',
+    tpLinkDialogPlaceholder:'https://例.jp',
+    tpLinkDialogAbbrechen:'キャンセル',
+    tpLinkDialogEinfuegen:'挿入',
     ttKlickenEnthuellen:'クリックして公開',
     ttTxtDateiLaden:'TXTファイルを読み込む（1行に2〜4語）',
     ttTxtDateiLadenKurz:'TXTファイルを読み込む',
@@ -2423,6 +2446,7 @@ const LANG = {
     wtQR:'QRコード',
     wtText:'テキスト欄',
     wtJein:'是か非か',
+    wtSticky:'付箋',
     wtFotos:'写真',
     wtRad:'質問ルーレット',
     wtSlot:'スロットマシン',
@@ -2690,6 +2714,12 @@ function _trTextpad(uid){
   const italicBtn=document.getElementById('tp-italic-'+uid);
   if(boldBtn)   boldBtn.title   = T('ttTpFett');
   if(italicBtn) italicBtn.title = T('ttTpKursiv');
+  const underlineBtn2=document.getElementById('tp-underline-'+uid);
+  if(underlineBtn2) underlineBtn2.title=T('ttTpUnterstrichen');
+  const linkBtn2=document.getElementById('tp-link-'+uid);
+  if(linkBtn2) linkBtn2.title=T('ttTpLinkEinfuegen');
+  const fontSel2=document.getElementById('tp-fontsel-'+uid);
+  if(fontSel2) fontSel2.title=T('ttTpSchriftart');
   body.querySelectorAll('button').forEach(btn=>{
     if(/Als RTF speichern|RTFとして保存/.test(btn.title))  btn.title=T('ttTpRtf');
     if(/Als TXT speichern|TXTとして保存/.test(btn.title))  btn.title=T('ttTpTxt');
@@ -3619,9 +3649,10 @@ const WIDGET_DEFS={
   names:  {titleKey:'wtNamen',  icon:'👤', w:290,h:330, fitContent:false, build:buildNames,   translate:_trNames},
   draw:   {titleKey:'wtZeichnen',icon:'✏️',w:580,h:450, fitContent:false, build:buildDraw,    translate:_trDraw},
   qr:     {titleKey:'wtQR',     icon:'📱', w:260,h:310, fitContent:true,  build:buildQR,      translate:_trQR},
-  textpad:{titleKey:'wtText',   icon:'📝', w:340,h:310, fitContent:true,  build:buildTextpad, translate:_trTextpad},
+  textpad:{titleKey:'wtText',   icon:'📝', w:600,h:420, fitContent:true,  build:buildTextpad, translate:_trTextpad},
+  sticky: {titleKey:'wtSticky', icon:'🗒️', w:280,h:300, fitContent:false, build:buildSticky,  translate:_trSticky},
   jein:   {titleKey:'wtJein',   icon:'🤔', w:310,h:355, fitContent:true,  build:buildJein,    translate:_trJein,   onDestroy:_destroyJein},
-  was:    {titleKey:'wtFotos',  icon:'🖼', w:420,h:400, fitContent:false, build:buildWas,     translate:_trWas},
+  was:    {titleKey:'wtFotos',  icon:'🖼', w:700,h:600, fitContent:false, build:buildWas,     translate:_trWas},
   wheel:  {titleKey:'wtRad',    icon:'🎡', w:820,h:900, fitContent:false, build:buildWheel,   translate:_trWheel},
   slot:   {titleKey:'wtSlot',   icon:'🎰', w:560,h:580, fitContent:false, minw:320, minh:300, build:buildSlot,   translate:_trSlot},
   spiele: {titleKey:'wtSpiele', icon:'🎮', w:580,h:520, fitContent:false, minw:320, minh:300, build:buildSpiele, translate:_trSpiele, onDestroy:_destroySpiele, afterSpawn:_afterSpawnSpiele, onRestore:_onRestoreSpiele, onResize:_onResizeSpiele},
@@ -7017,11 +7048,18 @@ function buildDraw(body,uid){
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
   <!-- Text tool options (shown only when text tool active) -->
   <div id="dtool-text-opts-${uid}" style="display:none;gap:.25em;align-items:center;flex-wrap:wrap;">
-    <select id="dtextfont-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" title="" data-i18n-title="drawTitelSchriftart" onchange="updateDrawTextCursor(${uid})">
+    <select id="dtextfont-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;min-width:140px;" title="" data-i18n-title="drawTitelSchriftart" onchange="updateDrawTextCursor(${uid})">
       <option value="Arial">Arial</option>
+      <option value="Verdana">Verdana</option>
+      <option value="Tahoma">Tahoma</option>
+      <option value="Trebuchet MS">Trebuchet MS</option>
       <option value="Georgia">Georgia</option>
-      <option value="'Courier New'">Monospace</option>
+      <option value="Garamond">Garamond</option>
+      <option value="Palatino Linotype">Palatino Linotype</option>
+      <option value="Century Gothic">Century Gothic</option>
+      <option value="'Courier New'">Courier New</option>
       <option value="Impact">Impact</option>
+      <option value="'Comic Sans MS'">Comic Sans MS</option>
     </select>
     <select id="dtextsize-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" title="" data-i18n-title="drawTitelSchriftgroesse" onchange="updateDrawTextCursor(${uid})">
       <option value="14">14</option>
@@ -7729,14 +7767,25 @@ function buildTextpad(body,uid){
   body.style.display='flex'; body.style.flexDirection='column'; body.style.gap='.5em';
   body.innerHTML=`
 <div style="display:flex;gap:.4em;align-items:center;flex-wrap:wrap;font-size:13px;">
-  <select style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;" onchange="setTPFont(${uid},this.value)">
-    <option value="'Arial',sans-serif" selected>Arial</option>
-    <option value="'Nunito',sans-serif">Nunito</option>
-    <option value="'Georgia',serif">Georgia</option>
-    <option value="'Courier New',monospace">Monospace</option>
+  <select id="tp-fontsel-${uid}"
+    style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;min-width:130px;flex-shrink:0;"
+    title="" data-i18n-title="ttTpSchriftart"
+    onmousedown="tpSaveSel(${uid})"
+    onchange="tpFontSelectHandler(${uid},this)">
+    <option value="Arial">Arial</option>
+    <option value="Verdana">Verdana</option>
+    <option value="Tahoma">Tahoma</option>
+    <option value="Trebuchet MS">Trebuchet MS</option>
+    <option value="Nunito">Nunito</option>
+    <option value="Georgia">Georgia</option>
+    <option value="Garamond">Garamond</option>
+    <option value="Palatino Linotype">Palatino Linotype</option>
+    <option value="Century Gothic">Century Gothic</option>
+    <option value="Courier New">Courier New</option>
+    <option value="Comic Sans MS">Comic Sans MS</option>
   </select>
   <select id="tp-sizesel-${uid}"
-    style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;"
+    style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;flex-shrink:0;"
     title="" data-i18n-title="ttSchriftgroesseAusw"
     onmousedown="tpSaveSel(${uid})"
     onchange="tpSizeSelectHandler(${uid},this)">
@@ -7747,32 +7796,44 @@ function buildTextpad(body,uid){
   </select>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
   <button id="tp-bold-${uid}" onmousedown="tpFormat(event,${uid},'bold')"
-    style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;font-weight:900;cursor:pointer;font-family:'Arial',sans-serif;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;"
+    style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;font-weight:900;cursor:pointer;font-family:'Arial',sans-serif;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;flex-shrink:0;"
     title="" data-i18n-title="ttTpFett"><b>F</b></button>
   <button id="tp-italic-${uid}" onmousedown="tpFormat(event,${uid},'italic')"
-    style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;cursor:pointer;font-family:'Georgia',serif;font-style:italic;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;"
+    style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;cursor:pointer;font-family:'Georgia',serif;font-style:italic;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;flex-shrink:0;"
     title="" data-i18n-title="ttTpKursiv"><i>K</i></button>
+  <button id="tp-underline-${uid}" onmousedown="tpFormat(event,${uid},'underline')"
+    style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;cursor:pointer;font-family:'Arial',sans-serif;text-decoration:underline;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;flex-shrink:0;"
+    title="" data-i18n-title="ttTpUnterstrichen"><u>U</u></button>
+  <button id="tp-link-${uid}" onmousedown="tpLinkClick(event,${uid})"
+    style="background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:6px;width:28px;height:26px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;user-select:none;flex-shrink:0;"
+    title="" data-i18n-title="ttTpLinkEinfuegen">🔗</button>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="" data-i18n-title="ttTpRtf" onclick="saveTPasRtf(${uid})">💾 RTF</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="" data-i18n-title="ttTpTxt" onclick="saveTPasTxt(${uid})">💾 TXT</button>
-  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" title="" data-i18n-title="ttTpLoeschen" onclick="document.getElementById('textpad-${uid}').innerHTML='';updateTPCounter(${uid})">🗑</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;flex-shrink:0;" title="" data-i18n-title="ttTpRtf" onclick="saveTPasRtf(${uid})">💾 RTF</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;flex-shrink:0;" title="" data-i18n-title="ttTpTxt" onclick="saveTPasTxt(${uid})">💾 TXT</button>
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;flex-shrink:0;" title="" data-i18n-title="ttTpLoeschen" onclick="document.getElementById('textpad-${uid}').innerHTML='';updateTPCounter(${uid})">🗑</button>
 </div>
 <div style="font-size:11px;color:var(--text2);text-align:right;" id="tp-counter-${uid}">0 Wörter · 0 Zeichen</div>
-<div
-  id="textpad-${uid}"
-  contenteditable="true"
-  spellcheck="true"
-  data-placeholder="" data-i18n-placeholder="textPlaceholder"
-  style="flex:1;min-height:120px;background:#ffffff;border:1px solid rgba(0,0,0,0.15);color:#111111;border-radius:10px;padding:.7em;font-size:16px;font-family:'Arial',sans-serif;font-weight:normal;line-height:1.6;overflow-y:auto;outline:none;cursor:text;white-space:pre-wrap;"
-  oninput="updateTPCounter(${uid})"
-  onkeydown="handleTPKeydown(event,${uid})"
-  onfocus="this.style.borderColor='var(--accent)'"
-  onblur="this.style.borderColor='rgba(0,0,0,0.15)'"></div>`;
+<div style="flex:1;display:flex;min-height:120px;border:1px solid rgba(0,0,0,0.15);border-radius:10px;overflow:hidden;background:#ffffff;" id="tp-wrap-${uid}">
+  <div
+    id="textpad-${uid}"
+    contenteditable="true"
+    spellcheck="true"
+    data-placeholder="" data-i18n-placeholder="textPlaceholder"
+    style="flex:1;min-height:120px;padding:.7em;font-size:16px;font-family:'Arial',sans-serif;font-weight:normal;line-height:1.6;overflow-y:auto;outline:none;cursor:text;white-space:pre-wrap;color:#111111;background:transparent;"
+    oninput="updateTPCounter(${uid});updateTPLines(${uid})"
+    onscroll="syncTPLineScroll(${uid})"
+    onkeydown="handleTPKeydown(event,${uid})"
+    onclick="_tpEditorClick(event,${uid})"
+    onfocus="document.getElementById('tp-wrap-${uid}').style.borderColor='var(--accent)'"
+    onblur="document.getElementById('tp-wrap-${uid}').style.borderColor='rgba(0,0,0,0.15)'"></div>
+</div>`;
   // placeholder via CSS trick
   const pad=document.getElementById('textpad-'+uid);
   if(pad){
     pad.addEventListener('focus',()=>{ if(pad.innerHTML==='<br>'||pad.innerHTML==='') pad.innerHTML=''; });
   }
+  // Init line numbers
+  requestAnimationFrame(()=>updateTPLines(uid));
 }
 function tpFormat(e, uid, cmd){
   e.preventDefault(); // keep focus in editor
@@ -7782,15 +7843,248 @@ function tpFormat(e, uid, cmd){
 function updateTPBtnStates(uid){
   const boldBtn=document.getElementById('tp-bold-'+uid);
   const italicBtn=document.getElementById('tp-italic-'+uid);
+  const underlineBtn=document.getElementById('tp-underline-'+uid);
   const isBold=document.queryCommandState('bold');
   const isItalic=document.queryCommandState('italic');
+  const isUnderline=document.queryCommandState('underline');
   if(boldBtn){boldBtn.style.background=isBold?_accentRgb(0.35):'var(--bg3)';boldBtn.style.borderColor=isBold?'var(--accent)':'rgba(255,255,255,0.15)';}
   if(italicBtn){italicBtn.style.background=isItalic?_accentRgb(0.35):'var(--bg3)';italicBtn.style.borderColor=isItalic?'var(--accent)':'rgba(255,255,255,0.15)';}
+  if(underlineBtn){underlineBtn.style.background=isUnderline?_accentRgb(0.35):'var(--bg3)';underlineBtn.style.borderColor=isUnderline?'var(--accent)':'rgba(255,255,255,0.15)';}
+  // Highlight link button when cursor is inside a link
+  const linkBtn=document.getElementById('tp-link-'+uid);
+  if(linkBtn){
+    const sel=window.getSelection();
+    const inLink=sel&&sel.rangeCount&&(sel.anchorNode)&&(sel.anchorNode.nodeType===3?sel.anchorNode.parentElement:sel.anchorNode).closest('a');
+    linkBtn.style.background=inLink?_accentRgb(0.35):'var(--bg3)';
+    linkBtn.style.borderColor=inLink?'var(--accent)':'rgba(255,255,255,0.15)';
+    linkBtn.title=inLink?T('ttTpLinkEntfernen'):T('ttTpLinkEinfuegen');
+  }
+  // Sync font dropdown to cursor position
+  const fontSel=document.getElementById('tp-fontsel-'+uid);
+  if(fontSel){
+    try{
+      const sel2=window.getSelection();
+      if(sel2&&sel2.rangeCount){
+        const node=sel2.anchorNode;
+        const el2=node?(node.nodeType===3?node.parentElement:node):null;
+        if(el2){
+          const ff=window.getComputedStyle(el2).fontFamily||'';
+          const name=ff.split(',')[0].replace(/['"]/g,'').trim();
+          // Match to an option
+          for(const opt of fontSel.options){
+            if(opt.value.toLowerCase()===name.toLowerCase()){fontSel.value=opt.value;break;}
+          }
+        }
+      }
+    }catch(_){}
+  }
 }
-function setTPFont(uid,f){
+function updateTPLines(uid){
   const el=document.getElementById('textpad-'+uid);
-  if(el){el.style.fontFamily=f; el.focus();}
+  const ln=document.getElementById('tp-lines-'+uid);
+  if(!el||!ln) return;
+  // Count lines by splitting innerText on newlines; always at least 1
+  const lines=(el.innerText||'').split('\n');
+  // The last element from split is often '' due to trailing newline – still counts as a line if non-empty or only one
+  const count=Math.max(1, lines[lines.length-1]==='' ? lines.length-1 : lines.length);
+  const lh=parseFloat(getComputedStyle(el).lineHeight)||25.6;
+  ln.style.fontSize=getComputedStyle(el).fontSize;
+  let nums='';
+  for(let i=1;i<=count;i++) nums+=(i<count?i+'\n':i);
+  ln.textContent=nums;
+  // Keep line gutter same scroll position
+  ln.scrollTop=el.scrollTop;
 }
+function syncTPLineScroll(uid){
+  const el=document.getElementById('textpad-'+uid);
+  const ln=document.getElementById('tp-lines-'+uid);
+  if(el&&ln) ln.scrollTop=el.scrollTop;
+}
+
+// ── Hyperlink helpers ──────────────────────────────────────────────────────
+// Saved selection for link dialog (focus leaves editor when dialog opens)
+const _tpLinkSel={};
+
+function tpLinkClick(e, uid){
+  e.preventDefault();
+  const el=document.getElementById('textpad-'+uid);
+  if(!el) return;
+  // Check if cursor is inside an existing link → offer to remove
+  const sel=window.getSelection();
+  if(sel && sel.rangeCount){
+    const anc=sel.anchorNode;
+    const linkEl=anc && (anc.nodeType===3 ? anc.parentElement : anc).closest('a');
+    if(linkEl){
+      // toggle: remove the link
+      tpUnlink(uid, linkEl);
+      updateTPBtnStates(uid);
+      return;
+    }
+  }
+  // Save selection before dialog steals focus
+  if(sel && sel.rangeCount) _tpLinkSel[uid]=sel.getRangeAt(0).cloneRange();
+  // Pre-fill URL field with selected text if it looks like a URL
+  const selText=(sel&&!sel.isCollapsed) ? sel.toString().trim() : '';
+  const prefill=/^https?:\/\//i.test(selText) ? selText : 'https://';
+  tpShowLinkDialog(uid, prefill);
+}
+
+function tpShowLinkDialog(uid, prefill){
+  // Remove any existing dialog
+  document.getElementById('tp-link-dialog-'+uid)?.remove();
+  const dlg=document.createElement('div');
+  dlg.id='tp-link-dialog-'+uid;
+  dlg.style.cssText='position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.55);';
+  dlg.innerHTML=`
+    <div style="background:var(--card);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:20px 22px;min-width:300px;max-width:420px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,0.6);display:flex;flex-direction:column;gap:12px;">
+      <div style="font-weight:700;font-size:1em;color:var(--text);">${T('tpLinkDialogTitel')}</div>
+      <input id="tp-link-url-${uid}" type="text" value="${prefill.replace(/"/g,'&quot;')}"
+        style="background:var(--bg3);border:1px solid rgba(255,255,255,0.15);border-radius:8px;padding:.45em .7em;color:var(--text);font-size:.95em;outline:none;width:100%;box-sizing:border-box;"
+        placeholder="${T('tpLinkDialogPlaceholder')}"
+        onkeydown="if(event.key==='Enter'){event.preventDefault();tpInsertLink(${uid});}if(event.key==='Escape'){document.getElementById('tp-link-dialog-${uid}')?.remove();}">
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        <button onmousedown="event.preventDefault();document.getElementById('tp-link-dialog-${uid}')?.remove();"
+          style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text2);border-radius:8px;padding:.4em 1em;cursor:pointer;font-size:.88em;">${T('tpLinkDialogAbbrechen')}</button>
+        <button onmousedown="event.preventDefault();tpInsertLink(${uid});"
+          style="background:var(--accent);border:none;color:#fff;border-radius:8px;padding:.4em 1.1em;cursor:pointer;font-size:.88em;font-weight:700;">${T('tpLinkDialogEinfuegen')}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(dlg);
+  // Select all text in input for easy replacement
+  setTimeout(()=>{
+    const inp=document.getElementById('tp-link-url-'+uid);
+    if(inp){inp.focus();inp.select();}
+  },30);
+}
+
+function tpInsertLink(uid){
+  const dlg=document.getElementById('tp-link-dialog-'+uid);
+  const inp=document.getElementById('tp-link-url-'+uid);
+  if(!inp) return;
+  let url=inp.value.trim();
+  dlg?.remove();
+  if(!url) return;
+  // Auto-prepend https:// if no protocol given
+  if(!/^[a-z][a-z0-9+\-.]*:\/\//i.test(url)) url='https://'+url;
+
+  const el=document.getElementById('textpad-'+uid);
+  if(!el) return;
+  el.focus();
+  // Restore saved selection
+  const saved=_tpLinkSel[uid];
+  if(saved){
+    const sel=window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(saved);
+    delete _tpLinkSel[uid];
+  }
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount) return;
+  const range=sel.getRangeAt(0);
+  const a=document.createElement('a');
+  a.href=url;
+  a.title=url;
+  a.style.color='#4a8fff';
+  a.style.cursor='pointer';
+  a.target='_blank';
+  a.rel='noopener noreferrer';
+  if(!range.collapsed){
+    try{ range.surroundContents(a); }
+    catch(err){
+      // Fallback: wrap via execCommand then fix up
+      document.execCommand('createLink', false, url);
+      el.querySelectorAll('a[href="'+url+'"]').forEach(lnk=>{
+        lnk.style.color='#4a8fff';
+        lnk.target='_blank';
+        lnk.rel='noopener noreferrer';
+      });
+    }
+  } else {
+    // No selection → insert link with URL as text
+    a.textContent=url;
+    range.insertNode(a);
+    // Move caret after link
+    const r2=document.createRange();
+    r2.setStartAfter(a); r2.collapse(true);
+    sel.removeAllRanges(); sel.addRange(r2);
+  }
+  updateTPCounter(uid);
+  updateTPLines(uid);
+}
+
+function tpUnlink(uid, linkEl){
+  // Replace <a> with its text content
+  const el=document.getElementById('textpad-'+uid);
+  if(!el) return;
+  const parent=linkEl.parentNode;
+  while(linkEl.firstChild) parent.insertBefore(linkEl.firstChild, linkEl);
+  parent.removeChild(linkEl);
+}
+
+// Ctrl+click opens link in new tab; regular click just positions cursor
+function _tpEditorClick(e, uid){
+  if(e.ctrlKey||e.metaKey){
+    const a=(e.target).closest('a[href]');
+    if(a){ e.preventDefault(); window.open(a.href,'_blank','noopener'); }
+  }
+}
+function tpFontSelectHandler(uid, sel){
+  const font=sel.value;
+  if(!font) return;
+  tpInlineFont(uid, font);
+}
+function tpInlineFont(uid, font){
+  const el=document.getElementById('textpad-'+uid);
+  if(!el) return;
+  el.focus();
+  // Restore saved selection
+  const saved=_tpSavedSel[uid];
+  if(saved){
+    const s=window.getSelection();
+    s.removeAllRanges();
+    s.addRange(saved);
+    delete _tpSavedSel[uid];
+  }
+  const sel=window.getSelection();
+  if(!sel||!sel.rangeCount) return;
+  const range=sel.getRangeAt(0);
+  if(!range.collapsed){
+    // Wrap selection in a span with font-family
+    const span=document.createElement('span');
+    span.style.fontFamily=font+',sans-serif';
+    try{ range.surroundContents(span); }
+    catch(e){
+      // Cross-element selection fallback
+      document.execCommand('fontName',false,font);
+      el.querySelectorAll('font[face]').forEach(f=>{
+        const s=document.createElement('span');
+        s.style.fontFamily=f.face+',sans-serif';
+        while(f.firstChild) s.appendChild(f.firstChild);
+        f.parentNode.replaceChild(s,f);
+      });
+    }
+    // Collapse to end
+    const r2=document.createRange();
+    r2.selectNodeContents(span);
+    r2.collapse(false);
+    sel.removeAllRanges();
+    sel.addRange(r2);
+  } else {
+    // No selection: set font for subsequent typing via a zero-width span
+    const span=document.createElement('span');
+    span.style.fontFamily=font+',sans-serif';
+    span.appendChild(document.createTextNode('​'));
+    range.insertNode(span);
+    const r2=document.createRange();
+    r2.setStart(span.firstChild,1);
+    r2.collapse(true);
+    sel.removeAllRanges();
+    sel.addRange(r2);
+  }
+  updateTPCounter(uid);
+}
+// Legacy (no longer used globally, kept for compatibility)
+function setTPFont(uid,f){ tpInlineFont(uid,f); }
 function setTPSize(uid,s){
   const el=document.getElementById('textpad-'+uid);
   if(el){el.style.fontSize=s; el.focus();}
@@ -7907,15 +8201,24 @@ function saveTPasRtf(uid){
     const cs=window.getComputedStyle(node);
     const isBold= parseInt(cs.fontWeight)>=600 || tag==='B' || tag==='STRONG';
     const isItalic= cs.fontStyle==='italic' || tag==='I' || tag==='EM';
+    const isUnderline= cs.textDecoration.includes('underline') || tag==='U';
+    const isLink= tag==='A';
+    const linkHref= isLink ? (node.getAttribute('href')||'') : '';
+    const nodeFontRaw=(cs.fontFamily||'').split(',')[0].replace(/['"]/g,'').trim();
+    const nodeFontIdx= nodeFontRaw && nodeFontRaw!==containerFont ? rtfFonts.indexOf(nodeFontRaw) : -1;
+    const fontChanged= nodeFontIdx>0;
     const nodePx=parseFloat(cs.fontSize)||0;
     const nodeHp=nodePx>0 ? Math.round(nodePx*1.5) : 0;
     const sizeChanged=nodeHp>0 && nodeHp!==parentHp;
     let inner='';
     node.childNodes.forEach(n=>{ inner+=nodeToRtf(n, sizeChanged ? nodeHp : parentHp); });
     if(tag==='P'||tag==='DIV') inner+=inner.length ? '\\par ' : '';
+    if(isUnderline) inner=`{\\ul ${inner}}`;
     if(isItalic) inner=`{\\i ${inner}}`;
     if(isBold)   inner=`{\\b ${inner}}`;
+    if(isLink && linkHref) inner=`{\\field{\\*\\fldinst HYPERLINK "${linkHref.replace(/\\/g,'\\\\').replace(/"/g,'\\"')}"}{\\fldrslt\\ul\\cf2 ${inner}}}`;
     if(sizeChanged) inner=`{\\fs${nodeHp} ${inner}}`;
+    if(fontChanged && nodeFontIdx>0) inner=`{\\f${nodeFontIdx} ${inner}}`;
     return inner;
   }
 
@@ -7925,8 +8228,21 @@ function saveTPasRtf(uid){
   const containerHalfPts=Math.round(containerSizePx*1.5);
   const halfPts=containerHalfPts; // px -> half-points (1pt=1.333px) // px → half-points (1pt=1.333px)
 
-  const fontTable=`{\\fonttbl{\\f0\\froman\\fcharset0 ${containerFont};}}`; 
-  const colorTable=`{\\colortbl ;\\red17\\green17\\blue17;}`;
+  // Collect all font families used in the document
+  const _collectFonts=(n,set)=>{ if(n.nodeType===1){const ff=(window.getComputedStyle(n).fontFamily||'').split(',')[0].replace(/['"]/g,'').trim();if(ff)set.add(ff);n.childNodes.forEach(c=>_collectFonts(c,set));} };
+  const fontSet=new Set([containerFont]);
+  _collectFonts(el,fontSet);
+  const rtfFonts=[...fontSet];
+  const _rtfFontClass=(f)=>{
+    const n=f.toLowerCase();
+    if(n.includes('comic')||n.includes('cursive')||n.includes('script')) return '\\fscript';
+    if(n.includes('arial')||n.includes('helvetica')||n.includes('verdana')||n.includes('nunito')) return '\\fswiss';
+    if(n.includes('courier')||n.includes('mono')) return '\\fmodern';
+    return '\\froman';
+  };
+  const fontTableEntries=rtfFonts.map((f,i)=>`{\\f${i}${_rtfFontClass(f)}\\fcharset0 ${f};}`).join('');
+  const fontTable=`{\\fonttbl${fontTableEntries}}`;
+  const colorTable=`{\\colortbl ;\\red17\\green17\\blue17;\\red74\\green143\\blue255;}`;
   const body=nodeToRtf(el);
 
   const rtf=`{\\rtf1\\ansi\\deff0
@@ -7946,7 +8262,14 @@ ${body}
 function saveTPasTxt(uid){
   const el=document.getElementById('textpad-'+uid);
   if(!el) return;
-  const text=el.innerText||'';
+  // Clone node and append link URLs in brackets so they survive plain-text export
+  const clone=el.cloneNode(true);
+  clone.querySelectorAll('a[href]').forEach(a=>{
+    const href=a.getAttribute('href')||'';
+    const txt=a.textContent.trim();
+    if(href && href!==txt) a.textContent=txt+' ['+href+']';
+  });
+  const text=clone.innerText||'';
   const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
   const a=document.createElement('a');
   a.download='text.txt';
@@ -7957,8 +8280,124 @@ function saveTPasTxt(uid){
 function handleTPKeydown(e,uid){
   if((e.ctrlKey||e.metaKey)&&(e.key==='b'||e.key==='B')){e.preventDefault();document.execCommand('bold',false,null);updateTPBtnStates(uid);}
   if((e.ctrlKey||e.metaKey)&&(e.key==='i'||e.key==='I')){e.preventDefault();document.execCommand('italic',false,null);updateTPBtnStates(uid);}
+  if((e.ctrlKey||e.metaKey)&&(e.key==='u'||e.key==='U')){e.preventDefault();document.execCommand('underline',false,null);updateTPBtnStates(uid);}
+  if((e.ctrlKey||e.metaKey)&&(e.key==='k'||e.key==='K')){e.preventDefault();tpLinkClick(e,uid);}
+  // On Enter: carry current font-size into the new line
+  if(e.key==='Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey){
+    const el=document.getElementById('textpad-'+uid);
+    if(el){
+      const sel=window.getSelection();
+      if(sel&&sel.rangeCount){
+        const node=sel.anchorNode;
+        const refEl=node?(node.nodeType===3?node.parentElement:node):null;
+        const computedSize=refEl?parseFloat(window.getComputedStyle(refEl).fontSize):null;
+        const editorDefaultSize=parseFloat(window.getComputedStyle(el).fontSize)||16;
+        if(computedSize && Math.round(computedSize)!==Math.round(editorDefaultSize)){
+          e.preventDefault();
+          document.execCommand('insertParagraph',false,null);
+          const span=document.createElement('span');
+          span.style.fontSize=Math.round(computedSize)+'px';
+          span.appendChild(document.createTextNode('​'));
+          const newSel=window.getSelection();
+          if(newSel&&newSel.rangeCount){
+            const r=newSel.getRangeAt(0);
+            r.insertNode(span);
+            const r2=document.createRange();
+            r2.setStart(span.firstChild,1);
+            r2.collapse(true);
+            newSel.removeAllRanges();
+            newSel.addRange(r2);
+          }
+          updateTPCounter(uid);
+          return;
+        }
+      }
+    }
+  }
   // Update button state on any keyup too
   setTimeout(()=>updateTPBtnStates(uid),0);
+}
+
+// ════════════════════════════════════════════════
+// WIDGET: STICKY NOTE
+// ════════════════════════════════════════════════
+const STICKY_COLORS=[
+  {id:'yellow', bg:'#fef08a', border:'#eab308', label:'Gelb'},
+  {id:'green',  bg:'#bbf7d0', border:'#22c55e', label:'Grün'},
+  {id:'blue',   bg:'#bfdbfe', border:'#3b82f6', label:'Blau'},
+  {id:'pink',   bg:'#fecdd3', border:'#f43f5e', label:'Rosa'},
+  {id:'orange', bg:'#fed7aa', border:'#f97316', label:'Orange'},
+  {id:'purple', bg:'#e9d5ff', border:'#a855f7', label:'Lila'},
+];
+const stickyState={};
+
+function buildSticky(body, uid){
+  stickyState[uid]={ color: STICKY_COLORS[0] };
+  body.style.padding='0';
+  body.style.display='flex';
+  body.style.flexDirection='column';
+  body.style.height='100%';
+  body.innerHTML=`
+<div id="sticky-wrap-${uid}" style="
+  flex:1;display:flex;flex-direction:column;height:100%;
+  background:${STICKY_COLORS[0].bg};
+  border-top:4px solid ${STICKY_COLORS[0].border};
+  transition:background .25s,border-color .25s;
+  position:relative;">
+  <!-- Farb-Dots oben rechts -->
+  <div style="display:flex;gap:5px;padding:6px 8px 4px;justify-content:flex-end;flex-shrink:0;">
+    ${STICKY_COLORS.map(c=>`
+    <button onclick="setStickyColor(${uid},'${c.id}')" title="${c.label}"
+      style="width:16px;height:16px;border-radius:50%;background:${c.bg};border:2px solid ${c.border};
+             cursor:pointer;padding:0;transition:transform .15s,box-shadow .15s;flex-shrink:0;"
+      onmouseover="this.style.transform='scale(1.3)'"
+      onmouseout="this.style.transform='scale(1)'"></button>`).join('')}
+  </div>
+  <!-- Liniertes Textarea -->
+  <textarea id="sticky-ta-${uid}"
+    placeholder="Notiz …"
+    spellcheck="true"
+    oninput="stickyAutoResize(${uid})"
+    style="
+      flex:1;width:100%;border:none;outline:none;resize:none;
+      background:transparent;
+      padding:4px 12px 12px;
+      font-family:'Comic Sans MS','Segoe Script',cursive;
+      font-size:15px;line-height:1.9;color:#1e1a0e;
+      background-image:repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent calc(1.9em - 1px),
+        rgba(99,120,50,0.2) calc(1.9em - 1px),
+        rgba(99,120,50,0.2) 1.9em
+      );
+      overflow-y:auto;
+    "></textarea>
+  <!-- Eselsohr unten rechts -->
+  <div style="position:absolute;bottom:0;right:0;width:0;height:0;
+    border-style:solid;border-width:0 0 22px 22px;
+    border-color:transparent transparent rgba(0,0,0,0.13) transparent;pointer-events:none;"></div>
+</div>`;
+}
+
+function setStickyColor(uid, colorId){
+  const c = STICKY_COLORS.find(x=>x.id===colorId);
+  if(!c) return;
+  stickyState[uid].color = c;
+  const wrap = document.getElementById('sticky-wrap-'+uid);
+  if(wrap){
+    wrap.style.background = c.bg;
+    wrap.style.borderTopColor = c.border;
+  }
+}
+
+function stickyAutoResize(uid){
+  // nothing needed — flex:1 handles it
+}
+
+function _trSticky(uid){
+  const ta = document.getElementById('sticky-ta-'+uid);
+  if(ta) ta.placeholder = (document.documentElement.lang==='ja') ? 'メモ …' : 'Notiz …';
 }
 
 // ════════════════════════════════════════════════
@@ -8187,7 +8626,7 @@ function buildWas(body,uid){
     <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="display:none;font-size:.82em;padding:.3em .7em;" data-i18n="diceZufallAn"></button>
     <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;" data-i18n="wasFoto" data-i18n-suffix=" 1 / 1">1 / 1</div>
   </div>
-  <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:pixelated;cursor:pointer;" onclick="wasCanvasClick(${uid})" data-i18n-title="ttKlickenEnthuellen" title=""></canvas>
+  <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:auto;cursor:pointer;" onclick="wasCanvasClick(${uid})" data-i18n-title="ttKlickenEnthuellen" title=""></canvas>
   <!-- Effekt-Steuerung: nur sichtbar wenn Diashow NICHT aktiv -->
   <div id="was-effect-controls-${uid}">
     <div style="display:flex;gap:.4em;align-items:center;">
@@ -8261,7 +8700,7 @@ function wasActivatePhoto(uid, index){
     // Skalieren: Bild proportional einpassen, nie hochskalieren
     const scaleW = availW / img.width;
     const scaleH = availH / img.height;
-    const scale  = Math.min(scaleW, scaleH, 1);
+    const scale  = Math.min(scaleW, scaleH);
     const cw = Math.round(img.width  * scale);
     const ch = Math.round(img.height * scale);
     cv.width  = cw;
@@ -8369,7 +8808,7 @@ function wasResizeCanvas(uid){
   const availH=Math.max(80,widgetH-reserved);
   const scaleW=availW/img.width;
   const scaleH=availH/img.height;
-  const scale=Math.min(scaleW,scaleH,1);
+  const scale=Math.min(scaleW,scaleH);
   const cw=Math.round(img.width*scale);
   const ch=Math.round(img.height*scale);
   cv.width=cw; cv.height=ch;
@@ -12376,11 +12815,18 @@ function spinQuestionWheel(uid){
   <div class="ddt-sep"></div>
   <!-- Text options (only when text tool active) -->
   <div class="ddt-text-opts" id="ddt-text-opts">
-    <select class="ddt-text-sel" id="ddt-textfont" onchange="ddtUpdateTextCursor()" title="Schriftart">
+    <select class="ddt-text-sel" id="ddt-textfont" onchange="ddtUpdateTextCursor()" title="Schriftart" style="min-width:140px;">
       <option value="Arial">Arial</option>
+      <option value="Verdana">Verdana</option>
+      <option value="Tahoma">Tahoma</option>
+      <option value="Trebuchet MS">Trebuchet MS</option>
       <option value="Georgia">Georgia</option>
-      <option value="'Courier New'">Monospace</option>
+      <option value="Garamond">Garamond</option>
+      <option value="Palatino Linotype">Palatino Linotype</option>
+      <option value="Century Gothic">Century Gothic</option>
+      <option value="'Courier New'">Courier New</option>
       <option value="Impact">Impact</option>
+      <option value="'Comic Sans MS'">Comic Sans MS</option>
     </select>
     <select class="ddt-text-sel" id="ddt-textsize" onchange="ddtUpdateTextCursor()" title="Schriftgröße">
       <option value="14">14</option>
