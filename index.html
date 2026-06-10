@@ -7790,8 +7790,8 @@ function buildTextpad(body,uid){
     onmousedown="tpSaveSel(${uid})"
     onchange="tpSizeSelectHandler(${uid},this)">
     <option value="inline:13" data-i18n="textKlein" data-i18n-suffix=" (13 px)"> (13 px)</option>
-    <option value="inline:16" selected data-i18n="textNormal" data-i18n-suffix=" (16 px)"> (16 px)</option>
-    <option value="inline:20" data-i18n="textGross" data-i18n-suffix=" (20 px)"> (20 px)</option>
+    <option value="inline:16" data-i18n="textNormal" data-i18n-suffix=" (16 px)"> (16 px)</option>
+    <option value="inline:20" selected data-i18n="textGross" data-i18n-suffix=" (20 px)"> (20 px)</option>
     <option value="inline:26" data-i18n="textSehrGross" data-i18n-suffix=" (26 px)"> (26 px)</option>
   </select>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
@@ -7819,7 +7819,7 @@ function buildTextpad(body,uid){
     contenteditable="true"
     spellcheck="true"
     data-placeholder="" data-i18n-placeholder="textPlaceholder"
-    style="flex:1;min-height:120px;padding:.7em;font-size:16px;font-family:'Arial',sans-serif;font-weight:normal;line-height:1.6;overflow-y:auto;outline:none;cursor:text;white-space:pre-wrap;color:#111111;background:transparent;"
+    style="flex:1;min-height:120px;padding:.7em;font-size:20px;font-family:'Arial',sans-serif;font-weight:normal;line-height:1.6;overflow-y:auto;outline:none;cursor:text;white-space:pre-wrap;color:#111111;background:transparent;"
     oninput="updateTPCounter(${uid});updateTPLines(${uid})"
     onscroll="syncTPLineScroll(${uid})"
     onkeydown="handleTPKeydown(event,${uid})"
@@ -7831,6 +7831,7 @@ function buildTextpad(body,uid){
   const pad=document.getElementById('textpad-'+uid);
   if(pad){
     pad.addEventListener('focus',()=>{ if(pad.innerHTML==='<br>'||pad.innerHTML==='') pad.innerHTML=''; });
+    pad.style.fontSize='20px';
   }
   // Init line numbers
   requestAnimationFrame(()=>updateTPLines(uid));
@@ -8363,7 +8364,7 @@ function buildSticky(body, uid){
       background:transparent;
       padding:4px 12px 12px;
       font-family:'Comic Sans MS','Segoe Script',cursive;
-      font-size:15px;line-height:1.9;color:#1e1a0e;
+      font-size:22px;line-height:1.9;color:#1e1a0e;
       background-image:repeating-linear-gradient(
         to bottom,
         transparent 0px,
