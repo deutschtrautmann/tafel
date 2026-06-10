@@ -8332,6 +8332,189 @@ const STICKY_COLORS=[
 ];
 const stickyState={};
 
+
+
+// ── JSONBin Konfiguration ──────────────────────────────────
+// Jede Notiz hat eine eigene noteId → mehrere Personen können gleichzeitig
+// speichern ohne sich gegenseitig zu überschreiben (Merge-Strategie).
+const JSONBIN_KEY  = '$2a$10$OUYRJIHUTMbRURa3gqtCvu0xl1UJMqEXB4bCViN2iOqB7y7ZGSB3e';
+const JSONBIN_BASE = 'https://api.jsonbin.io/v3';
+const JSONBIN_BIN  = '6a29c369da38895dfea90c20';
+let _stickyLoading = false;
+
+// Stabile noteId pro Widget (bleibt nach Laden erhalten)
+function _stickyNoteId(uid){
+  if(!stickyState[uid]) return null;
+  if(!stickyState[uid].noteId)
+    stickyState[uid].noteId = 'n' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  return stickyState[uid].noteId;
+}
+
+// ── Speichern (Merge) ──────────────────────────────────────
+// Holt zuerst den aktuellen Bin-Stand, merged die eigenen Notizen hinein,
+// schreibt dann alles zurück. Fremde Notizen bleiben erhalten.
+async function saveStickyToCloud(){
+  if(_stickyLoading){ _stickyShowStatus('⚠️ Laden läuft noch …', '#fbbf24'); return; }
+  _stickyShowStatus('⏳ Speichere …', '#a78bfa');
+
+  // 1. Aktuellen Stand aus dem Bin holen
+  let existing = [];
+  try {
+    const r = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if(r.ok){ const d = await r.json(); if(d.record && Array.isArray(d.record.stickies)) existing = d.record.stickies; }
+  } catch(e){ /* Bin noch leer */ }
+
+  // 2. Eigene Notizen mit stabilen IDs zusammenstellen
+  const myNotes = [];
+  Object.keys(stickyState).forEach(uid => {
+    const ta = document.getElementById('sticky-ta-' + uid);
+    if(!ta) return;
+    const st = stickyState[uid];
+    myNotes.push({
+      noteId : _stickyNoteId(uid),
+      text   : ta.value,
+      colorId: (st.color && st.color.id) ? st.color.id : 'yellow',
+      ts     : Date.now()
+    });
+  });
+
+  // 3. Merge: fremde Notizen behalten, eigene ersetzen/hinzufügen
+  const myIds  = new Set(myNotes.map(n => n.noteId));
+  const merged = [...existing.filter(n => n.noteId && !myIds.has(n.noteId)), ...myNotes];
+
+  // 4. Zurückschreiben
+  try {
+    const res = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
+      method : 'PUT',
+      headers: { 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
+      body   : JSON.stringify({ stickies: merged })
+    });
+    if(!res.ok){ const t=await res.text(); throw new Error('HTTP '+res.status+': '+t); }
+    _stickyShowStatus('✅ Gespeichert (' + myNotes.length + ' eigene · ' + merged.length + ' gesamt)', '#4ade80');
+  } catch(e){
+    console.error('JSONBin Speicherfehler:', e);
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+// ── Laden ──────────────────────────────────────────────────
+async function loadStickyFromCloud(){
+  _stickyShowStatus('⏳ Lade …', '#a78bfa');
+  try {
+    const res = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if(!res.ok){ const t=await res.text(); throw new Error('HTTP '+res.status+': '+t); }
+    const data  = await res.json();
+    const notes = (data.record && Array.isArray(data.record.stickies)) ? data.record.stickies : [];
+    if(!notes.length){ _stickyShowStatus('⚠️ Keine Notizen gespeichert', '#fbbf24'); return; }
+    _stickyLoading = true;
+    Object.keys(stickyState).forEach(uid => {
+      const w = document.getElementById('widget-'+uid);
+      if(w) w.remove();
+      delete stickyState[uid];
+    });
+    if(typeof updateEmptyHint === 'function') updateEmptyHint();
+    for(const note of notes){
+      const el = spawnWidget('sticky');
+      if(!el) continue;
+      const uid = el.id.replace('widget-', '');
+      if(stickyState[uid] && note.noteId) stickyState[uid].noteId = note.noteId;
+      const ta = document.getElementById('sticky-ta-' + uid);
+      if(ta) ta.value = note.text || '';
+      if(note.colorId) setStickyColor(uid, note.colorId);
+    }
+    _stickyLoading = false;
+    _stickyShowStatus('✅ ' + notes.length + ' Notiz' + (notes.length!==1?'en':'') + ' geladen!', '#4ade80');
+  } catch(e){
+    _stickyLoading = false;
+    console.error('JSONBin Ladefehler:', e);
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+// ── Bestätigungs-Dialog (im Seitendesign) ─────────────────
+function _stickyConfirmDialog(title, message){
+  return new Promise(resolve => {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
+    ov.innerHTML =
+      '<div style="background:var(--card);border:1.5px solid rgba(var(--accent-rgb),.35);border-radius:16px;' +
+      'padding:28px 30px 24px;max-width:420px;width:90%;color:var(--text);font-family:inherit;' +
+      'box-shadow:0 8px 40px rgba(0,0,0,.5);animation:_scaleIn .15s ease;">' +
+      '<div style="font-size:17px;font-weight:800;margin-bottom:10px;color:var(--text);">' + title + '</div>' +
+      '<div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:22px;">' + message + '</div>' +
+      '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
+      '<button id="_scd_cancel" style="background:var(--bg3);border:1.5px solid rgba(var(--accent-rgb),.2);color:var(--text2);' +
+      'border-radius:9px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">Abbrechen</button>' +
+      '<button id="_scd_confirm" style="background:#ef4444;border:none;color:#fff;' +
+      'border-radius:9px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">🗑️ Löschen</button>' +
+      '</div></div>';
+    // Inline-Keyframe
+    if(!document.getElementById('_scd_style')){
+      const s = document.createElement('style');
+      s.id = '_scd_style';
+      s.textContent = '@keyframes _scaleIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}';
+      document.head.appendChild(s);
+    }
+    document.body.appendChild(ov);
+    const close = val => { ov.remove(); resolve(val); };
+    document.getElementById('_scd_cancel').onclick  = () => close(false);
+    document.getElementById('_scd_confirm').onclick = () => close(true);
+    ov.addEventListener('click', e => { if(e.target === ov) close(false); });
+  });
+}
+
+// ── Alles löschen ─────────────────────────────────────────
+async function clearAllStickiesFromCloud(){
+  const confirmed = await _stickyConfirmDialog(
+    '🗑️ Alle Notizen löschen?',
+    'Alle gespeicherten Notizzettel werden unwiderruflich aus der Cloud gelöscht.<br>Bereits geöffnete Fenster bleiben lokal erhalten.'
+  );
+  if(!confirmed) return;
+  _stickyShowStatus('⏳ Lösche …', '#a78bfa');
+  try {
+    const res = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
+      method : 'PUT',
+      headers: { 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
+      body   : JSON.stringify({ stickies: [] })
+    });
+    if(!res.ok){ const t=await res.text(); throw new Error('HTTP '+res.status+': '+t); }
+    Object.keys(stickyState).forEach(uid => { delete stickyState[uid].noteId; });
+    _stickyShowStatus('🗑️ Cloud geleert – lokale Notizen bleiben bis zum Schließen erhalten.', '#f87171');
+  } catch(e){
+    console.error('JSONBin Löschfehler:', e);
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+function _stickyShowStatus(msg, color){
+  // Show a toast notification
+  let toast = document.getElementById('sticky-toast');
+  if(!toast){
+    toast = document.createElement('div');
+    toast.id = 'sticky-toast';
+    toast.style.cssText = `
+      position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+      background:#1a1f3a;border:1px solid rgba(255,255,255,0.15);border-radius:10px;
+      padding:10px 22px;font-size:14px;font-weight:700;z-index:99999;
+      transition:opacity .3s,transform .3s;opacity:0;pointer-events:none;
+      box-shadow:0 4px 20px rgba(0,0,0,0.5);`;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.color = color || '#eef0ff';
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>{
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(20px)';
+  }, 2800);
+}
+
 function buildSticky(body, uid){
   stickyState[uid]={ color: STICKY_COLORS[0] };
   body.style.padding='0';
@@ -8345,14 +8528,35 @@ function buildSticky(body, uid){
   border-top:4px solid ${STICKY_COLORS[0].border};
   transition:background .25s,border-color .25s;
   position:relative;">
-  <!-- Farb-Dots oben rechts -->
-  <div style="display:flex;gap:5px;padding:6px 8px 4px;justify-content:flex-end;flex-shrink:0;">
-    ${STICKY_COLORS.map(c=>`
-    <button onclick="setStickyColor(${uid},'${c.id}')" title="${c.label}"
-      style="width:16px;height:16px;border-radius:50%;background:${c.bg};border:2px solid ${c.border};
-             cursor:pointer;padding:0;transition:transform .15s,box-shadow .15s;flex-shrink:0;"
-      onmouseover="this.style.transform='scale(1.3)'"
-      onmouseout="this.style.transform='scale(1)'"></button>`).join('')}
+  <!-- Toolbar: Farb-Dots + Speichern/Laden -->
+  <div style="display:flex;align-items:center;gap:5px;padding:6px 8px 4px;flex-shrink:0;">
+    <div style="display:flex;gap:5px;flex:1;">
+      ${STICKY_COLORS.map(c=>`
+      <button onclick="setStickyColor(${uid},'${c.id}')" title="${c.label}"
+        style="width:16px;height:16px;border-radius:50%;background:${c.bg};border:2px solid ${c.border};
+               cursor:pointer;padding:0;transition:transform .15s,box-shadow .15s;flex-shrink:0;"
+        onmouseover="this.style.transform='scale(1.3)'"
+        onmouseout="this.style.transform='scale(1)'"></button>`).join('')}
+    </div>
+    <!-- Speichern/Laden Buttons -->
+    <button onclick="saveStickyToCloud()" title="Alle Notizzettel speichern"
+      style="background:#22c55e22;border:1.5px solid #22c55e88;color:#166534;border-radius:7px;
+             padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;
+             transition:background .15s,filter .15s;letter-spacing:.3px;"
+      onmouseover="this.style.background='#22c55e44'"
+      onmouseout="this.style.background='#22c55e22'">💾 Speichern</button>
+    <button onclick="loadStickyFromCloud()" title="Gespeicherte Notizzettel laden"
+      style="background:#3b82f622;border:1.5px solid #3b82f688;color:#1e3a5f;border-radius:7px;
+             padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;
+             transition:background .15s,filter .15s;letter-spacing:.3px;"
+      onmouseover="this.style.background='#3b82f644'"
+      onmouseout="this.style.background='#3b82f622'">📥 Laden</button>
+    <button onclick="clearAllStickiesFromCloud()" title="Alle gespeicherten Notizzettel löschen"
+      style="background:#ef444422;border:1.5px solid #ef444488;color:#7f1d1d;border-radius:7px;
+             padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;
+             transition:background .15s,filter .15s;letter-spacing:.3px;"
+      onmouseover="this.style.background='#ef444444'"
+      onmouseout="this.style.background='#ef444422'">🗑️ Alles löschen</button>
   </div>
   <!-- Liniertes Textarea -->
   <textarea id="sticky-ta-${uid}"
