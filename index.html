@@ -1836,7 +1836,8 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       <input type="text" id="zumpad-input" class="zumpad-input"
         placeholder="Pad-Name?"
         autocomplete="off"
-        onkeydown="if(event.key==='Enter') openZumpad()">
+        onkeydown="if(event.key==='Enter') openZumpad()"
+        oninput="_checkStickyCode(this.value)">
       <button class="zumpad-los-btn" onclick="openZumpad()" data-i18n="los">Los!</button>
     </div>
 
@@ -3650,7 +3651,7 @@ const WIDGET_DEFS={
   draw:   {titleKey:'wtZeichnen',icon:'✏️',w:580,h:450, fitContent:false, build:buildDraw,    translate:_trDraw},
   qr:     {titleKey:'wtQR',     icon:'📱', w:260,h:310, fitContent:true,  build:buildQR,      translate:_trQR},
   textpad:{titleKey:'wtText',   icon:'📝', w:600,h:420, fitContent:true,  build:buildTextpad, translate:_trTextpad},
-  sticky: {titleKey:'wtSticky', icon:'🗒️', w:280,h:300, fitContent:false, build:buildSticky,  translate:_trSticky},
+  sticky: {titleKey:'wtSticky', icon:'🗒️', w:280,h:300, fitContent:false, build:buildSticky,  translate:_trSticky, onDestroy:_destroySticky},
   jein:   {titleKey:'wtJein',   icon:'🤔', w:310,h:355, fitContent:true,  build:buildJein,    translate:_trJein,   onDestroy:_destroyJein},
   was:    {titleKey:'wtFotos',  icon:'🖼', w:700,h:600, fitContent:false, build:buildWas,     translate:_trWas},
   wheel:  {titleKey:'wtRad',    icon:'🎡', w:820,h:900, fitContent:false, build:buildWheel,   translate:_trWheel},
@@ -8342,6 +8343,9 @@ const JSONBIN_BASE = 'https://api.jsonbin.io/v3';
 const JSONBIN_BIN  = '6a29c369da38895dfea90c20';
 let _stickyLoading = false;
 
+// Session-ID: identifiziert den aktuellen Nutzer/Browser
+const _STICKY_SESSION_ID = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+
 // Stabile noteId pro Widget (bleibt nach Laden erhalten)
 function _stickyNoteId(uid){
   if(!stickyState[uid]) return null;
@@ -8350,12 +8354,79 @@ function _stickyNoteId(uid){
   return stickyState[uid].noteId;
 }
 
+// ── Code-Schutz für Löschen-Funktion ─────────────────────
+let _stickyDeleteUnlocked = false;
+const _STICKY_DELETE_CODE = 'Simsalabim';
+
+function _checkStickyCode(val){
+  const isJa = document.documentElement.lang === 'ja';
+  const match = val.trim() === _STICKY_DELETE_CODE;
+  if(match === _stickyDeleteUnlocked) return; // kein Wechsel nötig
+  _stickyDeleteUnlocked = match;
+  // Nur den „Alles löschen"-Button zeigen/verstecken — Ownership bleibt unverändert
+  document.querySelectorAll('[id^="sticky-btn-del-"]').forEach(btn => {
+    btn.style.display = match ? 'inline-block' : 'none';
+  });
+  // Ownership aller offenen Widgets neu anwenden (mit neuem _stickyDeleteUnlocked-Status)
+  Object.keys(stickyState).forEach(uid => {
+    const isOwn = stickyState[uid].isOwn !== false;
+    _stickyApplyOwnership(uid, isOwn);
+  });
+  if(match){
+    // Sofort alle gespeicherten Cloud-Einträge löschen
+    _stickyShowStatus(isJa ? '🔓 コードが有効です – クラウドを削除中 …' : '🔓 Code erkannt – Cloud wird geleert …', '#a78bfa');
+    fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
+      method : 'PUT',
+      headers: { 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
+      body   : JSON.stringify({ stickies: [] })
+    }).then(r => {
+      if(r.ok){
+        // Nur eigene noteIds zurücksetzen, fremde unangetastet lassen
+        Object.keys(stickyState).forEach(uid => {
+          if(stickyState[uid].isOwn !== false) delete stickyState[uid].noteId;
+        });
+        _stickyShowStatus(isJa ? '🗑️ クラウドを削除しました。🗑️ボタンが有効です。' : '🗑️ Cloud geleert. Löschen-Button aktiv.', '#4ade80');
+      }
+    }).catch(e => _stickyShowStatus('❌ ' + e.message, '#f87171'));
+  }
+}
+
+// ── Einzelnen Notizzettel löschen ────────────────────────
+async function deleteSingleSticky(uid){
+  const isJa = document.documentElement.lang === 'ja';
+  // noteId VOR dem Löschen merken
+  const deletedNoteId = (stickyState[uid]||{}).noteId;
+  // Lokal schließen
+  const w = document.getElementById('widget-' + uid);
+  if(w) w.remove();
+  delete stickyState[uid];
+  if(typeof updateEmptyHint === 'function') updateEmptyHint();
+  // Aus Cloud entfernen (nur diese noteId herausfiltern)
+  try {
+    const r = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if(!r.ok) return;
+    const d = await r.json();
+    const existing = (d.record && Array.isArray(d.record.stickies)) ? d.record.stickies : [];
+    const filtered = deletedNoteId ? existing.filter(n => n.noteId !== deletedNoteId) : existing;
+    await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
+      method : 'PUT',
+      headers: { 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
+      body   : JSON.stringify({ stickies: filtered })
+    });
+    _stickyShowStatus(isJa ? '🗑️ 付箋を削除しました。' : '🗑️ Notizzettel gelöscht.', '#f87171');
+  } catch(e){
+    console.error('Sticky delete error:', e);
+  }
+}
+
 // ── Speichern (Merge) ──────────────────────────────────────
 // Holt zuerst den aktuellen Bin-Stand, merged die eigenen Notizen hinein,
 // schreibt dann alles zurück. Fremde Notizen bleiben erhalten.
 async function saveStickyToCloud(){
-  if(_stickyLoading){ _stickyShowStatus('⚠️ Laden läuft noch …', '#fbbf24'); return; }
-  _stickyShowStatus('⏳ Speichere …', '#a78bfa');
+  if(_stickyLoading){ _stickyShowStatus(document.documentElement.lang==='ja' ? '⚠️ 読み込み中 …' : '⚠️ Laden läuft noch …', '#fbbf24'); return; }
+  _stickyShowStatus(document.documentElement.lang==='ja' ? '⏳ 保存中 …' : '⏳ Speichere …', '#a78bfa');
 
   // 1. Aktuellen Stand aus dem Bin holen
   let existing = [];
@@ -8366,23 +8437,34 @@ async function saveStickyToCloud(){
     if(r.ok){ const d = await r.json(); if(d.record && Array.isArray(d.record.stickies)) existing = d.record.stickies; }
   } catch(e){ /* Bin noch leer */ }
 
-  // 2. Eigene Notizen mit stabilen IDs zusammenstellen
+  // 2. Eigene Notizen zusammenstellen
+  //    Ohne Code: nur isOwn===true
+  //    Mit Code:  auch fremde (mit ihrer originalen sessionId)
   const myNotes = [];
+  const editedIds = new Set(); // noteIds die wir aktiv ersetzen
   Object.keys(stickyState).forEach(uid => {
+    const st = stickyState[uid];
+    if(!st.isOwn && !_stickyDeleteUnlocked) return;
     const ta = document.getElementById('sticky-ta-' + uid);
     if(!ta) return;
-    const st = stickyState[uid];
+    const nid = _stickyNoteId(uid);
     myNotes.push({
-      noteId : _stickyNoteId(uid),
-      text   : ta.value,
-      colorId: (st.color && st.color.id) ? st.color.id : 'yellow',
-      ts     : Date.now()
+      noteId   : nid,
+      sessionId: st.isOwn ? _STICKY_SESSION_ID : (st.sessionId || _STICKY_SESSION_ID),
+      text     : ta.value,
+      colorId  : (st.color && st.color.id) ? st.color.id : 'yellow',
+      ts       : Date.now()
     });
+    editedIds.add(nid);
   });
 
-  // 3. Merge: fremde Notizen behalten, eigene ersetzen/hinzufügen
-  const myIds  = new Set(myNotes.map(n => n.noteId));
-  const merged = [...existing.filter(n => n.noteId && !myIds.has(n.noteId)), ...myNotes];
+  // 3. Merge:
+  //    - Notizen die wir bearbeitet haben → durch myNotes ersetzen
+  //    - Alle anderen (nicht geöffnet, nicht bearbeitet) → unverändert aus existing übernehmen
+  const merged = [
+    ...existing.filter(n => n.noteId && !editedIds.has(n.noteId)),
+    ...myNotes
+  ];
 
   // 4. Zurückschreiben
   try {
@@ -8401,7 +8483,7 @@ async function saveStickyToCloud(){
 
 // ── Laden ──────────────────────────────────────────────────
 async function loadStickyFromCloud(){
-  _stickyShowStatus('⏳ Lade …', '#a78bfa');
+  _stickyShowStatus(document.documentElement.lang==='ja' ? '⏳ 読み込み中 …' : '⏳ Lade …', '#a78bfa');
   try {
     const res = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', {
       headers: { 'X-Master-Key': JSONBIN_KEY }
@@ -8409,25 +8491,55 @@ async function loadStickyFromCloud(){
     if(!res.ok){ const t=await res.text(); throw new Error('HTTP '+res.status+': '+t); }
     const data  = await res.json();
     const notes = (data.record && Array.isArray(data.record.stickies)) ? data.record.stickies : [];
-    if(!notes.length){ _stickyShowStatus('⚠️ Keine Notizen gespeichert', '#fbbf24'); return; }
+    if(!notes.length){ _stickyShowStatus(document.documentElement.lang==='ja' ? '⚠️ 保存されたメモがありません' : '⚠️ Keine Notizen gespeichert', '#fbbf24'); return; }
     _stickyLoading = true;
+    const isJa = document.documentElement.lang === 'ja';
+
+    // Bestehende Widgets nach noteId indexieren — diese bleiben offen
+    const openByNoteId = {};
     Object.keys(stickyState).forEach(uid => {
-      const w = document.getElementById('widget-'+uid);
-      if(w) w.remove();
-      delete stickyState[uid];
+      const nid = stickyState[uid].noteId;
+      if(nid) openByNoteId[nid] = uid;
     });
-    if(typeof updateEmptyHint === 'function') updateEmptyHint();
+
+    let added = 0, updated = 0;
     for(const note of notes){
-      const el = spawnWidget('sticky');
-      if(!el) continue;
-      const uid = el.id.replace('widget-', '');
-      if(stickyState[uid] && note.noteId) stickyState[uid].noteId = note.noteId;
-      const ta = document.getElementById('sticky-ta-' + uid);
-      if(ta) ta.value = note.text || '';
-      if(note.colorId) setStickyColor(uid, note.colorId);
+      const isOwn = !note.sessionId || note.sessionId === _STICKY_SESSION_ID;
+      if(note.noteId && openByNoteId[note.noteId]){
+        // Bereits offen: nur Text/Farbe aktualisieren, Fenster bleibt stehen
+        const uid = openByNoteId[note.noteId];
+        const ta = document.getElementById('sticky-ta-' + uid);
+        if(ta && isOwn){ ta.value = note.text || ''; } // fremde nicht überschreiben (read-only)
+        if(note.colorId) setStickyColor(uid, note.colorId);
+        if(stickyState[uid]) stickyState[uid].sessionId = note.sessionId || _STICKY_SESSION_ID;
+        _stickyApplyOwnership(uid, isOwn);
+        updated++;
+      } else {
+        // Neu: Widget spawnen
+        const el = spawnWidget('sticky');
+        if(!el) continue;
+        const uid = el.id.replace('widget-', '');
+        if(stickyState[uid]){
+          stickyState[uid].noteId    = note.noteId || stickyState[uid].noteId;
+          stickyState[uid].sessionId = note.sessionId || _STICKY_SESSION_ID;
+          stickyState[uid].isOwn     = isOwn;
+        }
+        const ta = document.getElementById('sticky-ta-' + uid);
+        if(ta){
+          ta.value    = note.text || '';
+          ta.readOnly = !isOwn;
+          ta.style.opacity = isOwn ? '1' : '0.65';
+          ta.style.cursor  = isOwn ? '' : 'default';
+        }
+        if(note.colorId) setStickyColor(uid, note.colorId);
+        _stickyApplyOwnership(uid, isOwn);
+        added++;
+      }
     }
     _stickyLoading = false;
-    _stickyShowStatus('✅ ' + notes.length + ' Notiz' + (notes.length!==1?'en':'') + ' geladen!', '#4ade80');
+    const own = notes.filter(n => !n.sessionId || n.sessionId === _STICKY_SESSION_ID).length;
+    const foreign = notes.length - own;
+    _stickyShowStatus('✅ ' + notes.length + (isJa ? ' 件（新: ' + added + '、更新: ' + updated + '）' : ' gesamt (' + added + ' neu, ' + updated + ' aktualisiert)'), '#4ade80');
   } catch(e){
     _stickyLoading = false;
     console.error('JSONBin Ladefehler:', e);
@@ -8435,32 +8547,65 @@ async function loadStickyFromCloud(){
   }
 }
 
-// ── Bestätigungs-Dialog (im Seitendesign) ─────────────────
-function _stickyConfirmDialog(title, message){
+// ── TXT-Download aller Notizen ────────────────────────────
+function _stickyDownloadTxt(notes){
+  const isJa = document.documentElement.lang === 'ja';
+  const colorDe = {yellow:'Gelb',green:'Gr\u00fcn',blue:'Blau',pink:'Rosa',orange:'Orange',purple:'Lila'};
+  const colorJa = {yellow:'\u9ec4\u8272',green:'\u7dd1\u8272',blue:'\u9752\u8272',pink:'\u30d4\u30f3\u30af',orange:'\u30aa\u30ec\u30f3\u30b8',purple:'\u7d2b\u8272'};
+  const lines = notes.map((n, i) => {
+    const cid = n.colorId || 'yellow';
+    const colorName = isJa ? (colorJa[cid]||cid) : (colorDe[cid]||cid);
+    const label = isJa
+      ? ('\u300c\u30e1\u30e2 ' + (i+1) + '\u300d\u8272: ' + colorName)
+      : ('[Notiz ' + (i+1) + '] Farbe: ' + colorName);
+    return label + '\n' + (n.text||'') + '\n';
+  });
+  const blob = new Blob([lines.join('\n---\n\n')], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = isJa
+    ? ('\u30e1\u30e2_' + new Date().toISOString().slice(0,10) + '.txt')
+    : ('Notizzettel_' + new Date().toISOString().slice(0,10) + '.txt');
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ── Bestätigungs-Dialog mit TXT-Download (im Seitendesign) ─
+function _stickyDeleteDialog(notes){
+  const isJa = document.documentElement.lang === 'ja';
   return new Promise(resolve => {
     const ov = document.createElement('div');
     ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
-    ov.innerHTML =
-      '<div style="background:var(--card);border:1.5px solid rgba(var(--accent-rgb),.35);border-radius:16px;' +
-      'padding:28px 30px 24px;max-width:420px;width:90%;color:var(--text);font-family:inherit;' +
-      'box-shadow:0 8px 40px rgba(0,0,0,.5);animation:_scaleIn .15s ease;">' +
-      '<div style="font-size:17px;font-weight:800;margin-bottom:10px;color:var(--text);">' + title + '</div>' +
-      '<div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:22px;">' + message + '</div>' +
-      '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
-      '<button id="_scd_cancel" style="background:var(--bg3);border:1.5px solid rgba(var(--accent-rgb),.2);color:var(--text2);' +
-      'border-radius:9px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">Abbrechen</button>' +
-      '<button id="_scd_confirm" style="background:#ef4444;border:none;color:#fff;' +
-      'border-radius:9px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">🗑️ Löschen</button>' +
-      '</div></div>';
-    // Inline-Keyframe
     if(!document.getElementById('_scd_style')){
       const s = document.createElement('style');
       s.id = '_scd_style';
       s.textContent = '@keyframes _scaleIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}';
       document.head.appendChild(s);
     }
+    const title   = isJa ? '🗑️ すべてのメモを削除しますか？' : '🗑️ Alle Notizen löschen?';
+    const desc    = isJa ? 'クラウドに保存されたすべての付箋が完全に削除されます。'
+                         : 'Alle gespeicherten Notizzettel werden unwiderruflich aus der Cloud gelöscht.';
+    const btnDL   = isJa ? '📄 TXTとしてダウンロード' : '📄 Als TXT herunterladen';
+    const btnCanc = isJa ? 'キャンセル' : 'Abbrechen';
+    const btnDel  = isJa ? '🗑️ 削除' : '🗑️ Löschen';
+    ov.innerHTML =
+      '<div style="background:var(--card);border:1.5px solid rgba(var(--accent-rgb),.35);border-radius:16px;' +
+      'padding:28px 30px 24px;max-width:440px;width:90%;color:var(--text);font-family:inherit;' +
+      'box-shadow:0 8px 40px rgba(0,0,0,.5);animation:_scaleIn .15s ease;">' +
+      '<div style="font-size:17px;font-weight:800;margin-bottom:10px;">' + title + '</div>' +
+      '<div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px;">' + desc + '</div>' +
+      '<button id="_scd_dl" style="width:100%;background:var(--bg3);border:1.5px solid rgba(var(--accent-rgb),.25);' +
+      'color:var(--text);border-radius:9px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;' +
+      'margin-bottom:18px;text-align:left;">' + btnDL + '</button>' +
+      '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
+      '<button id="_scd_cancel" style="background:var(--bg3);border:1.5px solid rgba(var(--accent-rgb),.2);color:var(--text2);' +
+      'border-radius:9px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">' + btnCanc + '</button>' +
+      '<button id="_scd_confirm" style="background:#ef4444;border:none;color:#fff;' +
+      'border-radius:9px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">' + btnDel + '</button>' +
+      '</div></div>';
     document.body.appendChild(ov);
     const close = val => { ov.remove(); resolve(val); };
+    document.getElementById('_scd_dl').onclick      = () => _stickyDownloadTxt(notes);
     document.getElementById('_scd_cancel').onclick  = () => close(false);
     document.getElementById('_scd_confirm').onclick = () => close(true);
     ov.addEventListener('click', e => { if(e.target === ov) close(false); });
@@ -8469,12 +8614,19 @@ function _stickyConfirmDialog(title, message){
 
 // ── Alles löschen ─────────────────────────────────────────
 async function clearAllStickiesFromCloud(){
-  const confirmed = await _stickyConfirmDialog(
-    '🗑️ Alle Notizen löschen?',
-    'Alle gespeicherten Notizzettel werden unwiderruflich aus der Cloud gelöscht.<br>Bereits geöffnete Fenster bleiben lokal erhalten.'
-  );
+  const isJa = document.documentElement.lang === 'ja';
+  // Aktuellen Stand aus der Cloud holen für den TXT-Download
+  let notesForDownload = [];
+  try {
+    const r = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if(r.ok){ const d = await r.json(); if(d.record && Array.isArray(d.record.stickies)) notesForDownload = d.record.stickies; }
+  } catch(e){}
+
+  const confirmed = await _stickyDeleteDialog(notesForDownload);
   if(!confirmed) return;
-  _stickyShowStatus('⏳ Lösche …', '#a78bfa');
+  _stickyShowStatus(isJa ? '⏳ 削除中 …' : '⏳ Lösche …', '#a78bfa');
   try {
     const res = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
       method : 'PUT',
@@ -8483,11 +8635,29 @@ async function clearAllStickiesFromCloud(){
     });
     if(!res.ok){ const t=await res.text(); throw new Error('HTTP '+res.status+': '+t); }
     Object.keys(stickyState).forEach(uid => { delete stickyState[uid].noteId; });
-    _stickyShowStatus('🗑️ Cloud geleert – lokale Notizen bleiben bis zum Schließen erhalten.', '#f87171');
+    _stickyShowStatus(isJa ? '🗑️ クラウドを削除しました。' : '🗑️ Cloud geleert.', '#f87171');
   } catch(e){
     console.error('JSONBin Löschfehler:', e);
     _stickyShowStatus('❌ ' + e.message, '#f87171');
   }
+}
+
+// ── Eigentümerschaft auf Widget anwenden ─────────────────
+function _stickyApplyOwnership(uid, isOwn){
+  // Mit Code: alles vollständig freigeschaltet (Admin-Modus)
+  const effective = isOwn || _stickyDeleteUnlocked;
+  // Textarea
+  const ta = document.getElementById('sticky-ta-'+uid);
+  if(ta){ ta.readOnly = !effective; ta.style.opacity = effective ? '1' : '0.65'; ta.style.cursor = effective ? '' : 'default'; }
+  // Toolbar: bei fremden ohne Code komplett ausblenden
+  const wrap = document.getElementById('sticky-wrap-'+uid);
+  if(wrap){
+    const toolbar = wrap.querySelector('div[style*="display:flex"]');
+    if(toolbar) toolbar.style.display = effective ? 'flex' : 'none';
+  }
+  // Randmarkierung für fremde (auch im Admin-Modus sichtbar lassen)
+  const wrapEl = document.getElementById('sticky-wrap-'+uid);
+  if(wrapEl) wrapEl.style.borderTopStyle = isOwn ? 'solid' : 'dashed';
 }
 
 function _stickyShowStatus(msg, color){
@@ -8516,7 +8686,7 @@ function _stickyShowStatus(msg, color){
 }
 
 function buildSticky(body, uid){
-  stickyState[uid]={ color: STICKY_COLORS[0] };
+  stickyState[uid]={ color: STICKY_COLORS[0], sessionId: _STICKY_SESSION_ID, isOwn: true };
   body.style.padding='0';
   body.style.display='flex';
   body.style.flexDirection='column';
@@ -8539,24 +8709,35 @@ function buildSticky(body, uid){
         onmouseout="this.style.transform='scale(1)'"></button>`).join('')}
     </div>
     <!-- Speichern/Laden Buttons -->
-    <button onclick="saveStickyToCloud()" title="Alle Notizzettel speichern"
+    <button onclick="saveStickyToCloud()" id="sticky-btn-save-${uid}"
+      title="${document.documentElement.lang==='ja'?'すべての付箋を保存':'Alle Notizzettel speichern'}"
       style="background:#22c55e22;border:1.5px solid #22c55e88;color:#166534;border-radius:7px;
              padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;
              transition:background .15s,filter .15s;letter-spacing:.3px;"
       onmouseover="this.style.background='#22c55e44'"
-      onmouseout="this.style.background='#22c55e22'">💾 Speichern</button>
-    <button onclick="loadStickyFromCloud()" title="Gespeicherte Notizzettel laden"
+      onmouseout="this.style.background='#22c55e22'">${document.documentElement.lang==='ja'?'💾 保存':'💾 Speichern'}</button>
+    <button onclick="loadStickyFromCloud()" id="sticky-btn-load-${uid}"
+      title="${document.documentElement.lang==='ja'?'保存した付箋を読み込む':'Gespeicherte Notizzettel laden'}"
       style="background:#3b82f622;border:1.5px solid #3b82f688;color:#1e3a5f;border-radius:7px;
              padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;
              transition:background .15s,filter .15s;letter-spacing:.3px;"
       onmouseover="this.style.background='#3b82f644'"
-      onmouseout="this.style.background='#3b82f622'">📥 Laden</button>
-    <button onclick="clearAllStickiesFromCloud()" title="Alle gespeicherten Notizzettel löschen"
-      style="background:#ef444422;border:1.5px solid #ef444488;color:#7f1d1d;border-radius:7px;
+      onmouseout="this.style.background='#3b82f622'">${document.documentElement.lang==='ja'?'📥 読み込む':'📥 Laden'}</button>
+    <button onclick="deleteSingleSticky(${uid})" id="sticky-btn-single-del-${uid}"
+      title="${document.documentElement.lang==='ja'?'この付箋を削除':'Diesen Notizzettel löschen'}"
+      style="background:#ef444411;border:1.5px solid #ef444466;color:#7f1d1d;border-radius:7px;
              padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;
              transition:background .15s,filter .15s;letter-spacing:.3px;"
+      onmouseover="this.style.background='#ef444433'"
+      onmouseout="this.style.background='#ef444411'">${document.documentElement.lang==='ja'?'🗑️ 削除':'🗑️ Löschen'}</button>
+    <button onclick="clearAllStickiesFromCloud()" id="sticky-btn-del-${uid}"
+      title="${document.documentElement.lang==='ja'?'保存したすべての付箋を削除':'Alle gespeicherten Notizzettel löschen'}"
+      style="background:#ef444422;border:1.5px solid #ef444488;color:#7f1d1d;border-radius:7px;
+             padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;
+             transition:background .15s,filter .15s;letter-spacing:.3px;
+             display:${_stickyDeleteUnlocked?'inline-block':'none'};"
       onmouseover="this.style.background='#ef444444'"
-      onmouseout="this.style.background='#ef444422'">🗑️ Alles löschen</button>
+      onmouseout="this.style.background='#ef444422'">${document.documentElement.lang==='ja'?'🗑️ 全削除':'🗑️ Alles löschen'}</button>
   </div>
   <!-- Liniertes Textarea -->
   <textarea id="sticky-ta-${uid}"
@@ -8600,9 +8781,27 @@ function stickyAutoResize(uid){
   // nothing needed — flex:1 handles it
 }
 
+function _destroySticky(uid){
+  delete stickyState[uid];
+}
+
 function _trSticky(uid){
+  const isJa = document.documentElement.lang === 'ja';
   const ta = document.getElementById('sticky-ta-'+uid);
-  if(ta) ta.placeholder = (document.documentElement.lang==='ja') ? 'メモ …' : 'Notiz …';
+  if(ta) ta.placeholder = isJa ? 'メモ …' : 'Notiz …';
+  const btnSave = document.getElementById('sticky-btn-save-'+uid);
+  if(btnSave){ btnSave.textContent = isJa ? '💾 保存' : '💾 Speichern';
+               btnSave.title = isJa ? 'すべての付箋を保存' : 'Alle Notizzettel speichern'; }
+  const btnLoad = document.getElementById('sticky-btn-load-'+uid);
+  if(btnLoad){ btnLoad.textContent = isJa ? '📥 読み込む' : '📥 Laden';
+               btnLoad.title = isJa ? '保存した付箋を読み込む' : 'Gespeicherte Notizzettel laden'; }
+  const btnSDel = document.getElementById('sticky-btn-single-del-'+uid);
+  if(btnSDel){ btnSDel.textContent = isJa ? '🗑️ 削除' : '🗑️ Löschen';
+               btnSDel.title = isJa ? 'この付箋を削除' : 'Diesen Notizzettel löschen'; }
+  const btnDel = document.getElementById('sticky-btn-del-'+uid);
+  if(btnDel){ btnDel.textContent = isJa ? '🗑️ 全削除' : '🗑️ Alles löschen';
+              btnDel.title = isJa ? '保存したすべての付箋を削除' : 'Alle gespeicherten Notizzettel löschen';
+              btnDel.style.display = _stickyDeleteUnlocked ? 'inline-block' : 'none'; }
 }
 
 // ════════════════════════════════════════════════
