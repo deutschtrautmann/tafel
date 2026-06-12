@@ -1797,7 +1797,7 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       <span id="lbl-text" data-i18n="text">Text</span>
     </button>
 
-    <button class="tool-btn" onclick="spawnWidget('sticky')">
+    <button class="tool-btn" id="sticky-tool-btn" onclick="spawnWidget('sticky')" style="display:none;">
       <span class="tb-icon material-symbols-rounded">sticky_note_2</span>
       <span id="lbl-sticky" data-i18n="sticky">Notiz</span>
     </button>
@@ -1836,9 +1836,8 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       <input type="text" id="zumpad-input" class="zumpad-input"
         placeholder="Pad-Name?"
         autocomplete="off"
-        onkeydown="if(event.key==='Enter') openZumpad()"
-        oninput="_checkStickyCode(this.value)">
-      <button class="zumpad-los-btn" onclick="openZumpad()" data-i18n="los">Los!</button>
+        onkeydown="if(event.key==='Enter') _zumpadSubmit()">
+      <button class="zumpad-los-btn" onclick="_zumpadSubmit()" data-i18n="los">Los!</button>
     </div>
 
   </div>
@@ -8354,41 +8353,121 @@ function _stickyNoteId(uid){
   return stickyState[uid].noteId;
 }
 
-// ── Code-Schutz für Löschen-Funktion ─────────────────────
-let _stickyDeleteUnlocked = false;
-const _STICKY_DELETE_CODE = 'Simsalabim';
+// ── Passwort- & Admin-System für Notizzettel ─────────────
+// Struktur im Bin: { stickies:[...], userPassword:'...' }
+// Admin-Code: 'Simsalabim' — danach folgendes Wort = neues Benutzerpasswort
+let _stickyDeleteUnlocked = false; // Admin-Modus aktiv
+let _stickyUserUnlocked   = false; // Benutzer-Modus aktiv
+const _STICKY_ADMIN_CODE  = 'Simsalabim';
+let _stickyAdminPending   = false; // Admin hat Code eingegeben, wartet auf Passwort-Wort
+let _stickyCurrentUserPw  = '';    // aktuell geladenes Benutzerpasswort aus Cloud
 
-function _checkStickyCode(val){
+// Beim Start: Benutzerpasswort aus Cloud laden
+(async function _loadUserPassword(){
+  try {
+    const r = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_KEY }
+    });
+    if(r.ok){ const d = await r.json(); _stickyCurrentUserPw = (d.record && d.record.userPassword) || ''; }
+  } catch(e){}
+})();
+
+async function _checkStickyCode(val){
   const isJa = document.documentElement.lang === 'ja';
-  const match = val.trim() === _STICKY_DELETE_CODE;
-  if(match === _stickyDeleteUnlocked) return; // kein Wechsel nötig
-  _stickyDeleteUnlocked = match;
-  // Nur den „Alles löschen"-Button zeigen/verstecken — Ownership bleibt unverändert
-  document.querySelectorAll('[id^="sticky-btn-del-"]').forEach(btn => {
-    btn.style.display = match ? 'inline-block' : 'none';
-  });
-  // Ownership aller offenen Widgets neu anwenden (mit neuem _stickyDeleteUnlocked-Status)
-  Object.keys(stickyState).forEach(uid => {
-    const isOwn = stickyState[uid].isOwn !== false;
-    _stickyApplyOwnership(uid, isOwn);
-  });
-  if(match){
-    // Sofort alle gespeicherten Cloud-Einträge löschen
-    _stickyShowStatus(isJa ? '🔓 コードが有効です – クラウドを削除中 …' : '🔓 Code erkannt – Cloud wird geleert …', '#a78bfa');
-    fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
-      method : 'PUT',
-      headers: { 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
-      body   : JSON.stringify({ stickies: [] })
-    }).then(r => {
-      if(r.ok){
-        // Nur eigene noteIds zurücksetzen, fremde unangetastet lassen
-        Object.keys(stickyState).forEach(uid => {
-          if(stickyState[uid].isOwn !== false) delete stickyState[uid].noteId;
+  const trimmed = val.trim();
+
+  // ── Admin gibt Code ein ──────────────────────────────────
+  if(trimmed === _STICKY_ADMIN_CODE){
+    if(!_stickyAdminPending){
+      _stickyAdminPending   = true;
+      _stickyDeleteUnlocked = true;
+      const inp = document.getElementById('zumpad-input');
+      if(inp){ inp.value = ''; inp.placeholder = isJa ? 'パスワードを入力' : 'Benutzerpasswort eingeben'; }
+      Object.keys(stickyState).forEach(uid => {
+        _stickyApplyOwnership(uid, stickyState[uid].isOwn !== false);
+      });
+      document.querySelectorAll('[id^="sticky-btn-del-"]').forEach(b => b.style.display='inline-block');
+      _stickyShowStatus(isJa ? '🔓 管理者モード – クラウドを削除中 …' : '🔓 Admin-Modus – Cloud wird geleert …', '#a78bfa');
+      try {
+        const r = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
+          method:'PUT',
+          headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+          body: JSON.stringify({ stickies: [], userPassword: _stickyCurrentUserPw })
         });
-        _stickyShowStatus(isJa ? '🗑️ クラウドを削除しました。🗑️ボタンが有効です。' : '🗑️ Cloud geleert. Löschen-Button aktiv.', '#4ade80');
-      }
-    }).catch(e => _stickyShowStatus('❌ ' + e.message, '#f87171'));
+        if(r.ok){
+          Object.keys(stickyState).forEach(uid => {
+            if(stickyState[uid].isOwn !== false) delete stickyState[uid].noteId;
+          });
+          _stickyShowStatus(isJa ? '🗑️ 完了。新しいパスワードを入力してください。' : '🗑️ Geleert. Bitte neues Benutzerpasswort eingeben.', '#4ade80');
+        }
+      } catch(e){ _stickyShowStatus('❌ ' + e.message, '#f87171'); }
+    }
+    return true;
   }
+
+  // ── Admin gibt nächstes Wort ein = neues Benutzerpasswort ─
+  if(_stickyAdminPending && trimmed.length > 0 && trimmed !== _STICKY_ADMIN_CODE){
+    _stickyAdminPending  = false;
+    _stickyCurrentUserPw = trimmed;
+    try {
+      const r = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', { headers: {'X-Master-Key': JSONBIN_KEY} });
+      const d = await r.json();
+      const existing = (d.record && Array.isArray(d.record.stickies)) ? d.record.stickies : [];
+      await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
+        method:'PUT',
+        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
+        body: JSON.stringify({ stickies: existing, userPassword: trimmed })
+      });
+      _stickyShowStatus(isJa ? '✅ パスワード「' + trimmed + '」を設定しました。' : '✅ Passwort „' + trimmed + '" gesetzt.', '#4ade80');
+    } catch(e){ _stickyShowStatus('❌ ' + e.message, '#f87171'); }
+    const inp = document.getElementById('zumpad-input');
+    if(inp){ inp.value = ''; inp.placeholder = isJa ? 'パッド名？' : 'Pad-Name?'; }
+    // Admin selbst freischalten — Notiz-Widget direkt verfügbar
+    _stickyUserUnlocked = true;
+    const btn = document.getElementById('sticky-tool-btn');
+    if(btn) btn.style.display = '';
+    return true;
+  }
+
+  // ── Feld geleert: Admin-Modus beenden ───────────────────
+  if(trimmed === '' && _stickyDeleteUnlocked){
+    _stickyDeleteUnlocked = false;
+    _stickyAdminPending   = false;
+    document.querySelectorAll('[id^="sticky-btn-del-"]').forEach(b => b.style.display='none');
+    Object.keys(stickyState).forEach(uid => {
+      _stickyApplyOwnership(uid, stickyState[uid].isOwn !== false);
+    });
+    const inp = document.getElementById('zumpad-input');
+    if(inp) inp.placeholder = isJa ? 'パッド名？' : 'Pad-Name?';
+    return true;
+  }
+
+  // ── Benutzer gibt Passwort ein ───────────────────────────
+  if(!_stickyDeleteUnlocked && !_stickyUserUnlocked && trimmed.length > 0){
+    let pw = _stickyCurrentUserPw;
+    // Aktuelles Passwort aus Cloud holen (immer aktuell prüfen)
+    try {
+      const r = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', { headers: {'X-Master-Key': JSONBIN_KEY} });
+      const d = await r.json();
+      pw = (d.record && d.record.userPassword) || '';
+      _stickyCurrentUserPw = pw;
+    } catch(e){}
+    if(pw && trimmed === pw){
+      _stickyUnlockUser(isJa);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function _stickyUnlockUser(isJa){
+  _stickyUserUnlocked = true;
+  const btn = document.getElementById('sticky-tool-btn');
+  if(btn) btn.style.display = '';
+  _stickyShowStatus(isJa ? '✅ ノート機能が有効になりました！' : '✅ Notizzettel-Funktion aktiviert!', '#4ade80');
+  const inp = document.getElementById('zumpad-input');
+  if(inp){ inp.value = ''; }
 }
 
 // ── Einzelnen Notizzettel löschen ────────────────────────
@@ -8447,6 +8526,7 @@ async function saveStickyToCloud(){
     if(!st.isOwn && !_stickyDeleteUnlocked) return;
     const ta = document.getElementById('sticky-ta-' + uid);
     if(!ta) return;
+    if(!ta.value.trim()) return; // leere Notizzettel nicht speichern
     const nid = _stickyNoteId(uid);
     myNotes.push({
       noteId   : nid,
@@ -8466,12 +8546,16 @@ async function saveStickyToCloud(){
     ...myNotes
   ];
 
-  // 4. Zurückschreiben
+  // 4. Zurückschreiben — userPassword aus bestehendem Bin beibehalten
+  const existingPw = (await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', {
+    headers: { 'X-Master-Key': JSONBIN_KEY }
+  }).then(r=>r.json()).then(d=>(d.record && d.record.userPassword)||'').catch(()=>''));
+
   try {
     const res = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
       method : 'PUT',
       headers: { 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
-      body   : JSON.stringify({ stickies: merged })
+      body   : JSON.stringify({ stickies: merged, userPassword: existingPw || _stickyCurrentUserPw })
     });
     if(!res.ok){ const t=await res.text(); throw new Error('HTTP '+res.status+': '+t); }
     _stickyShowStatus('✅ Gespeichert (' + myNotes.length + ' eigene · ' + merged.length + ' gesamt)', '#4ade80');
@@ -8540,6 +8624,9 @@ async function loadStickyFromCloud(){
     const own = notes.filter(n => !n.sessionId || n.sessionId === _STICKY_SESSION_ID).length;
     const foreign = notes.length - own;
     _stickyShowStatus('✅ ' + notes.length + (isJa ? ' 件（新: ' + added + '、更新: ' + updated + '）' : ' gesamt (' + added + ' neu, ' + updated + ' aktualisiert)'), '#4ade80');
+
+    // Positionierung nach dem Laden
+    _stickyArrangeAfterLoad();
   } catch(e){
     _stickyLoading = false;
     console.error('JSONBin Ladefehler:', e);
@@ -8779,6 +8866,59 @@ function setStickyColor(uid, colorId){
 
 function stickyAutoResize(uid){
   // nothing needed — flex:1 handles it
+}
+
+// ── Anordnung nach dem Laden ──────────────────────────────
+function _stickyArrangeAfterLoad(){
+  const { dw, dh } = getDesktopBounds();
+  const isPhone = dw < 700;
+
+  // Alle Sticky-Widgets sammeln, eigene zuerst
+  const allSticky = [];
+  document.querySelectorAll('.widget[data-type="sticky"]').forEach(el => {
+    const uid = el.id.replace('widget-', '');
+    const isOwn = stickyState[uid] && stickyState[uid].isOwn !== false;
+    allSticky.push({ el, uid, isOwn });
+  });
+  if(!allSticky.length) return;
+
+  const W = parseInt(allSticky[0].el.style.width)  || 280;
+  const H = parseInt(allSticky[0].el.style.height) || 300;
+  const gap = 18; // Abstand zwischen Zetteln
+
+  if(isPhone){
+    // Handy: alle leicht versetzt stapeln, so dass Rahmen oben sichtbar bleibt
+    const headerH = 34; // Höhe des Widget-Headers
+    allSticky.forEach(({ el, isOwn }, i) => {
+      const offsetY = i * (headerH + 4); // nur Rahmen sichtbar, nach unten versetzt
+      const left = Math.round((dw - W) / 2);
+      const top  = offsetY;
+      el.style.left = Math.max(0, left) + 'px';
+      el.style.top  = Math.max(0, top)  + 'px';
+    });
+    // Eigene nach vorne
+    allSticky.filter(s => s.isOwn).forEach(({ el }) => el.style.zIndex = ++zTop);
+  } else {
+    // Desktop: prüfen ob alle nebeneinander passen
+    const totalW = allSticky.length * W + (allSticky.length - 1) * gap;
+    if(totalW <= dw - 40){
+      // Alle passen nebeneinander — zentriert anordnen
+      const startX = Math.round((dw - totalW) / 2);
+      const topY   = Math.round((dh - H) / 2);
+      allSticky.forEach(({ el }, i) => {
+        el.style.left = (startX + i * (W + gap)) + 'px';
+        el.style.top  = Math.max(10, topY) + 'px';
+      });
+    } else {
+      // Zu viele — gestaffelt darstellen
+      allSticky.forEach(({ el }, i) => {
+        el.style.left = Math.min(28 + i * 26, dw - W - 10) + 'px';
+        el.style.top  = Math.min(28 + i * 30, dh - H - 10) + 'px';
+      });
+    }
+    // Eigene in den Vordergrund
+    allSticky.filter(s => s.isOwn).forEach(({ el }) => el.style.zIndex = ++zTop);
+  }
 }
 
 function _destroySticky(uid){
@@ -12473,6 +12613,12 @@ function _zumpadShowImportToast(handled){
   }
   clearTimeout(toast._t);
   toast._t = setTimeout(()=>{ toast.style.opacity='0'; }, 3200);
+}
+
+async function _zumpadSubmit(){
+  const val = document.getElementById('zumpad-input')?.value || '';
+  const handled = await _checkStickyCode(val);
+  if(!handled) openZumpad();
 }
 
 async function openZumpad(){
