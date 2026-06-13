@@ -911,6 +911,55 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .jein-mode-btn:hover{background:var(--card2);color:var(--text);}
 .jein-mode-btn.active-jmode{background:rgba(var(--accent-rgb),0.2);border-color:var(--accent);color:var(--accent);}
 
+/* Notizzettel: Wisch-Navigation (nur Handy, bei mehreren Zetteln) */
+.sticky-nav{
+  display:none;align-items:center;justify-content:center;gap:7px;
+  padding:3px 0 7px;flex-shrink:0;touch-action:none;
+}
+.sticky-dot{
+  width:8px;height:8px;border-radius:50%;background:rgba(0,0,0,0.18);
+  cursor:pointer;transition:transform .15s,background .15s;flex-shrink:0;
+}
+.sticky-dot.active{background:rgba(0,0,0,0.55);transform:scale(1.3);}
+@media (max-width:700px){
+  .sticky-nav{display:flex;}
+}
+
+/* Pinnwand: Korkbrett-Hintergrund */
+.pin-board{
+  position:relative;flex:1;overflow:hidden;min-height:0;
+  background-color:#c39a64;
+  background-image:
+    radial-gradient(circle at 12% 22%, rgba(0,0,0,0.10) 0, rgba(0,0,0,0.10) 2.5px, transparent 3px),
+    radial-gradient(circle at 68% 12%, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 2px, transparent 2.5px),
+    radial-gradient(circle at 42% 58%, rgba(0,0,0,0.09) 0, rgba(0,0,0,0.09) 2.5px, transparent 3px),
+    radial-gradient(circle at 85% 75%, rgba(0,0,0,0.07) 0, rgba(0,0,0,0.07) 2px, transparent 2.5px),
+    radial-gradient(circle at 25% 88%, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 2.5px, transparent 3px),
+    radial-gradient(circle at 92% 38%, rgba(255,255,255,0.05) 0, rgba(255,255,255,0.05) 2px, transparent 2.5px);
+  background-size: 130px 130px, 95px 95px, 150px 150px, 110px 110px, 120px 120px, 100px 100px;
+  border: 10px solid #8b5e34;
+  box-shadow: inset 0 0 24px rgba(0,0,0,0.35);
+}
+.pin-note{
+  position:absolute;max-width:160px;min-width:90px;padding:14px 10px 10px;
+  font-size:12.5px;line-height:1.35;font-family:'Comic Sans MS','Comic Sans',cursive,sans-serif;
+  color:#2b2b2b;border-radius:2px;box-shadow:3px 4px 8px rgba(0,0,0,0.3);
+  word-wrap:break-word;white-space:pre-wrap;transform-origin:center top;
+}
+.pin-head{
+  position:absolute;top:-7px;left:50%;transform:translateX(-50%);
+  width:13px;height:13px;border-radius:50%;
+  background:radial-gradient(circle at 35% 35%, #f87171, #b91c1c);
+  box-shadow:0 2px 3px rgba(0,0,0,0.45);
+}
+.pin-del{
+  position:absolute;top:1px;right:1px;width:18px;height:18px;border-radius:50%;
+  background:rgba(0,0,0,0.14);border:none;color:#2b2b2b;font-size:13px;line-height:1;
+  font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+.pin-del:hover{background:rgba(0,0,0,0.32);}
+
 .timer-mode-btn{
   background:transparent;border:none;color:var(--text2);padding:4px 10px;
   border-radius:6px;font-size:11px;font-weight:700;font-family:'Arial',sans-serif;
@@ -1681,6 +1730,13 @@ body.light-mode .zu-word{color:#1a1f3a;}
   60%{transform:scale(1.08);opacity:1;}
   100%{transform:scale(1);opacity:1;}
 }
+@keyframes zu-hop{
+  0%{transform:translateY(0) scale(1);}
+  30%{transform:translateY(-14px) scale(1.08);}
+  55%{transform:translateY(0) scale(1);}
+  75%{transform:translateY(-5px) scale(1.03);}
+  100%{transform:translateY(0) scale(1);}
+}
 .zu-win-banner{animation:zu-win-pop 0.45s cubic-bezier(.34,1.56,.64,1) both;}
 /* Panel scrollbar hidden for zuordnen — no scroll, fits window */
 [id^="spiele-panel-zuordnen-"]{
@@ -1800,6 +1856,11 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
     <button class="tool-btn" id="sticky-tool-btn" onclick="spawnWidget('sticky')" style="display:none;">
       <span class="tb-icon material-symbols-rounded">sticky_note_2</span>
       <span id="lbl-sticky" data-i18n="sticky">Notiz</span>
+    </button>
+
+    <button class="tool-btn" id="pinnwand-tool-btn" onclick="spawnWidget('pinnwand')" style="display:none;">
+      <span class="tb-icon material-symbols-rounded">push_pin</span>
+      <span id="lbl-pinnwand" data-i18n="pinnwand">Pinnwand</span>
     </button>
 
     <button class="tool-btn" onclick="spawnWidget('timer')">
@@ -1955,11 +2016,13 @@ const LANG = {
     zeichnen:'Zeichnen',
     text:'Text',
     sticky:'Notiz',
+    pinnwand:'Pinnwand',
     was:'Fotos',
     wasDiashow:'▶ Diashow starten',
     wasPause:'⏸ Pause',
     timer:'Timer',
     uhr:'Uhr',
+    wuerfel:'Würfel',
     qr:'QR',
     spiele:'Spiele',
     design:'Design',
@@ -2194,6 +2257,7 @@ const LANG = {
     wtText:'Textfeld',
     wtJein:'Jein',
     wtSticky:'Notizzettel',
+    wtPinnwand:'Pinnwand',
     wtFotos:'Fotos',
     wtRad:'Frage-Rad',
     wtSlot:'Slot-Maschine',
@@ -2208,11 +2272,13 @@ const LANG = {
     zeichnen:'描画',
     text:'テキスト',
     sticky:'付箋',
+    pinnwand:'掲示板',
     was:'画像',
     wasDiashow:'▶ スライドショー',
     wasPause:'⏸ 一時停止',
     timer:'タイマー',
     uhr:'時計',
+    wuerfel:'サイコロ',
     qr:'QR',
     spiele:'ゲーム',
     design:'デザイン',
@@ -2253,6 +2319,7 @@ const LANG = {
     diceZufallAus:'ランダム：オフ',
     diceGruenDauer:'🟢 青信号の時間:',
     diceSek:'秒',
+    diceJaNein:'はい / いいえ',
     // Names widget
     namesZiehen:'🎲 引く',
     namesReset:'↺ リセット',
@@ -2447,6 +2514,7 @@ const LANG = {
     wtText:'テキスト欄',
     wtJein:'是か非か',
     wtSticky:'付箋',
+    wtPinnwand:'掲示板',
     wtFotos:'写真',
     wtRad:'質問ルーレット',
     wtSlot:'スロットマシン',
@@ -3651,6 +3719,7 @@ const WIDGET_DEFS={
   qr:     {titleKey:'wtQR',     icon:'📱', w:260,h:310, fitContent:true,  build:buildQR,      translate:_trQR},
   textpad:{titleKey:'wtText',   icon:'📝', w:600,h:420, fitContent:true,  build:buildTextpad, translate:_trTextpad},
   sticky: {titleKey:'wtSticky', icon:'🗒️', w:280,h:300, fitContent:false, build:buildSticky,  translate:_trSticky, onDestroy:_destroySticky},
+  pinnwand: {titleKey:'wtPinnwand', icon:'📌', w:520,h:420, fitContent:false, build:buildPinnwand, translate:_trPinnwand, onDestroy:_destroyPinnwand},
   jein:   {titleKey:'wtJein',   icon:'🤔', w:310,h:355, fitContent:true,  build:buildJein,    translate:_trJein,   onDestroy:_destroyJein},
   was:    {titleKey:'wtFotos',  icon:'🖼', w:700,h:600, fitContent:false, build:buildWas,     translate:_trWas},
   wheel:  {titleKey:'wtRad',    icon:'🎡', w:820,h:900, fitContent:false, build:buildWheel,   translate:_trWheel},
@@ -3697,7 +3766,7 @@ function getInitialWidgetSize(type, def){
     // Handy: immer fast Vollbild-Breite
     w = dw - 8;
     // Spiele-Widgets: fast volle Höhe; andere: 75%
-    const bigTypes = ['spiele','slot','wheel','draw','was'];
+    const bigTypes = ['spiele','slot','wheel','draw','was','pinnwand'];
     h = Math.round(dh * (bigTypes.includes(type) ? 0.92 : 0.75));
   } else {
     w = Math.min(def.w, dw - 24);
@@ -8332,6 +8401,10 @@ const STICKY_COLORS=[
 ];
 const stickyState={};
 
+// ── Wisch-Navigation (Handy): Reihenfolge & aktiver Zettel ──
+let stickyOrder = [];       // Liste der uids (als String) in Erstellungsreihenfolge
+let _stickyActiveUid = null; // uid (String) des gerade vorne liegenden Zettels
+
 
 
 // ── JSONBin Konfiguration ──────────────────────────────────
@@ -8351,6 +8424,33 @@ function _stickyNoteId(uid){
   if(!stickyState[uid].noteId)
     stickyState[uid].noteId = 'n' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
   return stickyState[uid].noteId;
+}
+
+// ── Allgemeine JSONBin-Helfer ─────────────────────────────
+// Struktur im Bin: { stickies:[...], userPassword:'...', pinboard:[...] }
+// Diese Helfer sorgen dafür, dass beim Schreiben keine fremden Felder
+// (z.B. pinboard beim Notizzettel-Speichern) versehentlich verloren gehen.
+async function _jsonbinGetRecord(){
+  const r = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', {
+    headers: { 'X-Master-Key': JSONBIN_KEY }
+  });
+  if(!r.ok){ const t = await r.text(); throw new Error('HTTP '+r.status+': '+t); }
+  const d = await r.json();
+  return d.record || {};
+}
+async function _jsonbinPutDirect(record){
+  const res = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
+    method : 'PUT',
+    headers: { 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
+    body   : JSON.stringify(record)
+  });
+  if(!res.ok){ const t = await res.text(); throw new Error('HTTP '+res.status+': '+t); }
+}
+async function _jsonbinPutMerge(partial){
+  const existing = await _jsonbinGetRecord();
+  const merged = Object.assign({}, existing, partial);
+  await _jsonbinPutDirect(merged);
+  return merged;
 }
 
 // ── Passwort- & Admin-System für Notizzettel ─────────────
@@ -8387,14 +8487,11 @@ async function _checkStickyCode(val){
         _stickyApplyOwnership(uid, stickyState[uid].isOwn !== false);
       });
       document.querySelectorAll('[id^="sticky-btn-del-"]').forEach(b => b.style.display='inline-block');
+      _pinboardRefreshAdmin();
       _stickyShowStatus(isJa ? '🔓 管理者モード – クラウドを削除中 …' : '🔓 Admin-Modus – Cloud wird geleert …', '#a78bfa');
       try {
-        const r = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
-          method:'PUT',
-          headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
-          body: JSON.stringify({ stickies: [], userPassword: _stickyCurrentUserPw })
-        });
-        if(r.ok){
+        const r = await _jsonbinPutMerge({ stickies: [], userPassword: _stickyCurrentUserPw });
+        if(r){
           Object.keys(stickyState).forEach(uid => {
             if(stickyState[uid].isOwn !== false) delete stickyState[uid].noteId;
           });
@@ -8413,10 +8510,11 @@ async function _checkStickyCode(val){
       const r = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', { headers: {'X-Master-Key': JSONBIN_KEY} });
       const d = await r.json();
       const existing = (d.record && Array.isArray(d.record.stickies)) ? d.record.stickies : [];
-      await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
-        method:'PUT',
-        headers:{'Content-Type':'application/json','X-Master-Key':JSONBIN_KEY},
-        body: JSON.stringify({ stickies: existing, userPassword: trimmed })
+      await _jsonbinPutMerge({ stickies: existing, userPassword: trimmed, pinboard: [] });
+      // Offene Pinnwände lokal ebenfalls leeren
+      Object.keys(pinboardState).forEach(otherUid => {
+        _pinboardEntries[otherUid] = [];
+        _pinboardRender(otherUid);
       });
       _stickyShowStatus(isJa ? '✅ パスワード「' + trimmed + '」を設定しました。' : '✅ Passwort „' + trimmed + '" gesetzt.', '#4ade80');
     } catch(e){ _stickyShowStatus('❌ ' + e.message, '#f87171'); }
@@ -8426,6 +8524,8 @@ async function _checkStickyCode(val){
     _stickyUserUnlocked = true;
     const btn = document.getElementById('sticky-tool-btn');
     if(btn) btn.style.display = '';
+    const pinBtn = document.getElementById('pinnwand-tool-btn');
+    if(pinBtn) pinBtn.style.display = '';
     return true;
   }
 
@@ -8434,6 +8534,7 @@ async function _checkStickyCode(val){
     _stickyDeleteUnlocked = false;
     _stickyAdminPending   = false;
     document.querySelectorAll('[id^="sticky-btn-del-"]').forEach(b => b.style.display='none');
+    _pinboardRefreshAdmin();
     Object.keys(stickyState).forEach(uid => {
       _stickyApplyOwnership(uid, stickyState[uid].isOwn !== false);
     });
@@ -8465,6 +8566,8 @@ function _stickyUnlockUser(isJa){
   _stickyUserUnlocked = true;
   const btn = document.getElementById('sticky-tool-btn');
   if(btn) btn.style.display = '';
+  const pinBtn = document.getElementById('pinnwand-tool-btn');
+  if(pinBtn) pinBtn.style.display = '';
   _stickyShowStatus(isJa ? '✅ ノート機能が有効になりました！' : '✅ Notizzettel-Funktion aktiviert!', '#4ade80');
   const inp = document.getElementById('zumpad-input');
   if(inp){ inp.value = ''; }
@@ -8489,11 +8592,7 @@ async function deleteSingleSticky(uid){
     const d = await r.json();
     const existing = (d.record && Array.isArray(d.record.stickies)) ? d.record.stickies : [];
     const filtered = deletedNoteId ? existing.filter(n => n.noteId !== deletedNoteId) : existing;
-    await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
-      method : 'PUT',
-      headers: { 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
-      body   : JSON.stringify({ stickies: filtered })
-    });
+    await _jsonbinPutMerge({ stickies: filtered });
     _stickyShowStatus(isJa ? '🗑️ 付箋を削除しました。' : '🗑️ Notizzettel gelöscht.', '#f87171');
   } catch(e){
     console.error('Sticky delete error:', e);
@@ -8552,12 +8651,15 @@ async function saveStickyToCloud(){
   }).then(r=>r.json()).then(d=>(d.record && d.record.userPassword)||'').catch(()=>''));
 
   try {
-    const res = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
-      method : 'PUT',
-      headers: { 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
-      body   : JSON.stringify({ stickies: merged, userPassword: existingPw || _stickyCurrentUserPw })
+    await _jsonbinPutMerge({ stickies: merged, userPassword: existingPw || _stickyCurrentUserPw });
+    // Eigene Notizen als "synchron" markieren, damit nachfolgende Korrekturen
+    // (z.B. durch den Administrator) beim Laden korrekt übernommen werden können.
+    myNotes.forEach(n => {
+      Object.keys(stickyState).forEach(uid => {
+        const st = stickyState[uid];
+        if(st.isOwn && _stickyNoteId(uid) === n.noteId) st.lastSyncedText = n.text;
+      });
     });
-    if(!res.ok){ const t=await res.text(); throw new Error('HTTP '+res.status+': '+t); }
     _stickyShowStatus('✅ Gespeichert (' + myNotes.length + ' eigene · ' + merged.length + ' gesamt)', '#4ade80');
   } catch(e){
     console.error('JSONBin Speicherfehler:', e);
@@ -8593,7 +8695,20 @@ async function loadStickyFromCloud(){
         // Bereits offen: nur Text/Farbe aktualisieren, Fenster bleibt stehen
         const uid = openByNoteId[note.noteId];
         const ta = document.getElementById('sticky-ta-' + uid);
-        if(ta && isOwn){ ta.value = note.text || ''; } // fremde nicht überschreiben (read-only)
+        const st = stickyState[uid];
+        if(ta){
+          if(!isOwn){
+            // Fremde Notizen sind nur lesbar — Stand bei jedem Laden aktualisieren.
+            ta.value = note.text || '';
+          } else if(st && ta.value === (st.lastSyncedText ?? '')){
+            // Eigene Notiz ohne lokale, ungespeicherte Änderungen → z.B. Korrektur
+            // durch den Administrator übernehmen.
+            ta.value = note.text || '';
+            st.lastSyncedText = note.text || '';
+          }
+          // Falls eigene Notiz lokale ungespeicherte Änderungen hat: nicht überschreiben,
+          // damit der eingegebene Text nicht verloren geht.
+        }
         if(note.colorId) setStickyColor(uid, note.colorId);
         if(stickyState[uid]) stickyState[uid].sessionId = note.sessionId || _STICKY_SESSION_ID;
         _stickyApplyOwnership(uid, isOwn);
@@ -8615,6 +8730,7 @@ async function loadStickyFromCloud(){
           ta.style.opacity = isOwn ? '1' : '0.65';
           ta.style.cursor  = isOwn ? '' : 'default';
         }
+        if(stickyState[uid]) stickyState[uid].lastSyncedText = note.text || '';
         if(note.colorId) setStickyColor(uid, note.colorId);
         _stickyApplyOwnership(uid, isOwn);
         added++;
@@ -8715,12 +8831,7 @@ async function clearAllStickiesFromCloud(){
   if(!confirmed) return;
   _stickyShowStatus(isJa ? '⏳ 削除中 …' : '⏳ Lösche …', '#a78bfa');
   try {
-    const res = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN, {
-      method : 'PUT',
-      headers: { 'Content-Type':'application/json', 'X-Master-Key': JSONBIN_KEY },
-      body   : JSON.stringify({ stickies: [] })
-    });
-    if(!res.ok){ const t=await res.text(); throw new Error('HTTP '+res.status+': '+t); }
+    await _jsonbinPutMerge({ stickies: [] });
     Object.keys(stickyState).forEach(uid => { delete stickyState[uid].noteId; });
     _stickyShowStatus(isJa ? '🗑️ クラウドを削除しました。' : '🗑️ Cloud geleert.', '#f87171');
   } catch(e){
@@ -8773,7 +8884,7 @@ function _stickyShowStatus(msg, color){
 }
 
 function buildSticky(body, uid){
-  stickyState[uid]={ color: STICKY_COLORS[0], sessionId: _STICKY_SESSION_ID, isOwn: true };
+  stickyState[uid]={ color: STICKY_COLORS[0], sessionId: _STICKY_SESSION_ID, isOwn: true, lastSyncedText: '' };
   body.style.padding='0';
   body.style.display='flex';
   body.style.flexDirection='column';
@@ -8850,7 +8961,15 @@ function buildSticky(body, uid){
   <div style="position:absolute;bottom:0;right:0;width:0;height:0;
     border-style:solid;border-width:0 0 22px 22px;
     border-color:transparent transparent rgba(0,0,0,0.13) transparent;pointer-events:none;"></div>
+  <!-- Navigation (nur Handy, bei mehreren Zetteln): Punkte zum Wechseln per Tap/Wisch -->
+  <div id="sticky-nav-${uid}" class="sticky-nav"></div>
 </div>`;
+
+  // In globale Reihenfolge eintragen, aktiv setzen, Wischgeste registrieren
+  stickyOrder.push(String(uid));
+  _stickyActiveUid = String(uid);
+  _stickyAttachSwipe(uid);
+  _stickyRefreshNav();
 }
 
 function setStickyColor(uid, colorId){
@@ -8887,17 +9006,19 @@ function _stickyArrangeAfterLoad(){
   const gap = 18; // Abstand zwischen Zetteln
 
   if(isPhone){
-    // Handy: alle leicht versetzt stapeln, so dass Rahmen oben sichtbar bleibt
-    const headerH = 34; // Höhe des Widget-Headers
-    allSticky.forEach(({ el, isOwn }, i) => {
-      const offsetY = i * (headerH + 4); // nur Rahmen sichtbar, nach unten versetzt
-      const left = Math.round((dw - W) / 2);
-      const top  = offsetY;
+    // Handy: alle übereinander an derselben Stelle — Wechsel per Wischgeste
+    const left = Math.round((dw - W) / 2);
+    allSticky.forEach(({ el }) => {
       el.style.left = Math.max(0, left) + 'px';
-      el.style.top  = Math.max(0, top)  + 'px';
+      el.style.top  = '2px';
     });
-    // Eigene nach vorne
+    // Eigene nach vorne, danach Reihenfolge/Punkte aktualisieren
     allSticky.filter(s => s.isOwn).forEach(({ el }) => el.style.zIndex = ++zTop);
+    if(allSticky.length){
+      const lastOwn = allSticky.filter(s => s.isOwn).pop() || allSticky[allSticky.length-1];
+      _stickyActiveUid = lastOwn.uid;
+    }
+    _stickyRefreshNav();
   } else {
     // Desktop: prüfen ob alle nebeneinander passen
     const totalW = allSticky.length * W + (allSticky.length - 1) * gap;
@@ -8921,8 +9042,69 @@ function _stickyArrangeAfterLoad(){
   }
 }
 
+// ── Wisch-Navigation zwischen mehreren Notizzetteln (Handy) ──
+function _stickyActivate(uid){
+  uid = String(uid);
+  if(stickyOrder.indexOf(uid) === -1) return;
+  _stickyActiveUid = uid;
+  const el = document.getElementById('widget-'+uid);
+  if(el) el.style.zIndex = ++zTop;
+  _stickyRefreshNav();
+}
+
+function _stickyGoRelative(dir){
+  if(stickyOrder.length < 2) return;
+  let idx = stickyOrder.indexOf(_stickyActiveUid);
+  if(idx === -1) idx = stickyOrder.length - 1;
+  idx = (idx + dir + stickyOrder.length) % stickyOrder.length;
+  _stickyActivate(stickyOrder[idx]);
+}
+
+function _stickyRefreshNav(){
+  stickyOrder.forEach(uid => {
+    const nav = document.getElementById('sticky-nav-'+uid);
+    if(!nav) return;
+    if(stickyOrder.length < 2){
+      nav.innerHTML = '';
+      nav.style.display = 'none';
+      return;
+    }
+    nav.style.display = '';
+    nav.innerHTML = stickyOrder.map(u =>
+      `<span class="sticky-dot${u===_stickyActiveUid?' active':''}" onclick="_stickyActivate(${u})"></span>`
+    ).join('');
+  });
+}
+
+function _stickyAttachSwipe(uid){
+  const wrap = document.getElementById('sticky-wrap-'+uid);
+  if(!wrap) return;
+  let sx=0, sy=0, swiping=false;
+  wrap.addEventListener('touchstart', e=>{
+    if(e.touches.length !== 1){ swiping=false; return; }
+    const tgt = e.target;
+    if(tgt.closest('button')){ swiping=false; return; }
+    sx = e.touches[0].clientX; sy = e.touches[0].clientY; swiping = true;
+  }, {passive:true});
+  wrap.addEventListener('touchend', e=>{
+    if(!swiping) return;
+    swiping = false;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - sx, dy = t.clientY - sy;
+    if(Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.5){
+      _stickyGoRelative(dx < 0 ? 1 : -1);
+    }
+  }, {passive:true});
+}
+
 function _destroySticky(uid){
   delete stickyState[uid];
+  const idx = stickyOrder.indexOf(String(uid));
+  if(idx !== -1) stickyOrder.splice(idx, 1);
+  if(_stickyActiveUid === String(uid)){
+    _stickyActiveUid = stickyOrder.length ? stickyOrder[stickyOrder.length-1] : null;
+  }
+  _stickyRefreshNav();
 }
 
 function _trSticky(uid){
@@ -8943,6 +9125,286 @@ function _trSticky(uid){
               btnDel.title = isJa ? '保存したすべての付箋を削除' : 'Alle gespeicherten Notizzettel löschen';
               btnDel.style.display = _stickyDeleteUnlocked ? 'inline-block' : 'none'; }
 }
+
+// ════════════════════════════════════════════════
+// WIDGET: PINNWAND (Korkbrett-Pinnwand mit Cloud-Sync)
+// ════════════════════════════════════════════════
+// Struktur im Bin: pinboard: [{noteId, sessionId, text, colorId, x, y, rot, ts}, ...]
+const pinboardState   = {};   // uid -> { poll: intervalId }
+const _pinboardEntries = {};  // uid -> aktuell angezeigte Einträge (Array)
+
+function buildPinnwand(body, uid){
+  pinboardState[uid] = { poll: null };
+  body.style.padding = '0';
+  body.style.display = 'flex';
+  body.style.flexDirection = 'column';
+  body.style.height = '100%';
+  const isJa = document.documentElement.lang === 'ja';
+  body.innerHTML = `
+<div style="flex:1;display:flex;flex-direction:column;height:100%;min-height:0;background:var(--card2);">
+  <!-- Toolbar -->
+  <div style="display:flex;align-items:center;gap:6px;padding:6px 8px;flex-shrink:0;">
+    <div style="flex:1;font-size:12px;font-weight:700;color:var(--text2);" id="pin-count-${uid}"></div>
+    <button onclick="loadPinboardFromCloud(${uid})" id="pin-btn-load-${uid}"
+      title="${isJa?'Pinnwand aktualisieren':'Pinnwand aktualisieren'}"
+      style="background:#3b82f622;border:1.5px solid #3b82f688;color:#1e3a5f;border-radius:7px;
+             padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;
+             transition:background .15s;letter-spacing:.3px;"
+      onmouseover="this.style.background='#3b82f644'"
+      onmouseout="this.style.background='#3b82f622'">${isJa?'🔄 更新':'🔄 Aktualisieren'}</button>
+    <button onclick="clearAllPinboardFromCloud()" id="pin-btn-delall-${uid}"
+      title="${isJa?'すべての投稿を削除':'Alle Einträge löschen'}"
+      style="background:#ef444411;border:1.5px solid #ef444466;color:#7f1d1d;border-radius:7px;
+             padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;
+             transition:background .15s;letter-spacing:.3px;display:none;"
+      onmouseover="this.style.background='#ef444433'"
+      onmouseout="this.style.background='#ef444411'">${isJa?'🗑️ 全削除':'🗑️ Alles löschen'}</button>
+  </div>
+  <!-- Korkbrett -->
+  <div class="pin-board" id="pin-board-${uid}"></div>
+  <!-- Eingabe -->
+  <div style="display:flex;gap:6px;padding:8px;flex-shrink:0;background:var(--card2);">
+    <input type="text" id="pin-input-${uid}" placeholder="${isJa?'Deine Nachricht …':'Deine Nachricht …'}"
+      autocomplete="off"
+      style="flex:1;min-width:0;background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);
+             color:var(--text);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;"
+      onkeydown="if(event.key==='Enter') submitPinboardEntry(${uid})">
+    <button onclick="submitPinboardEntry(${uid})" id="pin-btn-submit-${uid}"
+      style="background:rgba(var(--accent-rgb),0.18);border:1.5px solid var(--accent);color:var(--accent);
+             border-radius:8px;padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;
+             flex-shrink:0;white-space:nowrap;">${isJa?'📌 Anheften':'📌 Anpinnen'}</button>
+  </div>
+</div>`;
+
+  if(_stickyDeleteUnlocked){
+    const b = document.getElementById('pin-btn-delall-'+uid);
+    if(b) b.style.display = 'inline-block';
+  }
+
+  // Erste Ladung + automatische Aktualisierung alle 25s
+  loadPinboardFromCloud(uid);
+  pinboardState[uid].poll = setInterval(() => {
+    if(document.hidden) return;
+    loadPinboardFromCloud(uid, true);
+  }, 25000);
+}
+
+function _destroyPinnwand(uid){
+  const st = pinboardState[uid];
+  if(st && st.poll) clearInterval(st.poll);
+  delete pinboardState[uid];
+  delete _pinboardEntries[uid];
+}
+
+function _trPinnwand(uid){
+  const isJa = document.documentElement.lang === 'ja';
+  const inp = document.getElementById('pin-input-'+uid);
+  if(inp) inp.placeholder = isJa ? 'メッセージを入力 …' : 'Deine Nachricht …';
+  const btnSubmit = document.getElementById('pin-btn-submit-'+uid);
+  if(btnSubmit) btnSubmit.textContent = isJa ? '📌 貼る' : '📌 Anpinnen';
+  const btnLoad = document.getElementById('pin-btn-load-'+uid);
+  if(btnLoad){ btnLoad.textContent = isJa ? '🔄 更新' : '🔄 Aktualisieren';
+               btnLoad.title = isJa ? '掲示板を更新' : 'Pinnwand aktualisieren'; }
+  const btnDel = document.getElementById('pin-btn-delall-'+uid);
+  if(btnDel){ btnDel.textContent = isJa ? '🗑️ 全削除' : '🗑️ Alles löschen';
+              btnDel.title = isJa ? 'すべての投稿を削除' : 'Alle Einträge löschen';
+              btnDel.style.display = _stickyDeleteUnlocked ? 'inline-block' : 'none'; }
+  _pinboardUpdateCount(uid);
+}
+
+function _pinboardUpdateCount(uid){
+  const isJa = document.documentElement.lang === 'ja';
+  const el = document.getElementById('pin-count-'+uid);
+  if(!el) return;
+  const n = (_pinboardEntries[uid] || []).length;
+  el.textContent = isJa ? (n + ' 件') : (n + (n===1 ? ' Eintrag' : ' Einträge'));
+}
+
+// ── Laden ──────────────────────────────────────────────────
+async function loadPinboardFromCloud(uid, silent){
+  if(!silent) _stickyShowStatus(document.documentElement.lang==='ja' ? '⏳ 読み込み中 …' : '⏳ Lade Pinnwand …', '#a78bfa');
+  try {
+    const rec = await _jsonbinGetRecord();
+    const entries = Array.isArray(rec.pinboard) ? rec.pinboard : [];
+    _pinboardEntries[uid] = entries;
+    _pinboardRender(uid);
+    if(!silent) _stickyShowStatus('✅ ' + entries.length + (document.documentElement.lang==='ja' ? ' 件' : ' Einträge geladen'), '#4ade80');
+  } catch(e){
+    if(!silent) _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+// ── Eintrag anpinnen ──────────────────────────────────────
+async function submitPinboardEntry(uid){
+  const inp = document.getElementById('pin-input-'+uid);
+  if(!inp) return;
+  const text = inp.value.trim();
+  if(!text) { inp.focus(); return; }
+  inp.disabled = true;
+  try {
+    const rec = await _jsonbinGetRecord();
+    const entries = Array.isArray(rec.pinboard) ? rec.pinboard.slice() : [];
+    const color = STICKY_COLORS[Math.floor(Math.random() * STICKY_COLORS.length)];
+    const entry = {
+      noteId   : 'p' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+      sessionId: _STICKY_SESSION_ID,
+      text     : text,
+      colorId  : color.id,
+      x        : Math.round(Math.random() * 70 * 10) / 10,   // 0–70 %
+      y        : Math.round(Math.random() * 65 * 10) / 10,   // 0–65 %
+      rot      : Math.round((Math.random() * 16 - 8) * 10) / 10, // -8..+8°
+      ts       : Date.now()
+    };
+    entries.push(entry);
+    await _jsonbinPutDirect(Object.assign({}, rec, { pinboard: entries }));
+    inp.value = '';
+    // Alle offenen Pinnwand-Widgets aktualisieren
+    Object.keys(pinboardState).forEach(otherUid => {
+      _pinboardEntries[otherUid] = entries;
+      _pinboardRender(otherUid);
+    });
+  } catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  } finally {
+    inp.disabled = false;
+    inp.focus();
+  }
+}
+
+// ── Eigenen Eintrag löschen ────────────────────────────────
+async function deletePinboardEntry(uid, noteId){
+  try {
+    const rec = await _jsonbinGetRecord();
+    const entries = (Array.isArray(rec.pinboard) ? rec.pinboard : [])
+      .filter(e => !(e.noteId === noteId && (e.sessionId === _STICKY_SESSION_ID || _stickyDeleteUnlocked)));
+    await _jsonbinPutDirect(Object.assign({}, rec, { pinboard: entries }));
+    Object.keys(pinboardState).forEach(otherUid => {
+      _pinboardEntries[otherUid] = entries;
+      _pinboardRender(otherUid);
+    });
+  } catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+// ── Alle löschen (Admin) ────────────────────────────────────
+async function clearAllPinboardFromCloud(){
+  const isJa = document.documentElement.lang === 'ja';
+  let entries = [];
+  try {
+    const rec = await _jsonbinGetRecord();
+    entries = Array.isArray(rec.pinboard) ? rec.pinboard : [];
+  } catch(e){}
+
+  const confirmed = await _pinboardDeleteDialog(entries);
+  if(!confirmed) return;
+  _stickyShowStatus(isJa ? '⏳ 削除中 …' : '⏳ Lösche …', '#a78bfa');
+  try {
+    await _jsonbinPutMerge({ pinboard: [] });
+    Object.keys(pinboardState).forEach(otherUid => {
+      _pinboardEntries[otherUid] = [];
+      _pinboardRender(otherUid);
+    });
+    _stickyShowStatus(isJa ? '🗑️ クリアしました。' : '🗑️ Pinnwand geleert.', '#f87171');
+  } catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+// ── Rendering ──────────────────────────────────────────────
+function _pinboardRender(uid){
+  const board = document.getElementById('pin-board-'+uid);
+  if(!board) return;
+  const isJa = document.documentElement.lang === 'ja';
+  const entries = _pinboardEntries[uid] || [];
+  board.innerHTML = entries.map(e => {
+    const c = STICKY_COLORS.find(c => c.id === e.colorId) || STICKY_COLORS[0];
+    const canDelete = e.sessionId === _STICKY_SESSION_ID || _stickyDeleteUnlocked;
+    return `<div class="pin-note" style="left:${e.x}%;top:${e.y}%;transform:rotate(${e.rot}deg);
+      background:${c.bg};border:1px solid ${c.border};">
+      <div class="pin-head"></div>
+      ${canDelete ? `<button class="pin-del" onclick="deletePinboardEntry(${uid},'${e.noteId}')" title="${isJa?'削除':'Löschen'}">×</button>` : ''}
+      <div>${escapeHtml(e.text)}</div>
+    </div>`;
+  }).join('');
+  _pinboardUpdateCount(uid);
+}
+
+// Admin-Modus-Wechsel: Lösch-Buttons & Korn-Markierungen aller offenen Pinnwände aktualisieren
+function _pinboardRefreshAdmin(){
+  Object.keys(pinboardState).forEach(uid => {
+    const b = document.getElementById('pin-btn-delall-'+uid);
+    if(b) b.style.display = _stickyDeleteUnlocked ? 'inline-block' : 'none';
+    _pinboardRender(uid);
+  });
+}
+
+// ── TXT-Download aller Pinnwand-Einträge ────────────────────
+function _pinboardDownloadTxt(entries){
+  const isJa = document.documentElement.lang === 'ja';
+  const colorDe = {yellow:'Gelb',green:'Grün',blue:'Blau',pink:'Rosa',orange:'Orange',purple:'Lila'};
+  const colorJa = {yellow:'黄色',green:'緑色',blue:'青色',pink:'ピンク',orange:'オレンジ',purple:'紫色'};
+  const lines = entries.map((n, i) => {
+    const cid = n.colorId || 'yellow';
+    const colorName = isJa ? (colorJa[cid]||cid) : (colorDe[cid]||cid);
+    const date = n.ts ? new Date(n.ts).toLocaleString(isJa ? 'ja-JP' : 'de-DE') : '';
+    const label = isJa
+      ? ('【' + (i+1) + '】 色: ' + colorName + (date ? ' / ' + date : ''))
+      : ('[Eintrag ' + (i+1) + '] Farbe: ' + colorName + (date ? ' / ' + date : ''));
+    return label + '\n' + (n.text||'') + '\n';
+  });
+  const blob = new Blob([lines.join('\n---\n\n')], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = isJa
+    ? ('掲示板_' + new Date().toISOString().slice(0,10) + '.txt')
+    : ('Pinnwand_' + new Date().toISOString().slice(0,10) + '.txt');
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ── Bestätigungs-Dialog mit TXT-Download (im Seitendesign) ─
+function _pinboardDeleteDialog(entries){
+  const isJa = document.documentElement.lang === 'ja';
+  return new Promise(resolve => {
+    const ov = document.createElement('div');
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999999;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);';
+    if(!document.getElementById('_scd_style')){
+      const s = document.createElement('style');
+      s.id = '_scd_style';
+      s.textContent = '@keyframes _scaleIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}';
+      document.head.appendChild(s);
+    }
+    const title   = isJa ? '🗑️ 掲示板のすべての投稿を削除しますか？' : '🗑️ Alle Pinnwand-Einträge löschen?';
+    const desc    = isJa ? 'クラウドに保存されたすべての投稿が完全に削除されます。'
+                         : 'Alle gespeicherten Pinnwand-Einträge werden unwiderruflich aus der Cloud gelöscht.';
+    const btnDL   = isJa ? '📄 TXTとしてダウンロード' : '📄 Als TXT herunterladen';
+    const btnCanc = isJa ? 'キャンセル' : 'Abbrechen';
+    const btnDel  = isJa ? '🗑️ 削除' : '🗑️ Löschen';
+    ov.innerHTML =
+      '<div style="background:var(--card);border:1.5px solid rgba(var(--accent-rgb),.35);border-radius:16px;' +
+      'padding:28px 30px 24px;max-width:440px;width:90%;color:var(--text);font-family:inherit;' +
+      'box-shadow:0 8px 40px rgba(0,0,0,.5);animation:_scaleIn .15s ease;">' +
+      '<div style="font-size:17px;font-weight:800;margin-bottom:10px;">' + title + '</div>' +
+      '<div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px;">' + desc + '</div>' +
+      '<button id="_pcd_dl" style="width:100%;background:var(--bg3);border:1.5px solid rgba(var(--accent-rgb),.25);' +
+      'color:var(--text);border-radius:9px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;' +
+      'margin-bottom:18px;text-align:left;">' + btnDL + '</button>' +
+      '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
+      '<button id="_pcd_cancel" style="background:var(--bg3);border:1.5px solid rgba(var(--accent-rgb),.2);color:var(--text2);' +
+      'border-radius:9px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">' + btnCanc + '</button>' +
+      '<button id="_pcd_confirm" style="background:#ef4444;border:none;color:#fff;' +
+      'border-radius:9px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">' + btnDel + '</button>' +
+      '</div></div>';
+    document.body.appendChild(ov);
+    const close = val => { ov.remove(); resolve(val); };
+    document.getElementById('_pcd_dl').onclick      = () => _pinboardDownloadTxt(entries);
+    document.getElementById('_pcd_cancel').onclick  = () => close(false);
+    document.getElementById('_pcd_confirm').onclick = () => close(true);
+    ov.addEventListener('click', e => { if(e.target === ov) close(false); });
+  });
+}
+
 
 // ════════════════════════════════════════════════
 // WIDGET: JEIN
@@ -10705,7 +11167,7 @@ function buildAmpelPanel(panel, uid){
         <stop offset="60%"  stop-color="#f5d020" stop-opacity="0.07"/>
         <stop offset="100%" stop-color="#f5d020" stop-opacity="0"/>
       </radialGradient>
-      <radialGradient id="moon-grad-${auid}" cx="38%" cy="32%" r="62%">
+      <radialGradient id="moon-grad-${auid}" cx="25%" cy="46%" r="55%">
         <stop offset="0%"  stop-color="#fff8c0"/>
         <stop offset="55%" stop-color="#f5d020"/>
         <stop offset="100%" stop-color="#c8920a"/>
@@ -10713,12 +11175,12 @@ function buildAmpelPanel(panel, uid){
     </defs>
     <!-- Halo -->
     <ellipse cx="45" cy="45" rx="44" ry="44" fill="url(#moon-halo-${auid})"/>
-    <!-- Mondscheibe -->
-    <path d="M58 14 Q76 45 58 72 Q36 82 18 64 Q34 62 42 45 Q48 26 58 14Z" fill="url(#moon-grad-${auid})"/>
+    <!-- Mondscheibe (Sichel) -->
+    <path d="M50,8 A37,37 0 0,0 50,82 A40,40 0 0,0 50,8 Z" fill="url(#moon-grad-${auid})"/>
     <!-- Krater -->
-    <ellipse cx="34" cy="40" rx="4" ry="3" fill="rgba(160,100,0,0.18)"/>
-    <ellipse cx="46" cy="60" rx="3" ry="2" fill="rgba(160,100,0,0.14)"/>
-    <ellipse cx="28" cy="55" rx="2.5" ry="2" fill="rgba(160,100,0,0.12)"/>
+    <ellipse cx="16" cy="30" rx="2.2" ry="1.8" fill="rgba(160,100,0,0.18)"/>
+    <ellipse cx="21" cy="47" rx="1.8" ry="1.5" fill="rgba(160,100,0,0.14)"/>
+    <ellipse cx="15" cy="62" rx="2" ry="1.7" fill="rgba(160,100,0,0.12)"/>
   </svg>
 
   <!-- ═══ TIEFSTE EBENE: Silhouetten ganz hinten (dunkel, kaum Detail) ═══ -->
@@ -12302,13 +12764,43 @@ function zuPruefen(uid){
   const words = Array.from(textfield.querySelectorAll('.zu-word'));
   let correct = 0, wrong = 0, unmarked = 0;
 
+  // Map: Wort-Text -> { Gruppen-Index: Anzahl Vorkommen in dieser Gruppe }
+  // (erlaubt korrekte Zuordnung bei doppelten Einträgen mit identischem Inhalt in mehreren Gruppen,
+  //  aber maximal so oft pro Gruppe, wie der Text dort tatsächlich vorkommt)
+  const textToGroupCounts = {};
+  st.groups.forEach((g, gi) => {
+    g.words.forEach(w => {
+      if(!textToGroupCounts[w]) textToGroupCounts[w] = {};
+      textToGroupCounts[w][gi] = (textToGroupCounts[w][gi] || 0) + 1;
+    });
+  });
+
+  // Belegungs-Zähler: wie viele Treffer eines Textes wurden bereits einer Gruppe zugerechnet
+  const usedCounts = {};
+  const getUsed = (text, gi) => (usedCounts[text] && usedCounts[text][gi]) || 0;
+  const incUsed = (text, gi) => {
+    if(!usedCounts[text]) usedCounts[text] = {};
+    usedCounts[text][gi] = (usedCounts[text][gi] || 0) + 1;
+  };
+
+  // Bereits zuvor korrekt gesperrte Wörter belegen ihren Platz weiterhin
+  words.forEach(el => {
+    if(el.dataset.zuCorrect === '1'){
+      incUsed(el.dataset.zuText, parseInt(el.dataset.zuMarked));
+    }
+  });
+
   // First pass: classify each word (skip already-locked correct ones)
   const results = words.map(el => {
     if(el.dataset.zuCorrect === '1') return { el, status: 'already_correct' };
-    const trueGroup = parseInt(el.dataset.zuGroup);
     const markedStr = el.dataset.zuMarked;
     if(markedStr === '') return { el, status: 'unmarked' };
-    return { el, status: parseInt(markedStr) === trueGroup ? 'correct' : 'wrong' };
+    const markedGroup = parseInt(markedStr);
+    const text = el.dataset.zuText;
+    const allowed = (textToGroupCounts[text] && textToGroupCounts[text][markedGroup]) || 0;
+    const isCorrect = getUsed(text, markedGroup) < allowed;
+    if(isCorrect) incUsed(text, markedGroup);
+    return { el, status: isCorrect ? 'correct' : 'wrong' };
   });
 
   results.forEach(r => {
@@ -12334,12 +12826,14 @@ function zuPruefen(uid){
     setTimeout(() => {
       const el = r.el;
       if(r.status === 'correct'){
-        // Green flash, then lock the word
-        const lockColor = ZU_COLORS[parseInt(el.dataset.zuGroup) % ZU_COLORS.length];
-        el.style.transition = 'background 0.05s, color 0.05s';
-        el.style.background = '#4ade80';
-        el.style.color = '#fff';
+        // Kurzes Hüpfen, dann das Wort sperren
+        const lockColor = ZU_COLORS[parseInt(el.dataset.zuMarked) % ZU_COLORS.length];
         pzBeep(660, 'sine', 0.18, 0.18, 0);
+        el.style.animation = 'none';
+        requestAnimationFrame(() => {
+          el.style.animation = 'zu-hop 0.4s ease-out both';
+          el.addEventListener('animationend', () => { el.style.animation = ''; }, {once:true});
+        });
         setTimeout(() => {
           el.style.transition = 'background 0.4s, color 0.2s, opacity 0.4s';
           el.style.background = lockColor;
@@ -12384,7 +12878,7 @@ function zuPruefen(uid){
       if(tf){
         // Restore all locked words to full saturated colors (remove dimming)
         tf.querySelectorAll('.zu-word.zu-correct-locked').forEach(w => {
-          const lockColor = ZU_COLORS[parseInt(w.dataset.zuGroup) % ZU_COLORS.length];
+          const lockColor = ZU_COLORS[parseInt(w.dataset.zuMarked) % ZU_COLORS.length];
           w.style.transition = 'background 0.4s, opacity 0.4s, box-shadow 0.4s';
           w.style.opacity    = '1';
           w.style.background = lockColor;
