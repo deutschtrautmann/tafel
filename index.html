@@ -959,6 +959,13 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   transition:background .15s;
 }
 .pin-del:hover{background:rgba(0,0,0,0.32);}
+.pin-board-full{flex:1;border-radius:0;}
+.pin-note-small{max-width:128px;min-width:78px;font-size:10.5px;padding:11px 7px 7px;}
+.pin-note-admin{cursor:grab;touch-action:none;user-select:none;}
+.pin-note-admin:active{cursor:grabbing;}
+@media (max-width:700px){
+  .pin-note-small{max-width:108px;min-width:70px;font-size:10px;}
+}
 
 .timer-mode-btn{
   background:transparent;border:none;color:var(--text2);padding:4px 10px;
@@ -1853,12 +1860,7 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       <span id="lbl-text" data-i18n="text">Text</span>
     </button>
 
-    <button class="tool-btn" id="sticky-tool-btn" onclick="spawnWidget('sticky')" style="display:none;">
-      <span class="tb-icon material-symbols-rounded">sticky_note_2</span>
-      <span id="lbl-sticky" data-i18n="sticky">Notiz</span>
-    </button>
-
-    <button class="tool-btn" id="pinnwand-tool-btn" onclick="spawnWidget('pinnwand')" style="display:none;">
+    <button class="tool-btn" id="pinnwand-tool-btn" onclick="openPinnwand()" style="display:none;">
       <span class="tb-icon material-symbols-rounded">push_pin</span>
       <span id="lbl-pinnwand" data-i18n="pinnwand">Pinnwand</span>
     </button>
@@ -2630,6 +2632,7 @@ function applyLanguage(lang){
   // ── Translate open widgets ──
   _translateOpenWidgets(lang);
   _translateDesktopDrawToolbar(lang);
+  _translateAdminPinboard();
 
   document.documentElement.lang = lang === 'ja' ? 'ja' : 'de';
 }
@@ -3719,7 +3722,7 @@ const WIDGET_DEFS={
   qr:     {titleKey:'wtQR',     icon:'📱', w:260,h:310, fitContent:true,  build:buildQR,      translate:_trQR},
   textpad:{titleKey:'wtText',   icon:'📝', w:600,h:420, fitContent:true,  build:buildTextpad, translate:_trTextpad},
   sticky: {titleKey:'wtSticky', icon:'🗒️', w:280,h:300, fitContent:false, build:buildSticky,  translate:_trSticky, onDestroy:_destroySticky},
-  pinnwand: {titleKey:'wtPinnwand', icon:'📌', w:520,h:420, fitContent:false, build:buildPinnwand, translate:_trPinnwand, onDestroy:_destroyPinnwand},
+  pinnwand: {titleKey:'wtPinnwand', icon:'📌', w:280,h:300, fitContent:false, build:buildPinnwand, translate:_trPinnwand, onDestroy:_destroyPinnwand},
   jein:   {titleKey:'wtJein',   icon:'🤔', w:310,h:355, fitContent:true,  build:buildJein,    translate:_trJein,   onDestroy:_destroyJein},
   was:    {titleKey:'wtFotos',  icon:'🖼', w:700,h:600, fitContent:false, build:buildWas,     translate:_trWas},
   wheel:  {titleKey:'wtRad',    icon:'🎡', w:820,h:900, fitContent:false, build:buildWheel,   translate:_trWheel},
@@ -3766,7 +3769,7 @@ function getInitialWidgetSize(type, def){
     // Handy: immer fast Vollbild-Breite
     w = dw - 8;
     // Spiele-Widgets: fast volle Höhe; andere: 75%
-    const bigTypes = ['spiele','slot','wheel','draw','was','pinnwand'];
+    const bigTypes = ['spiele','slot','wheel','draw','was'];
     h = Math.round(dh * (bigTypes.includes(type) ? 0.92 : 0.75));
   } else {
     w = Math.min(def.w, dw - 24);
@@ -8483,18 +8486,12 @@ async function _checkStickyCode(val){
       _stickyDeleteUnlocked = true;
       const inp = document.getElementById('zumpad-input');
       if(inp){ inp.value = ''; inp.placeholder = isJa ? 'パスワードを入力' : 'Benutzerpasswort eingeben'; }
-      Object.keys(stickyState).forEach(uid => {
-        _stickyApplyOwnership(uid, stickyState[uid].isOwn !== false);
-      });
-      document.querySelectorAll('[id^="sticky-btn-del-"]').forEach(b => b.style.display='inline-block');
-      _pinboardRefreshAdmin();
-      _stickyShowStatus(isJa ? '🔓 管理者モード – クラウドを削除中 …' : '🔓 Admin-Modus – Cloud wird geleert …', '#a78bfa');
+      _stickyShowStatus(isJa ? '🔓 管理者モード – クラウドを削除中 …' : '🔓 Admin-Modus – Pinnwand wird geleert …', '#a78bfa');
       try {
-        const r = await _jsonbinPutMerge({ stickies: [], userPassword: _stickyCurrentUserPw });
+        const r = await _jsonbinPutMerge({ pinboard: [], userPassword: _stickyCurrentUserPw });
         if(r){
-          Object.keys(stickyState).forEach(uid => {
-            if(stickyState[uid].isOwn !== false) delete stickyState[uid].noteId;
-          });
+          Object.keys(pinboardState).forEach(uid => { if(pinboardState[uid]) pinboardState[uid].noteId = null; });
+          if(document.getElementById('admin-pinboard-overlay')){ _pinboardEntries['admin']=[]; _pinboardRender('admin'); }
           _stickyShowStatus(isJa ? '🗑️ 完了。新しいパスワードを入力してください。' : '🗑️ Geleert. Bitte neues Benutzerpasswort eingeben.', '#4ade80');
         }
       } catch(e){ _stickyShowStatus('❌ ' + e.message, '#f87171'); }
@@ -8507,23 +8504,15 @@ async function _checkStickyCode(val){
     _stickyAdminPending  = false;
     _stickyCurrentUserPw = trimmed;
     try {
-      const r = await fetch(JSONBIN_BASE + '/b/' + JSONBIN_BIN + '/latest', { headers: {'X-Master-Key': JSONBIN_KEY} });
-      const d = await r.json();
-      const existing = (d.record && Array.isArray(d.record.stickies)) ? d.record.stickies : [];
-      await _jsonbinPutMerge({ stickies: existing, userPassword: trimmed, pinboard: [] });
-      // Offene Pinnwände lokal ebenfalls leeren
-      Object.keys(pinboardState).forEach(otherUid => {
-        _pinboardEntries[otherUid] = [];
-        _pinboardRender(otherUid);
-      });
+      await _jsonbinPutMerge({ userPassword: trimmed, pinboard: [] });
+      Object.keys(pinboardState).forEach(uid => { _pinboardEntries[uid] = []; _pinboardRender(uid); });
+      const editor = document.getElementById('admin-note-editor');
+      if(editor) editor.remove();
       _stickyShowStatus(isJa ? '✅ パスワード「' + trimmed + '」を設定しました。' : '✅ Passwort „' + trimmed + '" gesetzt.', '#4ade80');
     } catch(e){ _stickyShowStatus('❌ ' + e.message, '#f87171'); }
     const inp = document.getElementById('zumpad-input');
     if(inp){ inp.value = ''; inp.placeholder = isJa ? 'パッド名？' : 'Pad-Name?'; }
-    // Admin selbst freischalten — Notiz-Widget direkt verfügbar
     _stickyUserUnlocked = true;
-    const btn = document.getElementById('sticky-tool-btn');
-    if(btn) btn.style.display = '';
     const pinBtn = document.getElementById('pinnwand-tool-btn');
     if(pinBtn) pinBtn.style.display = '';
     return true;
@@ -8533,11 +8522,7 @@ async function _checkStickyCode(val){
   if(trimmed === '' && _stickyDeleteUnlocked){
     _stickyDeleteUnlocked = false;
     _stickyAdminPending   = false;
-    document.querySelectorAll('[id^="sticky-btn-del-"]').forEach(b => b.style.display='none');
-    _pinboardRefreshAdmin();
-    Object.keys(stickyState).forEach(uid => {
-      _stickyApplyOwnership(uid, stickyState[uid].isOwn !== false);
-    });
+    closeAdminPinboard();
     const inp = document.getElementById('zumpad-input');
     if(inp) inp.placeholder = isJa ? 'パッド名？' : 'Pad-Name?';
     return true;
@@ -8564,11 +8549,9 @@ async function _checkStickyCode(val){
 
 function _stickyUnlockUser(isJa){
   _stickyUserUnlocked = true;
-  const btn = document.getElementById('sticky-tool-btn');
-  if(btn) btn.style.display = '';
   const pinBtn = document.getElementById('pinnwand-tool-btn');
   if(pinBtn) pinBtn.style.display = '';
-  _stickyShowStatus(isJa ? '✅ ノート機能が有効になりました！' : '✅ Notizzettel-Funktion aktiviert!', '#4ade80');
+  _stickyShowStatus(isJa ? '✅ ノート機能が有効になりました！' : '✅ Pinnwand-Funktion aktiviert!', '#4ade80');
   const inp = document.getElementById('zumpad-input');
   if(inp){ inp.value = ''; }
 }
@@ -9127,89 +9110,426 @@ function _trSticky(uid){
 }
 
 // ════════════════════════════════════════════════
-// WIDGET: PINNWAND (Korkbrett-Pinnwand mit Cloud-Sync)
+// WIDGET: PINNWAND (Notizzettel + Pinnwand vereint)
 // ════════════════════════════════════════════════
 // Struktur im Bin: pinboard: [{noteId, sessionId, text, colorId, x, y, rot, ts}, ...]
-const pinboardState   = {};   // uid -> { poll: intervalId }
+// Normale Nutzer:  Pinnwand-Klick öffnet einen Notizzettel-Editor (eigene Notiz
+//                   schreiben/abschicken/ändern/löschen). Fremde Zettel sind
+//                   für sie nicht sichtbar.
+// Administrator:   Pinnwand-Klick öffnet die Pinnwand im Vollbild (kein
+//                   Fenster-Modus). Alle abgeschickten Zettel erscheinen dort
+//                   im Kleinformat, lassen sich verschieben, anklicken (→
+//                   Notizzettel-Fenster zum Bearbeiten), löschen; Export als
+//                   TXT oder PNG ist möglich.
+const pinboardState   = {};   // uid -> { poll, noteId, color } (uid 'admin' = Vollbild-Board)
 const _pinboardEntries = {};  // uid -> aktuell angezeigte Einträge (Array)
 
+// ── Einstiegspunkt: Klick auf den Pinnwand-Button im Launcher ──
+function openPinnwand(){
+  if(_stickyDeleteUnlocked) openAdminPinboard();
+  else spawnWidget('pinnwand');
+}
+
+// ────────────────────────────────────────────────
+// NORMALER NUTZER: Notizzettel-Editor (im Fenster)
+// ────────────────────────────────────────────────
 function buildPinnwand(body, uid){
-  pinboardState[uid] = { poll: null };
+  pinboardState[uid] = { noteId: null, color: STICKY_COLORS[0], poll: null };
   body.style.padding = '0';
   body.style.display = 'flex';
   body.style.flexDirection = 'column';
   body.style.height = '100%';
   const isJa = document.documentElement.lang === 'ja';
   body.innerHTML = `
-<div style="flex:1;display:flex;flex-direction:column;height:100%;min-height:0;background:var(--card2);">
-  <!-- Toolbar -->
-  <div style="display:flex;align-items:center;gap:6px;padding:6px 8px;flex-shrink:0;">
-    <div style="flex:1;font-size:12px;font-weight:700;color:var(--text2);" id="pin-count-${uid}"></div>
-    <button onclick="loadPinboardFromCloud(${uid})" id="pin-btn-load-${uid}"
-      title="${isJa?'Pinnwand aktualisieren':'Pinnwand aktualisieren'}"
-      style="background:#3b82f622;border:1.5px solid #3b82f688;color:#1e3a5f;border-radius:7px;
-             padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;
-             transition:background .15s;letter-spacing:.3px;"
-      onmouseover="this.style.background='#3b82f644'"
-      onmouseout="this.style.background='#3b82f622'">${isJa?'🔄 更新':'🔄 Aktualisieren'}</button>
-    <button onclick="clearAllPinboardFromCloud()" id="pin-btn-delall-${uid}"
-      title="${isJa?'すべての投稿を削除':'Alle Einträge löschen'}"
+<div id="pin-edit-wrap-${uid}" style="
+  flex:1;display:flex;flex-direction:column;height:100%;
+  background:${STICKY_COLORS[0].bg};
+  border-top:4px solid ${STICKY_COLORS[0].border};
+  transition:background .25s,border-color .25s;
+  position:relative;">
+  <!-- Toolbar: Farb-Dots + Löschen -->
+  <div style="display:flex;align-items:center;gap:5px;padding:6px 8px 4px;flex-shrink:0;flex-wrap:wrap;">
+    <div style="display:flex;gap:5px;flex:1;">
+      ${STICKY_COLORS.map(c=>`
+      <button onclick="setPinEditColor(${uid},'${c.id}')" title="${c.label}"
+        style="width:16px;height:16px;border-radius:50%;background:${c.bg};border:2px solid ${c.border};
+               cursor:pointer;padding:0;transition:transform .15s,box-shadow .15s;flex-shrink:0;"
+        onmouseover="this.style.transform='scale(1.3)'"
+        onmouseout="this.style.transform='scale(1)'"></button>`).join('')}
+    </div>
+    <button onclick="deletePinNote(${uid})" id="pin-edit-btn-del-${uid}"
+      title="${isJa?'diesen Zettel löschen':'Diesen Notizzettel löschen'}"
       style="background:#ef444411;border:1.5px solid #ef444466;color:#7f1d1d;border-radius:7px;
              padding:2px 9px;font-size:11px;font-weight:800;cursor:pointer;flex-shrink:0;
-             transition:background .15s;letter-spacing:.3px;display:none;"
+             transition:background .15s;letter-spacing:.3px;"
       onmouseover="this.style.background='#ef444433'"
-      onmouseout="this.style.background='#ef444411'">${isJa?'🗑️ 全削除':'🗑️ Alles löschen'}</button>
+      onmouseout="this.style.background='#ef444411'">${isJa?'🗑️ 削除':'🗑️ Löschen'}</button>
   </div>
-  <!-- Korkbrett -->
-  <div class="pin-board" id="pin-board-${uid}"></div>
-  <!-- Eingabe -->
-  <div style="display:flex;gap:6px;padding:8px;flex-shrink:0;background:var(--card2);">
-    <input type="text" id="pin-input-${uid}" placeholder="${isJa?'Deine Nachricht …':'Deine Nachricht …'}"
-      autocomplete="off"
-      style="flex:1;min-width:0;background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);
-             color:var(--text);border-radius:8px;padding:7px 10px;font-size:13px;font-family:inherit;"
-      onkeydown="if(event.key==='Enter') submitPinboardEntry(${uid})">
-    <button onclick="submitPinboardEntry(${uid})" id="pin-btn-submit-${uid}"
-      style="background:rgba(var(--accent-rgb),0.18);border:1.5px solid var(--accent);color:var(--accent);
-             border-radius:8px;padding:7px 14px;font-size:13px;font-weight:800;cursor:pointer;
-             flex-shrink:0;white-space:nowrap;">${isJa?'📌 Anheften':'📌 Anpinnen'}</button>
+  <!-- Textarea -->
+  <textarea id="pin-edit-ta-${uid}"
+    placeholder="${isJa?'メモ …':'Notiz …'}"
+    spellcheck="true"
+    style="
+      flex:1;width:100%;border:none;outline:none;resize:none;
+      background:transparent;
+      padding:4px 12px 8px;
+      font-family:'Comic Sans MS','Comic Sans',cursive,sans-serif;
+      font-size:15px;line-height:1.5;color:#2b2b2b;"></textarea>
+  <!-- Abschicken-Button unten -->
+  <div style="padding:6px 8px;flex-shrink:0;">
+    <button onclick="savePinNote(${uid})" id="pin-edit-btn-save-${uid}"
+      title="${isJa?'付箋を保存／投稿':'Notizzettel abschicken'}"
+      style="width:100%;background:#22c55e22;border:1.5px solid #22c55e88;color:#166534;border-radius:7px;
+             padding:6px;font-size:12px;font-weight:800;cursor:pointer;
+             transition:background .15s;letter-spacing:.3px;"
+      onmouseover="this.style.background='#22c55e44'"
+      onmouseout="this.style.background='#22c55e22'">${isJa?'📌 投稿':'📌 Nachricht abschicken'}</button>
   </div>
+  <div style="position:absolute;bottom:40px;right:0;width:0;height:0;
+    border-style:solid;border-width:0 0 22px 22px;
+    border-color:transparent transparent rgba(0,0,0,0.13) transparent;pointer-events:none;"></div>
 </div>`;
 
-  if(_stickyDeleteUnlocked){
-    const b = document.getElementById('pin-btn-delall-'+uid);
-    if(b) b.style.display = 'inline-block';
-  }
-
-  // Erste Ladung + automatische Aktualisierung alle 25s
-  loadPinboardFromCloud(uid);
+  // Eigene Notiz beim Start laden + Auto-Sync alle 20s (übernimmt Admin-Änderungen)
+  loadPinNote(uid, true);
   pinboardState[uid].poll = setInterval(() => {
     if(document.hidden) return;
-    loadPinboardFromCloud(uid, true);
-  }, 25000);
+    _pinUserAutoSync(uid);
+  }, 20000);
 }
 
 function _destroyPinnwand(uid){
   const st = pinboardState[uid];
   if(st && st.poll) clearInterval(st.poll);
   delete pinboardState[uid];
-  delete _pinboardEntries[uid];
+}
+
+// Auto-Sync: lädt eigenen Zettel leise und übernimmt Änderungen vom Admin,
+// sofern der User gerade keinen ungespeicherten Text getippt hat.
+async function _pinUserAutoSync(uid){
+  const st = pinboardState[uid];
+  if(!st) return;
+  try {
+    const rec = await _jsonbinGetRecord();
+    const entries = Array.isArray(rec.pinboard) ? rec.pinboard : [];
+    let entry = null;
+    if(st.noteId) entry = entries.find(e => e.noteId === st.noteId);
+    if(!entry) return; // Zettel wurde gelöscht oder existiert nicht mehr
+    const ta = document.getElementById('pin-edit-ta-'+uid);
+    if(!ta) return;
+    // Nur übernehmen wenn kein ungespeicherter Inhalt vorhanden oder Text identisch
+    if(ta.value === (st.lastSyncedText ?? '') || ta.value.trim() === ''){
+      ta.value = entry.text || '';
+      st.lastSyncedText = entry.text || '';
+      setPinEditColor(uid, entry.colorId || 'yellow');
+    }
+  } catch(e){}
+}
+
+function setPinEditColor(uid, colorId){
+  const c = STICKY_COLORS.find(x=>x.id===colorId);
+  if(!c || !pinboardState[uid]) return;
+  pinboardState[uid].color = c;
+  const wrap = document.getElementById('pin-edit-wrap-'+uid);
+  if(wrap){
+    wrap.style.background = c.bg;
+    wrap.style.borderTopColor = c.border;
+  }
 }
 
 function _trPinnwand(uid){
   const isJa = document.documentElement.lang === 'ja';
-  const inp = document.getElementById('pin-input-'+uid);
-  if(inp) inp.placeholder = isJa ? 'メッセージを入力 …' : 'Deine Nachricht …';
-  const btnSubmit = document.getElementById('pin-btn-submit-'+uid);
-  if(btnSubmit) btnSubmit.textContent = isJa ? '📌 貼る' : '📌 Anpinnen';
-  const btnLoad = document.getElementById('pin-btn-load-'+uid);
-  if(btnLoad){ btnLoad.textContent = isJa ? '🔄 更新' : '🔄 Aktualisieren';
-               btnLoad.title = isJa ? '掲示板を更新' : 'Pinnwand aktualisieren'; }
-  const btnDel = document.getElementById('pin-btn-delall-'+uid);
-  if(btnDel){ btnDel.textContent = isJa ? '🗑️ 全削除' : '🗑️ Alles löschen';
-              btnDel.title = isJa ? 'すべての投稿を削除' : 'Alle Einträge löschen';
-              btnDel.style.display = _stickyDeleteUnlocked ? 'inline-block' : 'none'; }
-  _pinboardUpdateCount(uid);
+  const ta = document.getElementById('pin-edit-ta-'+uid);
+  if(ta) ta.placeholder = isJa ? 'メモ …' : 'Notiz …';
+  const btnSave = document.getElementById('pin-edit-btn-save-'+uid);
+  if(btnSave){ btnSave.textContent = isJa ? '📌 投稿' : '📌 Nachricht abschicken';
+               btnSave.title = isJa ? '付箋を保存／投稿' : 'Notizzettel abschicken'; }
+  const btnDel = document.getElementById('pin-edit-btn-del-'+uid);
+  if(btnDel){ btnDel.textContent = isJa ? '🗑️ 削除' : '🗑️ Löschen';
+              btnDel.title = isJa ? 'この付箋を削除' : 'Diesen Notizzettel löschen'; }
+}
+
+// ── Eigene Notiz speichern / abschicken (neu oder Update) ──
+async function savePinNote(uid){
+  const isJa = document.documentElement.lang === 'ja';
+  const ta = document.getElementById('pin-edit-ta-'+uid);
+  const st = pinboardState[uid];
+  if(!ta || !st) return;
+  if(!ta.value.trim()){
+    _stickyShowStatus(isJa ? '⚠️ Notiz ist leer' : '⚠️ Notiz ist leer', '#fbbf24');
+    return;
+  }
+  _stickyShowStatus(isJa ? '⏳ 保存中 …' : '⏳ Speichere …', '#a78bfa');
+  try {
+    const rec = await _jsonbinGetRecord();
+    const entries = Array.isArray(rec.pinboard) ? rec.pinboard.slice() : [];
+    const color = st.color || STICKY_COLORS[0];
+    let idx = st.noteId ? entries.findIndex(e => e.noteId === st.noteId) : -1;
+    if(idx > -1){
+      entries[idx] = Object.assign({}, entries[idx], { text: ta.value, colorId: color.id, ts: Date.now() });
+    } else {
+      const nid = 'p' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+      entries.push({
+        noteId   : nid,
+        sessionId: _STICKY_SESSION_ID,
+        text     : ta.value,
+        colorId  : color.id,
+        x        : Math.round(Math.random() * 70 * 10) / 10,   // 0–70 %
+        y        : Math.round(Math.random() * 65 * 10) / 10,   // 0–65 %
+        rot      : Math.round((Math.random() * 16 - 8) * 10) / 10, // -8..+8°
+        ts       : Date.now()
+      });
+      st.noteId = nid;
+    }
+    await _jsonbinPutDirect(Object.assign({}, rec, { pinboard: entries }));
+    // Falls die Admin-Pinnwand offen ist, gleich aktualisieren
+    if(pinboardState['admin']){ _pinboardEntries['admin'] = entries; _pinboardRender('admin'); }
+    st.lastSyncedText = ta.value;
+    _stickyShowStatus(isJa ? '✅ 投稿しました！' : '✅ Notizzettel abgeschickt!', '#4ade80');
+  } catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+// ── Eigene Notiz laden ──────────────────────────────────────
+async function loadPinNote(uid, silent){
+  const isJa = document.documentElement.lang === 'ja';
+  const st = pinboardState[uid];
+  if(!st) return;
+  if(!silent) _stickyShowStatus(isJa ? '⏳ 読み込み中 …' : '⏳ Lade …', '#a78bfa');
+  try {
+    const rec = await _jsonbinGetRecord();
+    const entries = Array.isArray(rec.pinboard) ? rec.pinboard : [];
+    let entry = null;
+    if(st.noteId) entry = entries.find(e => e.noteId === st.noteId);
+    if(!entry){
+      // Eigene, noch nicht an dieses Fenster gebundene Notiz suchen
+      const bound = Object.keys(pinboardState).map(k => pinboardState[k].noteId).filter(Boolean);
+      entry = entries.find(e => e.sessionId === _STICKY_SESSION_ID && !bound.includes(e.noteId));
+    }
+    if(entry){
+      st.noteId = entry.noteId;
+      const ta = document.getElementById('pin-edit-ta-'+uid);
+      if(ta) ta.value = entry.text || '';
+      st.lastSyncedText = entry.text || '';
+      setPinEditColor(uid, entry.colorId || 'yellow');
+      if(!silent) _stickyShowStatus(isJa ? '✅ 読み込みました' : '✅ Geladen', '#4ade80');
+    } else if(!silent){
+      _stickyShowStatus(isJa ? '⚠️ 保存されたメモがありません' : '⚠️ Keine eigene Notiz gespeichert', '#fbbf24');
+    }
+  } catch(e){
+    if(!silent) _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+// ── Eigene Notiz löschen ─────────────────────────────────────
+async function deletePinNote(uid){
+  const isJa = document.documentElement.lang === 'ja';
+  const st = pinboardState[uid];
+  const ta = document.getElementById('pin-edit-ta-'+uid);
+  if(!st) return;
+  if(!st.noteId){
+    if(ta) ta.value = '';
+    return;
+  }
+  try {
+    const rec = await _jsonbinGetRecord();
+    const entries = (Array.isArray(rec.pinboard) ? rec.pinboard : []).filter(e => e.noteId !== st.noteId);
+    await _jsonbinPutDirect(Object.assign({}, rec, { pinboard: entries }));
+    if(pinboardState['admin']){ _pinboardEntries['admin'] = entries; _pinboardRender('admin'); }
+    st.noteId = null;
+    if(ta) ta.value = '';
+    _stickyShowStatus(isJa ? '🗑️ 削除しました。' : '🗑️ Notizzettel gelöscht.', '#f87171');
+  } catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+// ────────────────────────────────────────────────
+// ADMINISTRATOR: Pinnwand im Vollbild (kein Fenster-Modus)
+// ────────────────────────────────────────────────
+let _adminPinDragging = false;
+
+function openAdminPinboard(){
+  if(document.getElementById('admin-pinboard-overlay')) return;
+  const isJa = document.documentElement.lang === 'ja';
+  const ov = document.createElement('div');
+  ov.id = 'admin-pinboard-overlay';
+  ov.style.cssText = 'position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;background:var(--bg);';
+  ov.innerHTML = `
+  <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;flex-shrink:0;
+       background:var(--topbar);border-bottom:1px solid rgba(255,255,255,0.08);flex-wrap:wrap;">
+    <div style="font-size:16px;font-weight:800;">📌 ${isJa?'掲示板':'Pinnwand'}</div>
+    <div style="font-size:12px;font-weight:700;color:var(--text2);flex:1;" id="pin-count-admin"></div>
+    <button onclick="openAdminOwnNote()" id="pin-btn-own-admin" class="wbtn">${isJa?'✏️ 自分の付箋':'✏️ Eigener Zettel'}</button>
+    <button onclick="loadPinboardFromCloud('admin')" id="pin-btn-load-admin" class="wbtn">${isJa?'🔄 更新':'🔄 Aktualisieren'}</button>
+    <button onclick="downloadPinboardTxt()" id="pin-btn-txt-admin" class="wbtn">${isJa?'📄 TXT':'📄 Als TXT'}</button>
+    <button onclick="downloadPinboardPNG()" id="pin-btn-png-admin" class="wbtn">${isJa?'🖼️ PNG':'🖼️ Als PNG'}</button>
+    <button onclick="clearAllPinboardFromCloud()" id="pin-btn-delall-admin" class="wbtn"
+      style="background:#ef444422;border-color:#ef4444;color:#ef4444;">${isJa?'🗑️ 全削除':'🗑️ Alles löschen'}</button>
+    <button onclick="closeAdminPinboard()" id="pin-btn-close-admin" class="wbtn">${isJa?'✕ 閉じる':'✕ Schließen'}</button>
+  </div>
+  <div class="pin-board pin-board-full" id="pin-board-admin"></div>`;
+  document.body.appendChild(ov);
+
+  pinboardState['admin'] = { poll: null, noteId: null, color: STICKY_COLORS[0] };
+  loadPinboardFromCloud('admin');
+  pinboardState['admin'].poll = setInterval(() => {
+    if(document.hidden || _adminPinDragging) return;
+    loadPinboardFromCloud('admin', true);
+  }, 15000);
+}
+
+function closeAdminPinboard(){
+  const ov = document.getElementById('admin-pinboard-overlay');
+  if(ov) ov.remove();
+  const st = pinboardState['admin'];
+  if(st && st.poll) clearInterval(st.poll);
+  delete pinboardState['admin'];
+  delete _pinboardEntries['admin'];
+  const editor = document.getElementById('admin-note-editor');
+  if(editor) editor.remove();
+  const ownEditor = document.getElementById('admin-own-note-editor');
+  if(ownEditor) ownEditor.remove();
+}
+
+// ── Admin: eigenen Zettel schreiben / bearbeiten ─────────────
+// Öffnet ein schwebendes Notizzettel-Fenster auf der Vollbild-Pinnwand.
+function openAdminOwnNote(){
+  if(document.getElementById('admin-own-note-editor')) {
+    document.getElementById('admin-own-note-editor').remove(); return;
+  }
+  const isJa = document.documentElement.lang === 'ja';
+  const st = pinboardState['admin'];
+  if(!st) return;
+  const c = st.color || STICKY_COLORS[0];
+
+  const ov = document.createElement('div');
+  ov.id = 'admin-own-note-editor';
+  ov.style.cssText = 'position:fixed;top:70px;right:20px;z-index:9600;width:300px;max-width:90vw;' +
+    'box-shadow:0 8px 40px rgba(0,0,0,.55);border-radius:10px;overflow:hidden;display:flex;flex-direction:column;' +
+    'background:' + c.bg + ';border-top:4px solid ' + c.border + ';';
+  ov.innerHTML = `
+  <div style="display:flex;align-items:center;gap:5px;padding:7px 9px 4px;cursor:move;" id="admin-own-note-drag-handle">
+    <div style="display:flex;gap:5px;flex:1;">
+      ${STICKY_COLORS.map(cc=>`
+      <button onclick="_adminOwnNoteSetColor('${cc.id}')" title="${cc.label}"
+        style="width:15px;height:15px;border-radius:50%;background:${cc.bg};border:2px solid ${cc.border};
+               cursor:pointer;padding:0;transition:transform .15s;flex-shrink:0;"
+        onmouseover="this.style.transform='scale(1.3)'" onmouseout="this.style.transform='scale(1)'"></button>`).join('')}
+    </div>
+    <button onclick="document.getElementById('admin-own-note-editor').remove()"
+      style="background:transparent;border:none;font-size:15px;font-weight:800;cursor:pointer;color:#2b2b2b;line-height:1;">✕</button>
+  </div>
+  <textarea id="admin-own-note-ta" spellcheck="true"
+    placeholder="${isJa?'メモ …':'Notiz …'}"
+    style="min-height:160px;border:none;outline:none;resize:vertical;background:transparent;
+      padding:4px 12px 8px;font-family:'Comic Sans MS','Comic Sans',cursive,sans-serif;
+      font-size:14px;line-height:1.5;color:#2b2b2b;"></textarea>
+  <div style="padding:6px 8px;">
+    <button onclick="_adminOwnNoteSave()"
+      style="width:100%;background:#22c55e22;border:1.5px solid #22c55e88;color:#166534;
+        border-radius:7px;padding:6px;font-size:12px;font-weight:800;cursor:pointer;
+        transition:background .15s;"
+      onmouseover="this.style.background='#22c55e44'" onmouseout="this.style.background='#22c55e22'">
+      ${isJa?'📌 投稿':'📌 Nachricht abschicken'}</button>
+  </div>`;
+  document.body.appendChild(ov);
+
+  // Falls bereits ein eigener Admin-Zettel existiert, laden
+  const entries = _pinboardEntries['admin'] || [];
+  const existing = entries.find(e => e.noteId === (st.noteId));
+  if(existing){
+    const ta = document.getElementById('admin-own-note-ta');
+    if(ta) ta.value = existing.text || '';
+    _adminOwnNoteSetColor(existing.colorId || 'yellow');
+  }
+
+  // Drag-Funktion: Fenster verschiebbar machen
+  const handle = document.getElementById('admin-own-note-drag-handle');
+  if(handle){
+    handle.addEventListener('pointerdown', (ev) => {
+      if(ev.target.closest('button')) return;
+      ev.preventDefault();
+      const ox = ev.clientX - ov.getBoundingClientRect().left;
+      const oy = ev.clientY - ov.getBoundingClientRect().top;
+      const onMove = e => {
+        ov.style.left = Math.max(0, e.clientX - ox) + 'px';
+        ov.style.top  = Math.max(0, e.clientY - oy) + 'px';
+        ov.style.right = 'auto';
+      };
+      const onUp = () => {
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+      };
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+    });
+  }
+}
+
+function _adminOwnNoteSetColor(colorId){
+  const c = STICKY_COLORS.find(x=>x.id===colorId);
+  const ov = document.getElementById('admin-own-note-editor');
+  if(ov && c){
+    ov.style.background = c.bg;
+    ov.style.borderTopColor = c.border;
+  }
+  const st = pinboardState['admin'];
+  if(st) st.color = c || STICKY_COLORS[0];
+}
+
+async function _adminOwnNoteSave(){
+  const isJa = document.documentElement.lang === 'ja';
+  const ta = document.getElementById('admin-own-note-ta');
+  const st = pinboardState['admin'];
+  if(!ta || !st) return;
+  if(!ta.value.trim()){
+    _stickyShowStatus(isJa ? '⚠️ Notiz ist leer' : '⚠️ Notiz ist leer', '#fbbf24'); return;
+  }
+  try {
+    const rec = await _jsonbinGetRecord();
+    const entries = Array.isArray(rec.pinboard) ? rec.pinboard.slice() : [];
+    const color = st.color || STICKY_COLORS[0];
+    let idx = st.noteId ? entries.findIndex(e => e.noteId === st.noteId) : -1;
+    if(idx > -1){
+      entries[idx] = Object.assign({}, entries[idx], { text: ta.value, colorId: color.id, ts: Date.now() });
+    } else {
+      const nid = 'p' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+      entries.push({
+        noteId: nid, sessionId: _STICKY_SESSION_ID,
+        text: ta.value, colorId: color.id,
+        x: Math.round(Math.random() * 60 * 10) / 10,
+        y: Math.round(Math.random() * 55 * 10) / 10,
+        rot: Math.round((Math.random() * 12 - 6) * 10) / 10,
+        ts: Date.now()
+      });
+      st.noteId = entries[entries.length - 1].noteId;
+    }
+    await _jsonbinPutDirect(Object.assign({}, rec, { pinboard: entries }));
+    _pinboardEntries['admin'] = entries;
+    _pinboardRender('admin');
+    _stickyShowStatus(isJa ? '✅ 投稿しました！' : '✅ Abgeschickt!', '#4ade80');
+  } catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+// Sprachumschaltung: Texte der Vollbild-Pinnwand aktualisieren
+function _translateAdminPinboard(){
+  const ov = document.getElementById('admin-pinboard-overlay');
+  if(!ov) return;
+  const isJa = document.documentElement.lang === 'ja';
+  const title = ov.querySelector('div > div');
+  if(title) title.textContent = '📌 ' + (isJa?'掲示板':'Pinnwand');
+  const set = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
+  set('pin-btn-own-admin',   isJa?'✏️ 自分の付箋':'✏️ Eigener Zettel');
+  set('pin-btn-load-admin',  isJa?'🔄 更新':'🔄 Aktualisieren');
+  set('pin-btn-txt-admin',   isJa?'📄 TXT':'📄 Als TXT');
+  set('pin-btn-png-admin',   isJa?'🖼️ PNG':'🖼️ Als PNG');
+  set('pin-btn-delall-admin',isJa?'🗑️ 全削除':'🗑️ Alles löschen');
+  set('pin-btn-close-admin', isJa?'✕ 閉じる':'✕ Schließen');
+  _pinboardRender('admin');
 }
 
 function _pinboardUpdateCount(uid){
@@ -9234,59 +9554,6 @@ async function loadPinboardFromCloud(uid, silent){
   }
 }
 
-// ── Eintrag anpinnen ──────────────────────────────────────
-async function submitPinboardEntry(uid){
-  const inp = document.getElementById('pin-input-'+uid);
-  if(!inp) return;
-  const text = inp.value.trim();
-  if(!text) { inp.focus(); return; }
-  inp.disabled = true;
-  try {
-    const rec = await _jsonbinGetRecord();
-    const entries = Array.isArray(rec.pinboard) ? rec.pinboard.slice() : [];
-    const color = STICKY_COLORS[Math.floor(Math.random() * STICKY_COLORS.length)];
-    const entry = {
-      noteId   : 'p' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
-      sessionId: _STICKY_SESSION_ID,
-      text     : text,
-      colorId  : color.id,
-      x        : Math.round(Math.random() * 70 * 10) / 10,   // 0–70 %
-      y        : Math.round(Math.random() * 65 * 10) / 10,   // 0–65 %
-      rot      : Math.round((Math.random() * 16 - 8) * 10) / 10, // -8..+8°
-      ts       : Date.now()
-    };
-    entries.push(entry);
-    await _jsonbinPutDirect(Object.assign({}, rec, { pinboard: entries }));
-    inp.value = '';
-    // Alle offenen Pinnwand-Widgets aktualisieren
-    Object.keys(pinboardState).forEach(otherUid => {
-      _pinboardEntries[otherUid] = entries;
-      _pinboardRender(otherUid);
-    });
-  } catch(e){
-    _stickyShowStatus('❌ ' + e.message, '#f87171');
-  } finally {
-    inp.disabled = false;
-    inp.focus();
-  }
-}
-
-// ── Eigenen Eintrag löschen ────────────────────────────────
-async function deletePinboardEntry(uid, noteId){
-  try {
-    const rec = await _jsonbinGetRecord();
-    const entries = (Array.isArray(rec.pinboard) ? rec.pinboard : [])
-      .filter(e => !(e.noteId === noteId && (e.sessionId === _STICKY_SESSION_ID || _stickyDeleteUnlocked)));
-    await _jsonbinPutDirect(Object.assign({}, rec, { pinboard: entries }));
-    Object.keys(pinboardState).forEach(otherUid => {
-      _pinboardEntries[otherUid] = entries;
-      _pinboardRender(otherUid);
-    });
-  } catch(e){
-    _stickyShowStatus('❌ ' + e.message, '#f87171');
-  }
-}
-
 // ── Alle löschen (Admin) ────────────────────────────────────
 async function clearAllPinboardFromCloud(){
   const isJa = document.documentElement.lang === 'ja';
@@ -9305,6 +9572,9 @@ async function clearAllPinboardFromCloud(){
       _pinboardEntries[otherUid] = [];
       _pinboardRender(otherUid);
     });
+    Object.keys(pinboardState).forEach(uid => { if(pinboardState[uid]) pinboardState[uid].noteId = null; });
+    const editor = document.getElementById('admin-note-editor');
+    if(editor) editor.remove();
     _stickyShowStatus(isJa ? '🗑️ クリアしました。' : '🗑️ Pinnwand geleert.', '#f87171');
   } catch(e){
     _stickyShowStatus('❌ ' + e.message, '#f87171');
@@ -9315,28 +9585,178 @@ async function clearAllPinboardFromCloud(){
 function _pinboardRender(uid){
   const board = document.getElementById('pin-board-'+uid);
   if(!board) return;
-  const isJa = document.documentElement.lang === 'ja';
   const entries = _pinboardEntries[uid] || [];
+  const isAdmin = (uid === 'admin');
   board.innerHTML = entries.map(e => {
     const c = STICKY_COLORS.find(c => c.id === e.colorId) || STICKY_COLORS[0];
-    const canDelete = e.sessionId === _STICKY_SESSION_ID || _stickyDeleteUnlocked;
-    return `<div class="pin-note" style="left:${e.x}%;top:${e.y}%;transform:rotate(${e.rot}deg);
+    const cls = 'pin-note' + (isAdmin ? ' pin-note-small pin-note-admin' : '');
+    return `<div class="${cls}" data-note-id="${e.noteId}" style="left:${e.x}%;top:${e.y}%;transform:rotate(${e.rot}deg);
       background:${c.bg};border:1px solid ${c.border};">
       <div class="pin-head"></div>
-      ${canDelete ? `<button class="pin-del" onclick="deletePinboardEntry(${uid},'${e.noteId}')" title="${isJa?'削除':'Löschen'}">×</button>` : ''}
-      <div>${escapeHtml(e.text)}</div>
+      <div class="pin-note-text">${escapeHtml(e.text)}</div>
     </div>`;
   }).join('');
   _pinboardUpdateCount(uid);
+  if(isAdmin) _pinboardAttachAdminHandlers();
 }
 
-// Admin-Modus-Wechsel: Lösch-Buttons & Korn-Markierungen aller offenen Pinnwände aktualisieren
+// Admin-Modus-Wechsel: Vollbild-Pinnwand schließen, falls Admin sich abmeldet
 function _pinboardRefreshAdmin(){
-  Object.keys(pinboardState).forEach(uid => {
-    const b = document.getElementById('pin-btn-delall-'+uid);
-    if(b) b.style.display = _stickyDeleteUnlocked ? 'inline-block' : 'none';
-    _pinboardRender(uid);
+  if(!_stickyDeleteUnlocked) closeAdminPinboard();
+}
+
+// ── Zettel auf der Vollbild-Pinnwand verschieben / anklicken ──
+function _pinboardAttachAdminHandlers(){
+  const board = document.getElementById('pin-board-admin');
+  if(!board) return;
+  board.querySelectorAll('.pin-note-admin').forEach(el => {
+    el.onpointerdown = (ev) => {
+      ev.preventDefault();
+      const noteId = el.dataset.noteId;
+      const boardRect = board.getBoundingClientRect();
+      const startX = ev.clientX, startY = ev.clientY;
+      const origLeft = parseFloat(el.style.left) || 0;
+      const origTop  = parseFloat(el.style.top)  || 0;
+      let moved = false;
+      el.style.zIndex = 100;
+      const onMove = (ev2) => {
+        const dx = ev2.clientX - startX, dy = ev2.clientY - startY;
+        if(Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+        let nl = origLeft + (dx / boardRect.width)  * 100;
+        let nt = origTop  + (dy / boardRect.height) * 100;
+        nl = Math.max(0, Math.min(94, nl));
+        nt = Math.max(0, Math.min(90, nt));
+        el.style.left = nl + '%';
+        el.style.top  = nt + '%';
+      };
+      const onUp = () => {
+        document.removeEventListener('pointermove', onMove);
+        document.removeEventListener('pointerup', onUp);
+        el.style.zIndex = '';
+        _adminPinDragging = false;
+        if(moved){
+          _pinboardSavePosition(noteId, parseFloat(el.style.left), parseFloat(el.style.top));
+        } else {
+          openAdminNoteEditor(noteId);
+        }
+      };
+      _adminPinDragging = true;
+      document.addEventListener('pointermove', onMove);
+      document.addEventListener('pointerup', onUp);
+    };
   });
+}
+
+// ── Position eines Zettels speichern ─────────────────────────
+async function _pinboardSavePosition(noteId, x, y){
+  try {
+    const rec = await _jsonbinGetRecord();
+    const entries = Array.isArray(rec.pinboard) ? rec.pinboard.slice() : [];
+    const idx = entries.findIndex(e => e.noteId === noteId);
+    if(idx > -1){
+      entries[idx] = Object.assign({}, entries[idx], { x: Math.round(x*10)/10, y: Math.round(y*10)/10 });
+    }
+    await _jsonbinPutDirect(Object.assign({}, rec, { pinboard: entries }));
+    _pinboardEntries['admin'] = entries;
+  } catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+// ── Notizzettel-Fenster: Zettel bearbeiten (Admin) ───────────
+let _adminNoteColorId = null;
+
+function openAdminNoteEditor(noteId){
+  const isJa = document.documentElement.lang === 'ja';
+  const entries = _pinboardEntries['admin'] || [];
+  const entry = entries.find(e => e.noteId === noteId);
+  if(!entry) return;
+  const existing = document.getElementById('admin-note-editor');
+  if(existing) existing.remove();
+  const c = STICKY_COLORS.find(c => c.id === entry.colorId) || STICKY_COLORS[0];
+  _adminNoteColorId = c.id;
+
+  const ov = document.createElement('div');
+  ov.id = 'admin-note-editor';
+  ov.dataset.noteId = noteId;
+  ov.style.cssText = 'position:fixed;inset:0;z-index:9500;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(3px);';
+  ov.innerHTML = `
+  <div id="admin-note-box" style="width:340px;max-width:90vw;background:${c.bg};border-top:4px solid ${c.border};
+       border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.5);display:flex;flex-direction:column;overflow:hidden;">
+    <div style="display:flex;align-items:center;gap:5px;padding:8px 10px 4px;">
+      <div style="display:flex;gap:5px;flex:1;">
+        ${STICKY_COLORS.map(cc=>`
+        <button onclick="_adminNoteSetColor('${cc.id}')" title="${cc.label}"
+          style="width:16px;height:16px;border-radius:50%;background:${cc.bg};border:2px solid ${cc.border};
+                 cursor:pointer;padding:0;transition:transform .15s;flex-shrink:0;"
+          onmouseover="this.style.transform='scale(1.3)'"
+          onmouseout="this.style.transform='scale(1)'"></button>`).join('')}
+      </div>
+      <button onclick="document.getElementById('admin-note-editor').remove()"
+        style="background:transparent;border:none;font-size:16px;font-weight:800;cursor:pointer;color:#2b2b2b;line-height:1;">✕</button>
+    </div>
+    <textarea id="admin-note-ta" spellcheck="true" style="
+      min-height:200px;border:none;outline:none;resize:vertical;background:transparent;
+      padding:6px 14px 14px;font-family:'Comic Sans MS','Comic Sans',cursive,sans-serif;
+      font-size:15px;line-height:1.5;color:#2b2b2b;"></textarea>
+    <div style="display:flex;gap:8px;padding:10px;background:rgba(0,0,0,0.06);">
+      <button onclick="_adminNoteSave('${noteId}')" style="flex:1;background:#22c55e22;border:1.5px solid #22c55e88;
+        color:#166534;border-radius:7px;padding:8px;font-size:13px;font-weight:800;cursor:pointer;">${isJa?'💾 保存':'💾 Speichern'}</button>
+      <button onclick="_adminNoteDelete('${noteId}')" style="flex:1;background:#ef444422;border:1.5px solid #ef444488;
+        color:#7f1d1d;border-radius:7px;padding:8px;font-size:13px;font-weight:800;cursor:pointer;">${isJa?'🗑️ 削除':'🗑️ Löschen'}</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const ta = document.getElementById('admin-note-ta');
+  if(ta) ta.value = entry.text || '';
+  ov.addEventListener('click', e => { if(e.target === ov) ov.remove(); });
+}
+
+function _adminNoteSetColor(colorId){
+  _adminNoteColorId = colorId;
+  const c = STICKY_COLORS.find(x=>x.id===colorId);
+  const box = document.getElementById('admin-note-box');
+  if(box && c){ box.style.background = c.bg; box.style.borderTopColor = c.border; }
+}
+
+async function _adminNoteSave(noteId){
+  const isJa = document.documentElement.lang === 'ja';
+  const ta = document.getElementById('admin-note-ta');
+  if(!ta) return;
+  try {
+    const rec = await _jsonbinGetRecord();
+    const entries = Array.isArray(rec.pinboard) ? rec.pinboard.slice() : [];
+    const idx = entries.findIndex(e => e.noteId === noteId);
+    if(idx > -1){
+      entries[idx] = Object.assign({}, entries[idx], {
+        text: ta.value, colorId: _adminNoteColorId || entries[idx].colorId, ts: Date.now()
+      });
+    }
+    await _jsonbinPutDirect(Object.assign({}, rec, { pinboard: entries }));
+    _pinboardEntries['admin'] = entries;
+    _pinboardRender('admin');
+    const ov = document.getElementById('admin-note-editor');
+    if(ov) ov.remove();
+    _stickyShowStatus(isJa ? '✅ 保存しました！' : '✅ Gespeichert!', '#4ade80');
+  } catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+async function _adminNoteDelete(noteId){
+  const isJa = document.documentElement.lang === 'ja';
+  try {
+    const rec = await _jsonbinGetRecord();
+    const entries = (Array.isArray(rec.pinboard) ? rec.pinboard : []).filter(e => e.noteId !== noteId);
+    await _jsonbinPutDirect(Object.assign({}, rec, { pinboard: entries }));
+    _pinboardEntries['admin'] = entries;
+    _pinboardRender('admin');
+    const ov = document.getElementById('admin-note-editor');
+    if(ov) ov.remove();
+    _stickyShowStatus(isJa ? '🗑️ 削除しました。' : '🗑️ Notizzettel gelöscht.', '#f87171');
+  } catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
 }
 
 // ── TXT-Download aller Pinnwand-Einträge ────────────────────
@@ -9363,6 +9783,106 @@ function _pinboardDownloadTxt(entries){
   URL.revokeObjectURL(a.href);
 }
 
+// Toolbar-Button: aktuelle Pinnwand-Einträge als TXT speichern
+function downloadPinboardTxt(){
+  const entries = _pinboardEntries['admin'] || [];
+  const isJa = document.documentElement.lang === 'ja';
+  if(!entries.length){
+    _stickyShowStatus(isJa ? '⚠️ Pinnwand ist leer' : '⚠️ Pinnwand ist leer', '#fbbf24');
+    return;
+  }
+  _pinboardDownloadTxt(entries);
+}
+
+// ── PNG-Download des Pinnwand-Bildes ────────────────────────
+function downloadPinboardPNG(){
+  const isJa = document.documentElement.lang === 'ja';
+  const board = document.getElementById('pin-board-admin');
+  const entries = _pinboardEntries['admin'] || [];
+  if(!board) return;
+  if(!entries.length){
+    _stickyShowStatus(isJa ? '⚠️ Pinnwand ist leer' : '⚠️ Pinnwand ist leer', '#fbbf24');
+    return;
+  }
+  const rect = board.getBoundingClientRect();
+  const scale = 2;
+  const canvas = document.createElement('canvas');
+  canvas.width  = Math.round(rect.width  * scale);
+  canvas.height = Math.round(rect.height * scale);
+  const ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+
+  // Korkbrett-Hintergrund
+  ctx.fillStyle = '#c39a64';
+  ctx.fillRect(0, 0, rect.width, rect.height);
+
+  const W = 150, H = 100;
+  entries.forEach(e => {
+    const c = STICKY_COLORS.find(c => c.id === e.colorId) || STICKY_COLORS[0];
+    const x = (e.x / 100) * rect.width;
+    const y = (e.y / 100) * rect.height;
+    ctx.save();
+    ctx.translate(x + W/2, y + H/2);
+    ctx.rotate((e.rot || 0) * Math.PI / 180);
+    // Schatten + Zettel
+    ctx.shadowColor = 'rgba(0,0,0,0.35)';
+    ctx.shadowBlur = 6; ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 4;
+    ctx.fillStyle = c.bg;
+    ctx.fillRect(-W/2, -H/2, W, H);
+    ctx.shadowColor = 'transparent';
+    ctx.strokeStyle = c.border;
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(-W/2, -H/2, W, H);
+    // Pin-Kopf
+    ctx.beginPath();
+    ctx.fillStyle = '#b91c1c';
+    ctx.arc(0, -H/2, 6, 0, Math.PI*2);
+    ctx.fill();
+    // Text
+    ctx.fillStyle = '#2b2b2b';
+    ctx.font = '12px "Comic Sans MS", cursive, sans-serif';
+    _pinboardWrapText(ctx, e.text || '', -W/2 + 8, -H/2 + 22, W - 16, 15, 4);
+    ctx.restore();
+  });
+
+  canvas.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = isJa
+      ? ('掲示板_' + new Date().toISOString().slice(0,10) + '.png')
+      : ('Pinnwand_' + new Date().toISOString().slice(0,10) + '.png');
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }, 'image/png');
+}
+
+// Hilfsfunktion: Text mit Zeilenumbruch in Canvas zeichnen (max. maxLines Zeilen)
+function _pinboardWrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines){
+  let cy = y, lines = 0;
+  const paragraphs = String(text).split('\n');
+  for(const par of paragraphs){
+    const words = par.split(/\s+/);
+    let line = '';
+    for(let i = 0; i < words.length; i++){
+      const test = line + words[i] + ' ';
+      if(ctx.measureText(test).width > maxWidth && line){
+        if(lines >= maxLines - 1){ ctx.fillText(line.trim() + ' …', x, cy); return; }
+        ctx.fillText(line, x, cy);
+        line = words[i] + ' ';
+        cy += lineHeight; lines++;
+      } else {
+        line = test;
+      }
+    }
+    if(lines >= maxLines - 1){
+      if(line.trim()) ctx.fillText(line.trim() + (par.length ? ' …' : ''), x, cy);
+      return;
+    }
+    ctx.fillText(line, x, cy);
+    cy += lineHeight; lines++;
+  }
+}
+
 // ── Bestätigungs-Dialog mit TXT-Download (im Seitendesign) ─
 function _pinboardDeleteDialog(entries){
   const isJa = document.documentElement.lang === 'ja';
@@ -9379,6 +9899,7 @@ function _pinboardDeleteDialog(entries){
     const desc    = isJa ? 'クラウドに保存されたすべての投稿が完全に削除されます。'
                          : 'Alle gespeicherten Pinnwand-Einträge werden unwiderruflich aus der Cloud gelöscht.';
     const btnDL   = isJa ? '📄 TXTとしてダウンロード' : '📄 Als TXT herunterladen';
+    const btnPNG  = isJa ? '🖼️ PNGとしてダウンロード' : '🖼️ Als PNG herunterladen';
     const btnCanc = isJa ? 'キャンセル' : 'Abbrechen';
     const btnDel  = isJa ? '🗑️ 削除' : '🗑️ Löschen';
     ov.innerHTML =
@@ -9389,7 +9910,10 @@ function _pinboardDeleteDialog(entries){
       '<div style="font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:18px;">' + desc + '</div>' +
       '<button id="_pcd_dl" style="width:100%;background:var(--bg3);border:1.5px solid rgba(var(--accent-rgb),.25);' +
       'color:var(--text);border-radius:9px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;' +
-      'margin-bottom:18px;text-align:left;">' + btnDL + '</button>' +
+      'margin-bottom:8px;text-align:left;">' + btnDL + '</button>' +
+      '<button id="_pcd_png" style="width:100%;background:var(--bg3);border:1.5px solid rgba(var(--accent-rgb),.25);' +
+      'color:var(--text);border-radius:9px;padding:9px 16px;font-size:13px;font-weight:700;cursor:pointer;' +
+      'margin-bottom:18px;text-align:left;">' + btnPNG + '</button>' +
       '<div style="display:flex;gap:10px;justify-content:flex-end;">' +
       '<button id="_pcd_cancel" style="background:var(--bg3);border:1.5px solid rgba(var(--accent-rgb),.2);color:var(--text2);' +
       'border-radius:9px;padding:8px 20px;font-size:13px;font-weight:700;cursor:pointer;">' + btnCanc + '</button>' +
@@ -9399,6 +9923,7 @@ function _pinboardDeleteDialog(entries){
     document.body.appendChild(ov);
     const close = val => { ov.remove(); resolve(val); };
     document.getElementById('_pcd_dl').onclick      = () => _pinboardDownloadTxt(entries);
+    document.getElementById('_pcd_png').onclick     = () => downloadPinboardPNG();
     document.getElementById('_pcd_cancel').onclick  = () => close(false);
     document.getElementById('_pcd_confirm').onclick = () => close(true);
     ov.addEventListener('click', e => { if(e.target === ov) close(false); });
