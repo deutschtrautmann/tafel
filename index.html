@@ -1845,6 +1845,20 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
   <!-- ── Zeile 2: Werkzeug-Launcher (scrollbar) ── -->
   <div id="launcher">
 
+    <div class="zumpad-inline" id="zumpad-inline">
+      <input type="text" id="zumpad-input" class="zumpad-input"
+        placeholder="Pad-Name?"
+        autocomplete="off"
+        oninput="this.type=this.value[0]==='!'?'password':'text'"
+        onkeydown="if(event.key==='Enter') _zumpadSubmit()">
+      <button class="zumpad-los-btn" onclick="_zumpadSubmit()" data-i18n="los">Los!</button>
+    </div>
+
+    <button class="tool-btn" id="pinnwand-tool-btn" onclick="openPinnwand()" style="display:none;">
+      <span class="tb-icon material-symbols-rounded">push_pin</span>
+      <span id="lbl-pinnwand" data-i18n="pinnwand">Pinnwand</span>
+    </button>
+
     <button class="tool-btn" onclick="spawnWidget('names')">
       <span class="tb-icon material-symbols-rounded">groups</span>
       <span id="lbl-namen" data-i18n="namen">Namen</span>
@@ -1858,11 +1872,6 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
     <button class="tool-btn" onclick="spawnWidget('textpad')">
       <span class="tb-icon material-symbols-rounded">description</span>
       <span id="lbl-text" data-i18n="text">Text</span>
-    </button>
-
-    <button class="tool-btn" id="pinnwand-tool-btn" onclick="openPinnwand()" style="display:none;">
-      <span class="tb-icon material-symbols-rounded">push_pin</span>
-      <span id="lbl-pinnwand" data-i18n="pinnwand">Pinnwand</span>
     </button>
 
     <button class="tool-btn" onclick="spawnWidget('timer')">
@@ -1894,14 +1903,6 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       <span class="tb-icon material-symbols-rounded">qr_code</span>
       <span id="lbl-qr">QR</span>
     </button>
-
-    <div class="zumpad-inline" id="zumpad-inline">
-      <input type="text" id="zumpad-input" class="zumpad-input"
-        placeholder="Pad-Name?"
-        autocomplete="off"
-        onkeydown="if(event.key==='Enter') _zumpadSubmit()">
-      <button class="zumpad-los-btn" onclick="_zumpadSubmit()" data-i18n="los">Los!</button>
-    </div>
 
   </div>
 
@@ -8530,7 +8531,11 @@ _fbGetPassword().then(pw => { _stickyCurrentUserPw = pw; }).catch(()=>{});
 
 async function _checkStickyCode(val){
   const isJa = document.documentElement.lang === 'ja';
-  const trimmed = val.trim();
+  // ! am Anfang = versteckte Eingabe (Sterne), vor Vergleich entfernen
+  const trimmed = val.trim().replace(/^!/, '');
+  // Eingabefeld immer auf text zurücksetzen nach Submit
+  const _inp = document.getElementById('zumpad-input');
+  if(_inp) _inp.type = 'text';
 
   // ── Admin gibt Code ein ──────────────────────────────────
   if(trimmed === _STICKY_ADMIN_CODE){
@@ -8538,7 +8543,10 @@ async function _checkStickyCode(val){
       _stickyAdminPending   = true;
       _stickyDeleteUnlocked = true;
       const inp = document.getElementById('zumpad-input');
-      if(inp){ inp.value = ''; inp.placeholder = isJa ? 'パスワードを入力' : 'Benutzerpasswort eingeben'; }
+      if(inp){
+        inp.value = '';
+        inp.placeholder = isJa ? 'パスワードを入力' : '!Passwort eingeben';
+      }
       _stickyShowStatus(isJa
         ? '🔓 管理者モード。新しいパスワードを入力してください。'
         : '🔓 Admin-Modus aktiv. Neues Benutzerpasswort eingeben und Enter drücken.', '#a78bfa');
@@ -8574,7 +8582,7 @@ async function _checkStickyCode(val){
     _stickyAdminPending   = false;
     closeAdminPinboard();
     const inp = document.getElementById('zumpad-input');
-    if(inp) inp.placeholder = isJa ? 'パッド名？' : 'Pad-Name?';
+    if(inp){ inp.placeholder = isJa ? 'パッド名？' : 'Pad-Name?'; }
     return true;
   }
 
@@ -8824,8 +8832,6 @@ function openAdminPinboard(){
     <div style="font-size:16px;font-weight:800;">📌 ${isJa?'掲示板':'Pinnwand'}</div>
     <div style="font-size:12px;font-weight:700;color:var(--text2);flex:1;" id="pin-count-admin"></div>
     <button onclick="openAdminOwnNote()" id="pin-btn-own-admin" class="wbtn">${isJa?'✏️ 自分の付箋':'✏️ Eigener Zettel'}</button>
-    <button onclick="downloadPinboardTxt()" id="pin-btn-txt-admin" class="wbtn">${isJa?'📄 TXT':'📄 Als TXT'}</button>
-    <button onclick="downloadPinboardPNG()" id="pin-btn-png-admin" class="wbtn">${isJa?'🖼️ PNG':'🖼️ Als PNG'}</button>
     <button onclick="clearAllPinboardFromCloud()" id="pin-btn-delall-admin" class="wbtn"
       style="background:#ef444422;border-color:#ef4444;color:#ef4444;">${isJa?'🗑️ 全削除':'🗑️ Alles löschen'}</button>
     <button onclick="closeAdminPinboard()" id="pin-btn-close-admin" class="wbtn">${isJa?'✕ 閉じる':'✕ Schließen'}</button>
@@ -8978,8 +8984,6 @@ function _translateAdminPinboard(){
   if(title) title.textContent = '📌 ' + (isJa?'掲示板':'Pinnwand');
   const set = (id, txt) => { const el = document.getElementById(id); if(el) el.textContent = txt; };
   set('pin-btn-own-admin',   isJa?'✏️ 自分の付箋':'✏️ Eigener Zettel');
-  set('pin-btn-txt-admin',   isJa?'📄 TXT':'📄 Als TXT');
-  set('pin-btn-png-admin',   isJa?'🖼️ PNG':'🖼️ Als PNG');
   set('pin-btn-delall-admin',isJa?'🗑️ 全削除':'🗑️ Alles löschen');
   set('pin-btn-close-admin', isJa?'✕ 閉じる':'✕ Schließen');
   _pinboardRender('admin');
