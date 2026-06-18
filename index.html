@@ -8467,49 +8467,78 @@ function _fbReady(){
     }, 100);
   });
 }
-async function _fbSetPassword(pw){
+// Neue Struktur:
+//   userPasswords/<gruppe>: true
+//   pinboard/<gruppe>/<noteId>: {text, colorId, x, y, rot, ts, sessionId, noteId}
+let _STICKY_SESSION_GROUP = ''; // aktuell eingeloggtes Passwort = Gruppenname
+
+async function _fbCheckPassword(pw){
   const db = await _fbReady();
-  await db.ref('userPassword').set(pw);
+  const snap = await db.ref('userPasswords/' + pw).once('value');
+  return snap.val() === true;
 }
-async function _fbGetPassword(){
+async function _fbAddPassword(pw){
   const db = await _fbReady();
-  const snap = await db.ref('userPassword').once('value');
-  return snap.val() || '';
+  await db.ref('userPasswords/' + pw).set(true);
 }
-async function _fbGetPinboard(){
+async function _fbGetPinboard(group){
   const db = await _fbReady();
-  const snap = await db.ref('pinboard').once('value');
+  group = group || _STICKY_SESSION_GROUP;
+  const snap = await db.ref('pinboard/' + group).once('value');
   const val = snap.val();
   return val ? Object.values(val) : [];
 }
-async function _fbUpdateEntry(entry){
+async function _fbUpdateEntry(entry, group){
   const db = await _fbReady();
-  await db.ref('pinboard/' + entry.noteId).set(entry);
+  group = group || _STICKY_SESSION_GROUP;
+  await db.ref('pinboard/' + group + '/' + entry.noteId).set(entry);
 }
-async function _fbDeleteEntry(noteId){
+async function _fbDeleteEntry(noteId, group){
   const db = await _fbReady();
-  await db.ref('pinboard/' + noteId).remove();
+  group = group || _STICKY_SESSION_GROUP;
+  await db.ref('pinboard/' + group + '/' + noteId).remove();
 }
-async function _fbClearPinboard(){
+async function _fbClearGroup(group){
+  const db = await _fbReady();
+  group = group || _STICKY_SESSION_GROUP;
+  await db.ref('pinboard/' + group).remove();
+}
+async function _fbClearAllPinboard(){
   const db = await _fbReady();
   await db.ref('pinboard').remove();
 }
-// Realtime-Listener — gibt unsubscribe-Funktion zurück
-function _fbListenPinboard(callback){
+// Listener für die eigene Gruppe (User)
+function _fbListenPinboard(callback, group){
   let _ref = null, _handler = null, _unsubCalled = false;
   _fbReady().then(db => {
     if(_unsubCalled) return;
-    _ref = db.ref('pinboard');
+    const g = group || _STICKY_SESSION_GROUP;
+    _ref = db.ref('pinboard/' + g);
     _handler = snap => {
       const val = snap.val();
       callback(val ? Object.values(val) : []);
     };
     _ref.on('value', _handler);
   });
-  return () => {
-    _unsubCalled = true;
-    if(_ref && _handler) _ref.off('value', _handler);
-  };
+  return () => { _unsubCalled = true; if(_ref && _handler) _ref.off('value', _handler); };
+}
+// Listener für ALLE Gruppen (Admin) — flacht alle Einträge mit _group-Feld ab
+function _fbListenAllPinboard(callback){
+  let _ref = null, _handler = null, _unsubCalled = false;
+  _fbReady().then(db => {
+    if(_unsubCalled) return;
+    _ref = db.ref('pinboard');
+    _handler = snap => {
+      const val = snap.val() || {};
+      const entries = [];
+      Object.entries(val).forEach(([group, notes]) => {
+        if(notes) Object.values(notes).forEach(e => entries.push(Object.assign({}, e, {_group: group})));
+      });
+      callback(entries);
+    };
+    _ref.on('value', _handler);
+  });
+  return () => { _unsubCalled = true; if(_ref && _handler) _ref.off('value', _handler); };
 }
 
 let _stickyLoading = false;
@@ -8526,51 +8555,48 @@ const _STICKY_ADMIN_CODE  = 'Simsalabim';
 let _stickyAdminPending   = false;
 let _stickyCurrentUserPw  = '';
 
-// Passwort beim Start laden
-_fbGetPassword().then(pw => { _stickyCurrentUserPw = pw; }).catch(()=>{});
+// Gruppenpasswörter werden bei Eingabe live geprüft (kein Vorladen nötig)
 
 async function _checkStickyCode(val){
   const isJa = document.documentElement.lang === 'ja';
-  // ! am Anfang = versteckte Eingabe (Sterne), vor Vergleich entfernen
-  const trimmed = val.trim().replace(/^!/, '');
-  // Eingabefeld immer auf text zurücksetzen nach Submit
-  const _inp = document.getElementById('zumpad-input');
-  if(_inp) _inp.type = 'text';
+  const trimmed = val.trim();
+  // Führendes "!" ist nur das visuelle Signal für die Sternchen-Maskierung
+  // und wird vor jedem Vergleich entfernt.
+  const trimmedClean = trimmed.startsWith('!') ? trimmed.slice(1) : trimmed;
 
   // ── Admin gibt Code ein ──────────────────────────────────
-  if(trimmed === _STICKY_ADMIN_CODE){
+  if(trimmedClean === _STICKY_ADMIN_CODE){
     if(!_stickyAdminPending){
       _stickyAdminPending   = true;
       _stickyDeleteUnlocked = true;
       const inp = document.getElementById('zumpad-input');
-      if(inp){
-        inp.value = '';
-        inp.placeholder = isJa ? 'パスワードを入力' : '!Passwort eingeben';
-      }
+      if(inp){ inp.value = ''; inp.placeholder = isJa ? 'Gruppenname/PW eingeben' : 'Gruppenname / Passwort eingeben'; }
       _stickyShowStatus(isJa
-        ? '🔓 管理者モード。新しいパスワードを入力してください。'
-        : '🔓 Admin-Modus aktiv. Neues Benutzerpasswort eingeben und Enter drücken.', '#a78bfa');
+        ? '🔓 Admin-Modus. Neues Gruppenpasswort eingeben.'
+        : '🔓 Admin-Modus aktiv. Neues Gruppenpasswort eingeben und Enter drücken.', '#a78bfa');
     }
     return true;
   }
 
-  // ── Admin gibt Passwort ein (zweites Wort nach Simsalabim) ─
-  if(_stickyAdminPending && trimmed.length > 0 && trimmed !== _STICKY_ADMIN_CODE){
+  // ── Admin gibt neues Gruppenpasswort ein ─────────────────
+  if(_stickyAdminPending && trimmedClean.length > 0 && trimmedClean !== _STICKY_ADMIN_CODE){
     _stickyAdminPending  = false;
-    _stickyCurrentUserPw = trimmed;
     const inp = document.getElementById('zumpad-input');
     if(inp){ inp.value = ''; inp.placeholder = isJa ? 'パッド名？' : 'Pad-Name?'; }
     try {
-      await _fbSetPassword(trimmed);
+      await _fbAddPassword(trimmedClean);
+      _STICKY_SESSION_GROUP = trimmedClean;
       _stickyShowStatus(isJa
-        ? '✅ パスワード「' + trimmed + '」を設定しました。'
-        : '✅ Passwort „' + trimmed + '" gesetzt.', '#4ade80');
-    } catch(e){
-      _stickyShowStatus('❌ Firebase: ' + e.message, '#f87171');
-      console.error('_fbSetPassword Fehler:', e);
-    }
+        ? '✅ Gruppe「' + trimmedClean + '」登録しました。'
+        : '✅ Gruppe „' + trimmedClean + '" registriert.', '#4ade80');
+      // Falls die Pinnwand bereits offen ist, auf die neue Gruppe umschalten
+      if(document.getElementById('admin-pinboard-overlay')){
+        closeAdminPinboard();
+        openAdminPinboard();
+      }
+    } catch(e){ _stickyShowStatus('❌ ' + e.message, '#f87171'); }
     _stickyDeleteUnlocked = true;
-    _stickyUserUnlocked = true;
+    _stickyUserUnlocked   = true;
     const pinBtn = document.getElementById('pinnwand-tool-btn');
     if(pinBtn) pinBtn.style.display = '';
     return true;
@@ -8582,27 +8608,37 @@ async function _checkStickyCode(val){
     _stickyAdminPending   = false;
     closeAdminPinboard();
     const inp = document.getElementById('zumpad-input');
-    if(inp){ inp.placeholder = isJa ? 'パッド名？' : 'Pad-Name?'; }
+    if(inp) inp.placeholder = isJa ? 'パッド名？' : 'Pad-Name?';
     return true;
   }
 
-  // ── Benutzer gibt Passwort ein ───────────────────────────
-  if(!_stickyDeleteUnlocked && !_stickyUserUnlocked && trimmed.length > 0){
-    try { _stickyCurrentUserPw = await _fbGetPassword(); } catch(e){}
-    if(_stickyCurrentUserPw && trimmed === _stickyCurrentUserPw){
-      _stickyUnlockUser(isJa);
-      return true;
-    }
+  // ── Benutzer gibt Gruppenpasswort ein ────────────────────
+  if(!_stickyDeleteUnlocked && !_stickyUserUnlocked && trimmedClean.length > 0){
+    try {
+      const valid = await _fbCheckPassword(trimmedClean);
+      if(valid){
+        _STICKY_SESSION_GROUP = trimmedClean;
+        _stickyUnlockUser(isJa);
+        if(document.getElementById('admin-pinboard-overlay')){
+          closeAdminPinboard();
+          openAdminPinboard();
+        }
+        return true;
+      }
+    } catch(e){ _stickyShowStatus('❌ ' + e.message, '#f87171'); }
   }
 
   return false;
 }
 
+
 function _stickyUnlockUser(isJa){
   _stickyUserUnlocked = true;
   const pinBtn = document.getElementById('pinnwand-tool-btn');
   if(pinBtn) pinBtn.style.display = '';
-  _stickyShowStatus(isJa ? '✅ ノート機能が有効になりました！' : '✅ Pinnwand-Funktion aktiviert!', '#4ade80');
+  _stickyShowStatus(
+    isJa ? '✅ グループ「' + _STICKY_SESSION_GROUP + '」でログインしました'
+          : '✅ Eingeloggt als Gruppe „' + _STICKY_SESSION_GROUP + '"', '#4ade80');
   const inp = document.getElementById('zumpad-input');
   if(inp){ inp.value = ''; }
 }
@@ -8748,7 +8784,7 @@ async function savePinNote(uid){
     const color = st.color || STICKY_COLORS[0];
     if(st.noteId){
       const db = await _fbReady();
-      const snap = await db.ref('pinboard/' + st.noteId).once('value');
+      const snap = await db.ref('pinboard/' + _STICKY_SESSION_GROUP + '/' + st.noteId).once('value');
       const existing = snap.val() || {};
       await _fbUpdateEntry(Object.assign({}, existing, { text: ta.value, colorId: color.id, ts: Date.now() }));
     } else {
@@ -8819,17 +8855,16 @@ function openAdminPinboard(){
   const isJa = document.documentElement.lang === 'ja';
   const ov = document.createElement('div');
   ov.id = 'admin-pinboard-overlay';
-  // Unterhalb des Topbars starten, damit das Menü nicht verdeckt wird
   const topbarEl = document.getElementById('topbar');
   const launcherEl = document.getElementById('launcher');
-  // Launcher ausblenden → nur topbar-row1 bleibt kurz sichtbar, dann überdeckt das Overlay alles
   if(launcherEl) launcherEl.style.display = 'none';
-  // Overlay überdeckt den gesamten Viewport inkl. Topbar
   ov.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;flex-direction:column;background:var(--bg);';
   ov.innerHTML = `
   <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;flex-shrink:0;
        background:var(--topbar);border-bottom:1px solid rgba(255,255,255,0.08);flex-wrap:wrap;">
     <div style="font-size:16px;font-weight:800;">📌 ${isJa?'掲示板':'Pinnwand'}</div>
+    <span style="background:rgba(107,127,255,.18);color:var(--accent);border-radius:20px;
+          padding:3px 12px;font-size:12px;font-weight:800;" id="pin-group-label">${escapeHtml(_STICKY_SESSION_GROUP)}</span>
     <div style="font-size:12px;font-weight:700;color:var(--text2);flex:1;" id="pin-count-admin"></div>
     <button onclick="openAdminOwnNote()" id="pin-btn-own-admin" class="wbtn">${isJa?'✏️ 自分の付箋':'✏️ Eigener Zettel'}</button>
     <button onclick="clearAllPinboardFromCloud()" id="pin-btn-delall-admin" class="wbtn"
@@ -8839,12 +8874,11 @@ function openAdminPinboard(){
   <div class="pin-board" id="pin-board-admin"></div>`;
   document.body.appendChild(ov);
 
-  pinboardState['admin'] = { noteId: null, color: STICKY_COLORS[0] };
-  // Realtime-Listener statt Polling
+  pinboardState['admin'] = { noteId: null, color: STICKY_COLORS[0], selectedGroup: _STICKY_SESSION_GROUP };
   pinboardState['admin'].unsub = _fbListenPinboard(entries => {
-    _pinboardEntries['admin'] = entries;
+    _pinboardEntries['admin'] = entries.map(e => Object.assign({}, e, { _group: _STICKY_SESSION_GROUP }));
     _pinboardRender('admin');
-  });
+  }, _STICKY_SESSION_GROUP);
 }
 
 function closeAdminPinboard(){
@@ -8949,6 +8983,8 @@ async function _adminOwnNoteSave(){
   const ta = document.getElementById('admin-own-note-ta');
   const st = pinboardState['admin'];
   if(!ta || !st) return;
+  const group = st.selectedGroup;
+  if(!group){ _stickyShowStatus(isJa ? '⚠️ グループが選択されていません' : '⚠️ Keine Gruppe ausgewählt', '#fbbf24'); return; }
   if(!ta.value.trim()){
     _stickyShowStatus(isJa ? '⚠️ Notiz ist leer' : '⚠️ Notiz ist leer', '#fbbf24'); return;
   }
@@ -8956,16 +8992,16 @@ async function _adminOwnNoteSave(){
     const color = st.color || STICKY_COLORS[0];
     if(st.noteId){
       const db = await _fbReady();
-      const snap = await db.ref('pinboard/' + st.noteId).once('value');
+      const snap = await db.ref('pinboard/' + group + '/' + st.noteId).once('value');
       const existing = snap.val() || {};
-      await _fbUpdateEntry(Object.assign({}, existing, { text: ta.value, colorId: color.id, ts: Date.now() }));
+      await _fbUpdateEntry(Object.assign({}, existing, { text: ta.value, colorId: color.id, ts: Date.now() }), group);
     } else {
       const nid = 'p' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
       await _fbUpdateEntry({
         noteId: nid, sessionId: _STICKY_SESSION_ID, text: ta.value, colorId: color.id,
         x: Math.round(Math.random()*60*10)/10, y: Math.round(Math.random()*55*10)/10,
         rot: Math.round((Math.random()*12-6)*10)/10, ts: Date.now()
-      });
+      }, group);
       st.noteId = nid;
     }
     // Realtime-Listener aktualisiert UI automatisch
@@ -9014,19 +9050,20 @@ async function loadPinboardFromCloud(uid, silent){
 // ── Alle löschen (Admin) ────────────────────────────────────
 async function clearAllPinboardFromCloud(){
   const isJa = document.documentElement.lang === 'ja';
-  let entries = [];
-  try { entries = await _fbGetPinboard(); } catch(e){}
+  const group = _STICKY_SESSION_GROUP;
+  if(!group){ _stickyShowStatus(isJa ? '⚠️ グループが選択されていません' : '⚠️ Keine Gruppe ausgewählt', '#fbbf24'); return; }
+  const entries = _pinboardEntries['admin'] || [];
 
-  const confirmed = await _pinboardDeleteDialog(entries);
+  const confirmed = await _pinboardDeleteDialog(entries, group);
   if(!confirmed) return;
   _stickyShowStatus(isJa ? '⏳ 削除中 …' : '⏳ Lösche …', '#a78bfa');
   try {
-    await _fbClearPinboard();
+    await _fbClearGroup(group);
     // Realtime-Listener aktualisiert die UI automatisch
-    Object.keys(pinboardState).forEach(uid => { if(pinboardState[uid]) pinboardState[uid].noteId = null; });
+    if(st) st.noteId = null;
     const editor = document.getElementById('admin-note-editor');
     if(editor) editor.remove();
-    _stickyShowStatus(isJa ? '🗑️ クリアしました。' : '🗑️ Pinnwand geleert.', '#f87171');
+    _stickyShowStatus(isJa ? '🗑️ クリアしました。' : '🗑️ Gruppe „' + group + '" geleert.', '#f87171');
   } catch(e){
     _stickyShowStatus('❌ ' + e.message, '#f87171');
   }
@@ -9126,7 +9163,7 @@ function _pinboardAttachAdminHandlers(){
         _adminPinDragging = false;
         _adminPinDraggingEl = null;
         if(moved){
-          _pinboardSavePosition(noteId, parseFloat(el.style.left), parseFloat(el.style.top));
+          _pinboardSavePosition(noteId, parseFloat(el.style.left), parseFloat(el.style.top), el.dataset.group||"");
         } else {
           openAdminNoteEditor(noteId);
         }
@@ -9139,15 +9176,15 @@ function _pinboardAttachAdminHandlers(){
 
 
 // ── Position eines Zettels speichern ─────────────────────────
-async function _pinboardSavePosition(noteId, x, y){
+async function _pinboardSavePosition(noteId, x, y, group){
   try {
     const db = await _fbReady();
-      const snap = await db.ref('pinboard/' + noteId).once('value');
+    const snap = await db.ref('pinboard/' + group + '/' + noteId).once('value');
     const entry = snap.val();
     if(entry){
       await _fbUpdateEntry(Object.assign({}, entry, {
         x: Math.round(x*10)/10, y: Math.round(y*10)/10
-      }));
+      }), group);
     }
     // Realtime-Listener aktualisiert _pinboardEntries automatisch
   } catch(e){
@@ -9167,9 +9204,11 @@ function openAdminNoteEditor(noteId){
   if(existing) existing.remove();
   const c = STICKY_COLORS.find(c => c.id === entry.colorId) || STICKY_COLORS[0];
   _adminNoteColorId = c.id;
+  const entryGroup = entry._group || '';
 
   const ov = document.createElement('div');
   ov.id = 'admin-note-editor';
+  ov.dataset.group = entryGroup;
   ov.dataset.noteId = noteId;
   ov.style.cssText = 'position:fixed;inset:0;z-index:10100;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.5);backdrop-filter:blur(3px);';
   ov.innerHTML = `
@@ -9215,13 +9254,14 @@ async function _adminNoteSave(noteId){
   const isJa = document.documentElement.lang === 'ja';
   const ta = document.getElementById('admin-note-ta');
   if(!ta) return;
+  const group = document.getElementById('admin-note-editor')?.dataset.group || '';
   try {
     const db = await _fbReady();
-      const snap = await db.ref('pinboard/' + noteId).once('value');
+    const snap = await db.ref('pinboard/' + group + '/' + noteId).once('value');
     const existing = snap.val() || {};
     await _fbUpdateEntry(Object.assign({}, existing, {
       text: ta.value, colorId: _adminNoteColorId || existing.colorId, ts: Date.now()
-    }));
+    }), group);
     // Realtime-Listener aktualisiert UI automatisch
     const ov = document.getElementById('admin-note-editor');
     if(ov) ov.remove();
@@ -9233,8 +9273,9 @@ async function _adminNoteSave(noteId){
 
 async function _adminNoteDelete(noteId){
   const isJa = document.documentElement.lang === 'ja';
+  const group = document.getElementById('admin-note-editor')?.dataset.group || '';
   try {
-    await _fbDeleteEntry(noteId);
+    await _fbDeleteEntry(noteId, group);
     // Realtime-Listener aktualisiert UI automatisch
     const ov = document.getElementById('admin-note-editor');
     if(ov) ov.remove();
@@ -9369,7 +9410,7 @@ function _pinboardWrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines){
 }
 
 // ── Bestätigungs-Dialog mit TXT-Download (im Seitendesign) ─
-function _pinboardDeleteDialog(entries){
+function _pinboardDeleteDialog(entries, group){
   const isJa = document.documentElement.lang === 'ja';
   return new Promise(resolve => {
     const ov = document.createElement('div');
@@ -9380,9 +9421,11 @@ function _pinboardDeleteDialog(entries){
       s.textContent = '@keyframes _scaleIn{from{transform:scale(.92);opacity:0}to{transform:scale(1);opacity:1}}';
       document.head.appendChild(s);
     }
-    const title   = isJa ? '🗑️ 掲示板のすべての投稿を削除しますか？' : '🗑️ Alle Pinnwand-Einträge löschen?';
+    const title   = group
+      ? (isJa ? '🗑️「' + group + '」のすべての投稿を削除しますか？' : '🗑️ Alle Einträge der Gruppe „' + group + '" löschen?')
+      : (isJa ? '🗑️ 掲示板のすべての投稿を削除しますか？' : '🗑️ Alle Pinnwand-Einträge löschen?');
     const desc    = isJa ? 'クラウドに保存されたすべての投稿が完全に削除されます。'
-                         : 'Alle gespeicherten Pinnwand-Einträge werden unwiderruflich aus der Cloud gelöscht.';
+                         : 'Alle gespeicherten Einträge dieser Gruppe werden unwiderruflich aus der Cloud gelöscht.';
     const btnDL   = isJa ? '📄 TXTとしてダウンロード' : '📄 Als TXT herunterladen';
     const btnPNG  = isJa ? '🖼️ PNGとしてダウンロード' : '🖼️ Als PNG herunterladen';
     const btnCanc = isJa ? 'キャンセル' : 'Abbrechen';
