@@ -967,6 +967,66 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   .pin-note-small{max-width:108px;min-width:70px;font-size:10px;}
 }
 
+/* ════════════════════════════════════════════════
+   WIDGET: NACHRICHT (Chat) — eigener Stilblock,
+   bewusst getrennt von der Pinnwand-Optik (.pin-*)
+   ════════════════════════════════════════════════ */
+.chat-wrap{display:flex;flex-direction:column;height:100%;min-height:0;}
+.chat-messages{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-height:0;background:var(--card);}
+.chat-bubble{max-width:82%;padding:7px 11px;border-radius:10px;font-size:12.5px;
+  line-height:1.4;word-wrap:break-word;white-space:pre-wrap;position:relative;
+  background:#fff;color:#111;border:1px solid #e2e4e9;box-shadow:0 1px 3px rgba(0,0,0,.12);}
+.chat-bubble.own{align-self:flex-end;border-color:#c7d2fe;}
+.chat-bubble.other{align-self:flex-start;border-color:#e2e4e9;}
+.chat-bubble.to-admin{border-style:dashed;border-color:#a5b4fc;}
+.chat-bubble .chat-sender{font-size:10.5px;font-weight:800;color:#4f6ef7;display:block;margin-bottom:2px;}
+.chat-bubble.own .chat-sender{text-align:right;}
+.chat-bubble .chat-target-tag{font-size:9.5px;font-weight:700;color:#6b7280;display:block;margin-top:3px;}
+.chat-bubble .chat-ts{font-size:9px;color:#9ca3af;display:block;margin-top:2px;text-align:right;}
+.chat-empty{text-align:center;color:var(--text2);font-size:12px;padding:18px 8px;background:var(--card);}
+.chat-inputbar{border-top:1px solid rgba(var(--accent-rgb),.18);padding:8px 10px;
+  display:flex;flex-direction:column;gap:6px;flex-shrink:0;background:var(--bg3);}
+.chat-target-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2);}
+.chat-target-row select{background:var(--card);color:var(--text);border:1.5px solid rgba(var(--accent-rgb),.25);
+  border-radius:7px;padding:3px 7px;font-size:11px;font-weight:700;cursor:pointer;outline:none;}
+.chat-send-row{display:flex;gap:6px;align-items:flex-end;}
+.chat-send-row textarea{flex:1;resize:none;background:var(--card);border:1.5px solid rgba(var(--accent-rgb),.25);
+  border-radius:9px;color:var(--text);font-family:inherit;font-size:12.5px;padding:7px 10px;
+  outline:none;max-height:70px;min-height:34px;}
+.chat-send-row textarea:focus{border-color:var(--accent);}
+.chat-send-btn{background:var(--accent);border:none;color:#fff;border-radius:9px;
+  width:36px;height:34px;flex-shrink:0;cursor:pointer;font-size:15px;display:flex;
+  align-items:center;justify-content:center;transition:filter .15s;}
+.chat-send-btn:hover{filter:brightness(1.1);}
+.chat-send-btn:disabled{opacity:.4;cursor:not-allowed;}
+.chat-clear-btn{background:rgba(239,68,68,.1);border:1.5px solid rgba(239,68,68,.4);
+  color:#f87171;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;
+  cursor:pointer;white-space:nowrap;}
+.chat-clear-btn:hover{background:rgba(239,68,68,.22);}
+.chat-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;
+  padding:6px 10px;border-bottom:1px solid rgba(var(--accent-rgb),.12);background:var(--bg3);flex-shrink:0;}
+/* Custom-Dialog (Namenseingabe + Bestätigung) */
+.chat-dialog-ov{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:999999;
+  display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.chat-dialog-box{background:#fff;border:1px solid #e2e4e9;border-radius:12px;
+  padding:24px 26px 20px;max-width:380px;width:90%;color:#1a1d23;font-family:inherit;
+  box-shadow:0 6px 32px rgba(0,0,0,.12);animation:_scaleIn .14s ease;}
+.chat-dialog-title{font-size:15px;font-weight:700;margin-bottom:8px;color:#1a1d23;}
+.chat-dialog-desc{font-size:12.5px;color:#6b7280;margin-bottom:14px;line-height:1.55;}
+.chat-dialog-input{width:100%;background:#f4f5f7;border:1.5px solid #e2e4e9;
+  border-radius:8px;padding:8px 12px;font-size:13px;color:#1a1d23;outline:none;
+  font-family:inherit;transition:border-color .12s;}
+.chat-dialog-input:focus{border-color:#4f6ef7;}
+.chat-dialog-row{display:flex;gap:8px;justify-content:flex-end;margin-top:16px;}
+.chat-dialog-cancel{background:#f4f5f7;border:1.5px solid #e2e4e9;color:#6b7280;
+  border-radius:8px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;}
+.chat-dialog-cancel:hover{background:#e9eaec;}
+.chat-dialog-ok{background:#4f6ef7;border:none;color:#fff;
+  border-radius:8px;padding:7px 18px;font-size:13px;font-weight:600;cursor:pointer;}
+.chat-dialog-ok:hover{filter:brightness(1.08);}
+.chat-dialog-ok.red{background:#dc2626;}
+.chat-dialog-ok.red:hover{background:#b91c1c;}
+
 .timer-mode-btn{
   background:transparent;border:none;color:var(--text2);padding:4px 10px;
   border-radius:6px;font-size:11px;font-weight:700;font-family:'Arial',sans-serif;
@@ -1606,15 +1666,19 @@ body.light-mode .slot-scorebar-title{
 
 
 /* Colored icons per tool */
-.tool-btn:nth-child(2) .tb-icon { color:#4ade80; }   /* Namen - green */
-.tool-btn:nth-child(3) .tb-icon { color:#60a5fa; }   /* Zeichnen - blue */
-.tool-btn:nth-child(4) .tb-icon { color:#fbbf24; }   /* Text - yellow */
-.tool-btn:nth-child(5) .tb-icon { color:#fb923c; }   /* Würfel - orange */
-.tool-btn:nth-child(6) .tb-icon { color:#f87171; }   /* Was - red */
-.tool-btn:nth-child(7) .tb-icon { color:var(--accent2); }   /* Timer - purple */
-.tool-btn:nth-child(8) .tb-icon { color:#22d3ee; }   /* Uhr - cyan */
-.tool-btn:nth-child(9) .tb-icon { color:#f472b6; }   /* QR - pink */
-.tool-btn:nth-child(10) .tb-icon { color:#facc15; }  /* Spiele - gold */
+/* nth-child(2) = Nachricht (eigene Regel via #nachricht-tool-btn unten) */
+/* nth-child(3) = Pinnwand (eigene Regel unten) */
+.tool-btn:nth-child(4) .tb-icon { color:#4ade80; }   /* Namen - green */
+.tool-btn:nth-child(5) .tb-icon { color:#60a5fa; }   /* Zeichnen - blue */
+.tool-btn:nth-child(6) .tb-icon { color:#fbbf24; }   /* Text - yellow */
+.tool-btn:nth-child(7) .tb-icon { color:#fb923c; }   /* Würfel - orange */
+.tool-btn:nth-child(8) .tb-icon { color:#f87171; }   /* Was - red */
+.tool-btn:nth-child(9) .tb-icon { color:var(--accent2); }   /* Timer - purple */
+.tool-btn:nth-child(10) .tb-icon { color:#22d3ee; }   /* Uhr - cyan */
+.tool-btn:nth-child(11) .tb-icon { color:#f472b6; }   /* QR - pink */
+.tool-btn:nth-child(12) .tb-icon { color:#facc15; }  /* Spiele - gold */
+#nachricht-tool-btn .tb-icon { color:#ffffff; }      /* Nachricht - weiß */
+#pinnwand-tool-btn  .tb-icon { color:#fb923c; }      /* Pinnwand  - orange */
 
 /* hover keeps color but brighter */
 .tool-btn:hover .tb-icon {
@@ -1854,6 +1918,11 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       <button class="zumpad-los-btn" onclick="_zumpadSubmit()" data-i18n="los">Los!</button>
     </div>
 
+    <button class="tool-btn" id="nachricht-tool-btn" onclick="openNachricht()" style="display:none;">
+      <span class="tb-icon material-symbols-rounded">mail</span>
+      <span id="lbl-nachricht" data-i18n="nachricht">Nachricht</span>
+    </button>
+
     <button class="tool-btn" id="pinnwand-tool-btn" onclick="openPinnwand()" style="display:none;">
       <span class="tb-icon material-symbols-rounded">push_pin</span>
       <span id="lbl-pinnwand" data-i18n="pinnwand">Pinnwand</span>
@@ -2020,6 +2089,7 @@ const LANG = {
     text:'Text',
     sticky:'Notiz',
     pinnwand:'Pinnwand',
+    nachricht:'Nachricht',
     was:'Fotos',
     wasDiashow:'▶ Diashow starten',
     wasPause:'⏸ Pause',
@@ -2260,6 +2330,7 @@ const LANG = {
     wtText:'Textfeld',
     wtJein:'Jein',
     wtPinnwand:'Pinnwand',
+    wtNachricht:'Nachricht',
     wtFotos:'Fotos',
     wtRad:'Frage-Rad',
     wtSlot:'Slot-Maschine',
@@ -2275,6 +2346,7 @@ const LANG = {
     text:'テキスト',
     sticky:'付箋',
     pinnwand:'掲示板',
+    nachricht:'メッセージ',
     was:'画像',
     wasDiashow:'▶ スライドショー',
     wasPause:'⏸ 一時停止',
@@ -2516,6 +2588,7 @@ const LANG = {
     wtText:'テキスト欄',
     wtJein:'是か非か',
     wtPinnwand:'掲示板',
+    wtNachricht:'メッセージ',
     wtFotos:'写真',
     wtRad:'質問ルーレット',
     wtSlot:'スロットマシン',
@@ -3721,6 +3794,7 @@ const WIDGET_DEFS={
   qr:     {titleKey:'wtQR',     icon:'📱', w:260,h:310, fitContent:true,  build:buildQR,      translate:_trQR},
   textpad:{titleKey:'wtText',   icon:'📝', w:600,h:420, fitContent:true,  build:buildTextpad, translate:_trTextpad},
   pinnwand: {titleKey:'wtPinnwand', icon:'📌', w:280,h:300, fitContent:false, build:buildPinnwand, translate:_trPinnwand, onDestroy:_destroyPinnwand},
+  nachricht: {titleKey:'wtNachricht', icon:'✉️', w:340,h:430, fitContent:false, minw:280, minh:320, build:buildNachricht, translate:_trNachricht, onDestroy:_destroyNachricht},
   jein:   {titleKey:'wtJein',   icon:'🤔', w:310,h:355, fitContent:true,  build:buildJein,    translate:_trJein,   onDestroy:_destroyJein},
   was:    {titleKey:'wtFotos',  icon:'🖼', w:700,h:600, fitContent:false, build:buildWas,     translate:_trWas},
   wheel:  {titleKey:'wtRad',    icon:'🎡', w:820,h:900, fitContent:false, build:buildWheel,   translate:_trWheel},
@@ -8541,6 +8615,40 @@ function _fbListenAllPinboard(callback){
   return () => { _unsubCalled = true; if(_ref && _handler) _ref.off('value', _handler); };
 }
 
+// ════════════════════════════════════════════════
+// FIREBASE-HELFER: CHAT (Nachricht-Widget)
+// ════════════════════════════════════════════════
+// Struktur (eigener Root-Pfad, getrennt von pinboard!):
+//   chat/<gruppe>/<messageId>: {text, sender, target, ts, messageId, sessionId}
+//   target: 'all' (alle sehen) oder 'admin' (nur Kursleitung + Absender)
+// WICHTIG (Lektion aus der Pinnwand-Entwicklung): JEDER db.ref('chat/...')-Aufruf
+// MUSS den vollen Gruppen-Pfad chat/<gruppe>/... enthalten, niemals nur chat/<messageId>.
+async function _fbAddChatMessage(msg, group){
+  const db = await _fbReady();
+  group = group || _STICKY_SESSION_GROUP;
+  await db.ref('chat/' + group + '/' + msg.messageId).set(msg);
+}
+async function _fbClearChat(group){
+  const db = await _fbReady();
+  group = group || _STICKY_SESSION_GROUP;
+  await db.ref('chat/' + group).remove();
+}
+// Realtime-Listener für die Chat-Nachrichten EINER Gruppe (User + Admin nutzen dies)
+function _fbListenChat(callback, group){
+  let _ref = null, _handler = null, _unsubCalled = false;
+  _fbReady().then(db => {
+    if(_unsubCalled) return;
+    const g = group || _STICKY_SESSION_GROUP;
+    _ref = db.ref('chat/' + g);
+    _handler = snap => {
+      const val = snap.val();
+      callback(val ? Object.values(val) : []);
+    };
+    _ref.on('value', _handler);
+  });
+  return () => { _unsubCalled = true; if(_ref && _handler) _ref.off('value', _handler); };
+}
+
 let _stickyLoading = false;
 
 // Session-ID: identifiziert den aktuellen Nutzer/Browser
@@ -8599,6 +8707,8 @@ async function _checkStickyCode(val){
     _stickyUserUnlocked   = true;
     const pinBtn = document.getElementById('pinnwand-tool-btn');
     if(pinBtn) pinBtn.style.display = '';
+    const nachrichtBtn1 = document.getElementById('nachricht-tool-btn');
+    if(nachrichtBtn1) nachrichtBtn1.style.display = '';
     return true;
   }
 
@@ -8636,6 +8746,8 @@ function _stickyUnlockUser(isJa){
   _stickyUserUnlocked = true;
   const pinBtn = document.getElementById('pinnwand-tool-btn');
   if(pinBtn) pinBtn.style.display = '';
+  const nachrichtBtn2 = document.getElementById('nachricht-tool-btn');
+  if(nachrichtBtn2) nachrichtBtn2.style.display = '';
   _stickyShowStatus(
     isJa ? '✅ グループ「' + _STICKY_SESSION_GROUP + '」でログインしました'
           : '✅ Eingeloggt als Gruppe „' + _STICKY_SESSION_GROUP + '"', '#4ade80');
@@ -9456,6 +9568,241 @@ function _pinboardDeleteDialog(entries, group){
     document.getElementById('_pcd_confirm').onclick = () => close(true);
     ov.addEventListener('click', e => { if(e.target === ov) close(false); });
   });
+}
+
+
+// ════════════════════════════════════════════════
+// WIDGET: NACHRICHT (Chat)
+// ════════════════════════════════════════════════
+// Architektur analog zur Pinnwand: Firebase-Realtime-Listener statt Polling,
+// gruppenbasierte Datentrennung unter chat/<gruppe>/<messageId>, Session-Login
+// wird 1:1 von der Pinnwand übernommen (_STICKY_SESSION_GROUP, _stickyDeleteUnlocked).
+// WICHTIG: jeder direkte db.ref('chat/...')-Zugriff geht ausschließlich über die
+// _fb*Chat*-Helfer oben (siehe Abschnitt "FIREBASE-HELFER: CHAT") — dort ist der
+// volle Gruppen-Pfad bereits fest eingebaut. Hier im Widget-Code wird die Gruppe
+// zusätzlich konsequent als Parameter durchgereicht (nie implizit aus einer
+// globalen Variable gelesen, außer beim allerersten Aufbau).
+const nachrichtState = {}; // uid -> {unsub, group, isAdmin}
+
+// ── Anzeigename: einmalig abfragen, dauerhaft lokal merken ──
+function _getChatUserName(){
+  try{ return localStorage.getItem('_chatUserName') || ''; }catch(e){ return ''; }
+}
+function _setChatUserName(name){
+  try{ localStorage.setItem('_chatUserName', name); }catch(e){}
+}
+function _promptChatUserName(isJa){
+  return new Promise(resolve => {
+    const ov = document.createElement('div');
+    ov.className = 'chat-dialog-ov';
+    const title = isJa ? '名前を入力してください' : 'Dein Name im Chat';
+    const desc  = isJa ? 'チャットでのあなたの表示名を入力してください。' : 'Dieser Name wird bei deinen Nachrichten angezeigt.';
+    const ph    = isJa ? '名前…' : 'Name…';
+    const ok    = isJa ? '確認' : 'OK';
+    const canc  = isJa ? 'キャンセル' : 'Abbrechen';
+    ov.innerHTML =
+      '<div class="chat-dialog-box">' +
+        '<div class="chat-dialog-title">' + title + '</div>' +
+        '<div class="chat-dialog-desc">' + desc + '</div>' +
+        '<input class="chat-dialog-input" id="_cdu_inp" type="text" maxlength="30" placeholder="' + ph + '">' +
+        '<div class="chat-dialog-row">' +
+          '<button class="chat-dialog-cancel" id="_cdu_canc">' + canc + '</button>' +
+          '<button class="chat-dialog-ok" id="_cdu_ok">' + ok + '</button>' +
+        '</div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    const inp = document.getElementById('_cdu_inp');
+    inp.focus();
+    const close = val => { ov.remove(); resolve(val); };
+    document.getElementById('_cdu_ok').onclick = () => {
+      const name = inp.value.trim().slice(0, 30);
+      if(!name){ inp.focus(); return; }
+      _setChatUserName(name);
+      close(name);
+    };
+    document.getElementById('_cdu_canc').onclick = () => close(null);
+    ov.addEventListener('click', e => { if(e.target === ov) close(null); });
+    inp.addEventListener('keydown', e => {
+      if(e.key === 'Enter'){ document.getElementById('_cdu_ok').click(); }
+      if(e.key === 'Escape'){ close(null); }
+    });
+  });
+}
+
+// ── Launcher-Klick ───────────────────────────────────────
+async function openNachricht(){
+  const isJa = document.documentElement.lang === 'ja';
+  if(!_getChatUserName()){
+    const n = await _promptChatUserName(isJa);
+    if(!n) return; // Nutzer hat abgebrochen -> Widget nicht öffnen
+  }
+  spawnWidget('nachricht');
+}
+
+// ── Aufbau des Chat-Fensters ─────────────────────────────
+function buildNachricht(body, uid){
+  const isJa = document.documentElement.lang === 'ja';
+  const group = _STICKY_SESSION_GROUP;
+  const isAdmin = _stickyDeleteUnlocked === true;
+
+  body.innerHTML =
+    '<div class="chat-wrap">' +
+      (isAdmin
+        ? '<div class="chat-toolbar"><button class="chat-clear-btn" onclick="_clearChatConfirm(' + uid + ')">🗑️ '
+          + (isJa ? 'チャットを削除' : 'Chat löschen') + '</button></div>'
+        : '') +
+      '<div class="chat-messages" id="chat-msgs-' + uid + '"><div class="chat-empty">' +
+        (isJa ? '読み込み中…' : 'Lädt…') + '</div></div>' +
+      '<div class="chat-inputbar">' +
+        '<div class="chat-target-row">' +
+          '<span>' + (isJa ? '送信先：' : 'An:') + '</span>' +
+          '<select id="chat-target-' + uid + '">' +
+            '<option value="all">' + (isJa ? '全員' : 'Alle') + '</option>' +
+            '<option value="admin">' + (isJa ? '講師' : 'Kursleitung') + '</option>' +
+          '</select>' +
+        '</div>' +
+        '<div class="chat-send-row">' +
+          '<textarea id="chat-input-' + uid + '" rows="1" placeholder="' +
+            (isJa ? 'メッセージを入力…' : 'Nachricht eingeben…') + '" ' +
+            'onkeydown="if(event.key===\'Enter\' && !event.shiftKey){ event.preventDefault(); _sendChatMessage(' + uid + '); }"></textarea>' +
+          '<button class="chat-send-btn" id="chat-sendbtn-' + uid + '" onclick="_sendChatMessage(' + uid + ')" title="' +
+            (isJa ? '送信' : 'Senden') + '">➤</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+
+  // Realtime-Listener auf die aktuelle Gruppe — IMMER mit explizitem Gruppen-Pfad
+  const unsub = _fbListenChat(messages => _renderChatMessages(uid, messages, isAdmin), group);
+  nachrichtState[uid] = { unsub, group, isAdmin };
+}
+
+// ── Nachrichten rendern ──────────────────────────────────
+function _renderChatMessages(uid, messages, isAdmin){
+  const wrap = document.getElementById('chat-msgs-' + uid);
+  if(!wrap) return; // Widget evtl. inzwischen geschlossen
+  const isJa = document.documentElement.lang === 'ja';
+  const myName = _getChatUserName();
+
+  // Sichtbarkeitsregel: Admin sieht alles. Normale User sehen "an alle"-Nachrichten
+  // und ihre EIGENEN "an Kursleitung"-Nachrichten (keine fremden Privatnachrichten).
+  const visible = (messages || []).filter(m => {
+    if(isAdmin) return true;
+    if(m.target !== 'admin') return true;
+    return m.sender === myName;
+  }).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+
+  if(!visible.length){
+    wrap.innerHTML = '<div class="chat-empty">' +
+      (isJa ? 'まだメッセージはありません。' : 'Noch keine Nachrichten.') + '</div>';
+    return;
+  }
+
+  wrap.innerHTML = visible.map(m => {
+    const own = m.sender === myName && m.sessionId === _STICKY_SESSION_ID;
+    const toAdmin = m.target === 'admin';
+    const ts = m.ts ? new Date(m.ts).toLocaleTimeString(isJa ? 'ja-JP' : 'de-DE', {hour:'2-digit', minute:'2-digit'}) : '';
+    const targetTag = toAdmin
+      ? '<span class="chat-target-tag">' + (isJa ? '→ 講師のみ' : '→ Nur Kursleitung') + '</span>'
+      : '';
+    return '<div class="chat-bubble ' + (own ? 'own' : 'other') + (toAdmin ? ' to-admin' : '') + '">' +
+      '<span class="chat-sender">' + escapeHtml(m.sender || '?') + '</span>' +
+      escapeHtml(m.text || '') +
+      targetTag +
+      '<span class="chat-ts">' + ts + '</span>' +
+    '</div>';
+  }).join('');
+  wrap.scrollTop = wrap.scrollHeight;
+}
+
+// ── Nachricht senden ─────────────────────────────────────
+async function _sendChatMessage(uid){
+  const isJa = document.documentElement.lang === 'ja';
+  const st = nachrichtState[uid];
+  if(!st) return;
+  const ta = document.getElementById('chat-input-' + uid);
+  const sel = document.getElementById('chat-target-' + uid);
+  const btn = document.getElementById('chat-sendbtn-' + uid);
+  if(!ta || !sel) return;
+  const text = ta.value.trim();
+  if(!text) return;
+
+  let name = _getChatUserName();
+  if(!name){
+    name = await _promptChatUserName(isJa);
+    if(!name) return;
+  }
+
+  const msg = {
+    messageId: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    text: text,
+    sender: name,
+    target: sel.value === 'admin' ? 'admin' : 'all',
+    ts: Date.now(),
+    sessionId: _STICKY_SESSION_ID
+  };
+
+  if(btn) btn.disabled = true;
+  try{
+    // Gruppe kommt explizit aus dem beim Öffnen gespeicherten State, nicht aus
+    // einer globalen Variable, damit ein zwischenzeitlicher Gruppenwechsel den
+    // Chat-Verlauf des Fensters nicht durcheinanderbringt.
+    await _fbAddChatMessage(msg, st.group);
+    ta.value = '';
+  }catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }finally{
+    if(btn) btn.disabled = false;
+  }
+}
+
+// ── Admin: gesamten Chat der Gruppe löschen ──────────────
+function _clearChatConfirm(uid){
+  const isJa = document.documentElement.lang === 'ja';
+  const st = nachrichtState[uid];
+  if(!st) return;
+  const ov = document.createElement('div');
+  ov.className = 'chat-dialog-ov';
+  const title = isJa ? '🗑️ チャットを削除' : '🗑️ Chat löschen';
+  const desc  = isJa
+    ? '「' + st.group + '」のチャット履歴をすべて削除します。元に戻せません。'
+    : 'Den gesamten Chatverlauf der Gruppe „' + st.group + '" unwiderruflich löschen?';
+  const ok   = isJa ? '削除' : 'Löschen';
+  const canc = isJa ? 'キャンセル' : 'Abbrechen';
+  ov.innerHTML =
+    '<div class="chat-dialog-box">' +
+      '<div class="chat-dialog-title">' + title + '</div>' +
+      '<div class="chat-dialog-desc">' + desc + '</div>' +
+      '<div class="chat-dialog-row">' +
+        '<button class="chat-dialog-cancel" id="_cdc_canc">' + canc + '</button>' +
+        '<button class="chat-dialog-ok red" id="_cdc_ok">' + ok + '</button>' +
+      '</div>' +
+    '</div>';
+  document.body.appendChild(ov);
+  const close = confirmed => {
+    ov.remove();
+    if(!confirmed) return;
+    _fbClearChat(st.group)
+      .then(() => _stickyShowStatus(isJa ? '🗑️ チャットを削除しました' : '🗑️ Chat gelöscht', '#f59e0b'))
+      .catch(e => _stickyShowStatus('❌ ' + e.message, '#f87171'));
+  };
+  document.getElementById('_cdc_ok').onclick   = () => close(true);
+  document.getElementById('_cdc_canc').onclick  = () => close(false);
+  ov.addEventListener('click', e => { if(e.target === ov) close(false); });
+  ov.addEventListener('keydown', e => { if(e.key === 'Escape') close(false); });
+}
+
+// ── Sprachwechsel: Fenster neu aufbauen (gleiches Muster wie Pinnwand) ──
+function _trNachricht(uid){
+  const el = document.getElementById('widget-' + uid);
+  const body = el ? el.querySelector('.widget-body') : null;
+  if(body) buildNachricht(body, uid);
+}
+
+// ── Aufräumen beim Schließen des Fensters ────────────────
+function _destroyNachricht(uid){
+  const st = nachrichtState[uid];
+  if(st && typeof st.unsub === 'function') st.unsub();
+  delete nachrichtState[uid];
 }
 
 
