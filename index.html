@@ -335,6 +335,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   flex:0 0 60px;
   touch-action:manipulation;
   -webkit-tap-highlight-color:transparent;
+  position:relative;
 }
 .tool-btn .tb-icon {
   font-family: 'Material Symbols Rounded';
@@ -1005,7 +1006,10 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .chat-clear-btn:hover{background:rgba(239,68,68,.22);}
 .chat-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;
   padding:6px 10px;border-bottom:1px solid rgba(var(--accent-rgb),.12);background:var(--bg3);flex-shrink:0;}
-/* Custom-Dialog (Namenseingabe + Bestätigung) */
+.chat-bubble.important{border-color:#ef4444 !important;border-width:2px !important;}
+.chat-important-row{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text2);margin-left:auto;}
+.chat-important-row input[type=checkbox]{width:13px;height:13px;accent-color:#ef4444;cursor:pointer;}
+.chat-important-row label{cursor:pointer;user-select:none;}
 .chat-dialog-ov{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:999999;
   display:flex;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
 .chat-dialog-box{background:#fff;border:1px solid #e2e4e9;border-radius:12px;
@@ -1668,17 +1672,19 @@ body.light-mode .slot-scorebar-title{
 /* Colored icons per tool */
 /* nth-child(2) = Nachricht (eigene Regel via #nachricht-tool-btn unten) */
 /* nth-child(3) = Pinnwand (eigene Regel unten) */
-.tool-btn:nth-child(4) .tb-icon { color:#4ade80; }   /* Namen - green */
-.tool-btn:nth-child(5) .tb-icon { color:#60a5fa; }   /* Zeichnen - blue */
-.tool-btn:nth-child(6) .tb-icon { color:#fbbf24; }   /* Text - yellow */
-.tool-btn:nth-child(7) .tb-icon { color:#fb923c; }   /* Würfel - orange */
-.tool-btn:nth-child(8) .tb-icon { color:#f87171; }   /* Was - red */
-.tool-btn:nth-child(9) .tb-icon { color:var(--accent2); }   /* Timer - purple */
-.tool-btn:nth-child(10) .tb-icon { color:#22d3ee; }   /* Uhr - cyan */
-.tool-btn:nth-child(11) .tb-icon { color:#f472b6; }   /* QR - pink */
-.tool-btn:nth-child(12) .tb-icon { color:#facc15; }  /* Spiele - gold */
+.tool-btn:nth-child(4)  .tb-icon { color:#4ade80; }  /* Namen    - grün */
+.tool-btn:nth-child(5)  .tb-icon { color:#60a5fa; }  /* Zeichnen - blau */
+.tool-btn:nth-child(6)  .tb-icon { color:#ffffff; }  /* Text     - weiß */
+.tool-btn:nth-child(7)  .tb-icon { color:#fbbf24; }  /* Timer    - gelb */
+.tool-btn:nth-child(8)  .tb-icon { color:#22d3ee; }  /* Uhr      - cyan */
+.tool-btn:nth-child(9)  .tb-icon { color:#fb923c; }  /* Würfel   - orange */
+.tool-btn:nth-child(10) .tb-icon { color:#facc15; }  /* Spiele   - gold */
+.tool-btn:nth-child(11) .tb-icon { color:#f87171; }  /* Fotos    - rot */
+.tool-btn:nth-child(12) .tb-icon { color:#ffffff; }  /* QR       - weiß */
 #nachricht-tool-btn .tb-icon { color:#ffffff; }      /* Nachricht - weiß */
 #pinnwand-tool-btn  .tb-icon { color:#fb923c; }      /* Pinnwand  - orange */
+#lang-btn           .tb-icon { color:#4ade80; }      /* Sprache (DE/JA) - grün */
+#fullscreen-btn     .tb-icon { color:#ffffff; }      /* Vollbild - weiß */
 
 /* hover keeps color but brighter */
 .tool-btn:hover .tb-icon {
@@ -1921,6 +1927,9 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
     <button class="tool-btn" id="nachricht-tool-btn" onclick="openNachricht()" style="display:none;">
       <span class="tb-icon material-symbols-rounded">mail</span>
       <span id="lbl-nachricht" data-i18n="nachricht">Nachricht</span>
+      <span id="nachricht-dot" style="display:none;position:absolute;top:4px;right:4px;
+        width:9px;height:9px;border-radius:50%;background:#ef4444;
+        box-shadow:0 0 0 2px var(--bg2);pointer-events:none;"></span>
     </button>
 
     <button class="tool-btn" id="pinnwand-tool-btn" onclick="openPinnwand()" style="display:none;">
@@ -9632,10 +9641,23 @@ function _promptChatUserName(isJa){
 // ── Launcher-Klick ───────────────────────────────────────
 async function openNachricht(){
   const isJa = document.documentElement.lang === 'ja';
+  // Singleton auf Desktop: nur ein Chat-Fenster gleichzeitig
+  const existing = document.querySelector('.widget[data-type="nachricht"]');
+  if(existing && window.innerWidth > 600){
+    // Bestehendes Fenster nach vorne bringen
+    existing.style.zIndex = (parseInt(existing.style.zIndex || 100) + 1) + '';
+    // Roter Punkt löschen
+    const dot = document.getElementById('nachricht-dot');
+    if(dot) dot.style.display = 'none';
+    return;
+  }
   if(!_getChatUserName()){
     const n = await _promptChatUserName(isJa);
-    if(!n) return; // Nutzer hat abgebrochen -> Widget nicht öffnen
+    if(!n) return;
   }
+  // Roter Punkt löschen
+  const dot = document.getElementById('nachricht-dot');
+  if(dot) dot.style.display = 'none';
   spawnWidget('nachricht');
 }
 
@@ -9644,6 +9666,21 @@ function buildNachricht(body, uid){
   const isJa = document.documentElement.lang === 'ja';
   const group = _STICKY_SESSION_GROUP;
   const isAdmin = _stickyDeleteUnlocked === true;
+  const myName = _getChatUserName();
+
+  // Admin: Empfänger-Optionen = "Alle" + alle bekannten Absender aus bisherigen Nachrichten
+  // (wird nach erstem Listener-Aufruf dynamisch aktualisiert via _chatUpdatePersonSelect)
+  const targetSelectId = 'chat-target-' + uid;
+  const targetSelectHtml = isAdmin
+    ? '<select id="' + targetSelectId + '">'
+        + '<option value="all">' + (isJa ? '全員' : 'Alle') + '</option>'
+      + '</select>'
+    : '<select id="' + targetSelectId + '">'
+        + '<option value="all">' + (isJa ? '全員' : 'Alle') + '</option>'
+        + '<option value="admin">' + (isJa ? '講師' : 'Kursleitung') + '</option>'
+      + '</select>';
+
+  const importantId = 'chat-important-' + uid;
 
   body.innerHTML =
     '<div class="chat-wrap">' +
@@ -9656,10 +9693,11 @@ function buildNachricht(body, uid){
       '<div class="chat-inputbar">' +
         '<div class="chat-target-row">' +
           '<span>' + (isJa ? '送信先：' : 'An:') + '</span>' +
-          '<select id="chat-target-' + uid + '">' +
-            '<option value="all">' + (isJa ? '全員' : 'Alle') + '</option>' +
-            '<option value="admin">' + (isJa ? '講師' : 'Kursleitung') + '</option>' +
-          '</select>' +
+          targetSelectHtml +
+          '<div class="chat-important-row">' +
+            '<input type="checkbox" id="' + importantId + '">' +
+            '<label for="' + importantId + '">⚑ ' + (isJa ? '重要' : 'Wichtig') + '</label>' +
+          '</div>' +
         '</div>' +
         '<div class="chat-send-row">' +
           '<textarea id="chat-input-' + uid + '" rows="1" placeholder="' +
@@ -9671,45 +9709,120 @@ function buildNachricht(body, uid){
       '</div>' +
     '</div>';
 
-  // Realtime-Listener auf die aktuelle Gruppe — IMMER mit explizitem Gruppen-Pfad
+  nachrichtState[uid] = { unsub: null, group, isAdmin, lastKnownTs: null, myName };
   const unsub = _fbListenChat(messages => _renderChatMessages(uid, messages, isAdmin), group);
-  nachrichtState[uid] = { unsub, group, isAdmin };
+  nachrichtState[uid].unsub = unsub;
+}
+
+// ── URL in anklickbaren Link umwandeln (nach escapeHtml aufrufen!) ──
+function _chatLinkify(escapedText){
+  // Erkennt http(s):// und www.-URLs im bereits HTML-escaped Text
+  return escapedText.replace(
+    /(\bhttps?:\/\/[^\s<>"']+|\bwww\.[^\s<>"']+)/gi,
+    url => {
+      const href = url.startsWith('www.') ? 'https://' + url : url;
+      return '<a href="' + href + '" target="_blank" rel="noopener noreferrer" '
+        + 'style="color:#4f6ef7;text-decoration:underline;word-break:break-all;">'
+        + url + '</a>';
+    }
+  );
+}
+
+// ── Admin-Pulldown mit bekannten Absendern befüllen ──────
+function _chatUpdatePersonSelect(uid, messages, myName){
+  const sel = document.getElementById('chat-target-' + uid);
+  if(!sel) return;
+  const isJa = document.documentElement.lang === 'ja';
+  // Alle eindeutigen Absender außer dem Admin selbst
+  const persons = [...new Set(
+    (messages || []).map(m => m.sender).filter(s => s && s !== myName)
+  )].sort();
+  // Bestehende Auswahl merken
+  const current = sel.value;
+  sel.innerHTML = '<option value="all">' + (isJa ? '全員' : 'Alle') + '</option>'
+    + persons.map(p => '<option value="person:' + escapeHtml(p) + '">' + escapeHtml(p) + '</option>').join('');
+  // Auswahl wiederherstellen falls Person noch existiert
+  if(current && [...sel.options].some(o => o.value === current)) sel.value = current;
 }
 
 // ── Nachrichten rendern ──────────────────────────────────
 function _renderChatMessages(uid, messages, isAdmin){
   const wrap = document.getElementById('chat-msgs-' + uid);
-  if(!wrap) return; // Widget evtl. inzwischen geschlossen
+  if(!wrap) return;
   const isJa = document.documentElement.lang === 'ja';
   const myName = _getChatUserName();
+  const st = nachrichtState[uid];
 
-  // Sichtbarkeitsregel: Admin sieht alles. Normale User sehen "an alle"-Nachrichten
-  // und ihre EIGENEN "an Kursleitung"-Nachrichten (keine fremden Privatnachrichten).
+  // Admin: Personen-Pulldown aktualisieren
+  if(isAdmin) _chatUpdatePersonSelect(uid, messages, myName);
+
+  // ── Sichtbarkeitsregel ────────────────────────────────
+  // Admin: sieht alles AUSSER Nachrichten die an eine andere Person adressiert sind
+  // User: sieht "an alle", eigene "an Kursleitung", und Nachrichten die an sie persönlich gerichtet sind
   const visible = (messages || []).filter(m => {
-    if(isAdmin) return true;
-    if(m.target !== 'admin') return true;
-    return m.sender === myName;
+    if(isAdmin){
+      // Personen-Nachrichten: Admin sieht sie wenn er Absender ODER Empfänger ist
+      if(m.targetPerson && m.sender !== myName && m.targetPerson !== myName) return false;
+      return true;
+    }
+    if(m.target === 'all' && !m.targetPerson) return true;
+    if(m.sender === myName) return true;           // eigene Nachrichten immer
+    if(m.targetPerson === myName) return true;     // an mich persönlich
+    return false;
   }).sort((a, b) => (a.ts || 0) - (b.ts || 0));
 
+  // ── Toast + roter Punkt für neue / wichtige Nachrichten ──
+  if(st){
+    const maxTs = visible.length ? Math.max(...visible.map(m => m.ts || 0)) : 0;
+    if(st.lastKnownTs === null){
+      st.lastKnownTs = maxTs;
+    } else {
+      const newMsgs = visible.filter(m =>
+        (m.ts || 0) > st.lastKnownTs &&
+        !(m.sender === myName && m.sessionId === _STICKY_SESSION_ID)
+      );
+      if(newMsgs.length){
+        const last = newMsgs[newMsgs.length - 1];
+        const preview = (last.text || '').slice(0, 60) + ((last.text || '').length > 60 ? '…' : '');
+        const imp = last.important ? '⚑ ' : '';
+        _chatShowToast(imp + '✉️ ' + (last.sender || '?') + ': ' + preview);
+        // Roter Punkt am Button wenn wichtige Nachricht
+        if(last.important){
+          const dot = document.getElementById('nachricht-dot');
+          if(dot) dot.style.display = 'block';
+        }
+      }
+      if(maxTs > st.lastKnownTs) st.lastKnownTs = maxTs;
+    }
+  }
+
   if(!visible.length){
-    wrap.innerHTML = '<div class="chat-empty">' +
-      (isJa ? 'まだメッセージはありません。' : 'Noch keine Nachrichten.') + '</div>';
+    wrap.innerHTML = '<div class="chat-empty">'
+      + (isJa ? 'まだメッセージはありません。' : 'Noch keine Nachrichten.') + '</div>';
     return;
   }
 
   wrap.innerHTML = visible.map(m => {
     const own = m.sender === myName && m.sessionId === _STICKY_SESSION_ID;
-    const toAdmin = m.target === 'admin';
-    const ts = m.ts ? new Date(m.ts).toLocaleTimeString(isJa ? 'ja-JP' : 'de-DE', {hour:'2-digit', minute:'2-digit'}) : '';
-    const targetTag = toAdmin
-      ? '<span class="chat-target-tag">' + (isJa ? '→ 講師のみ' : '→ Nur Kursleitung') + '</span>'
-      : '';
-    return '<div class="chat-bubble ' + (own ? 'own' : 'other') + (toAdmin ? ' to-admin' : '') + '">' +
-      '<span class="chat-sender">' + escapeHtml(m.sender || '?') + '</span>' +
-      escapeHtml(m.text || '') +
-      targetTag +
-      '<span class="chat-ts">' + ts + '</span>' +
-    '</div>';
+    const toAdmin = m.target === 'admin' && !m.targetPerson;
+    const toPerson = m.targetPerson;
+    const isImportant = !!m.important;
+    const ts = m.ts ? new Date(m.ts).toLocaleTimeString(
+      isJa ? 'ja-JP' : 'de-DE', {hour:'2-digit', minute:'2-digit'}) : '';
+    let targetTag = '';
+    if(toPerson)
+      targetTag = '<span class="chat-target-tag">→ ' + escapeHtml(toPerson) + '</span>';
+    else if(toAdmin)
+      targetTag = '<span class="chat-target-tag">' + (isJa ? '→ 講師のみ' : '→ Nur Kursleitung') + '</span>';
+    const classes = ['chat-bubble', own ? 'own' : 'other',
+      (toAdmin || toPerson) ? 'to-admin' : '', isImportant ? 'important' : '']
+      .filter(Boolean).join(' ');
+    return '<div class="' + classes + '">'
+      + '<span class="chat-sender">' + (isImportant ? '⚑ ' : '') + escapeHtml(m.sender || '?') + '</span>'
+      + _chatLinkify(escapeHtml(m.text || ''))
+      + targetTag
+      + '<span class="chat-ts">' + ts + '</span>'
+      + '</div>';
   }).join('');
   wrap.scrollTop = wrap.scrollHeight;
 }
@@ -9719,9 +9832,10 @@ async function _sendChatMessage(uid){
   const isJa = document.documentElement.lang === 'ja';
   const st = nachrichtState[uid];
   if(!st) return;
-  const ta = document.getElementById('chat-input-' + uid);
+  const ta  = document.getElementById('chat-input-' + uid);
   const sel = document.getElementById('chat-target-' + uid);
   const btn = document.getElementById('chat-sendbtn-' + uid);
+  const chk = document.getElementById('chat-important-' + uid);
   if(!ta || !sel) return;
   const text = ta.value.trim();
   if(!text) return;
@@ -9732,22 +9846,33 @@ async function _sendChatMessage(uid){
     if(!name) return;
   }
 
+  // Empfänger auswerten: "all", "admin", oder "person:<Name>"
+  const selVal = sel.value;
+  let target = 'all';
+  let targetPerson = null;
+  if(selVal === 'admin'){
+    target = 'admin';
+  } else if(selVal.startsWith('person:')){
+    target = 'person';
+    targetPerson = selVal.slice(7); // Name nach "person:"
+  }
+
   const msg = {
     messageId: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-    text: text,
+    text,
     sender: name,
-    target: sel.value === 'admin' ? 'admin' : 'all',
+    target,
     ts: Date.now(),
     sessionId: _STICKY_SESSION_ID
   };
+  if(targetPerson) msg.targetPerson = targetPerson;
+  if(chk && chk.checked) msg.important = true;
 
   if(btn) btn.disabled = true;
   try{
-    // Gruppe kommt explizit aus dem beim Öffnen gespeicherten State, nicht aus
-    // einer globalen Variable, damit ein zwischenzeitlicher Gruppenwechsel den
-    // Chat-Verlauf des Fensters nicht durcheinanderbringt.
     await _fbAddChatMessage(msg, st.group);
     ta.value = '';
+    if(chk) chk.checked = false; // Wichtig-Haken nach Senden zurücksetzen
   }catch(e){
     _stickyShowStatus('❌ ' + e.message, '#f87171');
   }finally{
@@ -9803,6 +9928,38 @@ function _destroyNachricht(uid){
   const st = nachrichtState[uid];
   if(st && typeof st.unsub === 'function') st.unsub();
   delete nachrichtState[uid];
+}
+
+// ── Toast-Benachrichtigung bei neuer Chat-Nachricht ──────
+function _chatShowToast(msg){
+  // Altes Element sauber entfernen falls noch vorhanden
+  const old = document.getElementById('_chat_toast');
+  if(old){ clearTimeout(old._t); old.remove(); }
+
+  const el = document.createElement('div');
+  el.id = '_chat_toast';
+  el.style.cssText =
+    'position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(12px);'
+    + 'z-index:99998;padding:9px 18px 9px 14px;border-radius:22px;'
+    + 'font-size:12.5px;font-weight:600;color:#111;background:#fff;'
+    + 'box-shadow:0 4px 18px rgba(0,0,0,0.22);border:1px solid #e2e4e9;'
+    + 'pointer-events:auto;cursor:pointer;white-space:nowrap;'
+    + 'max-width:88vw;overflow:hidden;text-overflow:ellipsis;'
+    + 'transition:opacity .25s ease, transform .25s ease;opacity:0;';
+  el.textContent = msg;
+  const hide = () => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(-50%) translateY(12px)';
+    el.addEventListener('transitionend', () => el.remove(), {once:true});
+  };
+  el.onclick = hide;
+  document.body.appendChild(el);
+  // Doppeltes rAF stellt sicher, dass opacity:0 erst gerendert ist bevor wir auf 1 setzen
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.style.opacity = '1';
+    el.style.transform = 'translateX(-50%) translateY(0)';
+  }));
+  el._t = setTimeout(hide, 2000);
 }
 
 
