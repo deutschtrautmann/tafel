@@ -2057,6 +2057,46 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 </div>
 <script>
 'use strict';
+// ╔══════════════════════════════════════════════════════════════════════╗
+// ║  INTERAKTIVE TAFEL — Haupt-Script                                   ║
+// ║  Inhaltsübersicht (Ctrl+G / Goto Line zum Navigieren)               ║
+// ╠══════════════════════════════════════════════════════════════════════╣
+// ║  GLOBALS & WIDGET-SYSTEM        ~  2063  (spawnWidget, killWidget)  ║
+// ║  i18n / LANG / applyI18n        ~  2530  (T(), LANG {de, ja})       ║
+// ║  WIDGET: CLOCK                  ~  4291                             ║
+// ║  WIDGET: TIMER                  ~  4463                             ║
+// ║  WIDGET: DICE                   ~  5385                             ║
+// ║  WIDGET: NAMES                  ~  6759                             ║
+// ║  WIDGET: DRAWING                ~  7162                             ║
+// ║  WIDGET: CLASSROOM/PAARE        ~  7674                             ║
+// ║  LIVE-SCHREIBRAUM               ~  7834                             ║
+// ║  WIDGET: QR CODE                ~  7892                             ║
+// ║  WIDGET: TEXTPAD                ~  7917                             ║
+// ║  WIDGET: STICKY NOTE            ~  8476                             ║
+// ╠══════════════════════════════════════════════════════════════════════╣
+// ║  BACKEND-ABSTRAKTIONS-LAYER     ~  8544  ← Datenbankzugriffe hier  ║
+// ║    Backend.auth.*               Passwort-Prüfung / Registrierung    ║
+// ║    Backend.pinboard.*           Pinnwand-Zettel (CRUD + Listener)   ║
+// ║    Backend.chat.*               Chat-Nachrichten (CRUD + Listener)  ║
+// ║    _fb*-Aliase (Kompatibilität) ~  8713                             ║
+// ╠══════════════════════════════════════════════════════════════════════╣
+// ║  AUTH & SESSION-SYSTEM          ~  8735  (_STICKY_SESSION_GROUP,    ║
+// ║                                           _stickyDeleteUnlocked)    ║
+// ║  WIDGET: PINNWAND               ~  8840  (User + Admin)             ║
+// ║  WIDGET: NACHRICHT (Chat)       ~  9648  (Firebase Realtime-Chat)   ║
+// ║  WIDGET: JEIN                   ~ 10027                             ║
+// ║  WIDGET: WAS? (Photo Mosaic)    ~ 10227                             ║
+// ║  WIDGET: SMILEYS                ~ 10847                             ║
+// ║  WIDGET: SLOT MASCHINE          ~ 11195                             ║
+// ║  WIDGET: SPIELE                 ~ 11704  (Rad · Slot · Janken)      ║
+// ║  AMPEL LIVE ANIMATION           ~ 12051                             ║
+// ║  WIDGET: FRAGE-RAD              ~ 13822                             ║
+// ║  DESKTOP DRAW (Vollbild)        ~ 14552                             ║
+// ╠══════════════════════════════════════════════════════════════════════╣
+// ║  SERVER-WECHSEL (Firebase → eigener Server):                        ║
+// ║    Nur Backend-Abstraktions-Layer (~8544–8730) anpassen.            ║
+// ║    Widget-Code, Auth und UI bleiben vollständig unverändert.        ║
+// ╚══════════════════════════════════════════════════════════════════════╝
 // ════════════════════════════════════════════════
 // GLOBALS
 // ════════════════════════════════════════════════
@@ -8490,8 +8530,6 @@ const STICKY_COLORS=[
 // speichern ohne sich gegenseitig zu überschreiben.
 
 // ── Firebase-Konfiguration ───────────────────────────────
-// Scripts werden dynamisch geladen um sicherzustellen dass sie verfügbar sind
-const _fbDb = null; // wird nach dem Laden gesetzt (via _fbReady)
 const _FB_CONFIG = {
   apiKey     : 'AIzaSyAMi5PCfJ-Fwg20-urkTvpvVkWi7LI0JQo',
   databaseURL: 'https://interaktive-tafel-default-rtdb.europe-west1.firebasedatabase.app',
@@ -8502,8 +8540,7 @@ const _FB_CONFIG = {
   function _initFb(){
     if(typeof firebase === 'undefined'){ setTimeout(_initFb, 50); return; }
     if(!firebase.apps.length) firebase.initializeApp(_FB_CONFIG);
-    // _fbDb als globale Variable setzen
-    window._fbDbInstance = firebase.database();
+    window._fbDbInstance = firebase.database(); // wird von _backendReady() abgeholt
   }
   const s1 = document.createElement('script');
   s1.src = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js';
@@ -8516,8 +8553,6 @@ const _FB_CONFIG = {
   document.head.appendChild(s1);
 })();
 
-// ── Firebase-Helfer ───────────────────────────────────────
-// _fbReady: wartet bis Firebase geladen und initialisiert ist (max. 10s)
 // ── Status-Anzeige (dezentes Banner unten mittig) ────────
 function _stickyShowStatus(msg, color){
   let el = document.getElementById('_sticky_status');
@@ -8540,125 +8575,196 @@ function _stickyShowStatus(msg, color){
   el._t = setTimeout(() => { el.style.opacity = '0'; }, 2500);
 }
 
-function _fbReady(){
+// ════════════════════════════════════════════════════════════════════════
+// BACKEND-ABSTRAKTIONS-LAYER
+// ════════════════════════════════════════════════════════════════════════
+//
+// ZWECK: Alle Datenbankzugriffe laufen ausschließlich über dieses Objekt.
+//   Widget-Code ruft nur Backend.*() auf — nie direkt db.ref() oder fetch().
+//   Ein Wechsel von Firebase zu einem eigenen Server erfordert daher nur
+//   Änderungen in diesem Block, nicht im Widget-Code.
+//
+// AKTUELLE IMPLEMENTIERUNG: Firebase Realtime Database
+//
+// FÜR EINEN SERVER-WECHSEL (z.B. eigener WebSocket- oder REST-Server):
+//   1. _backendReady() anpassen → gibt statt Firebase-DB eine eigene
+//      Verbindungsinstanz zurück (z.B. WebSocket-Client)
+//   2. Jede Methode auf den neuen Transport umschreiben:
+//      Firebase db.ref().set()    → fetch('/api/...', {method:'POST', ...})
+//      Firebase db.ref().on()     → WebSocket-Event-Listener
+//      Firebase db.ref().remove() → fetch('/api/...', {method:'DELETE'})
+//   3. Firebase-SDK <script>-Tags im <head> entfernen und durch eigenes
+//      Client-SDK ersetzen
+//   Widget-Code, Auth-Logik und UI bleiben dabei vollständig unverändert.
+//
+// DATENBANKSTRUKTUR (Firebase Realtime Database):
+//   userPasswords/<gruppe>                          : true
+//   pinboard/<gruppe>/<noteId>                      : {noteId, text, colorId, x, y, rot, ts, sessionId}
+//   chat/<gruppe>/<messageId>                       : {messageId, text, sender, target, targetPerson?,
+//                                                      important?, ts, sessionId}
+//
+// GRUPPEN-PFAD-REGEL: Jeder Zugriff auf pinboard/* und chat/* MUSS den
+//   vollen Gruppen-Pfad enthalten. Niemals nur pinboard/<noteId> oder
+//   chat/<messageId> ohne Gruppe dazwischen.
+// ════════════════════════════════════════════════════════════════════════
+
+// ── Interne Hilfsfunktion: wartet auf Firebase-Initialisierung ──────────
+// Bei einem Server-Wechsel: diese Funktion gibt statt der Firebase-DB-Instanz
+// die eigene Verbindungsinstanz zurück (z.B. einen initialisierten WebSocket).
+function _backendReady(){
   return new Promise((resolve, reject) => {
     if(window._fbDbInstance) return resolve(window._fbDbInstance);
     let tries = 0;
     const t = setInterval(() => {
       if(window._fbDbInstance){ clearInterval(t); resolve(window._fbDbInstance); }
-      else if(++tries > 100){ clearInterval(t); reject(new Error('Firebase nicht geladen – Internetverbindung prüfen')); }
+      else if(++tries > 100){ clearInterval(t); reject(new Error('Datenbankverbindung fehlgeschlagen – Internetverbindung prüfen')); }
     }, 100);
   });
 }
-// Neue Struktur:
-//   userPasswords/<gruppe>: true
-//   pinboard/<gruppe>/<noteId>: {text, colorId, x, y, rot, ts, sessionId, noteId}
-let _STICKY_SESSION_GROUP = ''; // aktuell eingeloggtes Passwort = Gruppenname
 
-async function _fbCheckPassword(pw){
-  const db = await _fbReady();
-  const snap = await db.ref('userPasswords/' + pw).once('value');
-  return snap.val() === true;
-}
-async function _fbAddPassword(pw){
-  const db = await _fbReady();
-  await db.ref('userPasswords/' + pw).set(true);
-}
-async function _fbGetPinboard(group){
-  const db = await _fbReady();
-  group = group || _STICKY_SESSION_GROUP;
-  const snap = await db.ref('pinboard/' + group).once('value');
-  const val = snap.val();
-  return val ? Object.values(val) : [];
-}
-async function _fbUpdateEntry(entry, group){
-  const db = await _fbReady();
-  group = group || _STICKY_SESSION_GROUP;
-  await db.ref('pinboard/' + group + '/' + entry.noteId).set(entry);
-}
-async function _fbDeleteEntry(noteId, group){
-  const db = await _fbReady();
-  group = group || _STICKY_SESSION_GROUP;
-  await db.ref('pinboard/' + group + '/' + noteId).remove();
-}
-async function _fbClearGroup(group){
-  const db = await _fbReady();
-  group = group || _STICKY_SESSION_GROUP;
-  await db.ref('pinboard/' + group).remove();
-}
-async function _fbClearAllPinboard(){
-  const db = await _fbReady();
-  await db.ref('pinboard').remove();
-}
-// Listener für die eigene Gruppe (User)
-function _fbListenPinboard(callback, group){
+// ── Interner Realtime-Listener-Builder (Firebase .on('value')) ──────────
+// Bei Server-Wechsel: durch WebSocket-Subscription ersetzen.
+// Gibt immer eine unsub()-Funktion zurück.
+function _backendListen(path, callback){
   let _ref = null, _handler = null, _unsubCalled = false;
-  _fbReady().then(db => {
+  _backendReady().then(db => {
     if(_unsubCalled) return;
-    const g = group || _STICKY_SESSION_GROUP;
-    _ref = db.ref('pinboard/' + g);
-    _handler = snap => {
-      const val = snap.val();
-      callback(val ? Object.values(val) : []);
-    };
+    _ref = db.ref(path);
+    _handler = snap => callback(snap.val());
     _ref.on('value', _handler);
   });
   return () => { _unsubCalled = true; if(_ref && _handler) _ref.off('value', _handler); };
 }
-// Listener für ALLE Gruppen (Admin) — flacht alle Einträge mit _group-Feld ab
-function _fbListenAllPinboard(callback){
-  let _ref = null, _handler = null, _unsubCalled = false;
-  _fbReady().then(db => {
-    if(_unsubCalled) return;
-    _ref = db.ref('pinboard');
-    _handler = snap => {
-      const val = snap.val() || {};
-      const entries = [];
-      Object.entries(val).forEach(([group, notes]) => {
-        if(notes) Object.values(notes).forEach(e => entries.push(Object.assign({}, e, {_group: group})));
+
+// ── Interner Einmal-Leser (Firebase .once('value')) ────────────────────
+async function _backendRead(path){
+  const db = await _backendReady();
+  const snap = await db.ref(path).once('value');
+  return snap.val();
+}
+
+// ── Interner Schreiber ─────────────────────────────────────────────────
+async function _backendWrite(path, value){
+  const db = await _backendReady();
+  await db.ref(path).set(value);
+}
+
+// ── Interner Löschaufruf ───────────────────────────────────────────────
+async function _backendDelete(path){
+  const db = await _backendReady();
+  await db.ref(path).remove();
+}
+
+// ══════════════════════════════════════════
+// Backend.auth  — Gruppen-Passwortverwaltung
+// ══════════════════════════════════════════
+const Backend = {
+
+  auth: {
+    // Prüft ob ein Gruppenpasswort in der Datenbank existiert
+    checkPassword: async pw => {
+      const val = await _backendRead('userPasswords/' + pw);
+      return val === true;
+    },
+    // Legt ein neues Gruppenpasswort an
+    addPassword: async pw => {
+      await _backendWrite('userPasswords/' + pw, true);
+    },
+  },
+
+  // ══════════════════════════════════════════
+  // Backend.pinboard  — Pinnwand-Zettel
+  // ══════════════════════════════════════════
+  pinboard: {
+    // Einen einzelnen Zettel lesen (für Position-Update / Edit)
+    getEntry: async (noteId, group) => {
+      return await _backendRead('pinboard/' + group + '/' + noteId);
+    },
+    // Alle Zettel einer Gruppe als Array lesen (einmalig)
+    getAll: async group => {
+      const val = await _backendRead('pinboard/' + group);
+      return val ? Object.values(val) : [];
+    },
+    // Zettel anlegen oder aktualisieren
+    update: async (entry, group) => {
+      await _backendWrite('pinboard/' + group + '/' + entry.noteId, entry);
+    },
+    // Einzelnen Zettel löschen
+    delete: async (noteId, group) => {
+      await _backendDelete('pinboard/' + group + '/' + noteId);
+    },
+    // Alle Zettel einer Gruppe löschen
+    clearGroup: async group => {
+      await _backendDelete('pinboard/' + group);
+    },
+    // Alle Zettel aller Gruppen löschen
+    clearAll: async () => {
+      await _backendDelete('pinboard');
+    },
+    // Realtime-Listener auf eine Gruppe — gibt unsub()-Funktion zurück
+    listen: (callback, group) => {
+      return _backendListen('pinboard/' + group, val => {
+        callback(val ? Object.values(val) : []);
       });
-      callback(entries);
-    };
-    _ref.on('value', _handler);
-  });
-  return () => { _unsubCalled = true; if(_ref && _handler) _ref.off('value', _handler); };
-}
+    },
+    // Realtime-Listener auf ALLE Gruppen (Admin-Ansicht)
+    listenAll: callback => {
+      return _backendListen('pinboard', val => {
+        const entries = [];
+        Object.entries(val || {}).forEach(([g, notes]) => {
+          if(notes) Object.values(notes).forEach(e =>
+            entries.push(Object.assign({}, e, {_group: g}))
+          );
+        });
+        callback(entries);
+      });
+    },
+  },
 
-// ════════════════════════════════════════════════
-// FIREBASE-HELFER: CHAT (Nachricht-Widget)
-// ════════════════════════════════════════════════
-// Struktur (eigener Root-Pfad, getrennt von pinboard!):
-//   chat/<gruppe>/<messageId>: {text, sender, target, ts, messageId, sessionId}
-//   target: 'all' (alle sehen) oder 'admin' (nur Kursleitung + Absender)
-// WICHTIG (Lektion aus der Pinnwand-Entwicklung): JEDER db.ref('chat/...')-Aufruf
-// MUSS den vollen Gruppen-Pfad chat/<gruppe>/... enthalten, niemals nur chat/<messageId>.
-async function _fbAddChatMessage(msg, group){
-  const db = await _fbReady();
-  group = group || _STICKY_SESSION_GROUP;
-  await db.ref('chat/' + group + '/' + msg.messageId).set(msg);
-}
-async function _fbClearChat(group){
-  const db = await _fbReady();
-  group = group || _STICKY_SESSION_GROUP;
-  await db.ref('chat/' + group).remove();
-}
-// Realtime-Listener für die Chat-Nachrichten EINER Gruppe (User + Admin nutzen dies)
-function _fbListenChat(callback, group){
-  let _ref = null, _handler = null, _unsubCalled = false;
-  _fbReady().then(db => {
-    if(_unsubCalled) return;
-    const g = group || _STICKY_SESSION_GROUP;
-    _ref = db.ref('chat/' + g);
-    _handler = snap => {
-      const val = snap.val();
-      callback(val ? Object.values(val) : []);
-    };
-    _ref.on('value', _handler);
-  });
-  return () => { _unsubCalled = true; if(_ref && _handler) _ref.off('value', _handler); };
-}
+  // ══════════════════════════════════════════
+  // Backend.chat  — Chat-Nachrichten
+  // ══════════════════════════════════════════
+  chat: {
+    // Nachricht senden
+    send: async (msg, group) => {
+      await _backendWrite('chat/' + group + '/' + msg.messageId, msg);
+    },
+    // Gesamten Chat einer Gruppe löschen
+    clearGroup: async group => {
+      await _backendDelete('chat/' + group);
+    },
+    // Realtime-Listener auf eine Gruppe — gibt unsub()-Funktion zurück
+    listen: (callback, group) => {
+      return _backendListen('chat/' + group, val => {
+        callback(val ? Object.values(val) : []);
+      });
+    },
+  },
 
-let _stickyLoading = false;
+}; // Ende Backend
+
+// ════════════════════════════════════════════════════════════════════════
+// RÜCKWÄRTSKOMPATIBLE ALIASE
+// Die alten _fb*-Funktionsnamen werden auf Backend.* umgeleitet.
+// So muss kein Widget-Code geändert werden — alle Aufrufe funktionieren
+// weiterhin. Bei einer vollständigen Überarbeitung können diese Aliase
+// entfernt werden, sobald alle Aufrufstellen auf Backend.* umgestellt sind.
+// ════════════════════════════════════════════════════════════════════════
+const _fbReady            = _backendReady;
+const _fbCheckPassword    = pw           => Backend.auth.checkPassword(pw);
+const _fbAddPassword      = pw           => Backend.auth.addPassword(pw);
+const _fbGetPinboard      = group        => Backend.pinboard.getAll(group || _STICKY_SESSION_GROUP);
+const _fbUpdateEntry      = (entry, grp) => Backend.pinboard.update(entry, grp || _STICKY_SESSION_GROUP);
+const _fbDeleteEntry      = (id, grp)    => Backend.pinboard.delete(id, grp || _STICKY_SESSION_GROUP);
+const _fbClearGroup       = group        => Backend.pinboard.clearGroup(group || _STICKY_SESSION_GROUP);
+const _fbClearAllPinboard = ()           => Backend.pinboard.clearAll();
+const _fbListenPinboard   = (cb, group)  => Backend.pinboard.listen(cb, group || _STICKY_SESSION_GROUP);
+const _fbListenAllPinboard= cb           => Backend.pinboard.listenAll(cb);
+
+// ── _pinboardSavePosition nutzt Backend.pinboard.getEntry direkt ────────
+// (kein Alias nötig, da nicht Teil der alten _fb*-API)
+
+let _STICKY_SESSION_GROUP = ''; // aktuell eingeloggtes Passwort = Gruppenname
 
 // Session-ID: identifiziert den aktuellen Nutzer/Browser
 const _STICKY_SESSION_ID = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
@@ -8670,7 +8776,6 @@ let _stickyDeleteUnlocked = false;
 let _stickyUserUnlocked   = false;
 const _STICKY_ADMIN_CODE  = 'Simsalabim';
 let _stickyAdminPending   = false;
-let _stickyCurrentUserPw  = '';
 
 // Gruppenpasswörter werden bei Eingabe live geprüft (kein Vorladen nötig)
 
@@ -8904,9 +9009,7 @@ async function savePinNote(uid){
   try {
     const color = st.color || STICKY_COLORS[0];
     if(st.noteId){
-      const db = await _fbReady();
-      const snap = await db.ref('pinboard/' + _STICKY_SESSION_GROUP + '/' + st.noteId).once('value');
-      const existing = snap.val() || {};
+      const existing = await Backend.pinboard.getEntry(st.noteId, _STICKY_SESSION_GROUP) || {};
       await _fbUpdateEntry(Object.assign({}, existing, { text: ta.value, colorId: color.id, ts: Date.now() }));
     } else {
       const nid = 'p' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
@@ -9112,9 +9215,7 @@ async function _adminOwnNoteSave(){
   try {
     const color = st.color || STICKY_COLORS[0];
     if(st.noteId){
-      const db = await _fbReady();
-      const snap = await db.ref('pinboard/' + group + '/' + st.noteId).once('value');
-      const existing = snap.val() || {};
+      const existing = await Backend.pinboard.getEntry(st.noteId, group) || {};
       await _fbUpdateEntry(Object.assign({}, existing, { text: ta.value, colorId: color.id, ts: Date.now() }), group);
     } else {
       const nid = 'p' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
@@ -9299,15 +9400,12 @@ function _pinboardAttachAdminHandlers(){
 // ── Position eines Zettels speichern ─────────────────────────
 async function _pinboardSavePosition(noteId, x, y, group){
   try {
-    const db = await _fbReady();
-    const snap = await db.ref('pinboard/' + group + '/' + noteId).once('value');
-    const entry = snap.val();
+    const entry = await Backend.pinboard.getEntry(noteId, group);
     if(entry){
-      await _fbUpdateEntry(Object.assign({}, entry, {
+      await Backend.pinboard.update(Object.assign({}, entry, {
         x: Math.round(x*10)/10, y: Math.round(y*10)/10
       }), group);
     }
-    // Realtime-Listener aktualisiert _pinboardEntries automatisch
   } catch(e){
     _stickyShowStatus('❌ ' + e.message, '#f87171');
   }
@@ -9377,13 +9475,10 @@ async function _adminNoteSave(noteId){
   if(!ta) return;
   const group = document.getElementById('admin-note-editor')?.dataset.group || '';
   try {
-    const db = await _fbReady();
-    const snap = await db.ref('pinboard/' + group + '/' + noteId).once('value');
-    const existing = snap.val() || {};
-    await _fbUpdateEntry(Object.assign({}, existing, {
+    const existing = await Backend.pinboard.getEntry(noteId, group) || {};
+    await Backend.pinboard.update(Object.assign({}, existing, {
       text: ta.value, colorId: _adminNoteColorId || existing.colorId, ts: Date.now()
     }), group);
-    // Realtime-Listener aktualisiert UI automatisch
     const ov = document.getElementById('admin-note-editor');
     if(ov) ov.remove();
     _stickyShowStatus(isJa ? '✅ 保存しました！' : '✅ Gespeichert!', '#4ade80');
@@ -9586,11 +9681,7 @@ function _pinboardDeleteDialog(entries, group){
 // Architektur analog zur Pinnwand: Firebase-Realtime-Listener statt Polling,
 // gruppenbasierte Datentrennung unter chat/<gruppe>/<messageId>, Session-Login
 // wird 1:1 von der Pinnwand übernommen (_STICKY_SESSION_GROUP, _stickyDeleteUnlocked).
-// WICHTIG: jeder direkte db.ref('chat/...')-Zugriff geht ausschließlich über die
-// _fb*Chat*-Helfer oben (siehe Abschnitt "FIREBASE-HELFER: CHAT") — dort ist der
-// volle Gruppen-Pfad bereits fest eingebaut. Hier im Widget-Code wird die Gruppe
-// zusätzlich konsequent als Parameter durchgereicht (nie implizit aus einer
-// globalen Variable gelesen, außer beim allerersten Aufbau).
+// Alle Datenbankzugriffe laufen über Backend.chat.* (siehe Backend-Abstraktions-Layer).
 const nachrichtState = {}; // uid -> {unsub, group, isAdmin}
 
 // ── Anzeigename: einmalig abfragen, dauerhaft lokal merken ──
@@ -9710,7 +9801,7 @@ function buildNachricht(body, uid){
     '</div>';
 
   nachrichtState[uid] = { unsub: null, group, isAdmin, lastKnownTs: null, myName };
-  const unsub = _fbListenChat(messages => _renderChatMessages(uid, messages, isAdmin), group);
+  const unsub = Backend.chat.listen(messages => _renderChatMessages(uid, messages, isAdmin), group);
   nachrichtState[uid].unsub = unsub;
 }
 
@@ -9870,7 +9961,7 @@ async function _sendChatMessage(uid){
 
   if(btn) btn.disabled = true;
   try{
-    await _fbAddChatMessage(msg, st.group);
+    await Backend.chat.send(msg, st.group);
     ta.value = '';
     if(chk) chk.checked = false; // Wichtig-Haken nach Senden zurücksetzen
   }catch(e){
@@ -9906,7 +9997,7 @@ function _clearChatConfirm(uid){
   const close = confirmed => {
     ov.remove();
     if(!confirmed) return;
-    _fbClearChat(st.group)
+    Backend.chat.clearGroup(st.group)
       .then(() => _stickyShowStatus(isJa ? '🗑️ チャットを削除しました' : '🗑️ Chat gelöscht', '#f59e0b'))
       .catch(e => _stickyShowStatus('❌ ' + e.message, '#f87171'));
   };
