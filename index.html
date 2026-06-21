@@ -117,7 +117,7 @@ body.light-mode .jein-mode-btn.active-jmode{background:var(--accent)!important;b
   font-family:'Caveat',cursive;
   font-size:clamp(1.4em,5.5vw,3em);font-weight:700;
   color:#1e1a0e;
-  text-align:center;word-break:break-word;padding:.35em .5em;
+  text-align:center;word-break:normal;overflow-wrap:normal;padding:.35em .5em;
   position:relative;
   box-shadow:2px 3px 8px rgba(0,0,0,0.35), inset 0 -2px 0 rgba(0,0,0,0.06);
   transform:rotate(-1.5deg);
@@ -1004,6 +1004,10 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   color:#f87171;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;
   cursor:pointer;white-space:nowrap;}
 .chat-clear-btn:hover{background:rgba(239,68,68,.22);}
+.chat-save-btn{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.4);
+  color:#fff;border-radius:7px;padding:4px 10px;font-size:11px;font-weight:700;
+  cursor:pointer;white-space:nowrap;}
+.chat-save-btn:hover{background:rgba(255,255,255,.22);}
 .chat-toolbar{display:flex;align-items:center;justify-content:flex-end;gap:8px;
   padding:6px 10px;border-bottom:1px solid rgba(var(--accent-rgb),.12);background:var(--bg3);flex-shrink:0;}
 .chat-bubble.important{border-color:#ef4444 !important;border-width:2px !important;}
@@ -6762,6 +6766,10 @@ function rollSatzbau(uid){
     wrap.innerHTML = `<div style="display:flex;flex-direction:column;width:100%;height:100%;gap:.3em;"><div class="satzbau-cols" style="flex:1;">${colsHtml}</div><div style="display:flex;justify-content:flex-start;padding:0 2px;"><button id="satzbau-edit-${uid}" class="pz-file-label" style="margin-bottom:0;" data-i18n="satzbauBearbeiten">${T('satzbauBearbeiten')}</button></div></div>`;
     const _edit = document.getElementById('satzbau-edit-'+uid);
     if(_edit) _edit.addEventListener('click', e=>{ e.stopPropagation(); showSatzbauSetup(uid); });
+    // Schriftgröße je Zettel anpassen, damit kein einzelnes Wort getrennt wird
+    // (Wortfolgen dürfen weiterhin zwischen den Wörtern umbrechen)
+    wrap.querySelectorAll('.satzbau-col').forEach(col => _fitTextNoBreak(col, 9));
+    _satzbauAttachFitResize(uid, wrap);
   },120);
   // Clear result text below widget
   const res = document.getElementById('diceres-'+uid);
@@ -6769,6 +6777,37 @@ function rollSatzbau(uid){
 }
 
 function escHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+// ── Schrift automatisch verkleinern, bis Text ohne Worttrennung passt ──
+// Setzt voraus, dass das Element word-break:normal/overflow-wrap:normal
+// verwendet (einzelne Wörter werden also nie mitten im Wort getrennt).
+// Verkleinert die Schriftgröße schrittweise, bis der Inhalt in die Box
+// passt; Wortfolgen dürfen dabei weiterhin zwischen den Wörtern umbrechen.
+// Wird u.a. von Satzbau und der Rad-Anzeige (showWheelResultOverlay) genutzt.
+function _fitTextNoBreak(el, minPx){
+  if(!el) return;
+  const min = minPx || 10;
+  el.style.fontSize = ''; // zurücksetzen auf CSS-Vorgabe (clamp/em), bevor neu gemessen wird
+  let size = parseFloat(getComputedStyle(el).fontSize);
+  if(!size || isNaN(size)) return;
+  let guard = 40;
+  while(guard-- > 0 && size > min &&
+        (el.scrollWidth > el.clientWidth + 1 || el.scrollHeight > el.clientHeight + 1)){
+    size = Math.max(min, size * 0.94);
+    el.style.fontSize = size + 'px';
+  }
+}
+// Satzbau: Schrift bei Größenänderung des Widgets neu anpassen
+const _satzbauResizeObservers = {};
+function _satzbauAttachFitResize(uid, wrap){
+  if(!wrap || !window.ResizeObserver) return;
+  if(_satzbauResizeObservers[uid]) _satzbauResizeObservers[uid].disconnect();
+  const ro = new ResizeObserver(() => {
+    wrap.querySelectorAll('.satzbau-col').forEach(col => _fitTextNoBreak(col, 9));
+  });
+  ro.observe(wrap);
+  _satzbauResizeObservers[uid] = ro;
+}
 
 
 function toggleColorName(uid){
@@ -9536,8 +9575,32 @@ function downloadPinboardTxt(){
   _pinboardDownloadTxt(entries);
 }
 
+// ── html2canvas lazy laden (für pixelgenauen PNG-Export) ────
+// Gleiches Lazy-Load-Muster wie bei Firebase (_loadFirebase, ~Zeile 8543):
+// Skript wird erst bei Bedarf per <script src> nachgeladen. Rein client-
+// seitig, kein Datenbankzugriff — fotografiert nur die bereits im Browser
+// angezeigte Pinnwand.
+let _h2cLoadPromise = null;
+function _loadHtml2Canvas(){
+  if(window.html2canvas) return Promise.resolve(window.html2canvas);
+  if(_h2cLoadPromise) return _h2cLoadPromise;
+  _h2cLoadPromise = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload = () => resolve(window.html2canvas);
+    s.onerror = () => { _h2cLoadPromise = null; reject(new Error('Screenshot-Bibliothek konnte nicht geladen werden (Internetverbindung prüfen)')); };
+    document.head.appendChild(s);
+  });
+  return _h2cLoadPromise;
+}
+
 // ── PNG-Download des Pinnwand-Bildes ────────────────────────
-function downloadPinboardPNG(){
+// Fotografiert die aktuell angezeigte Admin-Pinnwand (#pin-board-admin)
+// per html2canvas 1:1 so, wie sie zum Speicherzeitpunkt auf dem Bildschirm
+// zu sehen ist (echte Zettelgröße/-rotation/-schatten, Korkbrett-Textur,
+// Schriftart) — statt sie wie zuvor mit fest codierten Werten auf einem
+// Canvas nachzubauen.
+async function downloadPinboardPNG(){
   const isJa = document.documentElement.lang === 'ja';
   const board = document.getElementById('pin-board-admin');
   const entries = _pinboardEntries['admin'] || [];
@@ -9546,82 +9609,26 @@ function downloadPinboardPNG(){
     _stickyShowStatus(isJa ? '⚠️ Pinnwand ist leer' : '⚠️ Pinnwand ist leer', '#fbbf24');
     return;
   }
-  const rect = board.getBoundingClientRect();
-  const scale = 2;
-  const canvas = document.createElement('canvas');
-  canvas.width  = Math.round(rect.width  * scale);
-  canvas.height = Math.round(rect.height * scale);
-  const ctx = canvas.getContext('2d');
-  ctx.scale(scale, scale);
-
-  // Korkbrett-Hintergrund
-  ctx.fillStyle = '#c39a64';
-  ctx.fillRect(0, 0, rect.width, rect.height);
-
-  const W = 150, H = 100;
-  entries.forEach(e => {
-    const c = STICKY_COLORS.find(c => c.id === e.colorId) || STICKY_COLORS[0];
-    const x = (e.x / 100) * rect.width;
-    const y = (e.y / 100) * rect.height;
-    ctx.save();
-    ctx.translate(x + W/2, y + H/2);
-    ctx.rotate((e.rot || 0) * Math.PI / 180);
-    // Schatten + Zettel
-    ctx.shadowColor = 'rgba(0,0,0,0.35)';
-    ctx.shadowBlur = 6; ctx.shadowOffsetX = 3; ctx.shadowOffsetY = 4;
-    ctx.fillStyle = c.bg;
-    ctx.fillRect(-W/2, -H/2, W, H);
-    ctx.shadowColor = 'transparent';
-    ctx.strokeStyle = c.border;
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(-W/2, -H/2, W, H);
-    // Pin-Kopf
-    ctx.beginPath();
-    ctx.fillStyle = '#b91c1c';
-    ctx.arc(0, -H/2, 6, 0, Math.PI*2);
-    ctx.fill();
-    // Text
-    ctx.fillStyle = '#2b2b2b';
-    ctx.font = '12px "Comic Sans MS", cursive, sans-serif';
-    _pinboardWrapText(ctx, e.text || '', -W/2 + 8, -H/2 + 22, W - 16, 15, 4);
-    ctx.restore();
-  });
-
-  canvas.toBlob(blob => {
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = isJa
-      ? ('掲示板_' + new Date().toISOString().slice(0,10) + '.png')
-      : ('Pinnwand_' + new Date().toISOString().slice(0,10) + '.png');
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }, 'image/png');
-}
-
-// Hilfsfunktion: Text mit Zeilenumbruch in Canvas zeichnen (max. maxLines Zeilen)
-function _pinboardWrapText(ctx, text, x, y, maxWidth, lineHeight, maxLines){
-  let cy = y, lines = 0;
-  const paragraphs = String(text).split('\n');
-  for(const par of paragraphs){
-    const words = par.split(/\s+/);
-    let line = '';
-    for(let i = 0; i < words.length; i++){
-      const test = line + words[i] + ' ';
-      if(ctx.measureText(test).width > maxWidth && line){
-        if(lines >= maxLines - 1){ ctx.fillText(line.trim() + ' …', x, cy); return; }
-        ctx.fillText(line, x, cy);
-        line = words[i] + ' ';
-        cy += lineHeight; lines++;
-      } else {
-        line = test;
-      }
-    }
-    if(lines >= maxLines - 1){
-      if(line.trim()) ctx.fillText(line.trim() + (par.length ? ' …' : ''), x, cy);
-      return;
-    }
-    ctx.fillText(line, x, cy);
-    cy += lineHeight; lines++;
+  _stickyShowStatus(isJa ? '🖼️ PNG wird erstellt…' : '🖼️ PNG wird erstellt…', '#60a5fa');
+  try{
+    const h2c = await _loadHtml2Canvas();
+    const canvas = await h2c(board, {
+      scale: 2,
+      backgroundColor: '#c39a64', // Korkbrett-Grundfarbe als Fallback (falls CSS-Hintergrundbild nicht erfassbar)
+      useCORS: true,
+      logging: false
+    });
+    canvas.toBlob(blob => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = isJa
+        ? ('掲示板_' + new Date().toISOString().slice(0,10) + '.png')
+        : ('Pinnwand_' + new Date().toISOString().slice(0,10) + '.png');
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }, 'image/png');
+  }catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
   }
 }
 
@@ -9776,7 +9783,9 @@ function buildNachricht(body, uid){
   body.innerHTML =
     '<div class="chat-wrap">' +
       (isAdmin
-        ? '<div class="chat-toolbar"><button class="chat-clear-btn" onclick="_clearChatConfirm(' + uid + ')">🗑️ '
+        ? '<div class="chat-toolbar"><button class="chat-save-btn" onclick="_saveChatTranscript(' + uid + ')">💾 '
+          + (isJa ? 'チャットを保存' : 'Chat speichern') + '</button>'
+          + '<button class="chat-clear-btn" onclick="_clearChatConfirm(' + uid + ')">🗑️ '
           + (isJa ? 'チャットを削除' : 'Chat löschen') + '</button></div>'
         : '') +
       '<div class="chat-messages" id="chat-msgs-' + uid + '"><div class="chat-empty">' +
@@ -9861,6 +9870,9 @@ function _renderChatMessages(uid, messages, isAdmin){
     if(m.targetPerson === myName) return true;     // an mich persönlich
     return false;
   }).sort((a, b) => (a.ts || 0) - (b.ts || 0));
+
+  // Für "Chat speichern" (Admin-Export): aktuell sichtbare Nachrichten merken
+  if(st) st.lastVisible = visible;
 
   // ── Toast + roter Punkt für neue / wichtige Nachrichten ──
   if(st){
@@ -9969,6 +9981,45 @@ async function _sendChatMessage(uid){
   }finally{
     if(btn) btn.disabled = false;
   }
+}
+
+// ── Admin: sichtbaren Chatverlauf als .txt-Datei speichern ──
+// Rein clientseitig: nutzt nur die bereits über Backend.chat.listen()
+// geladenen Nachrichten (st.lastVisible), kein zusätzlicher DB-Zugriff.
+function _saveChatTranscript(uid){
+  const isJa = document.documentElement.lang === 'ja';
+  const st = nachrichtState[uid];
+  if(!st) return;
+  const messages = st.lastVisible || [];
+  if(!messages.length){
+    _stickyShowStatus(isJa ? 'チャットは空です' : 'Chat ist leer', '#f59e0b');
+    return;
+  }
+  const header = (isJa ? 'チャット — グループ「' + st.group + '」' : 'Chat — Gruppe „' + st.group + '"')
+    + '\n' + new Date().toLocaleString(isJa ? 'ja-JP' : 'de-DE')
+    + '\n────────────────────────────\n\n';
+  const lines = messages.map(m => {
+    const ts = m.ts ? new Date(m.ts).toLocaleString(
+      isJa ? 'ja-JP' : 'de-DE', {day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit'}) : '';
+    let target = '';
+    if(m.targetPerson) target = ' (→ ' + m.targetPerson + ')';
+    else if(m.target === 'admin') target = isJa ? ' (→ 講師)' : ' (→ Kursleitung)';
+    const imp = m.important ? '⚑ ' : '';
+    return '[' + ts + '] ' + imp + (m.sender || '?') + target + ': ' + (m.text || '');
+  });
+  const content = header + lines.join('\n') + '\n';
+  const blob = new Blob([content], {type: 'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const safeGroup = String(st.group || 'gruppe').replace(/[^a-zA-Z0-9_-]+/g, '_');
+  const dateStr = new Date().toISOString().slice(0, 10);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'chat_' + safeGroup + '_' + dateStr + '.txt';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  _stickyShowStatus(isJa ? '💾 チャットを保存しました' : '💾 Chat gespeichert', '#4ade80');
 }
 
 // ── Admin: gesamten Chat der Gruppe löschen ──────────────
@@ -14216,11 +14267,11 @@ function drawQuestionWheel(uid){
 
     // Verfügbare Bogenhöhe und radiale Breite
     // Einzeilige Darstellung: Schriftgröße so groß wie möglich, Text passt in maxW
-    const maxW = R * 0.62;
-    const arcH = seg * R * 0.72;
+    const maxW = R * 0.70;
+    const arcH = seg * R * 0.85;
     const fullText = String(qs[i] || '').replace(/\s+/g,' ').trim();
-    let fs = Math.min(Math.round(arcH * 0.72), Math.round(R * 0.13));
-    fs = Math.max(fs, 9);
+    let fs = Math.min(Math.round(arcH * 0.85), Math.round(R * 0.21));
+    fs = Math.max(fs, 10);
     ctx.font = `900 ${fs}px Arial, sans-serif`;
     // Schriftgröße verkleinern bis Text in einer Zeile passt
     while(fs > 7 && ctx.measureText(fullText).width > maxW){
@@ -14318,8 +14369,11 @@ function showWheelResultOverlay(uid, text, segColor){
     background:${color};
     border:3px solid rgba(255,255,255,0.35);
     border-radius:24px;
-    padding:clamp(28px,6vw,64px) clamp(32px,8vw,96px);
-    max-width:min(88vw,820px);
+    padding:clamp(20px,3.5vw,48px) clamp(28px,5vw,72px);
+    max-width:94vw;
+    max-height:86vh;
+    overflow:hidden;
+    box-sizing:border-box;
     box-shadow:0 24px 80px rgba(0,0,0,0.75), 0 0 0 6px ${color}55;
     text-align:center;
     transform:scale(0.6);
@@ -14331,13 +14385,13 @@ function showWheelResultOverlay(uid, text, segColor){
   label.textContent = text;
   label.style.cssText = `
     font-family:Arial,sans-serif;
-    font-size:clamp(2rem,7vw,5.5rem);
+    font-size:clamp(2.4rem,9.5vw,7.5rem);
     font-weight:900;
     color:#fff;
-    line-height:1.15;
+    line-height:1.1;
     letter-spacing:.01em;
     text-shadow:0 4px 24px rgba(0,0,0,0.4);
-    word-break:break-word;
+    word-break:normal;overflow-wrap:normal;
   `;
 
   const hint = document.createElement('div');
@@ -14354,6 +14408,12 @@ function showWheelResultOverlay(uid, text, segColor){
   box.appendChild(hint);
   ov.appendChild(box);
   document.body.appendChild(ov);
+
+  // Schrift bewusst groß starten (bezogen auf die tatsächliche Bildschirm-
+  // größe, nicht nur auf einen festen CSS-Höchstwert) und nur soweit nötig
+  // verkleinern, damit der Eintrag das Anzeige-Feld wirklich ausfüllt —
+  // ohne dass dabei ein einzelnes Wort getrennt werden muss.
+  _fitWheelOverlayText(label, box);
 
   // Animate in
   requestAnimationFrame(()=>{
@@ -14373,6 +14433,27 @@ function showWheelResultOverlay(uid, text, segColor){
     box.style.opacity = '0';
     setTimeout(()=> ov.remove(), 340);
   });
+}
+
+// ── Rad-Anzeige: Schrift möglichst groß ausfüllen lassen ────
+// Startet mit einer großzügigen, an der tatsächlichen Bildschirmgröße
+// orientierten Schriftgröße (nicht an einem fixen CSS-Höchstwert) und
+// verkleinert nur soweit nötig, damit die Box (max-width/max-height,
+// overflow:hidden) nicht überläuft. Da label/box per word-break:normal
+// kein Wort mitten durchtrennen, wird bei Bedarf zwischen Wörtern
+// umgebrochen statt die Schrift unnötig klein zu halten.
+function _fitWheelOverlayText(label, box){
+  if(!label || !box) return;
+  const base = Math.min(window.innerWidth, window.innerHeight);
+  let size = Math.round(base * 0.17);
+  size = Math.max(44, Math.min(size, 320));
+  label.style.fontSize = size + 'px';
+  let guard = 60;
+  while(guard-- > 0 && size > 28 &&
+        (box.scrollWidth > box.clientWidth + 1 || box.scrollHeight > box.clientHeight + 1)){
+    size = Math.max(28, Math.round(size * 0.94));
+    label.style.fontSize = size + 'px';
+  }
 }
 
 function stopQuestionWheel(uid){
