@@ -1676,14 +1676,14 @@ body.light-mode .slot-scorebar-title{
 /* Colored icons per tool */
 /* nth-child(2) = Nachricht (eigene Regel via #nachricht-tool-btn unten) */
 /* nth-child(3) = Pinnwand (eigene Regel unten) */
-.tool-btn:nth-child(4)  .tb-icon { color:#4ade80; }  /* Namen    - grün */
-.tool-btn:nth-child(5)  .tb-icon { color:#60a5fa; }  /* Zeichnen - blau */
-.tool-btn:nth-child(6)  .tb-icon { color:#ffffff; }  /* Text     - weiß */
+.tool-btn:nth-child(4)  .tb-icon { color:#f472b6; }  /* Namen    - pink */
+.tool-btn:nth-child(5)  .tb-icon { color:#c084fc; }  /* Zeichnen - lila */
+.tool-btn:nth-child(6)  .tb-icon { color:#7dd3fc; }  /* Text     - hellblau */
 .tool-btn:nth-child(7)  .tb-icon { color:#fbbf24; }  /* Timer    - gelb */
-.tool-btn:nth-child(8)  .tb-icon { color:#22d3ee; }  /* Uhr      - cyan */
-.tool-btn:nth-child(9)  .tb-icon { color:#fb923c; }  /* Würfel   - orange */
+.tool-btn:nth-child(8)  .tb-icon { color:#f87171; }  /* Uhr      - rot */
+.tool-btn:nth-child(9)  .tb-icon { color:#4ade80; }  /* Würfel   - grün */
 .tool-btn:nth-child(10) .tb-icon { color:#facc15; }  /* Spiele   - gold */
-.tool-btn:nth-child(11) .tb-icon { color:#f87171; }  /* Fotos    - rot */
+.tool-btn:nth-child(11) .tb-icon { color:#fb923c; }  /* Fotos    - orange */
 .tool-btn:nth-child(12) .tb-icon { color:#ffffff; }  /* QR       - weiß */
 #nachricht-tool-btn .tb-icon { color:#ffffff; }      /* Nachricht - weiß */
 #pinnwand-tool-btn  .tb-icon { color:#fb923c; }      /* Pinnwand  - orange */
@@ -9367,11 +9367,26 @@ function _pinboardRender(uid){
     // Klassen setzen
     el.className = 'pin-note' + (isAdmin ? ' pin-note-small pin-note-admin' : '');
     // Position + Farbe als inline style
-    el.style.left      = e.x + '%';
-    el.style.top       = e.y + '%';
+    // Solange eine gerade gespeicherte Position noch nicht vom Server
+    // bestätigt wurde (e.x/e.y entsprechen ihr noch nicht), die lokale
+    // Zielposition weiter anzeigen statt mit veralteten Daten zu überschreiben.
+    let posX = e.x, posY = e.y;
+    const pending = _pinboardPendingPos[e.noteId];
+    if(pending){
+      const matches = Math.abs(pending.x - e.x) < 0.06 && Math.abs(pending.y - e.y) < 0.06;
+      const expired = (Date.now() - pending.ts) > 8000; // Sicherheitsnetz falls Save fehlschlägt
+      if(matches || expired){
+        delete _pinboardPendingPos[e.noteId];
+      } else {
+        posX = pending.x; posY = pending.y;
+      }
+    }
+    el.style.left      = posX + '%';
+    el.style.top       = posY + '%';
     el.style.transform = 'rotate(' + e.rot + 'deg)';
     el.style.background = c.bg;
     el.style.border    = '1px solid ' + c.border;
+    el.dataset.group   = e._group || _STICKY_SESSION_GROUP;
     el.innerHTML = '<div class="pin-head"></div>'
       + '<div class="pin-note-text">' + escapeHtml(e.text) + '</div>';
     el._handlerAttached = false; // Handler nach innerHTML-Reset neu anhängen
@@ -9382,6 +9397,12 @@ function _pinboardRender(uid){
 }
 let _adminPinDragging   = false;
 let _adminPinDraggingEl = null;
+// Zettel, deren Position gerade gespeichert wird (noch nicht vom Server
+// bestätigt): noteId -> {x, y, ts}. Verhindert, dass ein gerade
+// verschobener Zettel kurzzeitig auf seine alte Position zurückspringt,
+// wenn währenddessen ein veralteter Snapshot reinkommt (z.B. weil
+// jemand anders einen neuen Zettel erstellt hat).
+let _pinboardPendingPos = {};
 
 
 
@@ -9424,7 +9445,10 @@ function _pinboardAttachAdminHandlers(){
         _adminPinDragging = false;
         _adminPinDraggingEl = null;
         if(moved){
-          _pinboardSavePosition(noteId, parseFloat(el.style.left), parseFloat(el.style.top), el.dataset.group||"");
+          const finalLeft = Math.round((parseFloat(el.style.left)||0) * 10) / 10;
+          const finalTop  = Math.round((parseFloat(el.style.top) ||0) * 10) / 10;
+          _pinboardPendingPos[noteId] = { x: finalLeft, y: finalTop, ts: Date.now() };
+          _pinboardSavePosition(noteId, finalLeft, finalTop, _STICKY_SESSION_GROUP);
         } else {
           openAdminNoteEditor(noteId);
         }
