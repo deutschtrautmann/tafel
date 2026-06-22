@@ -1715,6 +1715,8 @@ body.light-mode .slot-scorebar-title{
 .pz-word:nth-child(7n+6){background:#ffe0cc;}
 .pz-word:nth-child(7n+0){background:#d0f4f7;}
 .pz-group{display:flex;gap:calc(var(--uiscale,1)*5px);border:4px solid #f87171;border-radius:14px;padding:calc(var(--uiscale,1)*6px) calc(var(--uiscale,1)*8px);background:rgba(248,113,113,0.10);align-items:center;flex-wrap:wrap;cursor:grab;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;}
+.pz-group.pz-pregroup{border-color:#4ade80;background:rgba(74,222,128,0.10);border-style:solid;border-width:3px;border-radius:14px;}
+.pz-pregroup .pz-word{box-shadow:none;border-color:rgba(74,222,128,0.5);}
 .pz-group.pz-flash{animation:pz-flash-anim 0.75s ease-out;border-color:#fff;}
 @keyframes pz-flash-anim{
   0%  {box-shadow:0 0 0 0 rgba(255,255,255,1),0 0 0 0 rgba(248,113,113,1),0 0 40px 20px rgba(248,113,113,0.95);border-color:#fff;filter:brightness(2.2);}
@@ -2358,6 +2360,10 @@ const LANG = {
     ttTpRtf:'Als RTF speichern',
     ttTpTxt:'Als TXT speichern',
     ttTpLoeschen:'Löschen',
+    ttTpAktivieren:'Text an alle Teilnehmenden verteilen (Namen/Rad/Satzbau/… automatisch übernehmen)',
+    tpAktivieren:'Aktivieren',
+    ttTpLaden:'TXT- oder RTF-Datei laden',
+    tpLaden:'Laden',
     ttTpUnterstrichen:'Unterstrichen (Strg+U)',
     ttTpLinkEinfuegen:'Hyperlink einfügen (Strg+K)',
     ttTpLinkEntfernen:'Link entfernen (Strg+K)',
@@ -2616,6 +2622,10 @@ const LANG = {
     ttTpRtf:'RTFとして保存',
     ttTpTxt:'TXTとして保存',
     ttTpLoeschen:'削除',
+    ttTpAktivieren:'テキストを参加者全員に配信（名前・ルーレット・文構成などを自動的に反映）',
+    tpAktivieren:'有効化',
+    ttTpLaden:'TXTまたはRTFファイルを読み込む',
+    tpLaden:'読込',
     ttTpUnterstrichen:'下線（Ctrl+U）',
     ttTpLinkEinfuegen:'ハイパーリンクを挿入（Ctrl+K）',
     ttTpLinkEntfernen:'リンクを削除（Ctrl+K）',
@@ -2920,6 +2930,14 @@ function _trTextpad(uid){
     if(/Als RTF speichern|RTFとして保存/.test(btn.title))  btn.title=T('ttTpRtf');
     if(/Als TXT speichern|TXTとして保存/.test(btn.title))  btn.title=T('ttTpTxt');
     if(/^Löschen$|^削除$/.test(btn.title))                 btn.title=T('ttTpLoeschen');
+    if(/Text an alle|テキストを参加者/.test(btn.title)){
+      btn.title = T('ttTpAktivieren');
+      btn.textContent = '🚀 ' + T('tpAktivieren');
+    }
+    if(/TXT- oder RTF|TXTまたはRTF/.test(btn.title)){
+      btn.title = T('ttTpLaden');
+      btn.textContent = T('tpLaden');
+    }
   });
   // word counter
   const ctr=document.getElementById('tp-counter-'+uid);
@@ -3845,7 +3863,7 @@ const WIDGET_DEFS={
   names:  {titleKey:'wtNamen',  icon:'👤', w:290,h:330, fitContent:false, build:buildNames,   translate:_trNames},
   draw:   {titleKey:'wtZeichnen',icon:'✏️',w:580,h:450, fitContent:false, build:buildDraw,    translate:_trDraw},
   qr:     {titleKey:'wtQR',     icon:'📱', w:260,h:310, fitContent:true,  build:buildQR,      translate:_trQR},
-  textpad:{titleKey:'wtText',   icon:'📝', w:600,h:420, fitContent:true,  build:buildTextpad, translate:_trTextpad},
+  textpad:{titleKey:'wtText',   icon:'📝', w:600,h:520, fitContent:false, build:buildTextpad, translate:_trTextpad},
   pinnwand: {titleKey:'wtPinnwand', icon:'📌', w:280,h:300, fitContent:false, build:buildPinnwand, translate:_trPinnwand, onDestroy:_destroyPinnwand},
   nachricht: {titleKey:'wtNachricht', icon:'✉️', w:340,h:430, fitContent:false, minw:280, minh:320, build:buildNachricht, translate:_trNachricht, onDestroy:_destroyNachricht},
   jein:   {titleKey:'wtJein',   icon:'🤔', w:310,h:355, fitContent:true,  build:buildJein,    translate:_trJein,   onDestroy:_destroyJein},
@@ -3998,6 +4016,9 @@ function spawnWidget(type){
   requestAnimationFrame(()=>{ requestAnimationFrame(()=>{
     clampWidget(el);
     WIDGET_DEFS[type]?.afterSpawn?.(uid);
+    // Wenn ein boardImport-Text vorhanden ist, den passenden Block
+    // direkt in das neu geöffnete Widget laden (kein neuer DB-Aufruf).
+    if(_boardImportLastText) _boardImportRestoreWidget(type, uid);
   }); });
   return el;
 }
@@ -7996,9 +8017,15 @@ function genQR(uid){
 // WIDGET: TEXTPAD
 // ════════════════════════════════════════════════
 function buildTextpad(body,uid){
-  body.style.display='flex'; body.style.flexDirection='column'; body.style.gap='.5em';
+  const isAdmin = _stickyDeleteUnlocked === true;
+  // flex:1 1 0 statt dem CSS-Default flex:1 1 auto:
+  // Mit auto-basis richtet sich die Höhe nach dem Inhalt → overflow-y:auto
+  // auf dem textpad greift nie. Mit 0-basis wird die Höhe rein durch
+  // Flex-Verteilung bestimmt → tp-wrap bekommt eine definite Höhe →
+  // textpad scrollt korrekt.
+  body.style.cssText += ';display:flex;flex-direction:column;gap:.5em;flex:1 1 0;min-height:0;';
   body.innerHTML=`
-<div style="display:flex;gap:.4em;align-items:center;flex-wrap:wrap;font-size:13px;">
+<div style="display:flex;gap:.4em;align-items:center;flex-wrap:wrap;font-size:13px;flex-shrink:0;">
   <select id="tp-fontsel-${uid}"
     style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.3em .5em;font-size:12px;font-family:'Arial',sans-serif;min-width:130px;flex-shrink:0;"
     title="" data-i18n-title="ttTpSchriftart"
@@ -8043,15 +8070,19 @@ function buildTextpad(body,uid){
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;flex-shrink:0;" title="" data-i18n-title="ttTpRtf" onclick="saveTPasRtf(${uid})">💾 RTF</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;flex-shrink:0;" title="" data-i18n-title="ttTpTxt" onclick="saveTPasTxt(${uid})">💾 TXT</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;flex-shrink:0;" title="" data-i18n-title="ttTpLoeschen" onclick="document.getElementById('textpad-${uid}').innerHTML='';updateTPCounter(${uid})">🗑</button>
+  ${isAdmin ? `<div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
+  <input type="file" id="tp-file-${uid}" accept=".txt,.rtf,text/plain,text/rtf,application/rtf" style="display:none;" onchange="_textpadLoadFile(event,${uid})">
+  <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 10px;font-size:13px;font-weight:700;height:26px;cursor:pointer;flex-shrink:0;" title="" data-i18n-title="ttTpLaden" data-i18n="tpLaden" onclick="document.getElementById('tp-file-${uid}').value='';document.getElementById('tp-file-${uid}').click()">Laden</button>
+  <button style="background:var(--accent);border:1px solid var(--accent);color:#fff;border-radius:6px;padding:0 10px;font-size:13px;font-weight:700;height:26px;cursor:pointer;flex-shrink:0;" title="" data-i18n-title="ttTpAktivieren" data-i18n-prefix="🚀 " data-i18n="tpAktivieren" onclick="_textpadActivateImport(${uid})">🚀 Aktivieren</button>` : ''}
 </div>
-<div style="font-size:11px;color:var(--text2);text-align:right;" id="tp-counter-${uid}">0 Wörter · 0 Zeichen</div>
-<div style="flex:1;display:flex;min-height:120px;border:1px solid rgba(0,0,0,0.15);border-radius:10px;overflow:hidden;background:#ffffff;" id="tp-wrap-${uid}">
+<div style="font-size:11px;color:var(--text2);text-align:right;flex-shrink:0;" id="tp-counter-${uid}">0 Wörter · 0 Zeichen</div>
+<div style="flex:1;min-height:0;display:flex;overflow:hidden;border:1px solid rgba(0,0,0,0.15);border-radius:10px;background:#ffffff;" id="tp-wrap-${uid}">
   <div
     id="textpad-${uid}"
     contenteditable="true"
     spellcheck="true"
     data-placeholder="" data-i18n-placeholder="textPlaceholder"
-    style="flex:1;min-height:120px;padding:.7em;font-size:20px;font-family:'Arial',sans-serif;font-weight:normal;line-height:1.6;overflow-y:auto;outline:none;cursor:text;white-space:pre-wrap;color:#111111;background:transparent;"
+    style="flex:1;min-height:0;padding:.7em;font-size:20px;font-family:'Arial',sans-serif;font-weight:normal;line-height:1.6;overflow-y:auto;outline:none;cursor:text;white-space:pre-wrap;color:#111111;background:transparent;"
     oninput="updateTPCounter(${uid});updateTPLines(${uid})"
     onscroll="syncTPLineScroll(${uid})"
     onkeydown="handleTPKeydown(event,${uid})"
@@ -8064,6 +8095,36 @@ function buildTextpad(body,uid){
   if(pad){
     pad.addEventListener('focus',()=>{ if(pad.innerHTML==='<br>'||pad.innerHTML==='') pad.innerHTML=''; });
     pad.style.fontSize='20px';
+    // Paste-Handler: nur Reintext übernehmen (kein HTML/RTF), damit kein
+    // eingefügtes Fremd-Markup die Widget-Toolbar oder das Schließen-Icon
+    // verdrängt oder das DOM zerstört.
+    pad.addEventListener('paste', e => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+      if(!text) return;
+      // Selection-API: zuverlässiger als execCommand('insertText') in
+      // neueren Chromium-Versionen (kein stilles Fallback auf HTML-Paste)
+      const sel = window.getSelection();
+      if(sel && sel.rangeCount){
+        sel.deleteFromDocument();
+        const range = sel.getRangeAt(0);
+        // Zeilenumbrüche als <br> + Textknoten einfügen (pre-wrap würde \n
+        // nur anzeigen, wenn der Browser es auch als Umbruch interpretiert)
+        const lines = text.split(/\r?\n/);
+        const frag = document.createDocumentFragment();
+        lines.forEach((line, i) => {
+          if(i > 0) frag.appendChild(document.createElement('br'));
+          if(line) frag.appendChild(document.createTextNode(line));
+        });
+        range.insertNode(frag);
+        // Cursor ans Ende der eingefügten Inhalte setzen
+        range.collapse(false);
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+      updateTPCounter(uid);
+      updateTPLines(uid);
+    });
   }
   // Init line numbers
   requestAnimationFrame(()=>updateTPLines(uid));
@@ -8510,6 +8571,118 @@ function saveTPasTxt(uid){
   a.click();
   URL.revokeObjectURL(a.href);
 }
+
+// ── Admin: TXT- oder RTF-Datei in das Textpad laden ──────────────────
+// TXT wird direkt als Reintext eingefügt.
+// RTF: da RTF-Dateien proprietäre Steuercodes enthalten, wird der
+// lesbare Text extrahiert (Gruppen, Steuerwörter, Hex-Escapes entfernt)
+// und als formatierter Reintext ins Pad geschrieben. Tabellen und
+// komplexe Formatierungen (Farben, Bilder) werden dabei verworfen;
+// Fett/Kursiv/Unterstrichen werden wenn möglich als HTML-Tags erhalten.
+function _textpadLoadFile(event, uid){
+  const isJa = document.documentElement.lang === 'ja';
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+  const pad = document.getElementById('textpad-' + uid);
+  if(!pad) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const raw = e.target.result;
+    const isRtf = file.name.toLowerCase().endsWith('.rtf')
+               || (raw.trimStart().startsWith('{\\rtf'));
+    let html = '';
+    if(isRtf){
+      html = _rtfToHtml(raw);
+    } else {
+      // TXT: Zeilenumbrüche als <br>, HTML-Sonderzeichen escapen
+      html = raw
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/\r?\n/g,'<br>');
+    }
+    pad.innerHTML = html || '';
+    updateTPCounter(uid);
+    updateTPLines && updateTPLines(uid);
+    _stickyShowStatus(
+      isJa ? '📂 ファイルを読み込みました' : '📂 Datei geladen: ' + file.name,
+      '#4ade80');
+  };
+  reader.onerror = () => _stickyShowStatus('❌ Datei konnte nicht gelesen werden', '#f87171');
+  reader.readAsText(file, 'utf-8');
+}
+
+// ── RTF → HTML Konverter (minimale Implementierung) ──────────────────
+// Extrahiert lesbaren Text inkl. einfacher Formatierung aus RTF.
+// Nicht unterstützt: Tabellen, Bilder, komplexe Stile, Farbtabellen.
+function _rtfToHtml(rtf){
+  // RTF-Hex-Escapes dekodieren (\'xx)
+  let s = rtf.replace(/\\\'([0-9a-fA-F]{2})/g, (_, h) => {
+    try{ return decodeURIComponent('%' + h); } catch(e){ return ''; }
+  });
+  // Unicode-Escapes (\uN) dekodieren
+  s = s.replace(/\\u(-?\d+)\??/g, (_, n) => {
+    let code = parseInt(n, 10);
+    if(code < 0) code += 65536;
+    return String.fromCharCode(code);
+  });
+
+  let bold = false, italic = false, underline = false;
+  const result = [];
+  // RTF-Token parsen: Gruppen { }, Steuerwörter \word, Text
+  const tokens = s.match(/\{|\}|\\[a-z*]+[-]?\d*[ ]?|\\[^a-z]|[^\\{}]+/gi) || [];
+  let depth = 0;
+  let skipDepth = null; // ignorierte Gruppen (Fonttabelle, Colortable, Stylesheet …)
+  const skipGroups = /fonttbl|colortbl|stylesheet|info|pict|object|fldinst|field/;
+
+  for(const tok of tokens){
+    if(tok === '{'){
+      depth++;
+      continue;
+    }
+    if(tok === '}'){
+      if(skipDepth !== null && depth === skipDepth) skipDepth = null;
+      depth--;
+      continue;
+    }
+    if(skipDepth !== null && depth >= skipDepth) continue;
+
+    if(tok.startsWith('\\')){
+      const word = tok.replace(/^\\/, '').replace(/\s$/, '').toLowerCase();
+      if(skipGroups.test(word)){ skipDepth = depth; continue; }
+      if(word === 'b' || word === 'b0'){
+        const on = !word.includes('0');
+        if(on && !bold){ result.push('<b>'); bold = true; }
+        if(!on && bold){ result.push('</b>'); bold = false; }
+      } else if(word === 'i' || word === 'i0'){
+        const on = !word.includes('0');
+        if(on && !italic){ result.push('<i>'); italic = true; }
+        if(!on && italic){ result.push('</i>'); italic = false; }
+      } else if(word === 'ul' || word === 'ulnone'){
+        const on = word === 'ul';
+        if(on && !underline){ result.push('<u>'); underline = true; }
+        if(!on && underline){ result.push('</u>'); underline = false; }
+      } else if(word === 'par' || word === 'line' || word === '\n'){
+        result.push('<br>');
+      } else if(word === 'tab'){
+        result.push('&nbsp;&nbsp;&nbsp;&nbsp;');
+      }
+      // alle anderen Steuerwörter verwerfen
+    } else {
+      // Rohtext: HTML-Sonderzeichen escapen
+      const safe = tok.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      result.push(safe);
+    }
+  }
+  // Offene Tags schließen
+  if(underline) result.push('</u>');
+  if(italic)    result.push('</i>');
+  if(bold)      result.push('</b>');
+
+  // Erste {\\rtf …}-Zeile und überflüssige Leerzeilen am Anfang entfernen
+  return result.join('').replace(/^(<br>)+/, '').trim();
+}
+
 function handleTPKeydown(e,uid){
   if((e.ctrlKey||e.metaKey)&&(e.key==='b'||e.key==='B')){e.preventDefault();document.execCommand('bold',false,null);updateTPBtnStates(uid);}
   if((e.ctrlKey||e.metaKey)&&(e.key==='i'||e.key==='I')){e.preventDefault();document.execCommand('italic',false,null);updateTPBtnStates(uid);}
@@ -8780,6 +8953,27 @@ const Backend = {
     },
   },
 
+  // ══════════════════════════════════════════
+  // Backend.boardImport — Admin-Daten-Import je Gruppe
+  // (Admin tippt !-Text im "Text"-Widget und "aktiviert" ihn; alle
+  // Gruppenmitglieder inkl. Admin übernehmen die Daten automatisch,
+  // siehe _zumpadParseBlocks/_zumpadImportBlocks weiter unten)
+  // ══════════════════════════════════════════
+  boardImport: {
+    // Gespeicherten Import-Text einer Gruppe lesen (einmalig)
+    get: async group => {
+      return await _backendRead('boardImport/' + group);
+    },
+    // Import-Text speichern/aktualisieren (löst bei allen Verbundenen den Listener aus)
+    set: async (text, group) => {
+      await _backendWrite('boardImport/' + group, { text, ts: Date.now() });
+    },
+    // Realtime-Listener auf eine Gruppe — gibt unsub()-Funktion zurück
+    listen: (callback, group) => {
+      return _backendListen('boardImport/' + group, val => callback(val || null));
+    },
+  },
+
 }; // Ende Backend
 
 // ════════════════════════════════════════════════════════════════════════
@@ -8862,6 +9056,8 @@ async function _checkStickyCode(val){
     if(pinBtn) pinBtn.style.display = '';
     const nachrichtBtn1 = document.getElementById('nachricht-tool-btn');
     if(nachrichtBtn1) nachrichtBtn1.style.display = '';
+    // boardImport-Listener für die neue Gruppe starten
+    _boardImportStartListener(_STICKY_SESSION_GROUP);
     return true;
   }
 
@@ -8906,6 +9102,9 @@ function _stickyUnlockUser(isJa){
           : '✅ Eingeloggt als Gruppe „' + _STICKY_SESSION_GROUP + '"', '#4ade80');
   const inp = document.getElementById('zumpad-input');
   if(inp){ inp.value = ''; }
+  // boardImport-Listener starten — übernimmt sofort gespeicherte Daten
+  // und reagiert auf alle künftigen Aktivierungen durch den Admin.
+  _boardImportStartListener(_STICKY_SESSION_GROUP);
 }
 // WIDGET: PINNWAND (Notizzettel + Pinnwand vereint)
 // ════════════════════════════════════════════════
@@ -12898,7 +13097,12 @@ function pzShowSentence(uid){
   }
 
   const correct = st.sentences[st.current];
-  const words   = pzShuffle(correct.split(/\s+/));
+  // Geklammerte Wortgruppen als separate Tokens behandeln
+  const tokens  = pzParseSentence(correct);
+  // Prüfstring ohne Klammern (für pzCheck/pzNorm)
+  const correctFlat = tokens.map(t => t.words.join(' ')).join(' ');
+  // Tokens mischen (nicht einzelne Wörter — Gruppen bleiben zusammen)
+  const shuffled = pzShuffle([...tokens]);
 
   const prog = document.createElement('div');
   prog.className = 'pz-progress';
@@ -12911,12 +13115,18 @@ function pzShowSentence(uid){
   game.appendChild(lbl);
 
   const pool = pzCreateZone(uid);
-  pool.dataset.correct = correct;
+  pool.dataset.correct = correctFlat;
   pool.style.flex = '1 1 0';
   pool.style.minHeight = '0';
   pool.style.overflow = 'auto';
   pool.style.alignContent = 'flex-start';
-  words.forEach(w => pool.appendChild(pzCreateWord(w, uid)));
+  shuffled.forEach(tok => {
+    if(tok.type === 'group'){
+      pool.appendChild(pzCreatePregroup(tok.words, uid));
+    } else {
+      pool.appendChild(pzCreateWord(tok.words[0], uid));
+    }
+  });
   game.appendChild(pool);
 
   // ── Prüfen button directly below the word box ──
@@ -12958,6 +13168,40 @@ function pzCreateWord(text, uid){
   el.textContent = text;
   pzAddDragEvents(el, uid);
   return el;
+}
+
+// ── Geklammerte Wortgruppen parsen ────────────────────────────────────
+// Eingabe: "Das (ist ein) Test" → [{type:'word',words:['Das']},
+//                                  {type:'group',words:['ist','ein']},
+//                                  {type:'word',words:['Test']}]
+// Satz ohne Klammern (für pzCheck/pzNorm): "Das ist ein Test"
+function pzParseSentence(sentence){
+  const tokens = [];
+  const parts = sentence.match(/\([^)]+\)|[^\s()]+/g) || [];
+  for(const part of parts){
+    if(part.startsWith('(') && part.endsWith(')')){
+      const words = part.slice(1,-1).trim().split(/\s+/).filter(Boolean);
+      if(words.length) tokens.push({type:'group', words});
+    } else if(part.trim()){
+      tokens.push({type:'word', words:[part.trim()]});
+    }
+  }
+  return tokens;
+}
+
+// ── Vorgegebene Wortgruppe als einzelne ziehbare Einheit erstellen ─────
+function pzCreatePregroup(words, uid){
+  const grp = document.createElement('div');
+  grp.className = 'pz-group pz-pregroup';
+  grp.dataset.pregroup = '1';
+  words.forEach(w => {
+    const el = document.createElement('div');
+    el.className = 'pz-word';
+    el.textContent = w;
+    grp.appendChild(el);
+  });
+  _pzSetupGroup(grp);
+  return grp;
 }
 
 function pzCreateZone(uid){
@@ -13799,6 +14043,88 @@ function _zumpadImportBlocks(blocks, onDone){
   }, 0));
 }
 
+// ════════════════════════════════════════════════════════════════════════
+// BOARD IMPORT — Admin schreibt !-Text im Textpad, drückt "Aktivieren",
+// alle Gruppenmitglieder übernehmen die Daten sofort automatisch.
+// Die Daten bleiben unter boardImport/<gruppe> in Firebase gespeichert.
+// ════════════════════════════════════════════════════════════════════════
+
+let _boardImportUnsub = null;  // aktiver Realtime-Listener
+
+// ── Vom Admin aufgerufen: Text aus dem Textpad lesen und in Firebase speichern ──
+// Wird dann bei allen Clients (inkl. Admin selbst) automatisch über den
+// Listener ausgelöst — kein doppelter Import beim Admin nötig.
+async function _textpadActivateImport(uid){
+  const isJa = document.documentElement.lang === 'ja';
+  const pad = document.getElementById('textpad-' + uid);
+  if(!pad){ _stickyShowStatus('❌ Textpad nicht gefunden', '#f87171'); return; }
+
+  // Rohttext aus dem contenteditable-Div extrahieren (Zeilenumbrüche erhalten)
+  const rawText = pad.innerText.replace(/\u00a0/g, ' ').trim();
+  if(!rawText){
+    _stickyShowStatus(isJa ? '⚠️ Text ist leer' : '⚠️ Text ist leer', '#fbbf24');
+    return;
+  }
+  const blocks = _zumpadParseBlocks(rawText);
+  if(!blocks.length){
+    _stickyShowStatus(
+      isJa ? '⚠️ Kein gültiger !-Block gefunden' : '⚠️ Kein gültiger !-Block gefunden (z.B. !Namen, !Rad …)',
+      '#fbbf24');
+    return;
+  }
+  if(!_STICKY_SESSION_GROUP){
+    _stickyShowStatus(isJa ? '⚠️ Nicht eingeloggt' : '⚠️ Nicht eingeloggt', '#fbbf24');
+    return;
+  }
+  try{
+    _stickyShowStatus(isJa ? '📤 Wird verteilt…' : '📤 Wird verteilt…', '#60a5fa');
+    const ts = Date.now();
+    await Backend.boardImport.set(rawText, _STICKY_SESSION_GROUP);
+    // Admin sofort selbst anwenden (Listener kann beim Admin zu spät kommen,
+    // wenn er sich unmittelbar zuvor eingeloggt hat und .on('value') noch
+    // nicht registriert ist). _boardImportLastTs auf ts setzen, damit der
+    // Listener-Callback denselben Import nicht nochmal ausführt.
+    _boardImportLastTs = ts - 1; // einen ms unter ts → Gleichheitscheck schlägt nicht an
+    _boardImportApply(rawText, ts);
+  } catch(e){
+    _stickyShowStatus('❌ ' + e.message, '#f87171');
+  }
+}
+
+// ── Bei Login starten: Realtime-Listener auf boardImport/<gruppe> ──
+// Startet für alle Clients (Admin + User) beim Einloggen, damit sie
+// sofort reagieren, wenn der Admin den Text aktiviert.
+function _boardImportStartListener(group){
+  if(_boardImportUnsub) _boardImportUnsub(); // alten Listener ggf. beenden
+  _boardImportUnsub = Backend.boardImport.listen(val => {
+    if(!val || !val.text || !val.ts) return;
+    _boardImportApply(val.text, val.ts);
+  }, group);
+}
+
+// Letzter angewendeter Timestamp — verhindert doppelten Import beim Neuladen
+let _boardImportLastTs = 0;
+let _boardImportLastText = null; // letzter Import-Text — für Widget-Wiederherstellung beim Öffnen
+
+// ── Import aus Firebase-Daten anwenden (läuft bei allen Clients) ──
+function _boardImportApply(text, ts){
+  const isJa = document.documentElement.lang === 'ja';
+  // Beim ersten Login einmalig die gespeicherten Daten übernehmen;
+  // danach nur bei wirklich neuen Aktivierungen reagieren.
+  if(ts <= _boardImportLastTs) return;
+  _boardImportLastTs = ts;
+  _boardImportLastText = text; // für spätere Widget-Wiederherstellung merken
+  const blocks = _zumpadParseBlocks(text || '');
+  if(!blocks.length) return;
+  _zumpadImportBlocks(blocks, handled => {
+    if(handled.length){
+      _stickyShowStatus(
+        (isJa ? '✅ 読み込み完了: ' : '✅ Übernommen: ') + handled.join(', '),
+        '#4ade80');
+    }
+  });
+}
+
 function _zumpadFindUidByType(type){
   // Suche im DOM nach einem Widget des Typs, gib uid zurück
   const w = document.querySelector(`.widget[data-type="${type}"]`);
@@ -14459,7 +14785,87 @@ function showWheelResultOverlay(uid, text, segColor){
   });
 }
 
-// ── Rad-Anzeige: Schrift möglichst groß ausfüllen lassen ────
+// ── boardImport: gespeicherten Inhalt beim Widget-Öffnen wiederherstellen ─
+// Wird von spawnWidget() nach afterSpawn() aufgerufen. Restauriert gezielt
+// nur den Block, der zu diesem Widget-Typ gehört — spawnt keine neuen
+// Widgets, macht keinen Firebase-Zugriff, nutzt nur _boardImportLastText.
+// Für spiele-Widgets (Rad, Slot, Puzzle, Zuordnen) wird eine kurze
+// Verzögerung gewartet, bis die Tabs vollständig initialisiert sind.
+function _boardImportRestoreWidget(type, uid){
+  if(!_boardImportLastText) return;
+  const blocks = _zumpadParseBlocks(_boardImportLastText);
+  if(!blocks.length) return;
+
+  function _findContent(blockType){
+    const b = blocks.find(b => _zumpadDetectType(b.name) === blockType);
+    return b ? b.lines.join('\n').trim() : null;
+  }
+
+  if(type === 'textpad'){
+    const content = _findContent('textpad');
+    if(!content) return;
+    const el = document.getElementById('textpad-' + uid);
+    if(el){ el.innerText = content; typeof updateTPCounter==='function' && updateTPCounter(uid); }
+
+  } else if(type === 'names'){
+    const content = _findContent('namen');
+    if(!content) return;
+    const ta = document.getElementById('namelist-' + uid);
+    if(ta){
+      ta.value = content;
+      if(typeof _nameFontCache !== 'undefined') _nameFontCache[uid] = null;
+    }
+
+  } else if(type === 'dice'){
+    const content = _findContent('satzbau');
+    if(!content) return;
+    if(!satzbauWords[uid]) satzbauWords[uid] = {};
+    satzbauWords[uid]._draftText = content;
+    const parsed = parseSatzbauText(content);
+    Object.assign(satzbauWords[uid], parsed);
+    satzbauWords[uid]._bags = {};
+
+  } else if(type === 'spiele'){
+    // spiele-Widget braucht nach afterSpawn einen weiteren Tick bis
+    // wheelStates, slotState, pzState und zuState vollständig befüllt sind.
+    setTimeout(() => {
+      const wUid = uid * 1000 + 1; // Rad
+      const sUid = uid * 1000 + 2; // Slot
+      // Rad
+      const wheelContent = _findContent('wheel');
+      if(wheelContent && typeof wheelStates !== 'undefined' && wheelStates[wUid]){
+        const qs = wheelContent.split(/\n+/).map(s=>s.trim()).filter(Boolean);
+        if(qs.length){
+          wheelStates[wUid].questions = qs;
+          wheelStates[wUid].selected  = -1;
+          wheelStates[wUid].bag       = [];
+          const ta = document.getElementById('wheel-text-' + wUid);
+          if(ta) ta.value = wheelContent;
+          typeof drawQuestionWheel === 'function' && drawQuestionWheel(wUid);
+        }
+      }
+      // Slot
+      const slotContent = _findContent('slot');
+      if(slotContent){
+        const ta = document.getElementById('slot-textarea-' + sUid);
+        if(ta){ ta.value = slotContent; typeof slotApplyTextarea==='function' && slotApplyTextarea(sUid); }
+      }
+      // Puzzle
+      const puzzleContent = _findContent('puzzle');
+      if(puzzleContent && typeof pzState !== 'undefined' && pzState[uid]){
+        pzState[uid].lastData = puzzleContent;
+        typeof pzProcessData==='function' && pzProcessData(uid, puzzleContent);
+      }
+      // Zuordnen
+      const zuContent = _findContent('zuordnen');
+      if(zuContent && typeof zuState !== 'undefined' && zuState[uid]){
+        typeof zuStartGame==='function' && zuStartGame(uid, zuContent);
+      }
+    }, 350); // kurze Wartezeit bis Tab-States initialisiert
+  }
+}
+
+
 // Startet mit einer großzügigen, an der tatsächlichen Bildschirmgröße
 // orientierten Schriftgröße (nicht an einem fixen CSS-Höchstwert) und
 // verkleinert nur soweit nötig, damit die Box (max-width/max-height,
