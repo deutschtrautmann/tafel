@@ -5863,7 +5863,6 @@ function buildDice(body,uid){
   <button class="jein-mode-btn" id="dtbtn-jein-smiley-${uid}" onclick="selectDiceType('jein-smiley',${uid})" title="Smiley">😊</button>
   <button class="jein-mode-btn" id="dtbtn-jein-janken-${uid}" onclick="selectDiceType('jein-janken',${uid})" title="" data-i18n-title="ttJanken">✂️</button>
   <button class="jein-mode-btn" id="dtbtn-jein-color-${uid}"  onclick="selectDiceType('jein-color',${uid})"  title="Farbe">🎨</button>
-  <button class="jein-mode-btn" id="dtbtn-jein-country-${uid}" onclick="selectDiceType('jein-country',${uid})" title="Länder">🌍</button>
   <button class="jein-mode-btn" id="dtbtn-zufall-${uid}" onclick="toggleDiceZufall(${uid})" title="Zufall an/aus" style="font-size:.75em;padding:.3em .6em;" data-i18n="diceZufallAn"></button>
 </div>
 <input type="hidden" id="dicetype-${uid}" value="6">
@@ -5909,7 +5908,7 @@ function selectDiceType(sides, uid){
   });
   // Reset Euro counter when (re-)entering Euro mode
   if(sides==='euro'){ euroCount[uid]=0; euroItems[uid]=[]; }
-  ['text','smiley','janken','color','country'].forEach(m=>{
+  ['text','smiley','janken','color'].forEach(m=>{
     const b=document.getElementById('dtbtn-jein-'+m+'-'+uid);
     if(b) b.classList.toggle('active-jmode', sides==='jein-'+m);
   });
@@ -5956,8 +5955,6 @@ function selectDiceType(sides, uid){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;gap:.5em;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(2em,8vw,4em);opacity:.4;">✂️</span><span style="font-size:clamp(2em,8vw,4em);opacity:.4;">🪨</span><span style="font-size:clamp(2em,8vw,4em);opacity:.4;">📄</span></div>`;
       } else if(mode==='color'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(2.5em,10vw,5em);opacity:.5;">🎨</span></div>`;
-      } else if(mode==='country'){
-        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(2.5em,10vw,5em);opacity:.5;">🌍</span></div>`;
       }
     }
     if(res) res.textContent=T('diceClickHint');
@@ -6531,67 +6528,6 @@ function rollJeinInDice(uid){
     const textColor=c.hex==='#f8fafc'||c.hex==='#eab308'?'#1e293b':'#fff';
     wrap.innerHTML=`<div id="dice-color-box-${uid}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:${c.hex};position:relative;">
       <span id="dice-color-label-${uid}" style="font-size:clamp(1.4em,6vw,3em);font-weight:900;color:${textColor};text-shadow:0 1px 6px rgba(0,0,0,0.35);display:${showName?'block':'none'};">${c.name}</span>
-    </div>`;
-    if(res) res.textContent=c.name;
-
-  } else if(mode==='country'){
-    // Länderflaggen – Bag-Shuffle wie beim Farb-Modus
-    const COUNTRIES=[
-      {name:'Deutschland', flag:'🇩🇪'},
-      {name:'Japan',       flag:'🇯🇵'},
-      {name:'Frankreich',  flag:'🇫🇷'},
-      {name:'England',     flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
-      {name:'Italien',     flag:'🇮🇹'},
-      {name:'Schweiz',     flag:'🇨🇭'},
-      {name:'Österreich',  flag:'🇦🇹'},
-      {name:'Südkorea',    flag:'🇰🇷'},
-      {name:'China',       flag:'🇨🇳'},
-      {name:'USA',         flag:'🇺🇸'},
-      {name:'Kanada',      flag:'🇨🇦'},
-      {name:'Australien',  flag:'🇦🇺'},
-      {name:'Spanien',     flag:'🇪🇸'},
-      {name:'Polen',       flag:'🇵🇱'},
-      {name:'Dänemark',    flag:'🇩🇰'},
-      {name:'Schweden',    flag:'🇸🇪'},
-      {name:'Brasilien',   flag:'🇧🇷'},
-      {name:'Russland',    flag:'🇷🇺'},
-      {name:'Liechtenstein',flag:'🇱🇮'},
-      {name:'Türkei',      flag:'🇹🇷'},
-    ];
-    const COUNTRIES_JA=[
-      {name:'ドイツ',       flag:'🇩🇪'},
-      {name:'日本',         flag:'🇯🇵'},
-      {name:'フランス',     flag:'🇫🇷'},
-      {name:'イングランド', flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
-      {name:'イタリア',     flag:'🇮🇹'},
-      {name:'スイス',       flag:'🇨🇭'},
-      {name:'オーストリア', flag:'🇦🇹'},
-      {name:'韓国',         flag:'🇰🇷'},
-      {name:'中国',         flag:'🇨🇳'},
-      {name:'アメリカ',     flag:'🇺🇸'},
-      {name:'カナダ',       flag:'🇨🇦'},
-      {name:'オーストラリア',flag:'🇦🇺'},
-      {name:'スペイン',     flag:'🇪🇸'},
-      {name:'ポーランド',   flag:'🇵🇱'},
-      {name:'デンマーク',   flag:'🇩🇰'},
-      {name:'スウェーデン', flag:'🇸🇪'},
-      {name:'ブラジル',     flag:'🇧🇷'},
-      {name:'ロシア',       flag:'🇷🇺'},
-      {name:'リヒテンシュタイン',flag:'🇱🇮'},
-      {name:'トルコ',       flag:'🇹🇷'},
-    ];
-    const LIST = currentLanguage==='ja' ? COUNTRIES_JA : COUNTRIES;
-    if(!jeinState[uid]) jeinState[uid]={};
-    if(!jeinState[uid].countryBag || jeinState[uid].countryBag.length===0){
-      const arr=LIST.map((_,i)=>i);
-      for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
-      jeinState[uid].countryBag=arr;
-    }
-    const cIdx=jeinState[uid].countryBag.pop();
-    const c=LIST[cIdx];
-    try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
-    wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);">
-      <span style="font-size:clamp(6em,26vw,13em);line-height:1;">${c.flag}</span>
     </div>`;
     if(res) res.textContent=c.name;
 
@@ -8620,14 +8556,24 @@ ${body}
 function saveTPasTxt(uid){
   const el=document.getElementById('textpad-'+uid);
   if(!el) return;
-  // Clone node and append link URLs in brackets so they survive plain-text export
   const clone=el.cloneNode(true);
+  // Links mit URL in Klammern ergänzen
   clone.querySelectorAll('a[href]').forEach(a=>{
     const href=a.getAttribute('href')||'';
     const txt=a.textContent.trim();
     if(href && href!==txt) a.textContent=txt+' ['+href+']';
   });
-  const text=clone.innerText||'';
+  // innerHTML → Reintext: <br> und Block-Enden als \n, HTML-Entities rückwandeln.
+  // (clone.innerText ohne DOM-Attachment liefert keine Zeilenumbrüche, da
+  //  der Browser für nicht gerenderte Elemente kein Layout berechnet.)
+  const text = clone.innerHTML
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<\/p>/gi, '\n')
+    .replace(/<\/div>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&nbsp;/g,' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
   const blob=new Blob([text],{type:'text/plain;charset=utf-8'});
   const a=document.createElement('a');
   a.download='text.txt';
@@ -8649,41 +8595,71 @@ function _textpadLoadFile(event, uid){
   if(!file) return;
   const pad = document.getElementById('textpad-' + uid);
   if(!pad) return;
-  const reader = new FileReader();
-  reader.onload = function(e){
-    const raw = e.target.result;
+
+  function apply(raw){
     const isRtf = file.name.toLowerCase().endsWith('.rtf')
-               || (raw.trimStart().startsWith('{\\rtf'));
-    let html = '';
-    if(isRtf){
-      html = _rtfToHtml(raw);
-    } else {
-      // TXT: Zeilenumbrüche als <br>, HTML-Sonderzeichen escapen
-      html = raw
-        .replace(/&/g,'&amp;')
-        .replace(/</g,'&lt;')
-        .replace(/>/g,'&gt;')
-        .replace(/\r?\n/g,'<br>');
-    }
+               || raw.trimStart().startsWith('{\\rtf');
+    const html = isRtf
+      ? _rtfToHtml(raw)
+      : raw
+          .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+          .replace(/\r?\n/g,'<br>');
     pad.innerHTML = html || '';
     updateTPCounter(uid);
     updateTPLines && updateTPLines(uid);
     _stickyShowStatus(
       isJa ? '📂 ファイルを読み込みました' : '📂 Datei geladen: ' + file.name,
       '#4ade80');
+  }
+
+  const r1 = new FileReader();
+  r1.onload = e => {
+    const raw = e.target.result;
+    // Falls UTF-8-Dekodierung Ersetzungszeichen (U+FFFD) produziert hat,
+    // handelt es sich wahrscheinlich um eine Windows-1252-Datei → nochmal lesen
+    if(raw.includes('\uFFFD') && !file.name.toLowerCase().endsWith('.rtf')){
+      const r2 = new FileReader();
+      r2.onload = e2 => apply(e2.target.result);
+      r2.onerror = () => _stickyShowStatus('❌ Datei konnte nicht gelesen werden','#f87171');
+      r2.readAsText(file, 'windows-1252');
+    } else {
+      apply(raw);
+    }
   };
-  reader.onerror = () => _stickyShowStatus('❌ Datei konnte nicht gelesen werden', '#f87171');
-  reader.readAsText(file, 'utf-8');
+  r1.onerror = () => _stickyShowStatus('❌ Datei konnte nicht gelesen werden','#f87171');
+  // RTF-Dateien immer als latin1 lesen (\'xx-Escapes enthalten CP1252-Bytewerte
+  // als ASCII-Hex; die eigentliche Dekodierung übernimmt _rtfToHtml/_cp1252Char)
+  r1.readAsText(file, file.name.toLowerCase().endsWith('.rtf') ? 'latin1' : 'utf-8');
+}
+
+// ── CP1252 → Unicode Zeichentabelle (für RTF \'xx-Escapes) ───────────
+// RTF kodiert Nicht-ASCII-Zeichen als \'HH im Windows-1252-Zeichensatz.
+// 0x80–0x9F sind in CP1252 eigene Zeichen (in Latin-1/ISO-8859-1 wären
+// es Steuerzeichen); 0xA0–0xFF entsprechen Unicode direkt.
+const _cp1252Map = {
+  0x80:'\u20AC',0x82:'\u201A',0x83:'\u0192',0x84:'\u201E',0x85:'\u2026',
+  0x86:'\u2020',0x87:'\u2021',0x88:'\u02C6',0x89:'\u2030',0x8A:'\u0160',
+  0x8B:'\u2039',0x8C:'\u0152',0x8E:'\u017D',0x91:'\u2018',0x92:'\u2019',
+  0x93:'\u201C',0x94:'\u201D',0x95:'\u2022',0x96:'\u2013',0x97:'\u2014',
+  0x98:'\u02DC',0x99:'\u2122',0x9A:'\u0161',0x9B:'\u203A',0x9C:'\u0153',
+  0x9E:'\u017E',0x9F:'\u0178',
+};
+function _cp1252Char(byte){
+  if(byte in _cp1252Map) return _cp1252Map[byte];
+  if(byte >= 0xA0 && byte <= 0xFF) return String.fromCharCode(byte);
+  return '';  // Steuerzeichen 0x00–0x1F und undefinierte CP1252-Positionen
 }
 
 // ── RTF → HTML Konverter (minimale Implementierung) ──────────────────
 // Extrahiert lesbaren Text inkl. einfacher Formatierung aus RTF.
 // Nicht unterstützt: Tabellen, Bilder, komplexe Stile, Farbtabellen.
 function _rtfToHtml(rtf){
-  // RTF-Hex-Escapes dekodieren (\'xx)
-  let s = rtf.replace(/\\\'([0-9a-fA-F]{2})/g, (_, h) => {
-    try{ return decodeURIComponent('%' + h); } catch(e){ return ''; }
-  });
+  // RTF-Hex-Escapes (\'HH) per CP1252-Tabelle dekodieren.
+  // decodeURIComponent('%e4') schlägt für viele Umlaute fehl (kein
+  // gültiges UTF-8-Einzelbyte) → Ersatz durch echtes CP1252-Mapping.
+  let s = rtf.replace(/\\\'([0-9a-fA-F]{2})/g, (_, h) =>
+    _cp1252Char(parseInt(h, 16))
+  );
   // Unicode-Escapes (\uN) dekodieren
   s = s.replace(/\\u(-?\d+)\??/g, (_, n) => {
     let code = parseInt(n, 10);
@@ -13165,6 +13141,13 @@ function pzShowSentence(uid){
   const tokens  = pzParseSentence(correct);
   // Prüfstring ohne Klammern (für pzCheck/pzNorm)
   const correctFlat = tokens.map(t => t.words.join(' ')).join(' ');
+  // Wort-Positionen im Prüfstring berechnen (für dataset.start/end)
+  let _wIdx = 0;
+  tokens.forEach(tok => {
+    tok.startIdx = _wIdx;
+    tok.endIdx   = _wIdx + tok.words.length - 1;
+    _wIdx += tok.words.length;
+  });
   // Tokens mischen (nicht einzelne Wörter — Gruppen bleiben zusammen)
   const shuffled = pzShuffle([...tokens]);
 
@@ -13186,7 +13169,7 @@ function pzShowSentence(uid){
   pool.style.alignContent = 'flex-start';
   shuffled.forEach(tok => {
     if(tok.type === 'group'){
-      pool.appendChild(pzCreatePregroup(tok.words, uid));
+      pool.appendChild(pzCreatePregroup(tok.words, tok.startIdx, tok.endIdx, uid));
     } else {
       pool.appendChild(pzCreateWord(tok.words[0], uid));
     }
@@ -13254,10 +13237,12 @@ function pzParseSentence(sentence){
 }
 
 // ── Vorgegebene Wortgruppe als einzelne ziehbare Einheit erstellen ─────
-function pzCreatePregroup(words, uid){
+function pzCreatePregroup(words, startIdx, endIdx, uid){
   const grp = document.createElement('div');
   grp.className = 'pz-group pz-pregroup';
   grp.dataset.pregroup = '1';
+  grp.dataset.start = startIdx;   // für pzUpdateGroups (Positions-Check)
+  grp.dataset.end   = endIdx;
   words.forEach(w => {
     const el = document.createElement('div');
     el.className = 'pz-word';
@@ -13515,6 +13500,7 @@ function pzUpdateGroups(answer, correctStr){
     let grp;
     if(leftEl.classList.contains('pz-group')){
       grp=leftEl;
+      grp.classList.remove('pz-pregroup'); // grüner Rahmen → roter Rahmen beim Merge
       if(rightEl.classList.contains('pz-group')){
         [...rightEl.querySelectorAll('.pz-word')].forEach(w=>grp.appendChild(w));
         grp.dataset.end=rightEl.dataset.end;
@@ -13525,6 +13511,7 @@ function pzUpdateGroups(answer, correctStr){
       }
     } else if(rightEl.classList.contains('pz-group')){
       grp=rightEl;
+      grp.classList.remove('pz-pregroup'); // grüner Rahmen → roter Rahmen beim Merge
       grp.insertBefore(leftEl,grp.firstChild);
       grp.dataset.start=startIdx;
     } else {
