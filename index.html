@@ -5863,6 +5863,7 @@ function buildDice(body,uid){
   <button class="jein-mode-btn" id="dtbtn-jein-smiley-${uid}" onclick="selectDiceType('jein-smiley',${uid})" title="Smiley">😊</button>
   <button class="jein-mode-btn" id="dtbtn-jein-janken-${uid}" onclick="selectDiceType('jein-janken',${uid})" title="" data-i18n-title="ttJanken">✂️</button>
   <button class="jein-mode-btn" id="dtbtn-jein-color-${uid}"  onclick="selectDiceType('jein-color',${uid})"  title="Farbe">🎨</button>
+  <button class="jein-mode-btn" id="dtbtn-jein-country-${uid}" onclick="selectDiceType('jein-country',${uid})" title="Länder">🌍</button>
   <button class="jein-mode-btn" id="dtbtn-zufall-${uid}" onclick="toggleDiceZufall(${uid})" title="Zufall an/aus" style="font-size:.75em;padding:.3em .6em;" data-i18n="diceZufallAn"></button>
 </div>
 <input type="hidden" id="dicetype-${uid}" value="6">
@@ -5908,7 +5909,7 @@ function selectDiceType(sides, uid){
   });
   // Reset Euro counter when (re-)entering Euro mode
   if(sides==='euro'){ euroCount[uid]=0; euroItems[uid]=[]; }
-  ['text','smiley','janken','color'].forEach(m=>{
+  ['text','smiley','janken','color','country'].forEach(m=>{
     const b=document.getElementById('dtbtn-jein-'+m+'-'+uid);
     if(b) b.classList.toggle('active-jmode', sides==='jein-'+m);
   });
@@ -5955,6 +5956,8 @@ function selectDiceType(sides, uid){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;gap:.5em;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(2em,8vw,4em);opacity:.4;">✂️</span><span style="font-size:clamp(2em,8vw,4em);opacity:.4;">🪨</span><span style="font-size:clamp(2em,8vw,4em);opacity:.4;">📄</span></div>`;
       } else if(mode==='color'){
         wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(2.5em,10vw,5em);opacity:.5;">🎨</span></div>`;
+      } else if(mode==='country'){
+        wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px dashed rgba(255,255,255,0.2);"><span style="font-size:clamp(2.5em,10vw,5em);opacity:.5;">🌍</span></div>`;
       }
     }
     if(res) res.textContent=T('diceClickHint');
@@ -6528,6 +6531,67 @@ function rollJeinInDice(uid){
     const textColor=c.hex==='#f8fafc'||c.hex==='#eab308'?'#1e293b':'#fff';
     wrap.innerHTML=`<div id="dice-color-box-${uid}" style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:${c.hex};position:relative;">
       <span id="dice-color-label-${uid}" style="font-size:clamp(1.4em,6vw,3em);font-weight:900;color:${textColor};text-shadow:0 1px 6px rgba(0,0,0,0.35);display:${showName?'block':'none'};">${c.name}</span>
+    </div>`;
+    if(res) res.textContent=c.name;
+
+  } else if(mode==='country'){
+    // Länderflaggen – Bag-Shuffle wie beim Farb-Modus
+    const COUNTRIES=[
+      {name:'Deutschland', flag:'🇩🇪'},
+      {name:'Japan',       flag:'🇯🇵'},
+      {name:'Frankreich',  flag:'🇫🇷'},
+      {name:'England',     flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
+      {name:'Italien',     flag:'🇮🇹'},
+      {name:'Schweiz',     flag:'🇨🇭'},
+      {name:'Österreich',  flag:'🇦🇹'},
+      {name:'Südkorea',    flag:'🇰🇷'},
+      {name:'China',       flag:'🇨🇳'},
+      {name:'USA',         flag:'🇺🇸'},
+      {name:'Kanada',      flag:'🇨🇦'},
+      {name:'Australien',  flag:'🇦🇺'},
+      {name:'Spanien',     flag:'🇪🇸'},
+      {name:'Polen',       flag:'🇵🇱'},
+      {name:'Dänemark',    flag:'🇩🇰'},
+      {name:'Schweden',    flag:'🇸🇪'},
+      {name:'Brasilien',   flag:'🇧🇷'},
+      {name:'Russland',    flag:'🇷🇺'},
+      {name:'Liechtenstein',flag:'🇱🇮'},
+      {name:'Türkei',      flag:'🇹🇷'},
+    ];
+    const COUNTRIES_JA=[
+      {name:'ドイツ',       flag:'🇩🇪'},
+      {name:'日本',         flag:'🇯🇵'},
+      {name:'フランス',     flag:'🇫🇷'},
+      {name:'イングランド', flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿'},
+      {name:'イタリア',     flag:'🇮🇹'},
+      {name:'スイス',       flag:'🇨🇭'},
+      {name:'オーストリア', flag:'🇦🇹'},
+      {name:'韓国',         flag:'🇰🇷'},
+      {name:'中国',         flag:'🇨🇳'},
+      {name:'アメリカ',     flag:'🇺🇸'},
+      {name:'カナダ',       flag:'🇨🇦'},
+      {name:'オーストラリア',flag:'🇦🇺'},
+      {name:'スペイン',     flag:'🇪🇸'},
+      {name:'ポーランド',   flag:'🇵🇱'},
+      {name:'デンマーク',   flag:'🇩🇰'},
+      {name:'スウェーデン', flag:'🇸🇪'},
+      {name:'ブラジル',     flag:'🇧🇷'},
+      {name:'ロシア',       flag:'🇷🇺'},
+      {name:'リヒテンシュタイン',flag:'🇱🇮'},
+      {name:'トルコ',       flag:'🇹🇷'},
+    ];
+    const LIST = currentLanguage==='ja' ? COUNTRIES_JA : COUNTRIES;
+    if(!jeinState[uid]) jeinState[uid]={};
+    if(!jeinState[uid].countryBag || jeinState[uid].countryBag.length===0){
+      const arr=LIST.map((_,i)=>i);
+      for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+      jeinState[uid].countryBag=arr;
+    }
+    const cIdx=jeinState[uid].countryBag.pop();
+    const c=LIST[cIdx];
+    try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
+    wrap.innerHTML=`<div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;border-radius:16px;background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.15);">
+      <span style="font-size:clamp(6em,26vw,13em);line-height:1;">${c.flag}</span>
     </div>`;
     if(res) res.textContent=c.name;
 
