@@ -2054,6 +2054,9 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       <input type="range" min="0" max="85" value="30" id="dim-slider" oninput="setBgDim(this.value)">
     </div>
     <button class="wbtn" style="margin-top:6px;width:100%;font-size:.82em;" onclick="removeBgPhoto()">✕ Foto entfernen</button>
+    <div id="bg-share-row" style="display:none;margin-top:8px;">
+      <button id="bg-share-btn" class="wbtn primary" style="width:100%;font-size:.82em;" onclick="bgShareToggle()">🔗 Mit Gruppe teilen</button>
+    </div>
   </div>
 
   <div class="sound-divider"></div>
@@ -3810,6 +3813,12 @@ function handleBgFile(file){
     setBgDim(document.getElementById('dim-slider').value);
     document.getElementById('bg-photo-controls').style.display='block';
     document.querySelectorAll('.bg-preset').forEach(x=>x.classList.remove('active'));
+    // Admin: Share-Button einblenden; wenn bereits aktiv → sofort neu pushen
+    if(_stickyDeleteUnlocked){
+      const row = document.getElementById('bg-share-row');
+      if(row) row.style.display = 'block';
+      if(_bgShareActive) _bgSharePush();
+    }
   };
   reader.readAsDataURL(file);
 }
@@ -3817,6 +3826,7 @@ function handleBgFile(file){
 function setBgDim(val){
   document.getElementById('dim-val').textContent=val;
   document.getElementById('bg-overlay').style.background=`rgba(10,14,35,${val/100})`;
+  _bgSharePushSettings();
 }
 
 function setBgBlur(val){
@@ -3828,6 +3838,7 @@ function setBgSize(val){
   document.getElementById('bgsize-val').textContent = val;
   const bl = document.getElementById('bg-layer');
   bl.style.backgroundSize = val + '%';
+  _bgSharePushSettings();
 }
 
 function setBgPos(){
@@ -3836,6 +3847,7 @@ function setBgPos(){
   document.getElementById('bgposx-val').textContent = x;
   document.getElementById('bgposy-val').textContent = y;
   document.getElementById('bg-layer').style.backgroundPosition = x + '% ' + y + '%';
+  _bgSharePushSettings();
 }
 
 function removeBgPhoto(){
@@ -3848,6 +3860,15 @@ function removeBgPhoto(){
   bl.style.filter='';
   document.getElementById('bg-overlay').style.background='rgba(15,18,40,0)';
   document.getElementById('bg-photo-controls').style.display='none';
+  // Share zurücksetzen
+  if(_stickyDeleteUnlocked){
+    _bgShareActive = false;
+    const btn = document.getElementById('bg-share-btn');
+    const row = document.getElementById('bg-share-row');
+    if(btn){ btn.textContent = '🔗 Mit Gruppe teilen'; btn.style.background = ''; }
+    if(row) row.style.display = 'none';
+    if(_STICKY_SESSION_GROUP) Backend.bgShare.clear(_STICKY_SESSION_GROUP);
+  }
 }
 
 function setWidgetAlpha(val){
@@ -9068,6 +9089,10 @@ const Backend = {
     send: async (msg, group) => {
       await _backendWrite('chat/' + group + '/' + msg.messageId, msg);
     },
+    // Einzelne Nachricht löschen (für Signal-Nachrichten nach Verarbeitung)
+    deleteMsg: async (msgId, group) => {
+      await _backendDelete('chat/' + group + '/' + msgId);
+    },
     // Gesamten Chat einer Gruppe löschen
     clearGroup: async group => {
       await _backendDelete('chat/' + group);
@@ -9092,12 +9117,29 @@ const Backend = {
       return await _backendRead('boardImport/' + group);
     },
     // Import-Text speichern/aktualisieren (löst bei allen Verbundenen den Listener aus)
+    // Nutzt update() statt set() damit das bgShare-Unterfeld erhalten bleibt
     set: async (text, group) => {
-      await _backendWrite('boardImport/' + group, { text, ts: Date.now() });
+      const db = await _backendReady();
+      await db.ref('boardImport/' + group).update({ text, ts: Date.now() });
     },
     // Realtime-Listener auf eine Gruppe — gibt unsub()-Funktion zurück
     listen: (callback, group) => {
       return _backendListen('boardImport/' + group, val => callback(val || null));
+    },
+  },
+
+  // Backend.bgShare — Admin teilt Hintergrundbild + Einstellungen mit der Gruppe
+  // Pfad: boardImport/<gruppe>/bgShare  (innerhalb des bereits erlaubten boardImport-Nodes)
+  // { img, size, posX, posY, dim, ts }
+  bgShare: {
+    set: async (data, group) => {
+      await _backendWrite('boardImport/' + group + '/bgShare', { ...data, ts: Date.now() });
+    },
+    clear: async group => {
+      await _backendWrite('boardImport/' + group + '/bgShare', null);
+    },
+    listen: (callback, group) => {
+      return _backendListen('boardImport/' + group + '/bgShare', val => callback(val || null));
     },
   },
 
@@ -9185,6 +9227,8 @@ async function _checkStickyCode(val){
     if(nachrichtBtn1) nachrichtBtn1.style.display = '';
     // boardImport-Listener für die neue Gruppe starten
     _boardImportStartListener(_STICKY_SESSION_GROUP);
+    // bgShare-Listener starten — übernimmt Admin-Hintergrundbild für alle
+    _bgShareStartListener(_STICKY_SESSION_GROUP);
     return true;
   }
 
@@ -9232,6 +9276,8 @@ function _stickyUnlockUser(isJa){
   // boardImport-Listener starten — übernimmt sofort gespeicherte Daten
   // und reagiert auf alle künftigen Aktivierungen durch den Admin.
   _boardImportStartListener(_STICKY_SESSION_GROUP);
+  // bgShare-Listener starten
+  _bgShareStartListener(_STICKY_SESSION_GROUP);
 }
 // WIDGET: PINNWAND (Notizzettel + Pinnwand vereint)
 // ════════════════════════════════════════════════
@@ -10261,15 +10307,12 @@ function _renderChatMessages(uid, messages, isAdmin){
     return;
   }
 
-  // Signal-Nachrichten unsichtbar verarbeiten (ICE, Answer) + Offer-SDP merken
+  // Signal-Nachrichten unsichtbar verarbeiten
   if(st) {
     if(!st.signals) st.signals = {};
     (messages || []).forEach(m => {
-      if(m.type === 'file-signal-offer'){
-        try{ st.signals[m.forMsgId] = JSON.parse(m.payload); }catch(e){}
-      } else if(m.type === 'file-signal-answer' || m.type === 'file-signal-ice'){
-        _chatHandleSignal(m);
-      }
+      if(!m.type || !m.type.startsWith('file-signal-')) return;
+      _chatHandleSignal(m);
     });
   }
 
@@ -10555,35 +10598,9 @@ async function _chatOfferFile(uid, input){
   _stickyShowStatus('📎 Verbindung wird vorbereitet…', '#a5b4fc');
 
   const msgId = 'file_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
-  const pc = new RTCPeerConnection(_STUN_SERVERS);
-  const dc = pc.createDataChannel('file');
-  _rtcState[msgId] = { pc, dc, file, group: st.group, uid };
 
-  // ICE-Kandidaten des Admins über Chat-Signaling senden
-  pc.onicecandidate = e => {
-    if(!e.candidate) return;
-    _chatSendSignal(st.group, msgId, 'file-signal-ice',
-      { side:'offerer', cand: e.candidate.toJSON() });
-  };
-
-  pc.onconnectionstatechange = () => {
-    const s = pc.connectionState;
-    if(s === 'connected')   _stickyShowStatus('🔗 Verbunden – sende Datei…', '#4ade80');
-    if(s === 'failed')      _stickyShowStatus('❌ Verbindung fehlgeschlagen', '#f87171');
-    if(s === 'disconnected') _stickyShowStatus('⚠️ Verbindung getrennt', '#f59e0b');
-  };
-
-  // DataChannel offen → Datei senden
-  dc.onopen  = () => _chatSendFileChunks(msgId);
-  dc.onclose = () => { delete _rtcState[msgId]; };
-  dc.onerror = e  => console.error('DataChannel Fehler:', e);
-
-  const offer = await pc.createOffer();
-  await pc.setLocalDescription(offer);
-
-  // Offer-SDP als Signal in den Chat schreiben
-  await _chatSendSignal(st.group, msgId, 'file-signal-offer',
-    { sdp: offer.sdp, type: offer.type });
+  // Datei + Gruppe im State merken — pro Downloader wird später je eine eigene pc erstellt
+  _rtcState[msgId] = { file, group: st.group, uid };
 
   // Datei-Ankündigung für alle sichtbar im Chat
   const myName = _getChatUserName() || 'Kursleitung';
@@ -10596,15 +10613,14 @@ async function _chatOfferFile(uid, input){
     target: 'all',
     ts: Date.now(),
     sessionId: _STICKY_SESSION_ID,
-    offerSessionId: _STICKY_SESSION_ID,
   }, st.group);
 
   _stickyShowStatus('📎 Datei angeboten: ' + file.name, '#4ade80');
 }
 
-// ── Admin: Datei-Chunks senden ───────────────────────────────────────────
-function _chatSendFileChunks(msgId){
-  const s = _rtcState[msgId];
+// ── Admin: Datei-Chunks senden (stateKey = Key in _rtcState) ─────────────
+function _chatSendFileChunks(stateKey){
+  const s = _rtcState[stateKey];
   if(!s || !s.file || !s.dc) return;
   const file = s.file;
   let offset = 0;
@@ -10632,35 +10648,94 @@ function _chatSendFileChunks(msgId){
   readNext();
 }
 
+const _handledSignals = new Set(); // verhindert Doppelverarbeitung bei Firebase-Re-Renders
+
 // ── Eingehende Signal-Nachrichten verarbeiten (wird von _renderChatMessages aufgerufen) ──
 function _chatHandleSignal(m){
   const msgId = m.forMsgId;
   if(!msgId) return;
+
+  // Einmalig verarbeiten — außer ICE-Kandidaten (die kommen sowieso nur einmal)
+  const sigKey = m.messageId || (m.type + '_' + m.forMsgId + '_' + m.ts);
+  if(_handledSignals.has(sigKey)) return;
+  _handledSignals.add(sigKey);
+
+  // Signal-Nachricht sofort aus Firebase löschen (kein Dauer-Speicher nötig)
+  if(m.messageId && _STICKY_SESSION_GROUP){
+    Backend.chat.deleteMsg(m.messageId, _STICKY_SESSION_GROUP);
+  }
   let payload;
   try{ payload = JSON.parse(m.payload); }catch(e){ return; }
+  const dlId = payload.downloaderId;
 
-  if(m.type === 'file-signal-answer'){
-    // Admin empfängt Answer vom User
-    const s = _rtcState[msgId];
+  if(m.type === 'file-signal-request'){
+    // User möchte herunterladen → Admin erstellt frisches Offer speziell für ihn
+    if(!dlId) return;
+    const offerState = _rtcState[msgId];
+    if(!offerState || !offerState.file) return;
+    const stateKey = msgId + '_' + dlId;
+    if(_rtcState[stateKey]) return; // bereits in Arbeit
+
+    const pc2 = new RTCPeerConnection(_STUN_SERVERS);
+    const dc2 = pc2.createDataChannel('file');
+    _rtcState[stateKey] = { pc: pc2, dc: dc2, file: offerState.file,
+                            group: offerState.group, uid: offerState.uid, dlId };
+
+    pc2.onicecandidate = e => {
+      if(!e.candidate) return;
+      _chatSendSignal(offerState.group, msgId, 'file-signal-ice',
+        { side:'offerer', cand: e.candidate.toJSON(), downloaderId: dlId });
+    };
+    pc2.onconnectionstatechange = () => {
+      if(pc2.connectionState === 'failed') delete _rtcState[stateKey];
+    };
+    dc2.onopen  = () => _chatSendFileChunks(stateKey);
+    dc2.onclose = () => { delete _rtcState[stateKey]; };
+
+    // Frisches Offer für diesen Downloader erstellen und zurückschicken
+    pc2.createOffer()
+      .then(offer => pc2.setLocalDescription(offer)
+        .then(() => _chatSendSignal(offerState.group, msgId, 'file-signal-offer-dl',
+          { sdp: offer.sdp, type: offer.type, downloaderId: dlId })))
+      .catch(e => console.error('Admin createOffer für Downloader:', e));
+  }
+  else if(m.type === 'file-signal-answer'){
+    // Admin empfängt Answer des Users auf sein frisches Offer
+    if(!dlId) return;
+    const s = _rtcState[msgId + '_' + dlId];
     if(!s || !s.pc) return;
-    if(s.pc.signalingState === 'stable') return; // schon verbunden
-    s.pc.setRemoteDescription(new RTCSessionDescription(payload))
-      .catch(e => console.error('setRemoteDescription:', e));
+    if(s.pc.signalingState === 'stable') return;
+    s.pc.setRemoteDescription(new RTCSessionDescription({ sdp: payload.sdp, type: payload.type }))
+      .catch(e => console.error('setRemoteDescription (admin):', e));
   }
   else if(m.type === 'file-signal-ice'){
-    // ICE-Kandidat für die passende Seite
-    const s = _rtcState[msgId];
-    if(!s || !s.pc) return;
-    const isAdmin = nachrichtState[s.uid]?.isAdmin;
-    // Admin empfängt nur ice vom answerer, User nur vom offerer
-    if((isAdmin && payload.side === 'answerer') || (!isAdmin && payload.side === 'offerer')){
-      s.pc.addIceCandidate(new RTCIceCandidate(payload.cand))
-        .catch(e => console.error('addIceCandidate:', e));
+    if(!dlId) return;
+    if(payload.side === 'answerer'){
+      // Admin empfängt ICE vom User
+      const s = _rtcState[msgId + '_' + dlId];
+      if(s && s.pc) s.pc.addIceCandidate(new RTCIceCandidate(payload.cand)).catch(()=>{});
+    } else if(payload.side === 'offerer'){
+      // User empfängt ICE vom Admin
+      const s = _rtcState[msgId + '_dl_' + dlId];
+      if(s && s.pc) s.pc.addIceCandidate(new RTCIceCandidate(payload.cand)).catch(()=>{});
     }
+  }
+  else if(m.type === 'file-signal-offer-dl'){
+    // User empfängt sein persönliches Offer vom Admin → Answer erstellen
+    if(!dlId || dlId !== (window._myRtcDownloaderId || '')) return;
+    const dlKey = msgId + '_dl_' + dlId;
+    const s = _rtcState[dlKey];
+    if(!s || !s.pc) return;
+    s.pc.setRemoteDescription(new RTCSessionDescription({ sdp: payload.sdp, type: payload.type }))
+      .then(() => s.pc.createAnswer())
+      .then(answer => s.pc.setLocalDescription(answer)
+        .then(() => _chatSendSignal(s.group, msgId, 'file-signal-answer',
+          { sdp: answer.sdp, type: answer.type, downloaderId: dlId })))
+      .catch(e => console.error('User createAnswer:', e));
   }
 }
 
-// ── User: Herunterladen → Answer erstellen → senden ─────────────────────
+// ── User: Herunterladen-Button → Download-Request an Admin senden ─────────
 async function _chatRequestFile(msgId, uid, btn){
   const isJa = document.documentElement.lang === 'ja';
   const st = nachrichtState[uid];
@@ -10672,23 +10747,20 @@ async function _chatRequestFile(msgId, uid, btn){
   if(prEl) prEl.style.display = 'block';
   if(btn)  btn.textContent = isJa ? '接続中…' : 'Verbinde…';
 
-  // Offer-SDP aus dem Chat-State lesen (wurde bereits über den Listener empfangen)
-  const offerMsg = (st.signals || {})[msgId];
-  if(!offerMsg){
-    if(btn){ btn.disabled=false; btn.textContent = isJa ? '❌ Offer fehlt' : '❌ Offer fehlt'; }
-    _stickyShowStatus('❌ Offer nicht gefunden – Chat-Fenster neu öffnen?', '#f87171');
-    return;
-  }
+  // Eindeutige ID für diesen Download (global gespeichert damit _chatHandleSignal sie kennt)
+  const downloaderId = _STICKY_SESSION_ID + '_' + Date.now();
+  window._myRtcDownloaderId = downloaderId;
+  const dlKey = msgId + '_dl_' + downloaderId;
 
   const pc = new RTCPeerConnection(_STUN_SERVERS);
   const chunks = [];
   let receivedBytes = 0, totalBytes = 0, fileName = 'download';
-  _rtcState[msgId + '_dl'] = { pc, uid };
+  _rtcState[dlKey] = { pc, uid, group: st.group };
 
   pc.onicecandidate = e => {
     if(!e.candidate) return;
     _chatSendSignal(st.group, msgId, 'file-signal-ice',
-      { side:'answerer', cand: e.candidate.toJSON() });
+      { side:'answerer', cand: e.candidate.toJSON(), downloaderId });
   };
 
   pc.ondatachannel = e => {
@@ -10698,8 +10770,7 @@ async function _chatRequestFile(msgId, uid, btn){
       if(typeof ev.data === 'string'){
         const msg = JSON.parse(ev.data);
         if(msg.type === 'meta'){
-          fileName = msg.name;
-          totalBytes = msg.size;
+          fileName = msg.name; totalBytes = msg.size;
           if(btn) btn.textContent = isJa ? '受信中…' : 'Empfange…';
         } else if(msg.type === 'done'){
           const blob = new Blob(chunks);
@@ -10710,28 +10781,21 @@ async function _chatRequestFile(msgId, uid, btn){
           setTimeout(() => URL.revokeObjectURL(url), 2000);
           if(btn){ btn.disabled=false; btn.textContent = isJa ? '✅ 完了' : '✅ Fertig'; }
           if(barEl) barEl.style.width = '100%';
-          pc.close();
-          delete _rtcState[msgId + '_dl'];
+          pc.close(); delete _rtcState[dlKey];
         }
       } else {
         chunks.push(ev.data);
         receivedBytes += ev.data.byteLength;
         if(totalBytes && barEl)
-          barEl.style.width = Math.round(receivedBytes / totalBytes * 100) + '%';
+          barEl.style.width = Math.round(receivedBytes/totalBytes*100) + '%';
       }
     };
-    dc.onerror = e => console.error('DC Fehler User:', e);
+    dc.onerror = e => console.error('DC User:', e);
   };
 
-  await pc.setRemoteDescription(new RTCSessionDescription(offerMsg));
-  const answer = await pc.createAnswer();
-  await pc.setLocalDescription(answer);
-  await _chatSendSignal(st.group, msgId, 'file-signal-answer',
-    { sdp: answer.sdp, type: answer.type });
-
-  // ICE-Kandidaten vom Admin aus dem Chat-State verarbeiten
-  // (laufen automatisch durch _chatHandleSignal wenn sie ankommen)
-  _rtcState[msgId + '_dl'] = { pc, uid };
+  // Dem Admin signalisieren: "Ich möchte diese Datei herunterladen"
+  // Admin erstellt daraufhin ein frisches Offer speziell für uns
+  await _chatSendSignal(st.group, msgId, 'file-signal-request', { downloaderId });
 }
 
 
@@ -14552,6 +14616,138 @@ function _boardImportStartListener(group){
   }, group);
 }
 
+// ════════════════════════════════════════════════════════════════════
+// BG-SHARE — Admin teilt Hintergrundbild live mit der Gruppe
+// Pfad: bgShare/<gruppe>: { img, size, posX, posY, dim, ts }
+// img ist Base64-DataURL, auf max. 1920px komprimiert (< 1.5 MB)
+// ════════════════════════════════════════════════════════════════════
+
+let _bgShareUnsub   = null;
+let _bgShareActive  = false; // Admin hat Teilen eingeschaltet
+let _bgShareLastTs  = 0;
+
+function _bgShareStartListener(group){
+  if(_bgShareUnsub) _bgShareUnsub();
+  _bgShareUnsub = Backend.bgShare.listen(val => {
+    // Admin überspringt eigene Änderungen (er hat sie schon lokal)
+    if(_stickyDeleteUnlocked) return;
+    // null = Admin hat Teilen beendet → Hintergrund zurücksetzen
+    if(!val || !val.img){
+      const bl = document.getElementById('bg-layer');
+      if(bl && bl.classList.contains('has-photo')){
+        bgPhotoData = null;
+        bl.classList.remove('has-photo');
+        bl.style.backgroundImage = `radial-gradient(${_accentRgb(0.1)} 1px,transparent 1px)`;
+        bl.style.backgroundColor = 'var(--bg)';
+        bl.style.backgroundSize  = '28px 28px';
+        document.getElementById('bg-overlay').style.background = 'rgba(15,18,40,0)';
+        document.getElementById('bg-photo-controls').style.display = 'none';
+      }
+      return;
+    }
+    if(val.ts <= _bgShareLastTs) return;
+    _bgShareLastTs = val.ts;
+    _bgShareApply(val);
+  }, group);
+}
+
+function _bgShareApply(data){
+  // Bild anwenden — exakt wie handleBgFile, aber ohne Firebase zurückzuschreiben
+  const bl = document.getElementById('bg-layer');
+  if(!bl) return;
+  bgPhotoData = data.img;
+  bl.classList.add('has-photo');
+  bl.style.backgroundImage    = `url(${data.img})`;
+  bl.style.backgroundColor    = '';
+  bl.style.backgroundSize     = (data.size  || 100) + '%';
+  bl.style.backgroundPosition = (data.posX  || 50)  + '% ' + (data.posY || 50) + '%';
+  bl.style.backgroundRepeat   = 'no-repeat';
+  // Abdunkeln
+  const dimVal = data.dim !== undefined ? data.dim : 30;
+  document.getElementById('bg-overlay').style.background = `rgba(10,14,35,${dimVal/100})`;
+  // Regler synchronisieren (falls Admin-Fenster mitgeöffnet)
+  const ss = document.getElementById('bgsize-slider');
+  const px = document.getElementById('bgposx-slider');
+  const py = document.getElementById('bgposy-slider');
+  const ds = document.getElementById('dim-slider');
+  if(ss){ ss.value = data.size  || 100; document.getElementById('bgsize-val').textContent = ss.value; }
+  if(px){ px.value = data.posX  || 50;  document.getElementById('bgposx-val').textContent = px.value; }
+  if(py){ py.value = data.posY  || 50;  document.getElementById('bgposy-val').textContent = py.value; }
+  if(ds){ ds.value = dimVal;             document.getElementById('dim-val').textContent    = ds.value; }
+  document.getElementById('bg-photo-controls').style.display = 'block';
+}
+
+// Komprimiert ein Bild auf max. maxPx Breite/Höhe als JPEG (qual 0.82)
+function _bgShareCompress(dataUrl, maxPx, callback){
+  const img = new Image();
+  img.onload = () => {
+    let w = img.width, h = img.height;
+    if(w > maxPx || h > maxPx){
+      if(w >= h){ h = Math.round(h * maxPx / w); w = maxPx; }
+      else       { w = Math.round(w * maxPx / h); h = maxPx; }
+    }
+    const c = document.createElement('canvas');
+    c.width = w; c.height = h;
+    c.getContext('2d').drawImage(img, 0, 0, w, h);
+    callback(c.toDataURL('image/jpeg', 0.82));
+  };
+  img.src = dataUrl;
+}
+
+// Aktuellen Hintergrund-State sammeln
+function _bgShareCurrentData(img){
+  return {
+    img,
+    size: parseInt(document.getElementById('bgsize-slider')?.value  || 100),
+    posX: parseInt(document.getElementById('bgposx-slider')?.value  || 50),
+    posY: parseInt(document.getElementById('bgposy-slider')?.value  || 50),
+    dim:  parseInt(document.getElementById('dim-slider')?.value     || 30),
+  };
+}
+
+// Admin: Teilen ein-/ausschalten
+function bgShareToggle(){
+  if(!_stickyDeleteUnlocked || !bgPhotoData) return;
+  _bgShareActive = !_bgShareActive;
+  const btn = document.getElementById('bg-share-btn');
+  if(_bgShareActive){
+    if(btn){ btn.textContent = '✅ Wird geteilt'; btn.style.background = '#16a34a'; }
+    _bgSharePush();
+  } else {
+    if(btn){ btn.textContent = '🔗 Mit Gruppe teilen'; btn.style.background = ''; }
+    // onDisconnect-Hook canceln + sofort löschen
+    _backendReady().then(db => {
+      db.ref('boardImport/' + _STICKY_SESSION_GROUP + '/bgShare')
+        .onDisconnect().cancel();
+    });
+    Backend.bgShare.clear(_STICKY_SESSION_GROUP);
+  }
+}
+
+// Admin: aktuellen State zu Firebase pushen (komprimiert)
+function _bgSharePush(){
+  if(!_bgShareActive || !bgPhotoData) return;
+  _bgShareCompress(bgPhotoData, 1920, compressed => {
+    const data = _bgShareCurrentData(compressed);
+    Backend.bgShare.set(data, _STICKY_SESSION_GROUP);
+    // onDisconnect: Firebase löscht den Node serverseitig sobald die
+    // WebSocket-Verbindung abbricht — zuverlässiger als beforeunload
+    _backendReady().then(db => {
+      db.ref('boardImport/' + _STICKY_SESSION_GROUP + '/bgShare')
+        .onDisconnect().remove();
+    });
+  });
+}
+
+// Admin: Einstellungsänderungen live übertragen (nur wenn Teilen aktiv)
+function _bgSharePushSettings(){
+  if(!_bgShareActive || !bgPhotoData) return;
+  // Nur Einstellungen aktualisieren (kein erneutes Komprimieren)
+  _bgShareCompress(bgPhotoData, 1920, compressed => {
+    Backend.bgShare.set(_bgShareCurrentData(compressed), _STICKY_SESSION_GROUP);
+  });
+}
+
 // Letzter angewendeter Timestamp — verhindert doppelten Import beim Neuladen
 let _boardImportLastTs = 0;
 let _boardImportLastText = null; // letzter Import-Text — für Widget-Wiederherstellung beim Öffnen
@@ -14699,6 +14895,21 @@ window.addEventListener('load',()=>{
   const picker=document.getElementById('bg-color-picker');
   if(picker) picker.addEventListener('input',e=>applyBgColor(e.target.value));
 });
+
+// Hintergrundbild beim Schließen/Verlassen aus Firebase löschen
+// pagehide: zuverlässiger als beforeunload auf mobilen Browsern
+function _bgShareCleanup(){
+  if(!_bgShareActive || !_STICKY_SESSION_GROUP) return;
+  _bgShareActive = false; // verhindert Doppelaufruf
+  const url = 'https://interaktive-tafel-default-rtdb.europe-west1.firebasedatabase.app/'
+    + 'boardImport/' + encodeURIComponent(_STICKY_SESSION_GROUP) + '/bgShare.json';
+  // fetch mit keepalive: läuft auch nach Seiten-Abbau noch durch
+  try{
+    fetch(url, { method:'DELETE', keepalive:true });
+  }catch(e){}
+}
+window.addEventListener('pagehide',    _bgShareCleanup);
+window.addEventListener('beforeunload', _bgShareCleanup);
 
 // ════════════════════════════════════════════════
 // WIDGET: FRAGE-RAD  (offline, Variante A)
