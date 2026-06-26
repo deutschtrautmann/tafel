@@ -1035,6 +1035,18 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .chat-dialog-ok:hover{filter:brightness(1.08);}
 .chat-dialog-ok.red{background:#dc2626;}
 .chat-dialog-ok.red:hover{background:#b91c1c;}
+.chat-file-bubble{background:rgba(79,110,247,.08);border:1.5px solid rgba(79,110,247,.35);border-radius:10px;padding:9px 12px;font-size:12px;max-width:82%;align-self:flex-start;}
+.chat-file-bubble.own{align-self:flex-end;}
+.chat-file-bubble .chat-sender{font-size:10.5px;font-weight:800;color:#4f6ef7;display:block;margin-bottom:4px;}
+.chat-file-bubble .chat-ts{font-size:9px;color:#9ca3af;display:block;margin-top:4px;text-align:right;}
+.chat-file-name{font-weight:700;margin-bottom:4px;word-break:break-all;}
+.chat-file-size{font-size:10.5px;color:var(--text2);margin-bottom:6px;}
+.chat-file-dl-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;background:var(--accent);color:#fff;border:none;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;}
+.chat-file-dl-btn:disabled{opacity:.5;cursor:not-allowed;}
+.chat-file-progress{margin-top:6px;height:5px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden;}
+.chat-file-progress-bar{height:100%;background:var(--accent);width:0%;transition:width .15s;}
+.chat-attach-btn{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.3);color:var(--text);border-radius:8px;padding:3px 9px;font-size:13px;cursor:pointer;}
+.chat-attach-btn:hover{background:rgba(255,255,255,.2);}
 
 .timer-mode-btn{
   background:transparent;border:none;color:var(--text2);padding:4px 10px;
@@ -2068,40 +2080,50 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 // ║  INTERAKTIVE TAFEL — Haupt-Script                                   ║
 // ║  Inhaltsübersicht (Ctrl+G / Goto Line zum Navigieren)               ║
 // ╠══════════════════════════════════════════════════════════════════════╣
-// ║  GLOBALS & WIDGET-SYSTEM        ~  2063  (spawnWidget, killWidget)  ║
-// ║  i18n / LANG / applyI18n        ~  2530  (T(), LANG {de, ja})       ║
-// ║  WIDGET: CLOCK                  ~  4291                             ║
-// ║  WIDGET: TIMER                  ~  4463                             ║
-// ║  WIDGET: DICE                   ~  5385                             ║
-// ║  WIDGET: NAMES                  ~  6759                             ║
-// ║  WIDGET: DRAWING                ~  7162                             ║
-// ║  WIDGET: CLASSROOM/PAARE        ~  7674                             ║
-// ║  LIVE-SCHREIBRAUM               ~  7834                             ║
-// ║  WIDGET: QR CODE                ~  7892                             ║
-// ║  WIDGET: TEXTPAD                ~  7917                             ║
-// ║  WIDGET: STICKY NOTE            ~  8476                             ║
+// ║  GLOBALS & WIDGET-SYSTEM        ~  2116  (spawnWidget, killWidget)  ║
+// ║  i18n / LANG / applyI18n        ~  2141  (T(), LANG {de, ja})       ║
+// ║  WIDGET_DEFS (Typ-Registrierung)~  3860                             ║
+// ║  WIDGET: UHR (clock)            ~  4365  buildClock                 ║
+// ║  WIDGET: TIMER                  ~  4537  buildTimer                 ║
+// ║  WIDGET: WÜRFEL (dice)          ~  5459  buildDice / rollJeinInDice ║
+// ║    ↳ Jein-Modi: text/smiley/janken/color/country                   ║
+// ║    ↳ Satzbau-Modus              ~  6811  rollSatzbau                ║
+// ║  WIDGET: NAMEN (names)          ~  6932  buildNames                 ║
+// ║  WIDGET: ZEICHNEN (draw)        ~  7335  buildDraw                  ║
+// ║  WIDGET: CLASSROOM/PAARE        ~  7847  buildCardMixer             ║
+// ║  LIVE-SCHREIBRAUM               ~  8007  buildLiveRoom              ║
+// ║  WIDGET: QR-CODE                ~  8065  buildQR                    ║
+// ║  WIDGET: TEXTPAD                ~  8090  buildTextpad               ║
+// ║  WIDGET: STICKY NOTE            ~  8841  (→ PINNWAND)               ║
 // ╠══════════════════════════════════════════════════════════════════════╣
-// ║  BACKEND-ABSTRAKTIONS-LAYER     ~  8544  ← Datenbankzugriffe hier  ║
+// ║  BACKEND-ABSTRAKTIONS-LAYER     ~  8904  ← Datenbankzugriffe hier  ║
 // ║    Backend.auth.*               Passwort-Prüfung / Registrierung    ║
 // ║    Backend.pinboard.*           Pinnwand-Zettel (CRUD + Listener)   ║
 // ║    Backend.chat.*               Chat-Nachrichten (CRUD + Listener)  ║
-// ║    _fb*-Aliase (Kompatibilität) ~  8713                             ║
+// ║    _fb*-Aliase (Kompatibilität) ~  9092                             ║
 // ╠══════════════════════════════════════════════════════════════════════╣
-// ║  AUTH & SESSION-SYSTEM          ~  8735  (_STICKY_SESSION_GROUP,    ║
+// ║  AUTH & SESSION-SYSTEM          ~  9105  (_STICKY_SESSION_GROUP,    ║
 // ║                                           _stickyDeleteUnlocked)    ║
-// ║  WIDGET: PINNWAND               ~  8840  (User + Admin)             ║
-// ║  WIDGET: NACHRICHT (Chat)       ~  9648  (Firebase Realtime-Chat)   ║
-// ║  WIDGET: JEIN                   ~ 10027                             ║
-// ║  WIDGET: WAS? (Photo Mosaic)    ~ 10227                             ║
-// ║  WIDGET: SMILEYS                ~ 10847                             ║
-// ║  WIDGET: SLOT MASCHINE          ~ 11195                             ║
-// ║  WIDGET: SPIELE                 ~ 11704  (Rad · Slot · Janken)      ║
-// ║  AMPEL LIVE ANIMATION           ~ 12051                             ║
-// ║  WIDGET: FRAGE-RAD              ~ 13822                             ║
-// ║  DESKTOP DRAW (Vollbild)        ~ 14552                             ║
+// ║  WIDGET: PINNWAND               ~  9222  buildPinnwand (User+Admin) ║
+// ║  WIDGET: NACHRICHT (Chat)       ~ 10045  buildNachricht             ║
+// ║    ↳ WebRTC Dateiübertragung    ~ 10510  _chatOfferFile/_chatRequestFile ║
+// ║  WIDGET: JEIN                   ~ 10697  buildJein                  ║
+// ║  WIDGET: FOTOS / WAS?           ~ 10897  buildWas + Diashow         ║
+// ║  WIDGET: SMILEYS (Befinden)     ~ 11297  buildSmileys               ║
+// ║  WIDGET: SLOT-MASCHINE          ~ 11645  buildSlot                  ║
+// ║  WIDGET: SPIELE                 ~ 12154  buildSpiele                ║
+// ║    ↳ AMPEL-PANEL                ~ 12209  buildAmpelPanel            ║
+// ║    ↳ AMPEL LIVE ANIMATION       ~ 12501                             ║
+// ║    ↳ PUZZLE-PANEL               ~ 13064  buildPuzzlePanel           ║
+// ║    ↳ ZUORDNEN-PANEL             ~ 13647  buildZuordnenPanel         ║
+// ║  ZUMPAD / AI-ASSISTENT          ~ 14037                             ║
+// ║  WIDGET: FRAGE-RAD (wheel)      ~ 14410  buildWheel                 ║
+// ╠══════════════════════════════════════════════════════════════════════╣
+// ║  <script 2> DESKTOP DRAW        ~ 15249  (ddtState, vollbild)       ║
+// ║  <script 3> AUDIO-SYSTEM        ~ 15957  (Web Audio API, Puffer)    ║
 // ╠══════════════════════════════════════════════════════════════════════╣
 // ║  SERVER-WECHSEL (Firebase → eigener Server):                        ║
-// ║    Nur Backend-Abstraktions-Layer (~8544–8730) anpassen.            ║
+// ║    Nur Backend-Abstraktions-Layer (~8904–9104) anpassen.            ║
 // ║    Widget-Code, Auth und UI bleiben vollständig unverändert.        ║
 // ╚══════════════════════════════════════════════════════════════════════╝
 // ════════════════════════════════════════════════
@@ -10114,7 +10136,11 @@ function buildNachricht(body, uid){
         ? '<div class="chat-toolbar"><button class="chat-save-btn" onclick="_saveChatTranscript(' + uid + ')">💾 '
           + (isJa ? 'チャットを保存' : 'Chat speichern') + '</button>'
           + '<button class="chat-clear-btn" onclick="_clearChatConfirm(' + uid + ')">🗑️ '
-          + (isJa ? 'チャットを削除' : 'Chat löschen') + '</button></div>'
+          + (isJa ? 'チャットを削除' : 'Chat löschen') + '</button>'
+          + '<button class="chat-attach-btn" onclick="_chatPickFile(' + uid + ')" title="'
+          + (isJa ? 'ファイルを送信' : 'Datei anbieten') + '">📎</button>'
+          + '<input type="file" id="chat-file-input-' + uid + '" style="display:none" onchange="_chatOfferFile(' + uid + ',this)">'
+          + '</div>'
         : '') +
       '<div class="chat-messages" id="chat-msgs-' + uid + '"><div class="chat-empty">' +
         (isJa ? '読み込み中…' : 'Lädt…') + '</div></div>' +
@@ -10188,6 +10214,8 @@ function _renderChatMessages(uid, messages, isAdmin){
   // Admin: sieht alles AUSSER Nachrichten die an eine andere Person adressiert sind
   // User: sieht "an alle", eigene "an Kursleitung", und Nachrichten die an sie persönlich gerichtet sind
   const visible = (messages || []).filter(m => {
+    // Signal-Nachrichten niemals anzeigen
+    if(m.type && m.type.startsWith('file-signal-')) return false;
     if(isAdmin){
       // Personen-Nachrichten: Admin sieht sie wenn er Absender ODER Empfänger ist
       if(m.targetPerson && m.sender !== myName && m.targetPerson !== myName) return false;
@@ -10233,8 +10261,43 @@ function _renderChatMessages(uid, messages, isAdmin){
     return;
   }
 
+  // Signal-Nachrichten unsichtbar verarbeiten (ICE, Answer) + Offer-SDP merken
+  if(st) {
+    if(!st.signals) st.signals = {};
+    (messages || []).forEach(m => {
+      if(m.type === 'file-signal-offer'){
+        try{ st.signals[m.forMsgId] = JSON.parse(m.payload); }catch(e){}
+      } else if(m.type === 'file-signal-answer' || m.type === 'file-signal-ice'){
+        _chatHandleSignal(m);
+      }
+    });
+  }
+
   wrap.innerHTML = visible.map(m => {
     const own = m.sender === myName && m.sessionId === _STICKY_SESSION_ID;
+
+    // ── Datei-Angebot (WebRTC) ──
+    if(m.type === 'file-offer'){
+      const sizeStr = _chatFormatBytes(m.fileSize || 0);
+      const dlId = 'chat-dl-' + m.messageId;
+      const prId = 'chat-pr-' + m.messageId;
+      const ts = m.ts ? new Date(m.ts).toLocaleTimeString(
+        isJa ? 'ja-JP' : 'de-DE', {hour:'2-digit', minute:'2-digit'}) : '';
+      const dlLabel = isJa ? '⬇ ダウンロード' : '⬇ Herunterladen';
+      const ownLabel = isJa ? '（自分が送信中）' : '(Sie bieten diese Datei an)';
+      return '<div class="chat-file-bubble' + (own ? ' own' : '') + '">'
+        + '<span class="chat-sender">📎 ' + escapeHtml(m.sender || '?') + '</span>'
+        + '<div class="chat-file-name">' + escapeHtml(m.fileName || '?') + '</div>'
+        + '<div class="chat-file-size">' + sizeStr + '</div>'
+        + (own
+          ? '<span style="font-size:10.5px;color:var(--text2);">' + ownLabel + '</span>'
+          : '<button class="chat-file-dl-btn" id="' + dlId + '" onclick="_chatRequestFile(\''
+            + escapeHtml(m.messageId) + '\',' + uid + ',this)">' + dlLabel + '</button>')
+        + '<div class="chat-file-progress" id="' + prId + '" style="display:none"><div class="chat-file-progress-bar" id="' + prId + '-bar"></div></div>'
+        + '<span class="chat-ts">' + ts + '</span>'
+        + '</div>';
+    }
+
     const toAdmin = m.target === 'admin' && !m.targetPerson;
     const toPerson = m.targetPerson;
     const isImportant = !!m.important;
@@ -10430,6 +10493,245 @@ function _chatShowToast(msg){
     el.style.transform = 'translateX(-50%) translateY(0)';
   }));
   el._t = setTimeout(hide, 2000);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CHAT — WebRTC Dateiübertragung (P2P, kein Upload auf Server)
+// Signaling läuft über den bestehenden chat/<gruppe>/-Pfad als
+// Nachrichten mit type:'file-signal-*' — kein neuer Firebase-Pfad nötig.
+// Ablauf:
+//   1. Admin wählt Datei → _chatOfferFile() → sendet Chat-Msg type:'file-offer'
+//      + type:'file-signal-offer' (SDP) in den Chat
+//   2. User klickt "Herunterladen" → _chatRequestFile() → liest Offer-SDP
+//      aus dem Chat-State, sendet type:'file-signal-answer'
+//   3. Admin-Listener sieht Answer → schließt Verbindung ab
+//   4. ICE-Kandidaten beider Seiten laufen als type:'file-signal-ice' durch den Chat
+//   5. Datei fließt direkt P2P, kein Server-Upload
+// ════════════════════════════════════════════════════════════════════
+
+const _rtcState = {}; // msgId → { pc, dc, file, ... }
+
+const _RTC_CHUNK    = 16384;
+const _STUN_SERVERS = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
+function _chatPickFile(uid){
+  const inp = document.getElementById('chat-file-input-' + uid);
+  if(inp) inp.click();
+}
+
+function _chatFormatBytes(bytes){
+  if(!bytes) return '?';
+  if(bytes < 1024) return bytes + ' B';
+  if(bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+// ── Signaling-Nachricht über Backend.chat senden ─────────────────────────
+async function _chatSendSignal(group, msgId, signalType, payload){
+  const sigMsg = {
+    messageId: 'sig_' + Date.now() + '_' + Math.random().toString(36).slice(2,6),
+    type: signalType,         // 'file-signal-offer' | 'file-signal-answer' | 'file-signal-ice'
+    forMsgId: msgId,          // gehört zu welchem Datei-Angebot
+    payload: JSON.stringify(payload),
+    sender: '_signal_',       // wird im Chat nicht angezeigt
+    target: 'all',
+    ts: Date.now(),
+    sessionId: _STICKY_SESSION_ID,
+  };
+  await Backend.chat.send(sigMsg, group);
+}
+
+// ── Admin: Datei auswählen → Offer erstellen → in Chat senden ────────────
+async function _chatOfferFile(uid, input){
+  const isJa = document.documentElement.lang === 'ja';
+  const st = nachrichtState[uid];
+  if(!st){ console.error('nachrichtState fehlt für uid', uid); return; }
+
+  // files zuerst lesen, DANN input.value leeren
+  const file = input.files && input.files[0];
+  input.value = '';
+  if(!file){ console.warn('Keine Datei ausgewählt'); return; }
+
+  _stickyShowStatus('📎 Verbindung wird vorbereitet…', '#a5b4fc');
+
+  const msgId = 'file_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
+  const pc = new RTCPeerConnection(_STUN_SERVERS);
+  const dc = pc.createDataChannel('file');
+  _rtcState[msgId] = { pc, dc, file, group: st.group, uid };
+
+  // ICE-Kandidaten des Admins über Chat-Signaling senden
+  pc.onicecandidate = e => {
+    if(!e.candidate) return;
+    _chatSendSignal(st.group, msgId, 'file-signal-ice',
+      { side:'offerer', cand: e.candidate.toJSON() });
+  };
+
+  pc.onconnectionstatechange = () => {
+    const s = pc.connectionState;
+    if(s === 'connected')   _stickyShowStatus('🔗 Verbunden – sende Datei…', '#4ade80');
+    if(s === 'failed')      _stickyShowStatus('❌ Verbindung fehlgeschlagen', '#f87171');
+    if(s === 'disconnected') _stickyShowStatus('⚠️ Verbindung getrennt', '#f59e0b');
+  };
+
+  // DataChannel offen → Datei senden
+  dc.onopen  = () => _chatSendFileChunks(msgId);
+  dc.onclose = () => { delete _rtcState[msgId]; };
+  dc.onerror = e  => console.error('DataChannel Fehler:', e);
+
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+
+  // Offer-SDP als Signal in den Chat schreiben
+  await _chatSendSignal(st.group, msgId, 'file-signal-offer',
+    { sdp: offer.sdp, type: offer.type });
+
+  // Datei-Ankündigung für alle sichtbar im Chat
+  const myName = _getChatUserName() || 'Kursleitung';
+  await Backend.chat.send({
+    messageId: msgId,
+    type: 'file-offer',
+    fileName: file.name,
+    fileSize: file.size,
+    sender: myName,
+    target: 'all',
+    ts: Date.now(),
+    sessionId: _STICKY_SESSION_ID,
+    offerSessionId: _STICKY_SESSION_ID,
+  }, st.group);
+
+  _stickyShowStatus('📎 Datei angeboten: ' + file.name, '#4ade80');
+}
+
+// ── Admin: Datei-Chunks senden ───────────────────────────────────────────
+function _chatSendFileChunks(msgId){
+  const s = _rtcState[msgId];
+  if(!s || !s.file || !s.dc) return;
+  const file = s.file;
+  let offset = 0;
+  const reader = new FileReader();
+  s.dc.send(JSON.stringify({ type:'meta', name: file.name, size: file.size }));
+
+  const readNext = () => {
+    if(offset >= file.size){
+      s.dc.send(JSON.stringify({ type:'done' }));
+      return;
+    }
+    // Warten wenn Send-Buffer voll
+    if(s.dc.bufferedAmount > 1024 * 512){
+      setTimeout(readNext, 50);
+      return;
+    }
+    reader.readAsArrayBuffer(file.slice(offset, offset + _RTC_CHUNK));
+  };
+  reader.onload = e => {
+    s.dc.send(e.target.result);
+    offset += e.target.result.byteLength;
+    readNext();
+  };
+  reader.onerror = e => console.error('FileReader Fehler:', e);
+  readNext();
+}
+
+// ── Eingehende Signal-Nachrichten verarbeiten (wird von _renderChatMessages aufgerufen) ──
+function _chatHandleSignal(m){
+  const msgId = m.forMsgId;
+  if(!msgId) return;
+  let payload;
+  try{ payload = JSON.parse(m.payload); }catch(e){ return; }
+
+  if(m.type === 'file-signal-answer'){
+    // Admin empfängt Answer vom User
+    const s = _rtcState[msgId];
+    if(!s || !s.pc) return;
+    if(s.pc.signalingState === 'stable') return; // schon verbunden
+    s.pc.setRemoteDescription(new RTCSessionDescription(payload))
+      .catch(e => console.error('setRemoteDescription:', e));
+  }
+  else if(m.type === 'file-signal-ice'){
+    // ICE-Kandidat für die passende Seite
+    const s = _rtcState[msgId];
+    if(!s || !s.pc) return;
+    const isAdmin = nachrichtState[s.uid]?.isAdmin;
+    // Admin empfängt nur ice vom answerer, User nur vom offerer
+    if((isAdmin && payload.side === 'answerer') || (!isAdmin && payload.side === 'offerer')){
+      s.pc.addIceCandidate(new RTCIceCandidate(payload.cand))
+        .catch(e => console.error('addIceCandidate:', e));
+    }
+  }
+}
+
+// ── User: Herunterladen → Answer erstellen → senden ─────────────────────
+async function _chatRequestFile(msgId, uid, btn){
+  const isJa = document.documentElement.lang === 'ja';
+  const st = nachrichtState[uid];
+  if(!st) return;
+  if(btn) btn.disabled = true;
+
+  const prEl  = document.getElementById('chat-pr-'  + msgId);
+  const barEl = document.getElementById('chat-pr-'  + msgId + '-bar');
+  if(prEl) prEl.style.display = 'block';
+  if(btn)  btn.textContent = isJa ? '接続中…' : 'Verbinde…';
+
+  // Offer-SDP aus dem Chat-State lesen (wurde bereits über den Listener empfangen)
+  const offerMsg = (st.signals || {})[msgId];
+  if(!offerMsg){
+    if(btn){ btn.disabled=false; btn.textContent = isJa ? '❌ Offer fehlt' : '❌ Offer fehlt'; }
+    _stickyShowStatus('❌ Offer nicht gefunden – Chat-Fenster neu öffnen?', '#f87171');
+    return;
+  }
+
+  const pc = new RTCPeerConnection(_STUN_SERVERS);
+  const chunks = [];
+  let receivedBytes = 0, totalBytes = 0, fileName = 'download';
+  _rtcState[msgId + '_dl'] = { pc, uid };
+
+  pc.onicecandidate = e => {
+    if(!e.candidate) return;
+    _chatSendSignal(st.group, msgId, 'file-signal-ice',
+      { side:'answerer', cand: e.candidate.toJSON() });
+  };
+
+  pc.ondatachannel = e => {
+    const dc = e.channel;
+    dc.binaryType = 'arraybuffer';
+    dc.onmessage = ev => {
+      if(typeof ev.data === 'string'){
+        const msg = JSON.parse(ev.data);
+        if(msg.type === 'meta'){
+          fileName = msg.name;
+          totalBytes = msg.size;
+          if(btn) btn.textContent = isJa ? '受信中…' : 'Empfange…';
+        } else if(msg.type === 'done'){
+          const blob = new Blob(chunks);
+          const url  = URL.createObjectURL(blob);
+          const a    = document.createElement('a');
+          a.href = url; a.download = fileName;
+          document.body.appendChild(a); a.click(); a.remove();
+          setTimeout(() => URL.revokeObjectURL(url), 2000);
+          if(btn){ btn.disabled=false; btn.textContent = isJa ? '✅ 完了' : '✅ Fertig'; }
+          if(barEl) barEl.style.width = '100%';
+          pc.close();
+          delete _rtcState[msgId + '_dl'];
+        }
+      } else {
+        chunks.push(ev.data);
+        receivedBytes += ev.data.byteLength;
+        if(totalBytes && barEl)
+          barEl.style.width = Math.round(receivedBytes / totalBytes * 100) + '%';
+      }
+    };
+    dc.onerror = e => console.error('DC Fehler User:', e);
+  };
+
+  await pc.setRemoteDescription(new RTCSessionDescription(offerMsg));
+  const answer = await pc.createAnswer();
+  await pc.setLocalDescription(answer);
+  await _chatSendSignal(st.group, msgId, 'file-signal-answer',
+    { sdp: answer.sdp, type: answer.type });
+
+  // ICE-Kandidaten vom Admin aus dem Chat-State verarbeiten
+  // (laufen automatisch durch _chatHandleSignal wenn sie ankommen)
+  _rtcState[msgId + '_dl'] = { pc, uid };
 }
 
 
@@ -11109,12 +11411,40 @@ function wasUpdateControlsVisibility(uid){
   const s = wasState[uid]; if(!s) return;
   const effectEl  = document.getElementById('was-effect-controls-'+uid);
   const zufallBtn = document.getElementById('was-zufall-btn-'+uid);
+  const navEl     = document.getElementById('was-nav-'+uid);
   if(s.diashowActive){
     if(effectEl)  effectEl.style.display  = 'none';
     if(zufallBtn) zufallBtn.style.display = '';
+    // Nav-Bar ausblenden: nur noch Pause-Button per Canvas-Klick
+    if(navEl)     navEl.style.display     = 'none';
   } else {
     if(effectEl)  effectEl.style.display  = '';
     if(zufallBtn) zufallBtn.style.display = 'none';
+    // Nav-Bar wieder zeigen (wenn >1 Bild)
+    if(navEl && s.imgs && s.imgs.length > 1) navEl.style.display = 'flex';
+  }
+  // Canvas-Größe neu berechnen (verfügbarer Platz hat sich geändert)
+  if(s.canvas && s.imgs && s.imgs.length){
+    const cv = s.canvas;
+    const img = s.imgs[s.imgIndex];
+    if(!img) return;
+    const bodyEl = cv.closest('.widget-body');
+    const widget  = cv.closest('.widget');
+    const bodyW = bodyEl ? bodyEl.clientWidth : 0;
+    const availW = Math.max(120, bodyW > 0 ? bodyW - 16 : (widget ? widget.offsetWidth - 32 : 400));
+    const hasNav = !s.diashowActive && s.imgs.length > 1;
+    const reserved = 36/*header*/ + (s.diashowActive ? 0 : 32/*tabs*/ + 38/*buttons+step*/) + (hasNav ? 42 : 0) + 24/*padding*/;
+    const widgetH = widget ? widget.offsetHeight : window.innerHeight;
+    const availH = Math.max(80, widgetH - reserved);
+    const scale  = Math.min(availW / img.width, availH / img.height);
+    const cw = Math.round(img.width  * scale);
+    const ch = Math.round(img.height * scale);
+    cv.width  = cw; cv.height = ch;
+    cv.style.width  = cw + 'px';
+    cv.style.height = ch + 'px';
+    // Bild neu zeichnen
+    const ctx = cv.getContext('2d');
+    ctx.drawImage(img, 0, 0, cw, ch);
   }
 }
 
