@@ -84,7 +84,7 @@ body.light-mode .timer-mode-btn.active-tmode{background:var(--accent)!important;
 body.light-mode .name-disp{color:rgba(30,26,14,0.35)!important;text-shadow:none!important;}
 
 /* Timer */
-body.light-mode .timer-disp{color:var(--text)!important;text-shadow:none!important;}
+body.light-mode .timer-disp:not(.timer-digi-lcd){color:var(--text)!important;text-shadow:none!important;}
 
 /* Uhr */
 body.light-mode .wclock-time{color:var(--text)!important;}
@@ -180,7 +180,7 @@ body.light-mode .wheel-result{background:var(--bg3)!important;color:var(--text)!
 body.light-mode [id^="timer-svg-"] circle:first-child{stroke:rgba(0,0,0,0.1)!important;}
 body.light-mode [id^="td-svg-"]{fill:#1a1f3a!important;}
 body.light-mode [id^="timer-svg-"] line{stroke:rgba(0,0,0,0.2)!important;}
-body.light-mode .timer-disp{color:var(--text)!important;text-shadow:none!important;}
+body.light-mode .timer-disp:not(.timer-digi-lcd){color:var(--text)!important;text-shadow:none!important;}
 /* Timer mode-bar background */
 body.light-mode [id^="tbtn-ring-"],
 body.light-mode [id^="tbtn-digi-"],
@@ -1154,11 +1154,41 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 }
 .widget[data-type="timer"] svg{width:100%;height:100%;}
 .widget[data-type="timer"] .timer-disp{font-size:calc(var(--uiscale,1)*4em);}
+/* Digital-Modus: LCD-Stil mit 7-Segment-Schrift */
+.timer-digi-lcd{
+  font-family:'DSEG7','Courier New',monospace!important;
+  font-size:clamp(2em,9vw,4.5em)!important;
+  font-weight:400!important;
+  letter-spacing:.06em!important;
+  color:#00ff41!important;
+  text-shadow:0 0 8px rgba(0,255,65,0.7),0 0 20px rgba(0,255,65,0.35)!important;
+  background:#0a0f0a;
+  border-radius:10px;
+  padding:.25em .55em!important;
+  display:inline-block;
+  position:relative;
+  box-shadow:inset 0 2px 8px rgba(0,0,0,0.6),0 2px 6px rgba(0,0,0,0.4);
+}
+.timer-digi-lcd::before{
+  content:attr(data-placeholder);
+  position:absolute;inset:0;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'DSEG7','Courier New',monospace;
+  font-size:1em;letter-spacing:.06em;
+  color:rgba(0,255,65,0.12);
+  pointer-events:none;padding:.25em .55em;
+  border-radius:10px;
+}
 /* Timer-Widget: Buttons und Inputs nicht mit uiscale skalieren */
 .widget[data-type="timer"] .timer-mode-btn{font-size:11px!important;padding:4px 10px!important;}
 .widget[data-type="timer"] .wbtn{font-size:13px!important;padding:4px 8px!important;}
 .widget[data-type="timer"] .preset-btn{font-size:10px!important;padding:2px 6px!important;}
-.widget[data-type="timer"] .winput{font-size:12px!important;width:3em!important;padding:2px 4px!important;}
+.widget[data-type="timer"] .winput{font-size:12px!important;width:3.5em!important;padding:2px 4px!important;}
+.widget[data-type="timer"] [id^="tmin-"],.widget[data-type="timer"] [id^="tsec-"]{-moz-appearance:textfield!important;}
+.widget[data-type="timer"] [id^="tmin-"]::-webkit-inner-spin-button,
+.widget[data-type="timer"] [id^="tmin-"]::-webkit-outer-spin-button,
+.widget[data-type="timer"] [id^="tsec-"]::-webkit-inner-spin-button,
+.widget[data-type="timer"] [id^="tsec-"]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
 .widget[data-type="timer"] [id^="timer-inputs-"] span{font-size:12px!important;}
 .widget[data-type="clock"] canvas{max-width:100%;max-height:100%;}
 .widget[data-type="names"] textarea{font-size:calc(var(--uiscale,1)*13px)!important;}
@@ -1868,6 +1898,10 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 
 <!-- FIXED_FULL_FROM_UPLOADED_T19_SOUND_MENU_DROPDOWN_V1 -->
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
+<style>
+@font-face{font-family:'DSEG7';font-weight:400;font-style:normal;
+  src:url('https://cdn.jsdelivr.net/npm/dseg@0.46.0/fonts/DSEG7-Classic/DSEG7Classic-Regular.woff2') format('woff2');}
+</style>
 
 <link rel="icon" type="image/png" sizes="32x32" href="icon-32.png">
 <link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
@@ -2201,6 +2235,7 @@ const LANG = {
     timerLaufer:'🏃 Läufer',
     timerStart:'▶ Start',
     timerPause:'⏸ Pause',
+    timerWeiter:'▶ Weiter',
     timerReset:'↺ Reset',
     timerMin:'Min',
     timerSek:'Sek',
@@ -2462,6 +2497,7 @@ const LANG = {
     timerLaufer:'🏃 ランナー',
     timerStart:'▶ スタート',
     timerPause:'⏸ 一時停止',
+    timerWeiter:'▶ 再開',
     timerReset:'↺ リセット',
     timerMin:'分',
     timerSek:'秒',
@@ -2818,6 +2854,8 @@ function _trTimer(uid){
   const body = document.getElementById('body-'+uid);
   if(!body) return;
   applyI18n(body);
+  // Start-Button-Label in neuer Sprache aktualisieren
+  updateTimerStartBtn(uid);
   // start/pause/reset: covered by data-i18n via applyI18n(body) above
   // Min/Sek labels
   body.querySelectorAll('span').forEach(s=>{
@@ -3382,9 +3420,11 @@ function playFadeinDouble(id, fullVol=0.9){
   });
 }
 
-function playTimerEnd(){
-  // Läufer-Modus aktiv? → Applaus mit Fade-in-Doppel, sonst 1× Glocke
-  const lauferActive = !!document.querySelector('.timer-mode-btn.active-tmode[id^="tbtn-lauf-"]');
+function playTimerEnd(uid){
+  // Läufer-Modus für diesen Timer aktiv? → Applaus, sonst Glocke
+  const lauferActive = uid
+    ? !!document.getElementById('tbtn-lauf-'+uid)?.classList.contains('active-tmode')
+    : !!document.querySelector('.timer-mode-btn.active-tmode[id^="tbtn-lauf-"]');
   if(lauferActive) playFadeinDouble('Applaus', 0.9);
   else             playSound('Glocke',0.9);
 }
@@ -4571,9 +4611,38 @@ setInterval(()=>{
 // ════════════════════════════════════════════════
 // WIDGET: TIMER
 // ════════════════════════════════════════════════
-let timerSec=300,timerRunning=false,timerInterval=null;
-const timerTotalMap={};  // uid -> total seconds set
+// Timer-State pro uid (verhindert Einfrieren bei mehreren Instanzen)
+const timerSecMap={};      // uid -> current seconds remaining
+const timerRunningMap={};  // uid -> boolean
+const timerIntervalMap={}; // uid -> interval id
+const timerTotalMap={};    // uid -> total seconds set
+// Kompatibilitäts-Getter/Setter auf die aktive uid (für Legacy-Aufrufe ohne uid)
+let _activeTimerUid=null;
 function fmtTime(s){return pad(Math.floor(Math.abs(s)/60))+':'+pad(Math.abs(s)%60);}
+function fmtTimeCenti(s, centi){return pad(Math.floor(Math.abs(s)/60))+':'+pad(Math.abs(s)%60)+'.'+pad(centi);}
+
+// Hundertstel-RAF pro uid (nur im Digital-Modus)
+const timerCentiRaf={};   // uid → raf id
+const timerCentiStart={}; // uid → performance.now() when current second started
+
+function timerCentiStart_loop(uid){
+  if(timerCentiRaf[uid]) cancelAnimationFrame(timerCentiRaf[uid]);
+  function frame(){
+    const digi=document.getElementById('td-digi-'+uid);
+    const isDigiMode=document.getElementById('tbtn-digi-'+uid)?.classList.contains('active-tmode');
+    if(!digi||!isDigiMode){timerCentiRaf[uid]=null;return;}
+    const sec=timerSecMap[uid]??0;
+    const running=timerRunningMap[uid];
+    let centi=0;
+    if(running && timerCentiStart[uid]){
+      const elapsed=performance.now()-timerCentiStart[uid];
+      centi=Math.min(99,Math.floor(elapsed/10));
+    }
+    digi.textContent=fmtTimeCenti(sec, running?99-centi:0);
+    timerCentiRaf[uid]=requestAnimationFrame(frame);
+  }
+  timerCentiRaf[uid]=requestAnimationFrame(frame);
+}
 
 function buildTimer(body,uid){
   body.style.display='flex'; body.style.flexDirection='column'; body.style.alignItems='center'; body.style.padding='8px 12px';
@@ -4595,12 +4664,12 @@ function buildTimer(body,uid){
     ${ticks}
     <text id="td-svg-${uid}" x="80" y="84" text-anchor="middle" dominant-baseline="central"
       font-family="Arial,sans-serif" font-weight="400" font-size="22" fill="#ffffff"
-      letter-spacing="1">${fmtTime(timerSec)}</text>
+      letter-spacing="1">${fmtTime(300)}</text>
   </svg>
-  <div id="td-${uid}" style="display:none;">${fmtTime(timerSec)}</div>
+  <div id="td-${uid}" style="display:none;">${fmtTime(300)}</div>
 </div>
 <div id="tview-digi-${uid}" style="display:none;width:100%;text-align:center;padding:.8em 0 .4em;">
-  <div class="timer-disp" id="td-digi-${uid}" style="font-size:5em;margin:0;cursor:pointer;" onclick="startTimer(${uid})" title="" data-i18n-title="ttKlickenTimer">${fmtTime(timerSec)}</div>
+  <div class="timer-disp timer-digi-lcd" id="td-digi-${uid}" data-placeholder="88:88.88" style="font-size:5em;margin:0;cursor:pointer;" onclick="startTimer(${uid})" title="" data-i18n-title="ttKlickenTimer">${fmtTime(300)}</div>
 </div>
 <div id="tview-lauf-${uid}" style="display:none;width:100%;flex:1;min-height:130px;cursor:pointer;overflow:hidden;border-radius:10px;position:relative;" onclick="startTimer(${uid})" title="" data-i18n-title="ttKlickenTimer">
   <svg id="lauf-svg-${uid}" viewBox="0 0 790 160" width="100%" height="100%" style="display:block;" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
@@ -4792,7 +4861,7 @@ function buildTimer(body,uid){
     <rect x="748" y="68" width="44" height="22" rx="4" fill="#ef4444"/>
     <text x="770" y="83" fill="white" font-weight="bold" font-size="10" text-anchor="middle" font-family="Arial,sans-serif">ZIEL</text>
     <!-- Zeit oben rechts im Himmel -->
-    <text id="lauf-time-${uid}" x="735" y="44" text-anchor="middle" font-family="Arial,sans-serif" font-size="40" font-weight="bold" fill="white" stroke="rgba(0,0,80,0.35)" stroke-width="5" paint-order="stroke">${fmtTime(timerSec)}</text>
+    <text id="lauf-time-${uid}" x="735" y="44" text-anchor="middle" font-family="Arial,sans-serif" font-size="40" font-weight="bold" fill="white" stroke="rgba(0,0,80,0.35)" stroke-width="5" paint-order="stroke">${fmtTime(300)}</text>
     <!-- Läufer Gruppe — Startposition cx=20, mit Knie- und Ellbogengelenk-Animation -->
     <g id="lauf-runner-${uid}">
       <!-- Kopf mit Haar-Detail -->
@@ -4840,15 +4909,14 @@ function buildTimer(body,uid){
   </svg>
 </div>
 <div class="row" style="justify-content:center;">
-  <button class="wbtn primary" onclick="startTimer(${uid})" data-i18n="timerStart"></button>
-  <button class="wbtn" onclick="pauseTimer()" data-i18n="timerPause"></button>
+  <button class="wbtn primary" id="tbtn-startstop-${uid}" onclick="startTimer(${uid})" data-i18n="timerStart"></button>
   <button class="wbtn" onclick="resetTimer(${uid})" data-i18n="timerReset"></button>
 </div>
 <div style="margin-top:.7em;border-top:1px solid rgba(255,255,255,0.07);padding-top:.5em;width:100%;">
   <div style="display:flex;gap:.4em;align-items:center;justify-content:center;margin-bottom:.3em;" id="timer-inputs-${uid}">
-    <input class="winput" type="number" id="tmin-${uid}" value="5" min="0" max="99" style="width:calc(var(--uiscale,1)*3em);text-align:center;font-size:calc(var(--uiscale,1)*.78em);padding:.2em .3em;">
+    <input class="winput" type="number" id="tmin-${uid}" value="5" min="0" max="99" style="width:calc(var(--uiscale,1)*4em);text-align:center;font-size:calc(var(--uiscale,1)*.78em);padding:.2em .5em;" oninput="timerLivePreview(${uid})">
     <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);" data-i18n="timerMin"></span>
-    <input class="winput" type="number" id="tsec-${uid}" value="0" min="0" max="59" style="width:calc(var(--uiscale,1)*3em);text-align:center;font-size:calc(var(--uiscale,1)*.78em);padding:.2em .3em;">
+    <input class="winput" type="number" id="tsec-${uid}" value="0" min="0" max="59" style="width:calc(var(--uiscale,1)*4em);text-align:center;font-size:calc(var(--uiscale,1)*.78em);padding:.2em .5em;" oninput="timerLivePreview(${uid})">
     <span style="color:var(--text2);font-size:calc(var(--uiscale,1)*.75em);" data-i18n="timerSek"></span>
   </div>
   <div style="display:flex;gap:.25em;flex-wrap:wrap;justify-content:center;">
@@ -4860,22 +4928,51 @@ function buildTimer(body,uid){
     <button class="preset-btn" style="font-size:calc(var(--uiscale,1)*.72em);padding:.2em .45em;" onclick="setTimer(20,0,${uid})" data-i18n-suffix=" " data-timer-min="20">20 ${T('timerMin')}</button>
   </div>
 </div>`;
+  // Per-uid State initialisieren
   timerTotalMap[uid] = 300;
-  timerSec = 300;
+  timerSecMap[uid] = 300;
+  timerRunningMap[uid] = false;
+  if(timerIntervalMap[uid]){ clearInterval(timerIntervalMap[uid]); timerIntervalMap[uid]=null; }
+  _activeTimerUid = uid;
   // Kreis sofort korrekt befüllt anzeigen
   const _arc = document.getElementById('sw-arc-'+uid);
   if(_arc) _arc.style.strokeDashoffset = '0';
-  updateAllTimerDisplays();
+  updateTimerDisplays(uid);
 }
 
 function setTimerMode(mode, uid){
-  if(mode === 'laufer') resetTimer(uid);
+  // Läufer verlassen → nur RAF stoppen, Timer läuft weiter
+  const wasLaufer = document.getElementById('tbtn-lauf-'+uid)?.classList.contains('active-tmode');
+  if(wasLaufer && mode !== 'laufer'){
+    if(lauferRaf[uid]){ cancelAnimationFrame(lauferRaf[uid]); lauferRaf[uid]=null; }
+  }
+  // Läufer betreten → Läufer-Position auf aktuellen Zeitstand synchronisieren
+  if(mode === 'laufer'){
+    const sec = timerSecMap[uid] ?? 0;
+    const total = timerTotalMap[uid] || 1;
+    lauferPos[uid] = Math.max(0, Math.min(750, (1 - sec/total) * 750));
+    lauferLastTick[uid] = performance.now();
+    if(!lauferPhase[uid]) lauferPhase[uid] = 0;
+    // Wenn Timer gerade läuft, RAF sofort starten
+    if(timerRunningMap[uid] && document.getElementById('lauf-runner-'+uid)){
+      lauferStartRaf(uid);
+    }
+  }
   document.getElementById('tview-ring-'+uid).style.display  = mode==='ring'    ? 'flex'  : 'none';
   document.getElementById('tview-digi-'+uid).style.display  = mode==='digital'  ? 'block' : 'none';
   document.getElementById('tview-lauf-'+uid).style.display  = mode==='laufer'   ? 'block' : 'none';
   document.getElementById('tbtn-ring-'+uid).classList.toggle('active-tmode', mode==='ring');
   document.getElementById('tbtn-digi-'+uid).classList.toggle('active-tmode', mode==='digital');
   document.getElementById('tbtn-lauf-'+uid).classList.toggle('active-tmode', mode==='laufer');
+  // Hundertstel-RAF: starten wenn Digital-Modus, sonst stoppen
+  if(mode==='digital'){
+    timerCentiStart[uid]=performance.now();
+    timerCentiStart_loop(uid);
+  } else {
+    if(timerCentiRaf[uid]){cancelAnimationFrame(timerCentiRaf[uid]);timerCentiRaf[uid]=null;}
+  }
+  updateTimerDisplays(uid);
+  updateTimerStartBtn(uid);
 }
 
 function timerColor(sec, total){
@@ -4894,66 +4991,131 @@ function timerColor(sec, total){
   }
 }
 
-function allTimerDisplays(){return document.querySelectorAll('[id^="td-"]');}
-function updateAllTimerDisplays(){
+function updateTimerDisplays(uid){
   const CIRC=427;
+  const sec = timerSecMap[uid] ?? 300;
+  const total = timerTotalMap[uid] || 300;
+  const col = timerColor(sec, total);
+  const el = document.getElementById('td-'+uid);
+  if(el){ el.textContent=fmtTime(sec); el.style.color='#ffffff'; }
+  const arc=document.getElementById('sw-arc-'+uid);
+  if(arc){ arc.style.stroke=col; arc.style.strokeDashoffset=String(total ? CIRC*(1-sec/total) : 0); }
+  const svgTxt=document.getElementById('td-svg-'+uid);
+  if(svgTxt){ svgTxt.textContent=fmtTime(sec); svgTxt.style.fill='#ffffff'; }
+  // Digital: Hundertstel werden vom centi-RAF-Loop aktualisiert; hier nur statischer Fallback
+  const digi=document.getElementById('td-digi-'+uid);
+  if(digi){ digi.style.color='#ffffff';
+    const isDigiMode=document.getElementById('tbtn-digi-'+uid)?.classList.contains('active-tmode');
+    if(!isDigiMode) digi.textContent=fmtTime(sec);
+    else if(!timerCentiRaf[uid]) timerCentiStart_loop(uid); // RAF starten falls noch nicht läuft
+  }
+  // Läufer-Anzeige (Zeit-Text + statisches Frame) nur wenn Läufer-Modus aktiv
+  const isLauferMode = document.getElementById('tbtn-lauf-'+uid)?.classList.contains('active-tmode');
+  if(isLauferMode) updateLaufer(uid, sec, total);
+}
+function updateAllTimerDisplays(){
+  // Aktualisiert alle vorhandenen Timer-Widgets
   document.querySelectorAll('[id^="td-"]').forEach(el=>{
-    if(el.id.startsWith('td-digi-')) return;
-    if(el.id.startsWith('td-svg-')) return;
+    if(el.id.startsWith('td-digi-')||el.id.startsWith('td-svg-')) return;
     const uid=el.id.replace('td-','');
-    el.textContent=fmtTime(timerSec);
-    const total=timerTotalMap[uid]||300;
-    const col=timerColor(timerSec,total);
-    el.style.color=timerSec<=10?'#f87171':col;
-    const arc=document.getElementById('sw-arc-'+uid);
-    if(arc){arc.style.stroke=col;arc.style.strokeDashoffset=String(timerTotalMap[uid] ? CIRC*(1-timerSec/total) : 0);}
-    const svgTxt=document.getElementById('td-svg-'+uid);
-    if(svgTxt){svgTxt.textContent=fmtTime(timerSec);svgTxt.style.fill=timerSec<=10?'#f87171':col;}
-    const digi=document.getElementById('td-digi-'+uid);
-    if(digi){digi.textContent=fmtTime(timerSec);digi.style.color=el.style.color;}
-    updateLaufer(uid, timerSec, total);
+    if(timerSecMap[uid]!==undefined) updateTimerDisplays(uid);
   });
 }
 function setTimer(min,sec,uid){
-  clearInterval(timerInterval);timerRunning=false;
-  timerSec=min*60+sec;
-  timerTotalMap[uid]=timerSec;
+  if(timerIntervalMap[uid]){clearInterval(timerIntervalMap[uid]);timerIntervalMap[uid]=null;}
+  timerRunningMap[uid]=false;
+  timerSecMap[uid]=min*60+sec;
+  timerTotalMap[uid]=timerSecMap[uid];
+  _activeTimerUid=uid;
   if(uid){const a=document.getElementById('tmin-'+uid),b=document.getElementById('tsec-'+uid);if(a)a.value=min;if(b)b.value=sec;}
-  updateAllTimerDisplays();
+  updateTimerDisplays(uid);
+  updateTimerStartBtn(uid);
+}
+// Sofort-Vorschau beim Tippen in Min/Sek-Felder (kein laufender Timer)
+function timerLivePreview(uid){
+  if(timerRunningMap[uid]) return; // während Timer läuft keine Vorschau
+  const minEl=document.getElementById('tmin-'+uid),secEl=document.getElementById('tsec-'+uid);
+  const s=(parseInt(minEl?.value)||0)*60+(parseInt(secEl?.value)||0);
+  timerSecMap[uid]=s;
+  timerTotalMap[uid]=s;
+  updateTimerDisplays(uid);
+  updateTimerStartBtn(uid);
+}
+// Start-Button-Label je nach Zustand aktualisieren
+function updateTimerStartBtn(uid){
+  const btn=document.getElementById('tbtn-startstop-'+uid);
+  if(!btn) return;
+  const sec=timerSecMap[uid]??0;
+  const total=timerTotalMap[uid]??0;
+  const running=timerRunningMap[uid];
+  const paused=!running && sec>0 && total>0 && sec<total;
+  if(running)      { btn.textContent=T('timerPause');  btn.dataset.i18n='timerPause';  }
+  else if(paused)  { btn.textContent=T('timerWeiter'); btn.dataset.i18n='timerWeiter'; }
+  else             { btn.textContent=T('timerStart');  btn.dataset.i18n='timerStart';  }
 }
 function startTimer(uid){
-  if(timerRunning){pauseTimer();return;}
-  const wasPaused = (timerSec > 0 && timerTotalMap[uid] && timerSec < timerTotalMap[uid]);
-  const lauferMode = !!document.querySelector('.timer-mode-btn.active-tmode[id^="tbtn-lauf-"]');
+  _activeTimerUid=uid;
+  if(timerRunningMap[uid]){pauseTimer(uid);return;}
+  const sec = timerSecMap[uid] ?? 300;
+  const total = timerTotalMap[uid] ?? 300;
+  const wasPaused = (sec > 0 && total && sec < total);
+  const lauferMode = document.getElementById('tbtn-lauf-'+uid)?.classList.contains('active-tmode');
   // Läufer: bei jedem frischen Start (nicht Fortsetzen nach Pause) Reset
   if(lauferMode && !wasPaused) resetTimer(uid);
-  if(uid && !wasPaused){
+  if(!wasPaused){
     const minEl=document.getElementById('tmin-'+uid),secEl=document.getElementById('tsec-'+uid);
-    timerSec=(parseInt(minEl?.value)||0)*60+(parseInt(secEl?.value)||0);
-    timerTotalMap[uid]=timerSec;
+    timerSecMap[uid]=(parseInt(minEl?.value)||0)*60+(parseInt(secEl?.value)||0);
+    timerTotalMap[uid]=timerSecMap[uid];
   }
-  if(timerSec<=0)return;
+  if((timerSecMap[uid]??0)<=0)return;
   if(!wasPaused && lauferMode) playSound('Knall',0.85);
-  timerRunning=true;
+  timerRunningMap[uid]=true;
+  timerCentiStart[uid]=performance.now();
+  updateTimerStartBtn(uid);
+  try{const ac=new(window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
+  // Hundertstel-RAF starten falls Digital-Modus
+  const isDigiMode=document.getElementById('tbtn-digi-'+uid)?.classList.contains('active-tmode');
+  if(isDigiMode) timerCentiStart_loop(uid);
   // Start smooth runner animation – nur im Läufer-Modus
   if(lauferMode){
-    document.querySelectorAll('[id^="td-"]').forEach(el=>{
-      if(!el.id.startsWith('td-') || el.id.startsWith('td-digi-') || el.id.startsWith('td-svg-')) return;
-      const u=el.id.replace('td-','');
-      if(document.getElementById('lauf-runner-'+u)) lauferStartRaf(u);
-    });
+    if(document.getElementById('lauf-runner-'+uid)) lauferStartRaf(uid);
   }
-  timerInterval=setInterval(()=>{
-    timerSec--;if(timerSec<=0){timerSec=0;clearInterval(timerInterval);timerRunning=false;playTimerEnd();}
-    updateAllTimerDisplays();
+  if(timerIntervalMap[uid]){ clearInterval(timerIntervalMap[uid]); timerIntervalMap[uid]=null; }
+  timerIntervalMap[uid]=setInterval(()=>{
+    timerSecMap[uid]--;
+    timerCentiStart[uid]=performance.now(); // Hundertstel-Uhr zurücksetzen
+    if(timerSecMap[uid]<=0){
+      timerSecMap[uid]=0;
+      clearInterval(timerIntervalMap[uid]);timerIntervalMap[uid]=null;
+      timerRunningMap[uid]=false;
+      playTimerEnd(uid);
+      updateTimerStartBtn(uid);
+    }
+    updateTimerDisplays(uid);
   },1000);
 }
-function pauseTimer(){clearInterval(timerInterval);timerRunning=false;}
-function resetTimer(uid){
-  clearInterval(timerInterval);timerRunning=false;
-  timerSec=(parseInt(document.getElementById('tmin-'+uid)?.value)||5)*60+(parseInt(document.getElementById('tsec-'+uid)?.value)||0);
-  timerTotalMap[uid]=timerSec;
+function pauseTimer(uid){
+  uid = uid ?? _activeTimerUid;
+  if(!uid) return;
+  if(timerIntervalMap[uid]){clearInterval(timerIntervalMap[uid]);timerIntervalMap[uid]=null;}
+  timerRunningMap[uid]=false;
   if(lauferRaf[uid]){cancelAnimationFrame(lauferRaf[uid]);lauferRaf[uid]=null;}
+  if(timerCentiRaf[uid]){cancelAnimationFrame(timerCentiRaf[uid]);timerCentiRaf[uid]=null;}
+  updateTimerStartBtn(uid);
+  updateTimerDisplays(uid); // Hundertstel auf :00 einfrieren
+  try{const ac=new(window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
+}
+function resetTimer(uid){
+  if(timerIntervalMap[uid]){clearInterval(timerIntervalMap[uid]);timerIntervalMap[uid]=null;}
+  timerRunningMap[uid]=false;
+  // Quelle der Wahrheit: timerTotalMap (gesetzt durch setTimer/startTimer/timerLivePreview)
+  // Input-Felder als Fallback, aber ohne den fehlerhaften ||5-Default
+  const minEl=document.getElementById('tmin-'+uid), secEl=document.getElementById('tsec-'+uid);
+  const fromInputs = minEl ? (parseInt(minEl.value)||0)*60+(parseInt(secEl?.value)||0) : null;
+  timerSecMap[uid] = timerTotalMap[uid] ?? fromInputs ?? 300;
+  timerTotalMap[uid] = timerSecMap[uid];
+  if(lauferRaf[uid]){cancelAnimationFrame(lauferRaf[uid]);lauferRaf[uid]=null;}
+  if(timerCentiRaf[uid]){cancelAnimationFrame(timerCentiRaf[uid]);timerCentiRaf[uid]=null;}
   lauferPos[uid]=0;
   lauferPhase[uid]=0;
   lauferLastTick[uid]=0;
@@ -4992,7 +5154,8 @@ function resetTimer(uid){
   if(doorInner){ doorInner.setAttribute('opacity','0'); }
   const doorFrame=document.getElementById('lauf-door-frame-'+uid);
   if(doorFrame){ doorFrame.setAttribute('opacity','0'); }
-  updateAllTimerDisplays();
+  updateTimerDisplays(uid);
+  updateTimerStartBtn(uid);
 }
 
 // ── LÄUFER: flüssige Animation via requestAnimationFrame ──
@@ -5016,7 +5179,7 @@ function updateLaufer(uid, sec, total){
   lauferPos[uid] = target;
   // Zeitstempel des letzten Sekunden-Ticks merken (für Sub-Sekunden-Interpolation)
   lauferLastTick[uid] = performance.now();
-  if(!timerRunning) lauferDrawFrame(uid); // static update when paused/reset
+  if(!timerRunningMap[uid]) lauferDrawFrame(uid); // static update when paused/reset
 }
 
 function lauferStartRaf(uid){
@@ -5025,7 +5188,7 @@ function lauferStartRaf(uid){
   lauferLastTick[uid] = performance.now();
   let last=performance.now();
   function frame(now){
-    if(!timerRunning){lauferRaf[uid]=null;return;}
+    if(!timerRunningMap[uid]){lauferRaf[uid]=null;return;}
     const dt=now-last; last=now;
     lauferPhase[uid]=(lauferPhase[uid]||0)+dt;
     lauferDt[uid] = dt / 1000; // in Sekunden für Physik-Berechnungen
@@ -5182,7 +5345,7 @@ function lauferDrawFrame(uid){
     const targetDogOffset = Math.max(16, runnerAbsX - dogBaseX - 25);
     const prevDogX = lauferDogX[uid] || 16;
     const dtS = lauferDt[uid] || 0.016;
-    const lerpF = timerRunning ? (1 - Math.exp(-5 * dtS)) : 1;
+    const lerpF = timerRunningMap[uid] ? (1 - Math.exp(-5 * dtS)) : 1;
     lauferDogX[uid] = prevDogX + (targetDogOffset - prevDogX) * lerpF;
     dog.setAttribute('transform', `translate(${lauferDogX[uid].toFixed(1)},0)`);
   } else if(!halfPassed){
@@ -5204,7 +5367,7 @@ function lauferDrawFrame(uid){
       if(wingEl)  wingEl.setAttribute('d',  'M390,50 Q388,45 396,48');
       if(wingEl2) wingEl2.setAttribute('d', 'M390,53 Q388,58 396,55');
       // Kleines Nicken im Nest
-      const nestBob = timerRunning ? Math.sin((lauferPhase[uid]||0)/1000 * Math.PI * 0.8) * 1.2 : 0;
+      const nestBob = timerRunningMap[uid] ? Math.sin((lauferPhase[uid]||0)/1000 * Math.PI * 0.8) * 1.2 : 0;
       bird.setAttribute('transform', `translate(0,${(7+nestBob).toFixed(2)})`);
     } else {
       // Nest ausblenden wenn Vogel fliegt
@@ -5294,13 +5457,13 @@ function lauferDrawFrame(uid){
       const mouseTargetX = Math.max(0, runnerAbsX - mouseBaseX + 35);
       const prevMX = lauferMouseX[uid] || 0;
       const dtSm = lauferDt[uid] || 0.016;
-      const mouseLerpF = timerRunning ? (1 - Math.exp(-7 * dtSm)) : 1;
+      const mouseLerpF = timerRunningMap[uid] ? (1 - Math.exp(-7 * dtSm)) : 1;
       lauferMouseX[uid] = prevMX + (mouseTargetX - prevMX) * mouseLerpF;
       const mx = lauferMouseX[uid];
       // Maus-Bein-Animation
       const tM = (lauferPhase[uid]||0)/1000;
       const mousePhase = Math.sin(tM * Math.PI * 8); // schnelle Beinbewegung
-      const mLeg = timerRunning ? mousePhase * 2.5 : 0;
+      const mLeg = timerRunningMap[uid] ? mousePhase * 2.5 : 0;
       const ml1 = document.getElementById('lauf-mouse-leg1-'+uid);
       const ml2 = document.getElementById('lauf-mouse-leg2-'+uid);
       const ml3 = document.getElementById('lauf-mouse-leg3-'+uid);
@@ -5310,11 +5473,11 @@ function lauferDrawFrame(uid){
       // Schwanz-Wackeln
       const tailM = document.getElementById('lauf-mouse-tail-'+uid);
       if(tailM){
-        const tw = timerRunning ? Math.sin(tM * Math.PI * 6) * 3 : 0;
+        const tw = timerRunningMap[uid] ? Math.sin(tM * Math.PI * 6) * 3 : 0;
         tailM.setAttribute('d',`M380,126 Q${376+tw},${122+tw*0.5} ${379+tw*0.3},119`);
       }
       // Kleines Hüpfen
-      const mouseBob = timerRunning ? Math.sin(tM * Math.PI * 8) * 1.5 : 0;
+      const mouseBob = timerRunningMap[uid] ? Math.sin(tM * Math.PI * 8) * 1.5 : 0;
       mouse.setAttribute('transform', `translate(${mx.toFixed(1)},${mouseBob.toFixed(2)})`);
     }
   } else if(!halfPassed){
@@ -5327,13 +5490,13 @@ function lauferDrawFrame(uid){
   // Bounce: smooth vertical sine based on accumulated time
   const t=(lauferPhase[uid]||0)/1000; // seconds
   // Lauf-Bounce: nur beim echten Laufen, sanft absorbiert
-  const ty=timerRunning ? Math.abs(Math.sin(t*Math.PI*4))*-2.5 : 0;
+  const ty=timerRunningMap[uid] ? Math.abs(Math.sin(t*Math.PI*4))*-2.5 : 0;
   runner.setAttribute('transform',`translate(${tx.toFixed(1)},${ty.toFixed(2)})`);
 
   // ── Detaillierte Gelenk-Animation: Knie + Ellbogen (ohne sichtbare Punkte) ──
   // Laufzyklus: phase läuft von -1 bis +1 (links vs. rechts voraus)
   const phase = Math.sin(t * Math.PI * 4);
-  const s = timerRunning ? phase : 0;
+  const s = timerRunningMap[uid] ? phase : 0;
 
   // === BEINE: anatomisch korrekte Laufbewegung ===
   // Beim Laufen: ein Bein schwingt nach vorn (Knie hoch, Unterschenkel nach vorn),
@@ -5346,7 +5509,7 @@ function lauferDrawFrame(uid){
   if(thigh1 && shin1){
     // Linkes Bein: schwingt vorwärts wenn phase > 0
     const thighAngle1 = s * 30; // Grad der Oberschenkelneigung
-    const kneeFlexion1 = timerRunning ? Math.max(0, s) * 18 : 0; // Kniebeugewinkel
+    const kneeFlexion1 = timerRunningMap[uid] ? Math.max(0, s) * 18 : 0; // Kniebeugewinkel
     // Knieposition: Hüfte + Oberschenkel-Vektor
     const kx1 = 20 + Math.sin((thighAngle1) * Math.PI/180) * 7;
     const ky1 = 124 + Math.cos((thighAngle1) * Math.PI/180) * 7;
@@ -5360,7 +5523,7 @@ function lauferDrawFrame(uid){
   if(thigh2 && shin2){
     // Rechtes Bein: gegenläufig
     const thighAngle2 = -s * 30;
-    const kneeFlexion2 = timerRunning ? Math.max(0, -s) * 18 : 0;
+    const kneeFlexion2 = timerRunningMap[uid] ? Math.max(0, -s) * 18 : 0;
     const kx2 = 20 + Math.sin((thighAngle2) * Math.PI/180) * 7;
     const ky2 = 124 + Math.cos((thighAngle2) * Math.PI/180) * 7;
     const shankAngle2 = thighAngle2 - kneeFlexion2;
@@ -5403,7 +5566,7 @@ function lauferDrawFrame(uid){
 
   // ── Hund-Bein/Schwanz-Animation (nur Variante 1) ──
   if(dog && halfPassed && variant===1){
-    const running = timerRunning;
+    const running = timerRunningMap[uid];
     const dogT = t * (running ? 1 : 0);
     const dogExcited = true; // Hund ist immer aufgeregt wenn er folgt
     const dogFreq = 10;
@@ -14880,7 +15043,7 @@ document.addEventListener('fullscreenchange', ()=>{
 document.addEventListener('keydown',e=>{
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA'||e.target.tagName==='SELECT')return;
   if(e.target.isContentEditable)return;
-  if(e.key===' '){e.preventDefault();timerRunning?pauseTimer():startTimer();}
+  if(e.key===' '){e.preventDefault();const _u=_activeTimerUid;if(_u){timerRunningMap[_u]?pauseTimer(_u):startTimer(_u);}}
   if(e.key==='Escape'){document.getElementById('bg-panel').classList.remove('open');document.getElementById('sound-menu').classList.remove('open');document.exitFullscreen?.();}
 });
 
