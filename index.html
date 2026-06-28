@@ -7546,6 +7546,11 @@ function buildDraw(body,uid){
       </svg>
     </button>
     <button class="draw-tool-btn" id="dtool-text-${uid}" onclick="setDrawTool(${uid},'text',this)" title="" data-i18n-title="drawTitelText">T</button>
+    <button class="draw-tool-btn" id="dtool-select-${uid}" onclick="setDrawTool(${uid},'select',this)" title="Auswahl (für Kopieren/Ausschneiden)">
+      <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="2" width="14" height="14" rx="1" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2" fill="none"/>
+      </svg>
+    </button>
     <button class="draw-tool-btn" id="dtool-eraser-${uid}" onclick="setDrawTool(${uid},'eraser',this)" title="" data-i18n-title="drawTitelRadierer">
       <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="1.5" y="7" width="15" height="7" rx="2" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.3"/>
@@ -7593,6 +7598,20 @@ function buildDraw(body,uid){
   </label>
   <!-- Actions -->
   <button id="dbtn-undo-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;opacity:0.4;" onclick="undoDraw(${uid})" title="" data-i18n-title="drawTitelRueckgaengig">↩</button>
+  <button id="dbtn-copy-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;opacity:0.4;" onclick="copyDraw(${uid})" title="Auswahl kopieren (Strg+C)">
+    <svg viewBox="0 0 18 18" width="13" height="13" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle">
+      <rect x="1" y="4" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.5 1.5" fill="none"/>
+      <rect x="5" y="1" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.4" fill="none" opacity="0.5"/>
+    </svg>
+  </button>
+  <button id="dbtn-cut-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;opacity:0.4;" onclick="cutDraw(${uid})" title="Auswahl ausschneiden (Strg+X)">
+    <svg viewBox="0 0 18 18" width="13" height="13" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle">
+      <rect x="1" y="4" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.5 1.5" fill="none"/>
+      <line x1="10" y1="3" x2="16" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <line x1="16" y1="3" x2="10" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+  </button>
+  <button id="dbtn-paste-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="pasteDraw(${uid})" title="Einfügen (Strg+V)">📋</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="saveDraw(${uid})" title="" data-i18n-title="drawTitelSpeichern">💾</button>
   <button style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;" onclick="clearDraw(${uid})" title="" data-i18n-title="drawTitelLoeschen">🗑</button>
 </div>
@@ -7828,114 +7847,193 @@ function initDraw(uid){
     else{ctx.globalAlpha=1;ctx.strokeStyle=st.color;ctx.lineWidth=st.sz;}
     ctx.lineCap='round';ctx.lineJoin='round';ctx.stroke();ctx.globalAlpha=1;};
 
-  // Draw the active text + blinking cursor onto the canvas (restoring snapshot first)
-  function renderTextCursor(){
-    if(!st.textSnapshot) return;
-    ctx.putImageData(st.textSnapshot,0,0);
+  // ── TEXT-TOOL: Paint-Stil mit positioniertem Textarea ──
+  let _textArea = null;
+
+  function getFont(){
     const fontEl=document.getElementById('dtextfont-'+uid);
     const sizeEl=document.getElementById('dtextsize-'+uid);
-    const font=fontEl?fontEl.value:'Arial';
-    const size=sizeEl?parseInt(sizeEl.value):20;
-    ctx.globalAlpha=1;
-    ctx.fillStyle=st.color;
-    ctx.font=`${size}px ${font},sans-serif`;
-    ctx.textBaseline='alphabetic';
-    ctx.fillText(st.textStr, st.textX, st.textY);
-    if(st.cursorVis){
-      const tw=ctx.measureText(st.textStr).width;
-      ctx.beginPath();
-      ctx.moveTo(st.textX+tw+1, st.textY-size*0.85);
-      ctx.lineTo(st.textX+tw+1, st.textY+size*0.2);
-      ctx.strokeStyle=st.color; ctx.lineWidth=1.5; ctx.globalAlpha=0.85;
-      ctx.stroke(); ctx.globalAlpha=1;
-    }
+    return {font: fontEl?fontEl.value:'Arial', size: sizeEl?parseInt(sizeEl.value):20};
   }
-  function startCursorBlink(){
-    stopCursorBlink();
-    st.cursorVis=true;
-    st.cursorTimer=setInterval(()=>{st.cursorVis=!st.cursorVis; renderTextCursor();},530);
+
+  function showTextArea(px, py){
+    // px/py in Canvas-Pixeln → in CSS-Pixel umrechnen
+    const r=cv.getBoundingClientRect();
+    const scx=r.width/cv.width, scy=r.height/cv.height;
+    const cssX=r.left+window.scrollX + px*scx;
+    const cssY=r.top +window.scrollY + py*scy;
+    if(_textArea) removeTextArea(true);
+    const {font,size}=getFont();
+    const ta=document.createElement('textarea');
+    ta.id='draw-textarea-'+uid;
+    ta.rows=4;
+    ta.style.cssText=`position:absolute;left:${cssX}px;top:${cssY}px;`
+      +`min-width:120px;min-height:${Math.round(size*1.5*scx)}px;`
+      +`font-family:${font},sans-serif;font-size:${Math.round(size*scx)}px;`
+      +`color:${st.color};background:rgba(255,255,255,0.92);`
+      +`border:2px dashed #555;outline:none;resize:both;`
+      +`padding:2px 4px;line-height:1.25;z-index:99;`
+      +`box-shadow:0 2px 8px rgba(0,0,0,0.25);`;
+    document.body.appendChild(ta);
+    _textArea=ta;
+    ta.focus();
+    // Klick außerhalb → commit
+    setTimeout(()=>{
+      document.addEventListener('mousedown', _onOutsideClick, true);
+      document.addEventListener('touchstart', _onOutsideClick, {capture:true, passive:true});
+    }, 50);
+    ta.addEventListener('keydown', e=>{
+      if(e.key==='Escape'){e.preventDefault(); removeTextArea(false);}
+    });
+    // Schriftart/-größe live ändern
+    const fontEl=document.getElementById('dtextfont-'+uid);
+    const sizeEl=document.getElementById('dtextsize-'+uid);
+    if(fontEl) fontEl.onchange=()=>{const f=getFont();ta.style.fontFamily=f.font+',sans-serif';ta.style.fontSize=Math.round(f.size*scx)+'px';};
+    if(sizeEl) sizeEl.onchange=()=>{const f=getFont();ta.style.fontSize=Math.round(f.size*scx)+'px';};
   }
-  function stopCursorBlink(){
-    if(st.cursorTimer){clearInterval(st.cursorTimer);st.cursorTimer=null;}
+
+  function _onOutsideClick(e){
+    if(!_textArea) return;
+    if(_textArea.contains(e.target)) return;
+    removeTextArea(true);
   }
-  // Commit text to canvas permanently
-  function commitText(){
-    if(!st.textActive) return;
-    stopCursorBlink();
-    pushDrawUndo(uid,cv);
-    if(st.textStr.trim()!==''){
-      // Draw final text without cursor onto snapshot, then apply
-      ctx.putImageData(st.textSnapshot,0,0);
-      const fontEl=document.getElementById('dtextfont-'+uid);
-      const sizeEl=document.getElementById('dtextsize-'+uid);
-      const font=fontEl?fontEl.value:'Arial';
-      const size=sizeEl?parseInt(sizeEl.value):20;
-      ctx.globalAlpha=1; ctx.fillStyle=st.color;
+
+  function removeTextArea(commit){
+    document.removeEventListener('mousedown', _onOutsideClick, true);
+    document.removeEventListener('touchstart', _onOutsideClick, true);
+    if(!_textArea) return;
+    const text=_textArea.value.trim();
+    // Commit: Text auf Canvas zeichnen
+    if(commit && text!==''){
+      pushDrawUndo(uid,cv);
+      const r=cv.getBoundingClientRect();
+      const scx=cv.width/r.width, scy=cv.height/r.height;
+      // Position des Textarea relativ zum Canvas in Canvas-Pixeln
+      const taRect=_textArea.getBoundingClientRect();
+      const cx=(taRect.left-r.left)*scx;
+      const cy=(taRect.top -r.top )*scy;
+      const {font,size}=getFont();
+      ctx.globalAlpha=1;
+      ctx.fillStyle=st.color;
       ctx.font=`${size}px ${font},sans-serif`;
-      ctx.textBaseline='alphabetic';
-      ctx.fillText(st.textStr, st.textX, st.textY);
-    } else {
-      // Nothing typed – restore snapshot
-      ctx.putImageData(st.textSnapshot,0,0);
+      ctx.textBaseline='top';
+      // Mehrzeiligen Text zeichnen
+      const lines=_textArea.value.split('\n');
+      lines.forEach((line,i)=>{ ctx.fillText(line, cx+2, cy+2 + i*size*1.25); });
     }
-    st.textActive=false; st.textStr=''; st.textSnapshot=null;
+    _textArea.remove();
+    _textArea=null;
+    // Schriftart-Selects: onchange zurücksetzen
+    const fontEl=document.getElementById('dtextfont-'+uid);
+    const sizeEl=document.getElementById('dtextsize-'+uid);
+    if(fontEl) fontEl.onchange=null;
+    if(sizeEl) sizeEl.onchange=null;
   }
-  // expose for setDrawTool
-  drawStates[uid]._commitText=commitText;
+
+  // expose für setDrawTool (beim Tool-Wechsel Text committen)
+  drawStates[uid]._commitText=()=>removeTextArea(true);
+
+  // ── AUSWAHL-TOOL: Rechteck ziehen, dann Copy/Cut ──
+  let _sel=null; // {x,y,w,h} in Canvas-Pixeln
+  let _selOverlay=null;
+
+  function drawSelOverlay(){
+    if(_selOverlay) _selOverlay.remove();
+    if(!_sel) return;
+    const r=cv.getBoundingClientRect();
+    const scx=r.width/cv.width, scy=r.height/cv.height;
+    const ov=document.createElement('div');
+    ov.style.cssText=`position:fixed;`
+      +`left:${r.left+_sel.x*scx}px;top:${r.top+_sel.y*scy}px;`
+      +`width:${_sel.w*scx}px;height:${_sel.h*scy}px;`
+      +`border:2px dashed #000;box-shadow:0 0 0 1px #fff;`
+      +`pointer-events:none;z-index:50;box-sizing:border-box;`;
+    document.body.appendChild(ov);
+    _selOverlay=ov;
+    // Cut/Copy-Buttons sichtbar machen
+    const bc=document.getElementById('dbtn-copy-'+uid);
+    const bx=document.getElementById('dbtn-cut-'+uid);
+    if(bc) bc.style.opacity='1';
+    if(bx) bx.style.opacity='1';
+  }
+
+  function clearSel(){
+    _sel=null;
+    if(_selOverlay){_selOverlay.remove();_selOverlay=null;}
+    const bc=document.getElementById('dbtn-copy-'+uid);
+    const bx=document.getElementById('dbtn-cut-'+uid);
+    if(bc) bc.style.opacity='0.4';
+    if(bx) bx.style.opacity='0.4';
+  }
 
   // ── mouse / touch ──
+  let _selStart=null;
   cv.addEventListener('mousedown',e=>{
     const p=getP(e);
     if(st.tool==='text'){
-      // Commit previous text first
-      commitText();
-      // Start new text at click position
-      st.textSnapshot=ctx.getImageData(0,0,cv.width,cv.height);
-      st.textX=p.x; st.textY=p.y; st.textStr=''; st.textActive=true;
-      st.cursorVis=true;
-      renderTextCursor();
-      startCursorBlink();
-      cv.focus();
+      removeTextArea(true);
+      showTextArea(p.x, p.y);
       return;
     }
+    if(st.tool==='select'){
+      clearSel();
+      _selStart=p;
+      return;
+    }
+    clearSel();
     pushDrawUndo(uid,cv);
     st.drawing=true;st.lx=p.x;st.ly=p.y;
   });
-  cv.addEventListener('mousemove',e=>{if(!st.drawing)return;const p=getP(e);stroke(st.lx,st.ly,p.x,p.y);st.lx=p.x;st.ly=p.y;});
-  cv.addEventListener('mouseup',()=>st.drawing=false);
-  cv.addEventListener('mouseleave',()=>st.drawing=false);
+  cv.addEventListener('mousemove',e=>{
+    const p=getP(e);
+    if(st.tool==='select' && _selStart){
+      _sel={x:Math.min(_selStart.x,p.x), y:Math.min(_selStart.y,p.y),
+            w:Math.abs(p.x-_selStart.x),  h:Math.abs(p.y-_selStart.y)};
+      drawSelOverlay(); return;
+    }
+    if(!st.drawing)return;
+    stroke(st.lx,st.ly,p.x,p.y);st.lx=p.x;st.ly=p.y;
+  });
+  cv.addEventListener('mouseup',e=>{
+    if(st.tool==='select'){_selStart=null; if(_sel&&_sel.w<3&&_sel.h<3) clearSel(); return;}
+    st.drawing=false;
+  });
+  cv.addEventListener('mouseleave',()=>{_selStart=null; st.drawing=false;});
   cv.addEventListener('touchstart',e=>{
     e.preventDefault();
     const p=getP(e);
-    if(st.tool==='text'){
-      commitText();
-      st.textSnapshot=ctx.getImageData(0,0,cv.width,cv.height);
-      st.textX=p.x; st.textY=p.y; st.textStr=''; st.textActive=true;
-      st.cursorVis=true; renderTextCursor(); startCursorBlink();
-      cv.focus(); return;
-    }
+    if(st.tool==='text'){removeTextArea(true); showTextArea(p.x,p.y); return;}
+    if(st.tool==='select'){clearSel();_selStart=p;return;}
+    clearSel();
     pushDrawUndo(uid,cv);
     st.drawing=true;st.lx=p.x;st.ly=p.y;
   },{passive:false});
-  cv.addEventListener('touchmove',e=>{e.preventDefault();if(!st.drawing)return;const p=getP(e);stroke(st.lx,st.ly,p.x,p.y);st.lx=p.x;st.ly=p.y;},{passive:false});
-  cv.addEventListener('touchend',()=>st.drawing=false);
+  cv.addEventListener('touchmove',e=>{
+    e.preventDefault();
+    const p=getP(e);
+    if(st.tool==='select'&&_selStart){
+      _sel={x:Math.min(_selStart.x,p.x),y:Math.min(_selStart.y,p.y),
+            w:Math.abs(p.x-_selStart.x),h:Math.abs(p.y-_selStart.y)};
+      drawSelOverlay(); return;
+    }
+    if(!st.drawing)return;
+    stroke(st.lx,st.ly,p.x,p.y);st.lx=p.x;st.ly=p.y;
+  },{passive:false});
+  cv.addEventListener('touchend',()=>{_selStart=null; st.drawing=false;});
 
-  // ── keyboard for text tool ──
+  // expose clearSel für setDrawTool
+  drawStates[uid]._clearSel=clearSel;
+  drawStates[uid]._getSel=()=>_sel;
+
+  // ── keyboard ──
   cv.setAttribute('tabindex','0');
   cv.style.outline='none';
   cv.addEventListener('keydown',e=>{
-    if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){e.preventDefault();undoDraw(uid);return;}
-    if(!st.textActive) return;
-    e.preventDefault();
-    if(e.key==='Escape'||e.key==='Enter'){
-      commitText(); return;
-    }
-    if(e.key==='Backspace'){
-      if(st.textStr.length>0) st.textStr=st.textStr.slice(0,-1);
-    } else if(e.key.length===1){
-      st.textStr+=e.key;
-    }
-    renderTextCursor();
+    const ctrlOrMeta=e.ctrlKey||e.metaKey;
+    if(ctrlOrMeta&&(e.key==='z'||e.key==='Z')){e.preventDefault();undoDraw(uid);return;}
+    if(ctrlOrMeta&&(e.key==='c'||e.key==='C')){e.preventDefault();copyDraw(uid);return;}
+    if(ctrlOrMeta&&(e.key==='x'||e.key==='X')){e.preventDefault();cutDraw(uid);return;}
+    if(ctrlOrMeta&&(e.key==='v'||e.key==='V')){e.preventDefault();pasteDraw(uid);return;}
   });
 }
 function pushDrawUndo(uid,cv){
@@ -7943,7 +8041,7 @@ function pushDrawUndo(uid,cv){
   const ctx=cv.getContext('2d');
   const snap=ctx.getImageData(0,0,cv.width,cv.height);
   st.undoStack.push(snap);
-  if(st.undoStack.length>40) st.undoStack.shift(); // limit memory
+  if(st.undoStack.length>40) st.undoStack.shift();
   const btn=document.getElementById('dbtn-undo-'+uid);
   if(btn) btn.style.opacity='1';
 }
@@ -7983,21 +8081,71 @@ function setDrawTool(uid,tool,btn){
   const textOpts=document.getElementById('dtool-text-opts-'+uid);
   const szSel=document.getElementById('dtool-sz-'+uid);
   if(textOpts) textOpts.style.display=(tool==='text')?'flex':'none';
-  if(szSel) szSel.style.display=(tool==='text')?'none':'';
-  // If switching away from text tool, commit any active text
-  if(tool!=='text' && drawStates[uid]){
-    commitDrawText(uid);
+  if(szSel) szSel.style.display=(tool==='text'||tool==='select')?'none':'';
+  if(drawStates[uid]){
+    // Beim Tool-Wechsel Text committen
+    if(tool!=='text' && drawStates[uid]._commitText) drawStates[uid]._commitText();
+    // Beim Tool-Wechsel Auswahl löschen (außer bei Copy/Cut-Klick)
+    if(tool!=='select' && drawStates[uid]._clearSel) drawStates[uid]._clearSel();
     const cv=document.getElementById('dcanvas-'+uid);
-    if(cv) cv.style.cursor=(tool==='eraser')?'cell':'crosshair';
-  } else if(tool==='text'){
-    const cv=document.getElementById('dcanvas-'+uid);
-    if(cv) cv.style.cursor='text';
+    if(cv) cv.style.cursor=tool==='eraser'?'cell':tool==='text'?'text':tool==='select'?'crosshair':'crosshair';
   }
 }
 function setDColor(uid,color,el){
   if(drawStates[uid])drawStates[uid].color=color;
   el.closest('.widget-body').querySelectorAll('.color-dot').forEach(d=>d.classList.remove('selected'));
   el.classList.add('selected');
+}
+function copyDraw(uid){
+  const cv=document.getElementById('dcanvas-'+uid); if(!cv) return;
+  const st=drawStates[uid]; if(!st) return;
+  const sel=st._getSel?st._getSel():null;
+  // Auswahl-Bereich oder ganzer Canvas
+  const x=sel?Math.round(sel.x):0, y=sel?Math.round(sel.y):0;
+  const w=sel?Math.round(sel.w):cv.width, h=sel?Math.round(sel.h):cv.height;
+  if(w<1||h<1) return;
+  const tmp=document.createElement('canvas'); tmp.width=w; tmp.height=h;
+  tmp.getContext('2d').drawImage(cv, x,y,w,h, 0,0,w,h);
+  st._clipCanvas=tmp; st._clipX=x; st._clipY=y;
+  try{tmp.toBlob(blob=>{if(blob)navigator.clipboard.write([new ClipboardItem({'image/png':blob})]).catch(()=>{});});}catch(e){}
+}
+function cutDraw(uid){
+  const cv=document.getElementById('dcanvas-'+uid); if(!cv) return;
+  const st=drawStates[uid]; if(!st) return;
+  copyDraw(uid);
+  const sel=st._getSel?st._getSel():null;
+  pushDrawUndo(uid,cv);
+  const ctx=cv.getContext('2d');
+  if(sel){
+    ctx.clearRect(sel.x,sel.y,sel.w,sel.h);
+    ctx.fillStyle='#ffffff'; ctx.fillRect(sel.x,sel.y,sel.w,sel.h);
+  } else {
+    ctx.clearRect(0,0,cv.width,cv.height);
+    ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,cv.width,cv.height);
+  }
+  if(st._clearSel) st._clearSel();
+}
+function pasteDraw(uid){
+  const cv=document.getElementById('dcanvas-'+uid); if(!cv) return;
+  const st=drawStates[uid]; if(!st) return;
+  const ctx=cv.getContext('2d');
+  // System-Clipboard versuchen
+  navigator.clipboard.read().then(items=>{
+    for(const item of items){
+      const type=item.types.find(t=>t.startsWith('image/'));
+      if(type){
+        item.getType(type).then(blob=>{
+          const img=new Image();
+          img.onload=()=>{pushDrawUndo(uid,cv);ctx.drawImage(img,0,0);URL.revokeObjectURL(img.src);};
+          img.src=URL.createObjectURL(blob);
+        });
+        return;
+      }
+    }
+    if(st._clipCanvas){pushDrawUndo(uid,cv);ctx.drawImage(st._clipCanvas,0,0);}
+  }).catch(()=>{
+    if(st._clipCanvas){pushDrawUndo(uid,cv);ctx.drawImage(st._clipCanvas,0,0);}
+  });
 }
 function commitDrawText(uid){
   const st=drawStates[uid]; if(!st) return;
@@ -8023,8 +8171,8 @@ function updateDrawTextCursor(uid){
   ctx.lineTo(st.textX+tw+1, st.textY+size*0.2);
   ctx.strokeStyle=st.color; ctx.lineWidth=1.5; ctx.stroke();
 }
-function clearDraw(uid){const cv=document.getElementById('dcanvas-'+uid);if(!cv)return;commitDrawText(uid);const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);}
-function saveDraw(uid){commitDrawText(uid);const cv=document.getElementById('dcanvas-'+uid);if(!cv)return;const a=document.createElement('a');a.download='zeichnung.png';a.href=cv.toDataURL('image/png');a.click();}
+function clearDraw(uid){const st=drawStates[uid];if(st&&st._commitText)st._commitText();const cv=document.getElementById('dcanvas-'+uid);if(!cv)return;pushDrawUndo(uid,cv);const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);}
+function saveDraw(uid){const st=drawStates[uid];if(st&&st._commitText)st._commitText();const cv=document.getElementById('dcanvas-'+uid);if(!cv)return;const a=document.createElement('a');a.download='zeichnung.png';a.href=cv.toDataURL('image/png');a.click();}
 
 
 // ════════════════════════════════════════════════
@@ -15824,7 +15972,20 @@ function spinQuestionWheel(uid){
       <line x1="8.5" y1="7" x2="8.5" y2="14" stroke="currentColor" stroke-width="0.9" opacity="0.5"/>
     </svg>
   </button>
-  <button class="ddt-btn"             id="ddt-text"   onclick="ddtSetTool('text',this)"   title="Text">T</button>
+  <button class="ddt-btn" id="ddt-text" onclick="ddtSetTool('text',this)" title="Text" style="cursor:pointer;font-size:12px;font-weight:700;padding:0 10px;width:auto;">Text</button>
+  <button class="ddt-btn"             id="ddt-select" onclick="ddtSetTool('select',this)" title="Auswahl (für Kopieren/Ausschneiden)">
+    <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="2" y="2" width="14" height="14" rx="1" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2" fill="none"/>
+    </svg>
+  </button>
+  <div class="ddt-sep"></div>
+  <button class="ddt-btn" id="ddt-copy" onclick="ddtCopy()" title="Auswahl kopieren (Strg+C)" style="opacity:0.4;">
+    <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="1" y="4" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.5 1.5"/>
+      <rect x="5" y="1" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.4" opacity="0.5" fill="none"/>
+    </svg>
+  </button>
+  <button class="ddt-btn" id="ddt-paste" onclick="ddtPaste()" title="Einfügen (Strg+V)">📋</button>
   <div class="ddt-sep"></div>
   <!-- Text options (only when text tool active) -->
   <div class="ddt-text-opts" id="ddt-text-opts">
@@ -16074,16 +16235,311 @@ function ddtSetColor(color, el){
 
 function ddtSetTool(tool, btn){
   ddtCommitText();
+  _ddtEndTextOverlay(true);
+  if(tool !== 'select') ddtClearSel();
   ddtState.tool=tool;
-  document.querySelectorAll('.ddt-btn[id^="ddt-pen"],#ddt-marker,#ddt-text,#ddt-eraser')
+  document.querySelectorAll('.ddt-btn[id^="ddt-pen"],#ddt-marker,#ddt-text,#ddt-eraser,#ddt-select')
     .forEach(b=>b.classList.remove('active-tool'));
   btn.classList.add('active-tool');
   const textOpts=document.getElementById('ddt-text-opts');
   const szSel=document.getElementById('ddt-sz');
   if(textOpts){ textOpts.classList.toggle('visible', tool==='text'); }
-  if(szSel){ szSel.style.display=(tool==='text')?'none':''; }
+  if(szSel){ szSel.style.display=(tool==='text'||tool==='select')?'none':''; }
   const cv=ddtCanvas();
-  if(cv){ cv.style.cursor=(tool==='eraser')?'cell':(tool==='text')?'text':'crosshair'; }
+  if(cv){ cv.style.cursor=(tool==='eraser')?'cell':(tool==='text')?'text':(tool==='select')?'crosshair':'crosshair'; }
+}
+
+// ── Auswahl ──
+const _ddtSel = { active:false, x:0,y:0,w:0,h:0, startX:0,startY:0, dragging:false, overlay:null, clip:null };
+
+function ddtClearSel(){
+  _ddtSel.active=false; _ddtSel.copied=false; _ddtSel._doCopy=null; _ddtSel._commitSelOverlay=null;
+  if(_ddtSel.overlay){_ddtSel.overlay.remove();_ddtSel.overlay=null;}
+  const tmp=document.getElementById('ddt-sel-tmp'); if(tmp) tmp.remove();
+  const bc=document.getElementById('ddt-copy');
+  if(bc) bc.style.opacity='0.4';
+}
+function ddtDrawSelOverlay(){
+  if(_ddtSel.overlay) _ddtSel.overlay.remove();
+  const cv=ddtCanvas(); if(!cv) return;
+  const r=cv.getBoundingClientRect();
+  const scx=r.width/cv.width, scy=r.height/cv.height;
+
+  // Phase 1: nur gestrichelter Rahmen, kein Ausschnitt aus Canvas
+  // Der Ausschnitt passiert erst beim Drag-Start (oder Kopieren-Klick)
+  let _clip=null; // wird lazy erstellt
+
+  const ov=document.createElement('div');
+  ov.style.cssText=`position:fixed;box-sizing:border-box;z-index:10055;overflow:hidden;`+
+    `left:${r.left+_ddtSel.x*scx}px;top:${r.top+_ddtSel.y*scy}px;`+
+    `width:${_ddtSel.w*scx}px;height:${_ddtSel.h*scy}px;`+
+    `border:2px dashed #000;box-shadow:0 0 0 1px #fff;cursor:move;`;
+  document.body.appendChild(ov);
+  _ddtSel.overlay=ov;
+  const bc=document.getElementById('ddt-copy');
+  if(bc) bc.style.opacity='1';
+
+  function ensureClip(){
+    if(_clip) return _clip;
+    // Jetzt erst aus Canvas ausschneiden
+    _clip=document.createElement('canvas');
+    _clip.width=Math.round(_ddtSel.w); _clip.height=Math.round(_ddtSel.h);
+    _clip.getContext('2d').drawImage(cv,
+      Math.round(_ddtSel.x),Math.round(_ddtSel.y),Math.round(_ddtSel.w),Math.round(_ddtSel.h),
+      0,0,Math.round(_ddtSel.w),Math.round(_ddtSel.h));
+    if(!_ddtSel.copied){
+      cv.getContext('2d').fillStyle='#fff';
+      cv.getContext('2d').fillRect(Math.round(_ddtSel.x),Math.round(_ddtSel.y),Math.round(_ddtSel.w),Math.round(_ddtSel.h));
+    }
+    // Vorschau einblenden
+    const preview=document.createElement('img');
+    _clip.toBlob(b=>{ preview.src=URL.createObjectURL(b); });
+    preview.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.85;';
+    ov.appendChild(preview);
+    return _clip;
+  }
+
+  // Kopieren-Button: Clip erstellen ohne auszuschneiden, dann copied=true setzen
+  _ddtSel._doCopy=()=>{
+    if(_clip) return; // schon ausgeschnitten → Original weg, nichts zu tun
+    const tmp=document.createElement('canvas');
+    tmp.width=Math.round(_ddtSel.w); tmp.height=Math.round(_ddtSel.h);
+    tmp.getContext('2d').drawImage(cv,
+      Math.round(_ddtSel.x),Math.round(_ddtSel.y),Math.round(_ddtSel.w),Math.round(_ddtSel.h),
+      0,0,Math.round(_ddtSel.w),Math.round(_ddtSel.h));
+    _clip=tmp; _ddtSel.copied=true;
+    // Vorschau einblenden
+    const preview=document.createElement('img');
+    _clip.toBlob(b=>{
+      preview.src=URL.createObjectURL(b);
+      // Systemzwischenablage
+      try{tmp.toBlob(bl=>{if(bl)navigator.clipboard.write([new ClipboardItem({'image/png':bl})]).catch(()=>{});});}catch(e){}
+    });
+    preview.style.cssText='position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.85;';
+    ov.appendChild(preview);
+  };
+
+  // 8 Resize-Handles
+  const handles=[
+    {pos:'nw',cursor:'nwse-resize',style:'top:-5px;left:-5px'},
+    {pos:'n', cursor:'ns-resize',  style:'top:-5px;left:calc(50% - 5px)'},
+    {pos:'ne',cursor:'nesw-resize',style:'top:-5px;right:-5px'},
+    {pos:'e', cursor:'ew-resize',  style:'top:calc(50% - 5px);right:-5px'},
+    {pos:'se',cursor:'nwse-resize',style:'bottom:-5px;right:-5px'},
+    {pos:'s', cursor:'ns-resize',  style:'bottom:-5px;left:calc(50% - 5px)'},
+    {pos:'sw',cursor:'nesw-resize',style:'bottom:-5px;left:-5px'},
+    {pos:'w', cursor:'ew-resize',  style:'top:calc(50% - 5px);left:-5px'},
+  ];
+  handles.forEach(h=>{
+    const el=document.createElement('div');
+    el.dataset.pos=h.pos;
+    el.style.cssText=`position:absolute;width:10px;height:10px;background:#0070f3;`+
+      `border:1px solid #fff;border-radius:2px;cursor:${h.cursor};z-index:2;${h.style};box-sizing:border-box;`;
+    ov.appendChild(el);
+    el.addEventListener('mousedown', e=>onResizeStart(e,h.pos));
+    el.addEventListener('touchstart',e=>onResizeStart(e,h.pos),{passive:false});
+  });
+
+  // ── Resize ──
+  let _rs=false, _rpos='', _rox=0, _roy=0, _row=0, _roh=0, _rl=0, _rt=0;
+  function onResizeStart(e,pos){
+    e.preventDefault(); e.stopPropagation(); _rs=true; _rpos=pos;
+    const br=ov.getBoundingClientRect();
+    _rl=br.left; _rt=br.top; _row=br.width; _roh=br.height;
+    _rox=e.touches?e.touches[0].clientX:e.clientX;
+    _roy=e.touches?e.touches[0].clientY:e.clientY;
+    ensureClip(); // Vorschau sofort einblenden damit sie beim Resize mitskaliert
+    document.addEventListener('mousemove',onResizeMove);
+    document.addEventListener('touchmove',onResizeMove,{passive:false});
+    document.addEventListener('mouseup',onResizeEnd);
+    document.addEventListener('touchend',onResizeEnd);
+  }
+  function onResizeMove(e){
+    if(!_rs) return; e.preventDefault();
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy=e.touches?e.touches[0].clientY:e.clientY;
+    const dx=cx-_rox, dy=cy-_roy;
+    let nl=_rl, nt=_rt, nw=_row, nh=_roh;
+    const p=_rpos;
+    if(p.includes('e')) nw=Math.max(10,_row+dx);
+    if(p.includes('s')) nh=Math.max(10,_roh+dy);
+    if(p.includes('w')){ nl=_rl+dx; nw=Math.max(10,_row-dx); }
+    if(p.includes('n')){ nt=_rt+dy; nh=Math.max(10,_roh-dy); }
+    ov.style.left=nl+'px'; ov.style.top=nt+'px';
+    ov.style.width=nw+'px'; ov.style.height=nh+'px';
+  }
+  function onResizeEnd(){
+    if(!_rs) return; _rs=false;
+    document.removeEventListener('mousemove',onResizeMove);
+    document.removeEventListener('touchmove',onResizeMove);
+    document.removeEventListener('mouseup',onResizeEnd);
+    document.removeEventListener('touchend',onResizeEnd);
+  }
+
+  // ── Verschieben ──
+  let _sd=false, _sx=0, _sy=0;
+  function onSelDragStart(e){
+    if(e.target.dataset.pos) return;
+    e.preventDefault(); e.stopPropagation(); _sd=true;
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy=e.touches?e.touches[0].clientY:e.clientY;
+    const br=ov.getBoundingClientRect();
+    _sx=cx-br.left; _sy=cy-br.top;
+    ensureClip(); // Ausschnitt + Vorschau beim ersten Anfassen
+    document.addEventListener('mousemove',onSelDragMove);
+    document.addEventListener('touchmove',onSelDragMove,{passive:false});
+    document.addEventListener('mouseup',onSelDragEnd);
+    document.addEventListener('touchend',onSelDragEnd);
+  }
+  function onSelDragMove(e){
+    if(!_sd) return; e.preventDefault();
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy=e.touches?e.touches[0].clientY:e.clientY;
+    ov.style.left=(cx-_sx)+'px'; ov.style.top=(cy-_sy)+'px';
+  }
+  function onSelDragEnd(){
+    if(!_sd) return; _sd=false;
+    document.removeEventListener('mousemove',onSelDragMove);
+    document.removeEventListener('touchmove',onSelDragMove);
+    document.removeEventListener('mouseup',onSelDragEnd);
+    document.removeEventListener('touchend',onSelDragEnd);
+    // Nicht committen — warten bis Klick außerhalb
+  }
+  ov.addEventListener('mousedown',onSelDragStart);
+  ov.addEventListener('touchstart',onSelDragStart,{passive:false});
+
+  // Commit-Funktion: im Canvas-mousedown-Handler direkt aufgerufen
+  _ddtSel._commitSelOverlay = function(){
+    if(!_clip){ ov.remove(); _ddtSel.overlay=null; _ddtSel._commitSelOverlay=null; ddtClearSel(); return; }
+    const cvR=cv.getBoundingClientRect();
+    const ovR=ov.getBoundingClientRect();
+    const scaleX=cv.width/cvR.width, scaleY=cv.height/cvR.height;
+    const destX=(ovR.left-cvR.left)*scaleX, destY=(ovR.top-cvR.top)*scaleY;
+    const destW=ovR.width*scaleX, destH=ovR.height*scaleY;
+    ddtPushUndo();
+    cv.getContext('2d').drawImage(_clip, destX, destY, destW, destH);
+    ov.remove(); _ddtSel.overlay=null; _ddtSel._commitSelOverlay=null;
+    ddtClearSel();
+  };
+}
+function ddtCopy(){
+  // Wenn Overlay aktiv: _doCopy() verwenden (kopiert ohne auszuschneiden)
+  if(_ddtSel.overlay && _ddtSel._doCopy){ _ddtSel._doCopy(); return; }
+  // Fallback: kein Overlay, direkt aus Canvas lesen
+  const cv=ddtCanvas(); if(!cv) return;
+  const s=_ddtSel;
+  if(!s.active||s.w<1||s.h<1) return;
+  const tmp=document.createElement('canvas'); tmp.width=Math.round(s.w); tmp.height=Math.round(s.h);
+  tmp.getContext('2d').drawImage(cv,Math.round(s.x),Math.round(s.y),Math.round(s.w),Math.round(s.h),0,0,Math.round(s.w),Math.round(s.h));
+  s.clip=tmp; s.copied=true;
+  try{tmp.toBlob(b=>{if(b)navigator.clipboard.write([new ClipboardItem({'image/png':b})]).catch(()=>{});});}catch(e){}
+}
+
+// Verschiebbares Paste-Overlay (wie Paint)
+const _ddtPasteState={};
+function _ddtStartPasteOverlay(clipCanvas){
+  _ddtEndPasteOverlay(false);
+  const cv=ddtCanvas(); if(!cv) return;
+  const cvR=cv.getBoundingClientRect();
+  const scx=cvR.width/cv.width, scy=cvR.height/cv.height;
+  let px=cvR.left + cvR.width*0.1;
+  let py=cvR.top  + cvR.height*0.1;
+  const pw=Math.round(clipCanvas.width*scx);
+  const ph=Math.round(clipCanvas.height*scy);
+
+  const ov=document.createElement('div');
+  ov.id='ddt-paste-ov';
+  ov.style.cssText=
+    'position:fixed;z-index:10058;cursor:move;box-sizing:border-box;'+
+    'border:2px dashed #0070f3;box-shadow:0 0 0 1px #fff;'+
+    'left:'+px+'px;top:'+py+'px;width:'+pw+'px;height:'+ph+'px;touch-action:none;';
+  const img=document.createElement('img');
+  clipCanvas.toBlob(b=>{img.src=URL.createObjectURL(b);});
+  img.style.cssText='width:100%;height:100%;display:block;pointer-events:none;';
+  ov.appendChild(img);
+  document.body.appendChild(ov);
+
+  _ddtPasteState.cur={ov,clip:clipCanvas,dragging:false,dx:0,dy:0};
+
+  function onPDragStart(e){
+    e.preventDefault(); e.stopPropagation();
+    _ddtPasteState.cur.dragging=true;
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy=e.touches?e.touches[0].clientY:e.clientY;
+    const br=ov.getBoundingClientRect();
+    _ddtPasteState.cur.dx=cx-br.left; _ddtPasteState.cur.dy=cy-br.top;
+    document.addEventListener('mousemove',onPDragMove);
+    document.addEventListener('touchmove',onPDragMove,{passive:false});
+    document.addEventListener('mouseup',onPDragEnd);
+    document.addEventListener('touchend',onPDragEnd);
+  }
+  function onPDragMove(e){
+    if(!_ddtPasteState.cur?.dragging) return; e.preventDefault();
+    const cx=e.touches?e.touches[0].clientX:e.clientX;
+    const cy=e.touches?e.touches[0].clientY:e.clientY;
+    ov.style.left=(cx-_ddtPasteState.cur.dx)+'px';
+    ov.style.top =(cy-_ddtPasteState.cur.dy)+'px';
+  }
+  function onPDragEnd(){
+    if(_ddtPasteState.cur) _ddtPasteState.cur.dragging=false;
+    document.removeEventListener('mousemove',onPDragMove);
+    document.removeEventListener('touchmove',onPDragMove);
+    document.removeEventListener('mouseup',onPDragEnd);
+    document.removeEventListener('touchend',onPDragEnd);
+  }
+  ov.addEventListener('mousedown',onPDragStart);
+  ov.addEventListener('touchstart',onPDragStart,{passive:false});
+  _ddtPasteState.cur._rmDrag=onPDragEnd;
+
+  // Klick außerhalb (auf Zeichenfläche) → einbetten
+  setTimeout(()=>{
+    document.addEventListener('mousedown',_ddtPasteOutsideClick,true);
+    document.addEventListener('touchstart',_ddtPasteOutsideClick,{capture:true,passive:true});
+  },80);
+}
+function _ddtPasteOutsideClick(e){
+  const ov=document.getElementById('ddt-paste-ov');
+  if(!ov) return;
+  if(ov.contains(e.target)) return;
+  if(e.target.closest('#desktop-draw-toolbar')) return;
+  _ddtEndPasteOverlay(true);
+}
+function _ddtEndPasteOverlay(commit){
+  document.removeEventListener('mousedown',_ddtPasteOutsideClick,true);
+  document.removeEventListener('touchstart',_ddtPasteOutsideClick,true);
+  const ps=_ddtPasteState.cur; if(!ps) return;
+  if(ps._rmDrag) ps._rmDrag();
+  const ov=document.getElementById('ddt-paste-ov');
+  if(ov){
+    if(commit){
+      const cv=ddtCanvas(); const ctx=cv.getContext('2d');
+      const ovR=ov.getBoundingClientRect();
+      const cvR=cv.getBoundingClientRect();
+      const scaleX=cv.width/cvR.width, scaleY=cv.height/cvR.height;
+      const dx=(ovR.left-cvR.left)*scaleX;
+      const dy=(ovR.top -cvR.top )*scaleY;
+      ddtPushUndo();
+      ctx.drawImage(ps.clip, dx, dy);
+    }
+    ov.remove();
+  }
+  delete _ddtPasteState.cur;
+}
+function ddtPaste(){
+  const doInsert=clip=>_ddtStartPasteOverlay(clip);
+  navigator.clipboard.read().then(items=>{
+    for(const item of items){
+      const type=item.types.find(t=>t.startsWith('image/'));
+      if(type){ item.getType(type).then(b=>{
+        const img=new Image(); const url=URL.createObjectURL(b);
+        img.onload=()=>{
+          const tmp=document.createElement('canvas'); tmp.width=img.naturalWidth; tmp.height=img.naturalHeight;
+          tmp.getContext('2d').drawImage(img,0,0); URL.revokeObjectURL(url); doInsert(tmp);
+        }; img.src=url;
+      }); return; }
+    }
+    if(_ddtSel.clip) doInsert(_ddtSel.clip);
+  }).catch(()=>{ if(_ddtSel.clip) doInsert(_ddtSel.clip); });
 }
 
 // ── Text tool ──
@@ -16160,12 +16616,12 @@ function _ddtStartPhotoOverlay(img){
   // Overlay über das Canvas (fixed, deckt genau den Canvas ab)
   const ov=document.createElement('div');
   ov.id='ddt-photo-ov';
-  ov.style.cssText=`position:fixed;left:${cvR.left}px;top:${cvR.top}px;width:${cvR.width}px;height:${cvR.height}px;z-index:10050;touch-action:none;cursor:default;`;
+  ov.style.cssText=`position:fixed;left:${cvR.left}px;top:${cvR.top}px;width:${cvR.width}px;height:${cvR.height}px;z-index:10050;touch-action:none;cursor:default;pointer-events:none;`;
 
   // Rahmen
   const frame=document.createElement('div');
   frame.id='ddt-photo-frame';
-  frame.style.cssText=`position:absolute;border:2px dashed ${_accentRgb(0.9)};border-radius:3px;box-sizing:border-box;cursor:move;user-select:none;`;
+  frame.style.cssText=`position:absolute;border:2px dashed ${_accentRgb(0.9)};border-radius:3px;box-sizing:border-box;cursor:move;user-select:none;pointer-events:auto;`;
 
   // Resize-Handle (rechts unten)
   const rh=document.createElement('div');
@@ -16173,24 +16629,6 @@ function _ddtStartPhotoOverlay(img){
   rh.textContent='↘';
   frame.appendChild(rh);
 
-  // Einbetten-Button
-  const commitBtn=document.createElement('button');
-  commitBtn.textContent=T('drawEinbetten');
-  commitBtn.style.cssText=`position:absolute;top:-34px;left:50%;transform:translateX(-50%);background:${_accentHex()};color:#fff;border:none;border-radius:8px;padding:4px 14px;font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;box-shadow:0 2px 8px rgba(0,0,0,0.4);z-index:3;`;
-  commitBtn.onmousedown=e=>e.stopPropagation();
-  commitBtn.ontouchstart=e=>e.stopPropagation();
-  commitBtn.onclick=e=>{ e.stopPropagation(); _ddtEndPhotoOverlay(true); };
-
-  // Abbrechen-Button
-  const cancelBtn=document.createElement('button');
-  cancelBtn.textContent='✕';
-  cancelBtn.style.cssText='position:absolute;top:-34px;right:-4px;background:rgba(248,113,113,0.9);color:#fff;border:none;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:3;';
-  cancelBtn.onmousedown=e=>e.stopPropagation();
-  cancelBtn.ontouchstart=e=>e.stopPropagation();
-  cancelBtn.onclick=e=>{ e.stopPropagation(); _ddtEndPhotoOverlay(false); };
-
-  frame.appendChild(commitBtn);
-  frame.appendChild(cancelBtn);
   ov.appendChild(frame);
   document.body.appendChild(ov);
 
@@ -16210,10 +16648,16 @@ function _ddtStartPhotoOverlay(img){
   }
   syncFrame();
 
+  // Klick außerhalb → einbetten
+  setTimeout(()=>{
+    document.addEventListener('mousedown',_ddtPhotoOutsideClick,true);
+    document.addEventListener('touchstart',_ddtPhotoOutsideClick,{capture:true,passive:true});
+  },80);
+
   // Drag
   function onDragStart(e){
     const t=e.target;
-    if(t===rh||t===commitBtn||t===cancelBtn) return;
+    if(t===rh) return;
     e.preventDefault(); e.stopPropagation();
     const s=_ddtPhotoState.cur; if(!s) return;
     s.dragging=true;
@@ -16284,7 +16728,16 @@ function _ddtStartPhotoOverlay(img){
   };
 }
 
+function _ddtPhotoOutsideClick(e){
+  const frame=document.getElementById('ddt-photo-frame');
+  if(!frame) return;
+  if(frame.contains(e.target)) return;
+  if(e.target.closest('#desktop-draw-toolbar')) return;
+  _ddtEndPhotoOverlay(true);
+}
 function _ddtEndPhotoOverlay(commit){
+  document.removeEventListener('mousedown',_ddtPhotoOutsideClick,true);
+  document.removeEventListener('touchstart',_ddtPhotoOutsideClick,true);
   const ps=_ddtPhotoState.cur;
   if(ps){
     if(ps._rmDrag) ps._rmDrag();
@@ -16308,231 +16761,82 @@ function _ddtEndPhotoOverlay(commit){
   delete _ddtPhotoState.cur;
 }
 
-// ── Desktop Draw: verschiebbares Text-Overlay ──
-const _ddtTextState={};
+// ── Desktop Draw: Text direkt auf Canvas ──
+const _ddtTextState={};  // { x, y, str, font, size, snapshot, cursorVis, cursorTimer }
 
-function _ddtStartTextOverlay(clickX, clickY, cvRect){
-  _ddtEndTextOverlay(false); // evtl. vorheriges verwerfen
+function ddtTextGetFont(){ return document.getElementById('ddt-textfont')?.value||'Arial'; }
+function ddtTextGetSize(){ return parseInt(document.getElementById('ddt-textsize')?.value||'20'); }
 
-  const font = document.getElementById('ddt-textfont')?.value || 'Arial';
-  const size = parseInt(document.getElementById('ddt-textsize')?.value || '20');
+function _ddtRenderTextCursor(){
+  const ps=_ddtTextState.cur; if(!ps) return;
+  const cv=ddtCanvas(); if(!cv) return;
+  const ctx=cv.getContext('2d');
+  ctx.putImageData(ps.snapshot,0,0);
+  const font=ddtTextGetFont(), size=ddtTextGetSize();
+  const cvR=cv.getBoundingClientRect();
+  const sx=cv.width/cvR.width, sy=cv.height/cvR.height;
+  ctx.globalAlpha=1;
+  ctx.fillStyle=ddtState.color;
+  ctx.font=`${size*sy}px ${font},sans-serif`;
+  ctx.textBaseline='alphabetic';
+  // Mehrzeilig: letzte Zeile für Cursor
+  const lines=ps.str.split('\n');
+  lines.forEach((line,i)=>{
+    ctx.fillText(line, ps.x*sx, (ps.y + i*size*1.35)*sy);
+  });
+  // Blinkender Cursor hinter letzter Zeile
+  if(ps.cursorVis){
+    const lastLine=lines[lines.length-1];
+    const tw=ctx.measureText(lastLine).width;
+    const cx2=ps.x*sx + tw;
+    const cy2=(ps.y + (lines.length-1)*size*1.35)*sy;
+    ctx.beginPath();
+    ctx.moveTo(cx2+2, cy2-size*sy*0.82);
+    ctx.lineTo(cx2+2, cy2+size*sy*0.18);
+    ctx.strokeStyle=ddtState.color; ctx.lineWidth=1.5*sy; ctx.globalAlpha=0.9;
+    ctx.stroke(); ctx.globalAlpha=1;
+  }
+}
 
-  // Startposition: wo geklickt wurde (in CSS-Pixel relativ zum Canvas)
-  const ps = _ddtTextState.cur = {
-    x: Math.max(0, clickX - 4),
-    y: Math.max(0, clickY - size - 4),
-    dragging: false, dx: 0, dy: 0,
-    cvRect
+function _ddtStartTextCursor(canvasX, canvasY){
+  _ddtEndTextOverlay(false);
+  const cv=ddtCanvas(); if(!cv) return;
+  const size=ddtTextGetSize();
+  _ddtTextState.cur={
+    x: canvasX, y: canvasY + size*0.85, // y = baseline
+    str:'', cursorVis:true, cursorTimer:null,
+    snapshot: cv.getContext('2d').getImageData(0,0,cv.width,cv.height)
   };
-
-  const cv = ddtCanvas();
-  ps.snapshot = cv.getContext('2d').getImageData(0,0,cv.width,cv.height);
-
-  // Overlay — kein Hintergrund, pointer-events:none; Drag läuft über box+handle
-  const ov = document.createElement('div');
-  ov.id = 'ddt-text-ov';
-  ov.style.cssText = `position:fixed;left:${cvRect.left}px;top:${cvRect.top}px;` +
-    `width:${cvRect.width}px;height:${cvRect.height}px;z-index:10050;` +
-    `pointer-events:none;touch-action:none;`;
-
-  // Textbox-Container
-  const box = document.createElement('div');
-  box.id = 'ddt-text-box';
-  box.style.cssText = `position:absolute;left:${ps.x}px;top:${ps.y}px;` +
-    `min-width:200px;min-height:${size+80}px;` +
-    `border:2px dashed ${_accentRgb(0.85)};border-radius:6px;` +
-    `background:rgba(255,255,255,0.97);box-sizing:border-box;` +
-    `user-select:none;pointer-events:auto;` +
-    `display:flex;flex-direction:column;box-shadow:0 4px 18px rgba(0,0,0,0.18);`;
-
-  // ── Mini-Toolbar (Schrift/Größe) oben in der Box ──
-  const miniBar = document.createElement('div');
-  miniBar.style.cssText = `display:flex;gap:4px;align-items:center;padding:4px 6px;` +
-    `background:rgba(240,242,250,0.98);border-radius:4px 4px 0 0;` +
-    `border-bottom:1px solid rgba(0,0,0,0.1);flex-shrink:0;cursor:default;`;
-  miniBar.addEventListener('mousedown', e => e.stopPropagation());
-  miniBar.addEventListener('touchstart', e => e.stopPropagation(), {passive:true});
-
-  // Schriftart-Select in der Box
-  const fontSel = document.createElement('select');
-  fontSel.style.cssText = `background:#fff;border:1px solid rgba(0,0,0,0.18);color:#1a1f3a;` +
-    `border-radius:5px;font-size:11px;padding:0 4px;height:26px;cursor:pointer;flex-shrink:0;`;
-  [['Arial','Arial'],["Georgia","Georgia"],["'Courier New'",'Monospace'],['Impact','Impact']].forEach(([val,lbl])=>{
-    const o=document.createElement('option'); o.value=val; o.textContent=lbl;
-    if(val===font) o.selected=true;
-    fontSel.appendChild(o);
-  });
-
-  // Größe-Select in der Box
-  const sizeSel = document.createElement('select');
-  sizeSel.style.cssText = `background:#fff;border:1px solid rgba(0,0,0,0.18);color:#1a1f3a;` +
-    `border-radius:5px;font-size:11px;padding:0 4px;height:26px;cursor:pointer;flex-shrink:0;`;
-  [14,20,28,40,60,80].forEach(s=>{
-    const o=document.createElement('option'); o.value=s; o.textContent=s+'px';
-    if(s===size) o.selected=true;
-    sizeSel.appendChild(o);
-  });
-
-  // Live-Update der Textarea bei Auswahl
-  function applyStyle(){
-    const f = fontSel.value;
-    const s = parseInt(sizeSel.value);
-    ta.style.fontFamily = f + ',sans-serif';
-    ta.style.fontSize   = s + 'px';
-    // Sync mit globalen Toolbar-Selects
-    const tb_font = document.getElementById('ddt-textfont');
-    const tb_size = document.getElementById('ddt-textsize');
-    if(tb_font) tb_font.value = f;
-    if(tb_size) tb_size.value = s;
-  }
-  fontSel.addEventListener('change', applyStyle);
-  sizeSel.addEventListener('change', applyStyle);
-
-  // Drag-Handle-Label im miniBar (rechts)
-  const dragHint = document.createElement('span');
-  dragHint.textContent = '✥';
-  dragHint.style.cssText = `margin-left:auto;color:#aaa;font-size:14px;cursor:move;` +
-    `padding:0 4px;user-select:none;`;
-  miniBar.appendChild(fontSel);
-  miniBar.appendChild(sizeSel);
-  miniBar.appendChild(dragHint);
-  box.appendChild(miniBar);
-
-  // ── Drag-Handle: schmaler Streifen unter miniBar, über der Textarea ──
-  const dragHandle = document.createElement('div');
-  dragHandle.style.cssText = `height:14px;background:${_accentRgb(0.08)};` +
-    `cursor:move;flex-shrink:0;display:flex;align-items:center;justify-content:center;`;
-  dragHandle.innerHTML = '<svg width="32" height="6" viewBox="0 0 32 6"><rect y="0" width="32" height="2" rx="1" fill="#aaa"/><rect y="4" width="32" height="2" rx="1" fill="#aaa"/></svg>';
-  box.appendChild(dragHandle);
-
-  // Textarea für Eingabe
-  const ta = document.createElement('textarea');
-  ta.id = 'ddt-text-input';
-  ta.style.cssText = `width:100%;min-height:${size+16}px;flex:1;` +
-    `background:transparent;border:none;outline:none;resize:both;` +
-    `font-family:${font},sans-serif;font-size:${size}px;` +
-    `color:${ddtState.color};line-height:1.25;padding:4px 8px;` +
-    `cursor:text;pointer-events:auto;box-sizing:border-box;user-select:text;`;
-  ta.placeholder = 'Text eingeben…';
-  // Text-Selektion und Eingabe erlauben — kein Drag-Start von Textarea
-  ta.addEventListener('mousedown', e => e.stopPropagation());
-  ta.addEventListener('touchstart', e => e.stopPropagation(), {passive:true});
-  box.appendChild(ta);
-
-  // Buttons
-  const commitBtn = document.createElement('button');
-  commitBtn.textContent = '✓ Einbetten';
-  commitBtn.style.cssText = 'position:absolute;top:-34px;left:50%;transform:translateX(-50%);' +
-    `background:${_accentHex()};color:#fff;border:none;border-radius:8px;padding:4px 14px;` +
-    'font-size:12px;font-weight:800;cursor:pointer;white-space:nowrap;' +
-    'box-shadow:0 2px 8px rgba(0,0,0,0.3);z-index:3;pointer-events:auto;';
-  commitBtn.onmousedown = e => e.stopPropagation();
-  commitBtn.onclick = e => { e.stopPropagation(); _ddtEndTextOverlay(true); };
-
-  const cancelBtn = document.createElement('button');
-  cancelBtn.textContent = '✕';
-  cancelBtn.style.cssText = 'position:absolute;top:-34px;right:-4px;' +
-    'background:rgba(220,50,50,0.88);color:#fff;border:none;border-radius:8px;' +
-    'padding:4px 10px;font-size:12px;font-weight:800;cursor:pointer;' +
-    'box-shadow:0 2px 8px rgba(0,0,0,0.25);z-index:3;pointer-events:auto;';
-  cancelBtn.onmousedown = e => e.stopPropagation();
-  cancelBtn.onclick = e => { e.stopPropagation(); _ddtEndTextOverlay(false); };
-
-  box.appendChild(commitBtn);
-  box.appendChild(cancelBtn);
-  ov.appendChild(box);
-  document.body.appendChild(ov);
-
-  setTimeout(() => ta.focus(), 30);
-
-  // ── Drag: über dragHandle und dragHint ──
-  function startDrag(e){
-    e.preventDefault(); e.stopPropagation();
-    ps.dragging = true;
-    const cx = e.touches ? e.touches[0].clientX : e.clientX;
-    const cy = e.touches ? e.touches[0].clientY : e.clientY;
-    const br = box.getBoundingClientRect();
-    ps.dx = cx - br.left;
-    ps.dy = cy - br.top;
-    document.addEventListener('mousemove',  onDragMove);
-    document.addEventListener('touchmove',  onDragMove, {passive:false});
-    document.addEventListener('mouseup',    onDragEnd);
-    document.addEventListener('touchend',   onDragEnd);
-  }
-  function onDragMove(e){
-    if(!ps.dragging) return;
-    e.preventDefault();
-    const cx = e.touches ? e.touches[0].clientX : e.clientX;
-    const cy = e.touches ? e.touches[0].clientY : e.clientY;
-    const cvR = ddtCanvas().getBoundingClientRect();
-    ps.x = Math.max(0, Math.min(cvR.width  - box.offsetWidth,  cx - cvR.left - ps.dx));
-    ps.y = Math.max(0, Math.min(cvR.height - box.offsetHeight, cy - cvR.top  - ps.dy));
-    box.style.left = ps.x + 'px';
-    box.style.top  = ps.y + 'px';
-  }
-  function onDragEnd(){
-    ps.dragging = false;
-    document.removeEventListener('mousemove',  onDragMove);
-    document.removeEventListener('touchmove',  onDragMove);
-    document.removeEventListener('mouseup',    onDragEnd);
-    document.removeEventListener('touchend',   onDragEnd);
-  }
-
-  dragHandle.addEventListener('mousedown',  startDrag);
-  dragHandle.addEventListener('touchstart', startDrag, {passive:false});
-  dragHint.addEventListener('mousedown',    startDrag);
-  dragHint.addEventListener('touchstart',   startDrag, {passive:false});
-
-  ps._rmDrag = () => { onDragEnd(); };
+  _ddtRenderTextCursor();
+  _ddtTextState.cur.cursorTimer=setInterval(()=>{
+    if(!_ddtTextState.cur) return;
+    _ddtTextState.cur.cursorVis=!_ddtTextState.cur.cursorVis;
+    _ddtRenderTextCursor();
+  },530);
+  cv.focus();
 }
 
 function _ddtEndTextOverlay(commit){
-  const ps = _ddtTextState.cur;
-  if(ps && ps._rmDrag) ps._rmDrag();
-
-  const ov  = document.getElementById('ddt-text-ov');
-  const box = document.getElementById('ddt-text-box');
-  const ta  = document.getElementById('ddt-text-input');
-  const text = ta ? ta.value.trim() : '';
-
-  if(ov) ov.remove();
-
-  const cv = ddtCanvas(); if(!cv) return;
-  const ctx = cv.getContext('2d');
-
-  if(!commit || !text || !ps){
-    // Abbrechen — Snapshot wiederherstellen
-    if(ps && ps.snapshot) ctx.putImageData(ps.snapshot, 0, 0);
-    delete _ddtTextState.cur;
-    return;
+  const ps=_ddtTextState.cur; if(!ps) return;
+  if(ps.cursorTimer){ clearInterval(ps.cursorTimer); ps.cursorTimer=null; }
+  const cv=ddtCanvas(); if(!cv){ delete _ddtTextState.cur; return; }
+  const ctx=cv.getContext('2d');
+  if(!commit || !ps.str.trim()){
+    ctx.putImageData(ps.snapshot,0,0);
+    delete _ddtTextState.cur; return;
   }
-
-  // Snapshot wiederherstellen, dann Text draufzeichnen
-  if(ps.snapshot) ctx.putImageData(ps.snapshot, 0, 0);
+  // Endgültig zeichnen ohne Cursor
+  ctx.putImageData(ps.snapshot,0,0);
   ddtPushUndo();
-
-  const font = document.getElementById('ddt-textfont')?.value || 'Arial';
-  const size = parseInt(document.getElementById('ddt-textsize')?.value || '20');
-  const cvR  = cv.getBoundingClientRect();
-  const scaleX = cv.width  / cvR.width;
-  const scaleY = cv.height / cvR.height;
-
-  // Boxposition: ps.x/y sind relativ zum Overlay (= CSS-Canvas-Koordinaten)
-  const boxEl = document.getElementById('ddt-text-box'); // schon entfernt → nutze ps
-  const textX = (ps.x + 6) * scaleX;          // 6px padding
-  const textY = (ps.y + 18 + size) * scaleY;  // 18px grip-Höhe + Baseline
-
-  ctx.globalAlpha = 1;
-  ctx.fillStyle   = ddtState.color;
-  ctx.font        = `${size * scaleY}px ${font},sans-serif`;
-  ctx.textBaseline = 'alphabetic';
-
-  // Mehrzeiligen Text unterstützen
-  const lines = text.split('\n');
-  lines.forEach((line, i) => {
-    ctx.fillText(line, textX, textY + i * size * scaleY * 1.3);
+  const font=ddtTextGetFont(), size=ddtTextGetSize();
+  const cvR=cv.getBoundingClientRect();
+  const sx=cv.width/cvR.width, sy=cv.height/cvR.height;
+  ctx.globalAlpha=1; ctx.fillStyle=ddtState.color;
+  ctx.font=`${size*sy}px ${font},sans-serif`;
+  ctx.textBaseline='alphabetic';
+  ps.str.split('\n').forEach((line,i)=>{
+    ctx.fillText(line, ps.x*sx, (ps.y + i*size*1.35)*sy);
   });
-
   delete _ddtTextState.cur;
 }
 
@@ -16548,8 +16852,22 @@ function ddtInitEvents(){
   cv.addEventListener('mousedown',e=>{
     if(e.target.closest('#desktop-draw-toolbar')) return;
     if(ddtState.tool==='text'){
+      // Klick woanders → aktuellen Text committen, dann neuen starten
+      const p=ddtGetP(e);
+      _ddtEndTextOverlay(true);
+      _ddtStartTextCursor(p.x, p.y);
+      return;
+    }
+    if(ddtState.tool==='select'){
+      // Aktives Overlay → erst committen
+      if(_ddtSel._commitSelOverlay){ _ddtSel._commitSelOverlay(); }
+      // Dann neue Auswahl starten (w/h auf 0 damit mouseup kein Overlay erstellt falls kein Drag)
+      ddtClearSel();
+      _ddtSel.w=0; _ddtSel.h=0;
       const r=cv.getBoundingClientRect();
-      _ddtStartTextOverlay(e.clientX - r.left, e.clientY - r.top, r);
+      const scx=cv.width/r.width, scy=cv.height/r.height;
+      _ddtSel.startX=(e.clientX-r.left)*scx; _ddtSel.startY=(e.clientY-r.top)*scy;
+      _ddtSel.dragging=true; _ddtSel.active=false;
       return;
     }
     const p=ddtGetP(e);
@@ -16558,19 +16876,47 @@ function ddtInitEvents(){
     if(ddtState.tool==='marker') ddtMarkerStart(p.x,p.y);
   });
   cv.addEventListener('mousemove',e=>{
+    if(ddtState.tool==='select' && _ddtSel.dragging){
+      const r=cv.getBoundingClientRect();
+      const scx=cv.width/r.width, scy=cv.height/r.height;
+      const cx=(e.clientX-r.left)*scx, cy=(e.clientY-r.top)*scy;
+      _ddtSel.x=Math.min(_ddtSel.startX,cx); _ddtSel.y=Math.min(_ddtSel.startY,cy);
+      _ddtSel.w=Math.abs(cx-_ddtSel.startX); _ddtSel.h=Math.abs(cy-_ddtSel.startY);
+      _ddtSel.active=true;
+      // Während des Ziehens: leichtes Overlay ohne pointer-events (blockiert Canvas nicht)
+      let tmp=document.getElementById('ddt-sel-tmp');
+      if(!tmp){ tmp=document.createElement('div'); tmp.id='ddt-sel-tmp';
+        tmp.style.cssText='position:fixed;pointer-events:none;z-index:10055;box-sizing:border-box;border:2px dashed #000;box-shadow:0 0 0 1px #fff;';
+        document.body.appendChild(tmp); }
+      tmp.style.left=(r.left+_ddtSel.x*r.width/cv.width)+'px';
+      tmp.style.top =(r.top +_ddtSel.y*r.height/cv.height)+'px';
+      tmp.style.width =(_ddtSel.w*r.width/cv.width)+'px';
+      tmp.style.height=(_ddtSel.h*r.height/cv.height)+'px';
+      return;
+    }
     if(!ddtState.drawing) return;
     const p=ddtGetP(e);
     ddtStroke(ddtState.lx,ddtState.ly,p.x,p.y);
     ddtState.lx=p.x; ddtState.ly=p.y;
   });
-  cv.addEventListener('mouseup',()=>{ if(ddtState.tool==='marker') ddtMarkerEnd(); ddtState.drawing=false; });
-  cv.addEventListener('mouseleave',()=>{ if(ddtState.tool==='marker') ddtMarkerEnd(); ddtState.drawing=false; });
+  cv.addEventListener('mouseup',e=>{
+    if(ddtState.tool==='select'){
+      _ddtSel.dragging=false;
+      const tmp=document.getElementById('ddt-sel-tmp'); if(tmp) tmp.remove();
+      if(_ddtSel.w<3&&_ddtSel.h<3){ ddtClearSel(); return; }
+      ddtDrawSelOverlay();
+      return;
+    }
+    if(ddtState.tool==='marker') ddtMarkerEnd(); ddtState.drawing=false;
+  });
+  cv.addEventListener('mouseleave',()=>{ if(ddtState.tool==='marker') ddtMarkerEnd(); _ddtSel.dragging=false; const tmp=document.getElementById('ddt-sel-tmp'); if(tmp) tmp.remove(); ddtState.drawing=false; });
 
   cv.addEventListener('touchstart',e=>{
     e.preventDefault();
     if(ddtState.tool==='text'){
-      const r=cv.getBoundingClientRect();
-      _ddtStartTextOverlay(e.touches[0].clientX - r.left, e.touches[0].clientY - r.top, r);
+      const p=ddtGetP(e);
+      _ddtEndTextOverlay(true);
+      _ddtStartTextCursor(p.x, p.y);
       return;
     }
     const p=ddtGetP(e);
@@ -16589,6 +16935,22 @@ function ddtInitEvents(){
 
   cv.addEventListener('keydown',e=>{
     if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){e.preventDefault();ddtUndo();return;}
+    if((e.ctrlKey||e.metaKey)&&(e.key==='c'||e.key==='C')){e.preventDefault();ddtCopy();return;}
+    if((e.ctrlKey||e.metaKey)&&(e.key==='v'||e.key==='V')){e.preventDefault();ddtPaste();return;}
+    // Text-Tool: Tastatureingabe direkt auf Canvas
+    if(_ddtTextState.cur){
+      e.preventDefault();
+      const ps=_ddtTextState.cur;
+      if(e.key==='Escape'){ _ddtEndTextOverlay(false); return; }
+      if(e.key==='Enter'){ ps.str+='\n'; }
+      else if(e.key==='Backspace'){
+        if(ps.str.length>0) ps.str=ps.str.slice(0,-1);
+      } else if(e.key.length===1&&!(e.ctrlKey||e.metaKey)){
+        ps.str+=e.key;
+      }
+      _ddtRenderTextCursor();
+      return;
+    }
     if(e.key==='Escape'){ closeDesktopDraw(); return; }
   });
 
