@@ -676,7 +676,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 .widget-header{
   display:flex;align-items:center;justify-content:space-between;
   padding:7px 11px 6px;cursor:grab;user-select:none;
-  background:rgba(0,0,0,0.2);border-bottom:1px solid rgba(255,255,255,0.07);
+  background:rgba(255,255,255,0.1);border-bottom:1px solid rgba(255,255,255,0.15);
   flex-shrink:0;
 }
 .widget-header:active{cursor:grabbing;}
@@ -2375,6 +2375,10 @@ const LANG = {
     drawTitelStift:'Stift',
     drawTitelMarker:'Marker',
     drawTitelText:'Text schreiben',
+    drawTitelAuswahl:'Auswahl (für Kopieren / Verschieben)',
+    drawTitelKopieren:'Auswahl kopieren (Strg+C)',
+    drawTitelEinfuegen:'Einfügen (Strg+V)',
+    drawTextBtn:'Text',
     drawTitelRadierer:'Radierer',
     drawTitelSchriftart:'Schriftart',
     drawTitelSchriftgroesse:'Schriftgröße',
@@ -2638,6 +2642,10 @@ const LANG = {
     drawTitelStift:'ペン',
     drawTitelMarker:'マーカー',
     drawTitelText:'テキストを書く',
+    drawTitelAuswahl:'選択（コピー・移動用）',
+    drawTitelKopieren:'選択範囲をコピー（Ctrl+C）',
+    drawTitelEinfuegen:'貼り付け（Ctrl+V）',
+    drawTextBtn:'テキスト',
     drawTitelRadierer:'消しゴム',
     drawTitelSchriftart:'フォント',
     drawTitelSchriftgroesse:'文字サイズ',
@@ -4190,14 +4198,17 @@ function minimizeWidget(id){
   if(!mini){
     // Minimieren
     el._savedH   = el.style.height;
+    el._savedMinH = el.style.minHeight;
     el._savedTop = el.style.top;
     body.style.display='none';
     rh.style.display='none';
     el.classList.remove('fit-content');
     el.style.height='36px';
+    el.style.minHeight='36px';
   } else {
     // Wiederherstellen
     rh.style.display='';
+    el.style.minHeight = el._savedMinH||'';
     const def=WIDGET_DEFS[el.dataset.type];
     if(def && def.fitContent){
       el.style.height='';
@@ -4205,7 +4216,6 @@ function minimizeWidget(id){
     } else {
       el.style.height=el._savedH||'';
     }
-    // Top-Position wiederherstellen (wird beim Minimieren gespeichert)
     if(el._savedTop !== undefined) el.style.top = el._savedTop;
     const _uid = parseInt(id.replace('widget-',''));
     if(WIDGET_DEFS[el.dataset.type]?.onRestore){
@@ -15972,20 +15982,20 @@ function spinQuestionWheel(uid){
       <line x1="8.5" y1="7" x2="8.5" y2="14" stroke="currentColor" stroke-width="0.9" opacity="0.5"/>
     </svg>
   </button>
-  <button class="ddt-btn" id="ddt-text" onclick="ddtSetTool('text',this)" title="Text" style="cursor:pointer;font-size:12px;font-weight:700;padding:0 10px;width:auto;">Text</button>
-  <button class="ddt-btn"             id="ddt-select" onclick="ddtSetTool('select',this)" title="Auswahl (für Kopieren/Ausschneiden)">
+  <button class="ddt-btn" id="ddt-text" onclick="ddtSetTool('text',this)" data-i18n-title="drawTitelText" style="cursor:pointer;font-size:12px;font-weight:700;padding:0 10px;width:auto;" data-i18n="drawTextBtn">Text</button>
+  <button class="ddt-btn"             id="ddt-select" onclick="ddtSetTool('select',this)" data-i18n-title="drawTitelAuswahl">
     <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="2" width="14" height="14" rx="1" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2" fill="none"/>
     </svg>
   </button>
   <div class="ddt-sep"></div>
-  <button class="ddt-btn" id="ddt-copy" onclick="ddtCopy()" title="Auswahl kopieren (Strg+C)" style="opacity:0.4;">
+  <button class="ddt-btn" id="ddt-copy" onclick="ddtCopy()" data-i18n-title="drawTitelKopieren" style="opacity:0.4;">
     <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="1" y="4" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.4" stroke-dasharray="2.5 1.5"/>
       <rect x="5" y="1" width="10" height="10" rx="1" stroke="currentColor" stroke-width="1.4" opacity="0.5" fill="none"/>
     </svg>
   </button>
-  <button class="ddt-btn" id="ddt-paste" onclick="ddtPaste()" title="Einfügen (Strg+V)">📋</button>
+  <button class="ddt-btn" id="ddt-paste" onclick="ddtPaste()" data-i18n-title="drawTitelEinfuegen">📋</button>
   <div class="ddt-sep"></div>
   <!-- Text options (only when text tool active) -->
   <div class="ddt-text-opts" id="ddt-text-opts">
@@ -16934,7 +16944,11 @@ function ddtInitEvents(){
   cv.addEventListener('touchend',()=>{ if(ddtState.tool==='marker') ddtMarkerEnd(); ddtState.drawing=false; });
 
   cv.addEventListener('keydown',e=>{
-    if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){e.preventDefault();ddtUndo();return;}
+    if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){
+      e.preventDefault();
+      if(_ddtTextState.cur) _ddtEndTextOverlay(false); // Text verwerfen
+      ddtUndo(); return;
+    }
     if((e.ctrlKey||e.metaKey)&&(e.key==='c'||e.key==='C')){e.preventDefault();ddtCopy();return;}
     if((e.ctrlKey||e.metaKey)&&(e.key==='v'||e.key==='V')){e.preventDefault();ddtPaste();return;}
     // Text-Tool: Tastatureingabe direkt auf Canvas
