@@ -4612,20 +4612,23 @@ setInterval(()=>{
 // ════════════════════════════════════════════════
 // WIDGET: TIMER
 // ════════════════════════════════════════════════
-// Timer-State pro uid (verhindert Einfrieren bei mehreren Instanzen)
-const timerSecMap={};      // uid -> current seconds remaining
-const timerRunningMap={};  // uid -> boolean
-const timerIntervalMap={}; // uid -> interval id
-const timerTotalMap={};    // uid -> total seconds set
-// Kompatibilitäts-Getter/Setter auf die aktive uid (für Legacy-Aufrufe ohne uid)
-let _activeTimerUid=null;
+// Jede Timer-Instanz (uid) hat eigenen State in Maps.
+// Modi: ring (Kreisanzeige), digital (LCD-Stil), laufer (Animations-Szene).
+// Alle Modi teilen denselben setInterval — Moduswechsel stoppt den Timer NICHT.
+//
+// State-Maps (uid-basiert, verhindert Konflikte bei mehreren Instanzen):
+const timerSecMap={};      // uid → verbleibende Sekunden
+const timerRunningMap={};  // uid → läuft gerade (boolean)
+const timerIntervalMap={}; // uid → setInterval-Handle
+const timerTotalMap={};    // uid → Gesamtdauer beim Start (für Kreisbogen)
+let _activeTimerUid=null;  // zuletzt bediente Timer-uid (für Leertaste-Shortcut)
 function fmtTime(s){return pad(Math.floor(Math.abs(s)/60))+':'+pad(Math.abs(s)%60);}
-function fmtTimeCenti(s, centi){return pad(Math.floor(Math.abs(s)/60))+':'+pad(Math.abs(s)%60)+'.'+pad(centi);}
 
-// Hundertstel-RAF pro uid (nur im Digital-Modus)
-const timerCentiRaf={};   // uid → raf id
-const timerCentiStart={}; // uid → performance.now() when current second started
+// Digital-Modus: RAF-Loop für flüssige Anzeige (läuft nur wenn Digital-Tab aktiv)
+const timerCentiRaf={};   // uid → requestAnimationFrame-Handle
+const timerCentiStart={}; // uid → performance.now() des letzten Sekundenticks
 
+// timerCentiStart_loop: RAF-Loop für Digital-Modus, aktualisiert Anzeige ~60fps
 function timerCentiStart_loop(uid){
   if(timerCentiRaf[uid]) cancelAnimationFrame(timerCentiRaf[uid]);
   function frame(){
@@ -4936,6 +4939,7 @@ function buildTimer(body,uid){
   updateTimerDisplays(uid);
 }
 
+// setTimerMode: wechselt zwischen ring/digital/laufer ohne Timer zu stoppen
 function setTimerMode(mode, uid){
   // Läufer verlassen → nur RAF stoppen, Timer läuft weiter
   const wasLaufer = document.getElementById('tbtn-lauf-'+uid)?.classList.contains('active-tmode');
@@ -4987,6 +4991,7 @@ function timerColor(sec, total){
   }
 }
 
+// updateTimerDisplays: aktualisiert alle Anzeige-Elemente für uid (ring + digital + laufer)
 function updateTimerDisplays(uid){
   const CIRC=427;
   const sec = timerSecMap[uid] ?? 300;
@@ -5017,6 +5022,7 @@ function updateAllTimerDisplays(){
     if(timerSecMap[uid]!==undefined) updateTimerDisplays(uid);
   });
 }
+// setTimer: setzt Zeit auf min:sec und resettet State (stoppt laufenden Timer)
 function setTimer(min,sec,uid){
   if(timerIntervalMap[uid]){clearInterval(timerIntervalMap[uid]);timerIntervalMap[uid]=null;}
   timerRunningMap[uid]=false;
@@ -5028,6 +5034,7 @@ function setTimer(min,sec,uid){
   updateTimerStartBtn(uid);
 }
 // Sofort-Vorschau beim Tippen in Min/Sek-Felder (kein laufender Timer)
+// timerLivePreview: aktualisiert Anzeige live beim Tippen in Min/Sek-Felder (kein Commit)
 function timerLivePreview(uid){
   if(timerRunningMap[uid]) return; // während Timer läuft keine Vorschau
   const minEl=document.getElementById('tmin-'+uid),secEl=document.getElementById('tsec-'+uid);
@@ -5038,6 +5045,7 @@ function timerLivePreview(uid){
   updateTimerStartBtn(uid);
 }
 // Start-Button-Label je nach Zustand aktualisieren
+// updateTimerStartBtn: setzt Label des Start-Buttons je nach Zustand (Start / Pause / Weiter)
 function updateTimerStartBtn(uid){
   const btn=document.getElementById('tbtn-startstop-'+uid);
   if(!btn) return;
@@ -5049,6 +5057,7 @@ function updateTimerStartBtn(uid){
   else if(paused)  { btn.textContent=T('timerWeiter'); btn.dataset.i18n='timerWeiter'; }
   else             { btn.textContent=T('timerStart');  btn.dataset.i18n='timerStart';  }
 }
+// startTimer: startet oder pausiert (Toggle). Liest Min/Sek-Felder beim Erststart.
 function startTimer(uid){
   _activeTimerUid=uid;
   if(timerRunningMap[uid]){pauseTimer(uid);return;}
@@ -5090,6 +5099,7 @@ function startTimer(uid){
     updateTimerDisplays(uid);
   },1000);
 }
+// pauseTimer: pausiert Timer und RAF-Loops; spielt Pop-Sound
 function pauseTimer(uid){
   uid = uid ?? _activeTimerUid;
   if(!uid) return;
@@ -5101,6 +5111,7 @@ function pauseTimer(uid){
   updateTimerDisplays(uid); // Hundertstel auf :00 einfrieren
   try{const ac=new(window.AudioContext||window.webkitAudioContext)();playPop(ac,0.8);}catch(e){}
 }
+// resetTimer: stoppt Timer, setzt Zeit auf timerTotalMap[uid] zurück, räumt RAFs auf
 function resetTimer(uid){
   if(timerIntervalMap[uid]){clearInterval(timerIntervalMap[uid]);timerIntervalMap[uid]=null;}
   timerRunningMap[uid]=false;
@@ -7526,9 +7537,13 @@ function calcNameFontSize(uid, forceRecompute){
 }
 
 // ════════════════════════════════════════════════
-// WIDGET: DRAWING
+// WIDGET: DRAWING (Zeichnen-Widget im Fenster)
 // ════════════════════════════════════════════════
-const drawStates={};
+// Kompakteres Zeichenwerkzeug als Widget (nicht Vollbild).
+// Text-Tool: Klick → blinkendes Cursor direkt auf Canvas (wie DDT).
+// Auswahl: Rechteck ziehen → Overlay mit Resize-Handles + Drag zum Verschieben.
+// Alle Funktionen uid-basiert (drawStates[uid]).
+const drawStates={}; // uid → { tool, color, sz, drawing, undoStack, ... }
 function buildDraw(body,uid){
   body.style.display='flex';body.style.flexDirection='column';body.style.padding='6px';
   body.innerHTML=`
@@ -8157,30 +8172,7 @@ function pasteDraw(uid){
     if(st._clipCanvas){pushDrawUndo(uid,cv);ctx.drawImage(st._clipCanvas,0,0);}
   });
 }
-function commitDrawText(uid){
-  const st=drawStates[uid]; if(!st) return;
-  if(st._commitText) st._commitText();
-}
-function updateDrawTextCursor(uid){
-  // Re-render cursor when font/size changes while text is active
-  const st=drawStates[uid]; if(!st||!st.textActive) return;
-  const cv=document.getElementById('dcanvas-'+uid); if(!cv) return;
-  const ctx=cv.getContext('2d');
-  const fontEl=document.getElementById('dtextfont-'+uid);
-  const sizeEl=document.getElementById('dtextsize-'+uid);
-  const font=fontEl?fontEl.value:'Arial';
-  const size=sizeEl?parseInt(sizeEl.value):20;
-  if(st.textSnapshot) ctx.putImageData(st.textSnapshot,0,0);
-  ctx.globalAlpha=1; ctx.fillStyle=st.color;
-  ctx.font=`${size}px ${font},sans-serif`;
-  ctx.textBaseline='alphabetic';
-  ctx.fillText(st.textStr, st.textX, st.textY);
-  const tw=ctx.measureText(st.textStr).width;
-  ctx.beginPath();
-  ctx.moveTo(st.textX+tw+1, st.textY-size*0.85);
-  ctx.lineTo(st.textX+tw+1, st.textY+size*0.2);
-  ctx.strokeStyle=st.color; ctx.lineWidth=1.5; ctx.stroke();
-}
+function updateDrawTextCursor(uid){ /* kein Canvas-Text-Cursor mehr — Text-Tool nutzt direktes Canvas-Zeichnen via ddtTextState */ }
 function clearDraw(uid){const st=drawStates[uid];if(st&&st._commitText)st._commitText();const cv=document.getElementById('dcanvas-'+uid);if(!cv)return;pushDrawUndo(uid,cv);const ctx=cv.getContext('2d');ctx.fillStyle='#fff';ctx.fillRect(0,0,cv.width,cv.height);}
 function saveDraw(uid){const st=drawStates[uid];if(st&&st._commitText)st._commitText();const cv=document.getElementById('dcanvas-'+uid);if(!cv)return;const a=document.createElement('a');a.download='zeichnung.png';a.href=cv.toDataURL('image/png');a.click();}
 
@@ -15982,7 +15974,6 @@ function spinQuestionWheel(uid){
       <line x1="8.5" y1="7" x2="8.5" y2="14" stroke="currentColor" stroke-width="0.9" opacity="0.5"/>
     </svg>
   </button>
-  <button class="ddt-btn" id="ddt-text" onclick="ddtSetTool('text',this)" data-i18n-title="drawTitelText" style="cursor:pointer;font-size:12px;font-weight:700;padding:0 10px;width:auto;" data-i18n="drawTextBtn">Text</button>
   <button class="ddt-btn"             id="ddt-select" onclick="ddtSetTool('select',this)" data-i18n-title="drawTitelAuswahl">
     <svg viewBox="0 0 18 18" width="14" height="14" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="2" y="2" width="14" height="14" rx="1" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 2" fill="none"/>
@@ -15997,9 +15988,10 @@ function spinQuestionWheel(uid){
   </button>
   <button class="ddt-btn" id="ddt-paste" onclick="ddtPaste()" data-i18n-title="drawTitelEinfuegen">📋</button>
   <div class="ddt-sep"></div>
+  <button class="ddt-btn" id="ddt-text" onclick="ddtSetTool('text',this)" data-i18n-title="drawTitelText" style="cursor:pointer;font-size:12px;font-weight:700;padding:0 10px;width:auto;" data-i18n="drawTextBtn">Text</button>
   <!-- Text options (only when text tool active) -->
   <div class="ddt-text-opts" id="ddt-text-opts">
-    <select class="ddt-text-sel" id="ddt-textfont" onchange="ddtUpdateTextCursor()" title="Schriftart" style="min-width:140px;">
+    <select class="ddt-text-sel" id="ddt-textfont" onchange="if(_ddtTextState.cur)_ddtRenderTextCursor()" title="Schriftart" style="min-width:140px;">
       <option value="Arial">Arial</option>
       <option value="Verdana">Verdana</option>
       <option value="Tahoma">Tahoma</option>
@@ -16012,7 +16004,7 @@ function spinQuestionWheel(uid){
       <option value="Impact">Impact</option>
       <option value="'Comic Sans MS'">Comic Sans MS</option>
     </select>
-    <select class="ddt-text-sel" id="ddt-textsize" onchange="ddtUpdateTextCursor()" title="Schriftgröße">
+    <select class="ddt-text-sel" id="ddt-textsize" onchange="if(_ddtTextState.cur)_ddtRenderTextCursor()" title="Schriftgröße">
       <option value="14">14</option>
       <option value="20" selected>20</option>
       <option value="28">28</option>
@@ -16071,17 +16063,31 @@ function spinQuestionWheel(uid){
 </div>
 
 <script>
-// ══════════════════════════════════════════════════════
-//  DESKTOP DRAW — vollbild Zeichenbrett über den Desktop
-// ══════════════════════════════════════════════════════
+// ══════════════════════════════════════════════════════════════════
+//  DESKTOP DRAW (DDT) — Vollbild-Zeichenbrett über den Desktop
+// ══════════════════════════════════════════════════════════════════
+//
+//  Werkzeuge:  pen | marker | eraser | text | select
+//  Text-Tool:  Klick auf Canvas → blinkendes Cursor, direkt tippen,
+//              nochmal klicken oder Tool wechseln → eingebettet.
+//              State: _ddtTextState.cur (x, y, str, snapshot, cursorTimer)
+//  Auswahl:    Rechteck ziehen → Overlay mit 8 Resize-Handles.
+//              Inhalt anfassen → ausschneiden + verschieben (außer nach ddtCopy).
+//              Klick außerhalb → einbetten. State: _ddtSel
+//  Foto:       Datei wählen → verschiebbares/skalierbares Overlay.
+//              Klick außerhalb → einbetten. State: _ddtPhotoState.cur
+//  Paste:      Strg+V oder 📋 → verschiebbares Vorschau-Overlay.
+//              Klick außerhalb → einbetten. State: _ddtPasteState.cur
+//  Undo:       ddtPushUndo() sichert Canvas-Snapshot vor jeder Operation.
+//              ddtUndo() stellt letzten Snapshot wieder her (max. 20 Schritte).
+//
 const ddtState={
-  color:'#000000', sz:5, tool:'pen',
-  drawing:false, lx:0, ly:0,
-  undoStack:[],
-  textActive:false, textX:0, textY:0, textStr:'', textSnapshot:null,
-  cursorVis:true, cursorTimer:null
+  color:'#000000', sz:5, tool:'pen', // aktives Werkzeug und Farbe/Größe
+  drawing:false, lx:0, ly:0,        // Stift-Zustand während des Malens
+  undoStack:[]                       // Array von ImageData-Snapshots
 };
 
+// ── Öffnen / Schließen ──────────────────────────────────────────
 function openDesktopDraw(){
   const overlay=document.getElementById('desktop-draw-overlay');
   const toolbar=document.getElementById('desktop-draw-toolbar');
@@ -16111,12 +16117,11 @@ function openDesktopDraw(){
 }
 
 function closeDesktopDraw(){
-  ddtCommitText();
+  _ddtEndTextOverlay(true);
   const overlay=document.getElementById('desktop-draw-overlay');
   const toolbar=document.getElementById('desktop-draw-toolbar');
   overlay.classList.remove('active');
   toolbar.classList.remove('active');
-  ddtStopCursorBlink();
   ddtState.drawing=false;
   // Restore normal topbar
   const topbar=document.getElementById('topbar');
@@ -16125,6 +16130,7 @@ function closeDesktopDraw(){
   if(clockWrap) clockWrap.style.display='';
 }
 
+// ── Canvas-Hilfsfunktionen ───────────────────────────────────────
 function ddtCanvas(){ return document.getElementById('desktop-draw-canvas'); }
 function ddtCtx(){ return ddtCanvas().getContext('2d'); }
 
@@ -16196,6 +16202,7 @@ function ddtMarkerEnd(){
   ddtState._markerSnap=null;
 }
 
+// ── Undo (max. 20 Schritte, ImageData-Snapshots) ────────────────
 function ddtPushUndo(){
   const cv=ddtCanvas();
   const ctx=cv.getContext('2d');
@@ -16207,6 +16214,11 @@ function ddtPushUndo(){
 }
 
 function ddtUndo(){
+  // Laufenden Text-Cursor sauber beenden bevor Undo den Canvas überschreibt
+  if(_ddtTextState.cur){
+    if(_ddtTextState.cur.cursorTimer){ clearInterval(_ddtTextState.cur.cursorTimer); _ddtTextState.cur.cursorTimer=null; }
+    delete _ddtTextState.cur;
+  }
   if(ddtState.undoStack.length===0) return;
   const snap=ddtState.undoStack.pop();
   const cv=ddtCanvas();
@@ -16216,7 +16228,7 @@ function ddtUndo(){
 }
 
 function ddtClear(){
-  ddtCommitText();
+  _ddtEndTextOverlay(false); // Text verwerfen (nicht einbetten) vor dem Löschen
   ddtPushUndo();
   const cv=ddtCanvas();
   const ctx=cv.getContext('2d');
@@ -16225,7 +16237,7 @@ function ddtClear(){
 }
 
 function ddtSave(){
-  ddtCommitText();
+  _ddtEndTextOverlay(true);
   const cv=ddtCanvas();
   // Composite onto white for PNG export
   const exp=document.createElement('canvas');
@@ -16244,7 +16256,7 @@ function ddtSetColor(color, el){
 }
 
 function ddtSetTool(tool, btn){
-  ddtCommitText();
+  _ddtEndTextOverlay(true);
   _ddtEndTextOverlay(true);
   if(tool !== 'select') ddtClearSel();
   ddtState.tool=tool;
@@ -16260,6 +16272,10 @@ function ddtSetTool(tool, btn){
 }
 
 // ── Auswahl ──
+// ── Auswahl-Werkzeug ────────────────────────────────────────────
+// _ddtSel hält den aktiven Auswahlbereich in Canvas-Pixeln.
+// copied=true: Original bleibt beim Verschieben erhalten (nach ddtCopy).
+// _commitSelOverlay: wird von ddtDrawSelOverlay gesetzt, bei mousedown aufgerufen.
 const _ddtSel = { active:false, x:0,y:0,w:0,h:0, startX:0,startY:0, dragging:false, overlay:null, clip:null };
 
 function ddtClearSel(){
@@ -16446,6 +16462,9 @@ function ddtCopy(){
 }
 
 // Verschiebbares Paste-Overlay (wie Paint)
+// ── Einfügen-Overlay ────────────────────────────────────────────
+// Zeigt eingefügten Inhalt als verschiebbares Vorschau-Div.
+// Klick außerhalb → einbetten. _ddtPasteState.cur hält aktives Overlay.
 const _ddtPasteState={};
 function _ddtStartPasteOverlay(clipCanvas){
   _ddtEndPasteOverlay(false);
@@ -16552,45 +16571,6 @@ function ddtPaste(){
   }).catch(()=>{ if(_ddtSel.clip) doInsert(_ddtSel.clip); });
 }
 
-// ── Text tool ──
-function ddtRenderTextCursor(){
-  const st=ddtState;
-  if(!st.textSnapshot) return;
-  const cv=ddtCanvas(); const ctx=cv.getContext('2d');
-  ctx.putImageData(st.textSnapshot,0,0);
-  const font=document.getElementById('ddt-textfont')?.value||'Arial';
-  const size=parseInt(document.getElementById('ddt-textsize')?.value||'20');
-  ctx.globalAlpha=1; ctx.fillStyle=st.color;
-  ctx.font=`${size}px ${font},sans-serif`;
-  ctx.textBaseline='alphabetic';
-  ctx.fillText(st.textStr, st.textX, st.textY);
-  if(st.cursorVis){
-    const tw=ctx.measureText(st.textStr).width;
-    ctx.beginPath();
-    ctx.moveTo(st.textX+tw+1, st.textY-size*0.85);
-    ctx.lineTo(st.textX+tw+1, st.textY+size*0.2);
-    ctx.strokeStyle=st.color; ctx.lineWidth=1.5; ctx.globalAlpha=0.85; ctx.stroke(); ctx.globalAlpha=1;
-  }
-}
-function ddtStartCursorBlink(){ ddtStopCursorBlink(); ddtState.cursorVis=true; ddtState.cursorTimer=setInterval(()=>{ddtState.cursorVis=!ddtState.cursorVis;ddtRenderTextCursor();},530); }
-function ddtStopCursorBlink(){ if(ddtState.cursorTimer){clearInterval(ddtState.cursorTimer);ddtState.cursorTimer=null;} }
-function ddtCommitText(){
-  const st=ddtState; if(!st.textActive) return;
-  ddtStopCursorBlink();
-  ddtPushUndo();
-  const cv=ddtCanvas(); const ctx=cv.getContext('2d');
-  ctx.putImageData(st.textSnapshot,0,0);
-  if(st.textStr.trim()!==''){
-    const font=document.getElementById('ddt-textfont')?.value||'Arial';
-    const size=parseInt(document.getElementById('ddt-textsize')?.value||'20');
-    ctx.globalAlpha=1; ctx.fillStyle=st.color;
-    ctx.font=`${size}px ${font},sans-serif`;
-    ctx.textBaseline='alphabetic';
-    ctx.fillText(st.textStr, st.textX, st.textY);
-  }
-  st.textActive=false; st.textStr=''; st.textSnapshot=null;
-}
-function ddtUpdateTextCursor(){ if(ddtState.textActive) ddtRenderTextCursor(); }
 
 // ── Photo insert ──
 function ddtInsertPhoto(file){
@@ -16606,6 +16586,9 @@ function ddtInsertPhoto(file){
 }
 
 // ── Desktop Draw: interaktives Foto-Overlay mit Drag & Resize ──
+// ── Foto-Overlay ────────────────────────────────────────────────
+// Zeigt eingefügtes Foto als verschiebbares/skalierbares Div.
+// Klick außerhalb des Rahmens → einbetten. _ddtPhotoState.cur hält aktives Overlay.
 const _ddtPhotoState={};
 
 function _ddtStartPhotoOverlay(img){
@@ -16688,8 +16671,8 @@ function _ddtStartPhotoOverlay(img){
   }
   function onDragEnd(){ const s=_ddtPhotoState.cur; if(s) s.dragging=false; }
 
-  ov.addEventListener('mousedown',onDragStart);
-  ov.addEventListener('touchstart',onDragStart,{passive:false});
+  frame.addEventListener('mousedown',onDragStart);
+  frame.addEventListener('touchstart',onDragStart,{passive:false});
   document.addEventListener('mousemove',onDragMove);
   document.addEventListener('touchmove',onDragMove,{passive:false});
   document.addEventListener('mouseup',onDragEnd);
@@ -16772,7 +16755,11 @@ function _ddtEndPhotoOverlay(commit){
 }
 
 // ── Desktop Draw: Text direkt auf Canvas ──
-const _ddtTextState={};  // { x, y, str, font, size, snapshot, cursorVis, cursorTimer }
+// ── Text-Werkzeug ────────────────────────────────────────────────
+// Klick auf Canvas → Cursor erscheint direkt, tippen zeichnet live.
+// Nochmal klicken oder Tool wechseln → Text wird eingebettet.
+// _ddtTextState.cur: { x, y, str, snapshot, cursorVis, cursorTimer }
+const _ddtTextState={};
 
 function ddtTextGetFont(){ return document.getElementById('ddt-textfont')?.value||'Arial'; }
 function ddtTextGetSize(){ return parseInt(document.getElementById('ddt-textsize')?.value||'20'); }
@@ -16946,8 +16933,13 @@ function ddtInitEvents(){
   cv.addEventListener('keydown',e=>{
     if((e.ctrlKey||e.metaKey)&&(e.key==='z'||e.key==='Z')){
       e.preventDefault();
-      if(_ddtTextState.cur) _ddtEndTextOverlay(false); // Text verwerfen
-      ddtUndo(); return;
+      if(_ddtTextState.cur){
+        // Nur Text verwerfen — Snapshot wird in _ddtEndTextOverlay(false) wiederhergestellt
+        _ddtEndTextOverlay(false);
+      } else {
+        ddtUndo();
+      }
+      return;
     }
     if((e.ctrlKey||e.metaKey)&&(e.key==='c'||e.key==='C')){e.preventDefault();ddtCopy();return;}
     if((e.ctrlKey||e.metaKey)&&(e.key==='v'||e.key==='V')){e.preventDefault();ddtPaste();return;}
