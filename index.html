@@ -733,6 +733,18 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   box-shadow:0 0 8px 3px currentColor;animation:wasBulbTwinkle .5s ease-in-out infinite alternate;}
 @keyframes wasBulbTwinkle{0%{opacity:.3;transform:scale(.65);}100%{opacity:1;transform:scale(1.2);}}
 
+/* ── Fotos-Quiz: Feuerwerk-Effekt beim Abschluss des gesamten Quiz ── */
+.was-quiz-fireworks{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden;
+  border-radius:13px;display:none;}
+.was-quiz-fw-particle{position:absolute;width:6px;height:6px;border-radius:50%;left:50%;top:50%;
+  margin:-3px; box-shadow:0 0 7px 2px currentColor;
+  animation:wasFwBurst 1.15s ease-out forwards;}
+@keyframes wasFwBurst{
+  0%{transform:translate(0,0) scale(1);opacity:1;}
+  75%{opacity:1;}
+  100%{transform:translate(var(--dx),var(--dy)) scale(.25);opacity:0;}
+}
+
 .row{display:flex;gap:.6em;align-items:center;flex-wrap:wrap;margin-top:.6em;}
 .preset-btn{background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text2);border-radius:6px;padding:.25em .6em;font-size:.85em;font-family:'Arial',sans-serif;font-weight:700;cursor:pointer;transition:all .15s;}
 .preset-btn:hover{background:var(--card2);color:var(--text);}
@@ -11588,10 +11600,11 @@ function buildWas(body,uid){
   </div>
   <div id="was-canvas-row-${uid}" style="display:flex;flex:1;gap:12px;min-height:0;align-items:flex-start;">
     <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:auto;cursor:pointer;" onclick="wasCanvasClick(${uid})" data-i18n-title="ttKlickenEnthuellen" title=""></canvas>
-    <!-- Quiz-Antwortpanel: goldener Rahmen, darin blitzen bei Gewinn bunte Lichter auf -->
+    <!-- Quiz-Antwortpanel: goldener Rahmen, darin blitzen bei Gewinn bunte Lichter auf, am Quiz-Ende ein Feuerwerk -->
     <div id="was-quiz-frame-${uid}" class="was-quiz-frame">
       <div id="was-quiz-panel-${uid}" class="was-quiz-panel"></div>
       <div id="was-quiz-lights-${uid}" class="was-quiz-lights"></div>
+      <div id="was-quiz-fireworks-${uid}" class="was-quiz-fireworks"></div>
     </div>
   </div>
   <!-- Effekt-Steuerung: nur sichtbar wenn Diashow/Quiz NICHT aktiv -->
@@ -12502,9 +12515,43 @@ function wasQuizFlashLights(uid){
   }, 2000);
 }
 
+// Feuerwerk-Partikel im Antwort-Fenster — spielt beim ABSCHLUSS des gesamten Quiz
+// (nicht nach jeder einzelnen richtigen Antwort, dafür gibt es wasQuizFlashLights)
+function wasQuizFireworks(uid){
+  const overlay=document.getElementById('was-quiz-fireworks-'+uid);
+  if(!overlay)return;
+  const colors=['#ff5252','#ffd740','#40c4ff','#69f0ae','#e040fb','#ff6e40','#eeff41','#18ffff','#ff8a80','#b388ff'];
+  const bursts=4;              // Anzahl Explosions-Zentren
+  const particlesPerBurst=16;  // Funken je Explosion
+  let html='';
+  for(let b=0;b<bursts;b++){
+    const cx=(18+Math.random()*64).toFixed(1); // % Position im Rahmen
+    const cy=(15+Math.random()*45).toFixed(1);
+    const burstDelay=(b*0.32).toFixed(2);
+    for(let p=0;p<particlesPerBurst;p++){
+      const angle=(p/particlesPerBurst)*Math.PI*2 + Math.random()*0.3;
+      const dist=38+Math.random()*34;
+      const dx=(Math.cos(angle)*dist).toFixed(0);
+      const dy=(Math.sin(angle)*dist).toFixed(0);
+      const color=colors[Math.floor(Math.random()*colors.length)];
+      html += '<span class="was-quiz-fw-particle" style="left:'+cx+'%;top:'+cy+'%;color:'+color+';background:'+color
+        + ';--dx:'+dx+'px;--dy:'+dy+'px;animation-delay:'+burstDelay+'s;"></span>';
+    }
+  }
+  overlay.innerHTML=html;
+  overlay.style.display='block';
+  clearTimeout(overlay._hideTimer);
+  overlay._hideTimer=setTimeout(()=>{
+    overlay.style.display='none';
+    overlay.innerHTML='';
+  }, 2600);
+}
+
 function wasQuizFinish(uid){
   const s=wasState[uid]; if(!s)return;
-  wasQuizFlashLights(uid); // kleines Abschluss-Funkeln
+  playSound('Feuerwerk',0.9);      // Feuerwerk-Sound zum Quiz-Abschluss
+  wasQuizFlashLights(uid);         // goldener Rahmen blitzt zusätzlich
+  wasQuizFireworks(uid);           // Feuerwerk-Funken im Antwort-Fenster
   const frame=document.getElementById('was-quiz-frame-'+uid);
   const panel=document.getElementById('was-quiz-panel-'+uid);
   if(panel){
