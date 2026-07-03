@@ -15,7 +15,7 @@
   --green:#4ade80;--red:#f87171;--yellow:#fbbf24;--orange:#fb923c;
   --radius:14px;--shadow:0 8px 32px rgba(0,0,0,0.5);
 }
-
+/* body.light-mode custom properties now set entirely via applyTheme JS */
 body.light-mode #bg-layer{background:var(--bg);background-image:radial-gradient(rgba(var(--accent-rgb),0.07) 1px,transparent 1px);background-size:28px 28px;}
 body.light-mode #topbar,body.light-mode #topbar-row1{border-bottom:1px solid rgba(0,0,0,0.1);}
 body.light-mode #launcher{}
@@ -48,9 +48,11 @@ body.light-mode .bg-panel-close{color:var(--text2);}
 body.light-mode .bg-panel-close:hover{background:rgba(0,0,0,0.07);color:var(--text);}
 body.light-mode #empty-hint{color:var(--text2);}
 
+/* ══════════════════════════════════════════════
+   LIGHT MODE — vollständige Überschreibung
+   ══════════════════════════════════════════════ */
 
-
-
+/* Widget-Rahmen & Header */
 body.light-mode .widget{
   background:rgba(255,255,255,0.96)!important;
   border:1px solid rgba(0,0,0,0.12)!important;
@@ -67,7 +69,7 @@ body.light-mode .widget-body{color:var(--text)!important;}
 body.light-mode .widget-body::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15)!important;}
 body.light-mode .resize-handle svg{filter:invert(0.7);}
 
-
+/* Buttons & Inputs */
 body.light-mode .wbtn{background:var(--bg3)!important;border-color:rgba(0,0,0,0.12)!important;color:var(--text)!important;}
 body.light-mode .wbtn:hover{background:var(--card2)!important;}
 body.light-mode .wbtn.primary{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important;}
@@ -78,34 +80,34 @@ body.light-mode .preset-btn:hover{background:var(--card2)!important;color:var(--
 body.light-mode .timer-mode-btn{color:var(--text2)!important;}
 body.light-mode .timer-mode-btn.active-tmode{background:var(--accent)!important;color:#fff!important;}
 
-
+/* Namen */
 body.light-mode .name-disp{color:rgba(30,26,14,0.35)!important;text-shadow:none!important;}
 
-
+/* Timer */
 body.light-mode .timer-disp:not(.timer-digi-lcd){color:var(--text)!important;text-shadow:none!important;}
 
-
+/* Uhr */
 body.light-mode .wclock-time{color:var(--text)!important;}
 body.light-mode .wclock-date{color:var(--text2)!important;}
 
-
+/* Würfel */
 body.light-mode .dice-result{color:var(--text2)!important;}
 body.light-mode .dice-type-btn{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text2)!important;}
 body.light-mode .dice-type-btn:hover{background:var(--card2)!important;color:var(--text)!important;}
 body.light-mode .dice-type-btn.active-dice{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important;}
 
-
+/* Zeichnen */
 body.light-mode .draw-tool-btn{background:rgba(0,0,0,0.06)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
 body.light-mode .draw-tool-btn:hover{background:rgba(0,0,0,0.12)!important;}
 body.light-mode .draw-tool-btn.active-tool{background:rgba(var(--accent-rgb),0.2)!important;border-color:var(--accent)!important;}
 body.light-mode .color-dot.selected{border-color:#333!important;}
 
-
+/* Jein */
 body.light-mode .jein-mode-btn{background:var(--bg3)!important;border-color:rgba(0,0,0,0.12)!important;color:var(--text2)!important;}
 body.light-mode .jein-mode-btn:hover{background:var(--card2)!important;color:var(--text)!important;}
 body.light-mode .jein-mode-btn.active-jmode{background:var(--accent)!important;border-color:var(--accent)!important;color:#fff!important;}
 
-
+/* Satzbau */
 .satzbau-cols{display:flex;gap:.5em;justify-content:center;align-items:stretch;width:100%;height:100%;padding:.4em .2em;}
 .satzbau-col{
   flex:1 1 0;min-width:0;
@@ -120,7 +122,7 @@ body.light-mode .jein-mode-btn.active-jmode{background:var(--accent)!important;b
   box-shadow:2px 3px 8px rgba(0,0,0,0.35), inset 0 -2px 0 rgba(0,0,0,0.06);
   transform:rotate(-1.5deg);
   transition:transform .2s,box-shadow .2s;
-  
+  /* ruled line at bottom */
   background-image:repeating-linear-gradient(
     to bottom,
     transparent 0px,
@@ -159,27 +161,27 @@ body.light-mode .satzbau-textarea{background:var(--bg3)!important;border-color:r
 body.light-mode .satzbau-upload-btn{background:var(--bg3)!important;border-color:rgba(0,0,0,0.2)!important;color:var(--text2)!important;}
 body.light-mode .satzbau-upload-btn:hover{background:var(--card2)!important;border-color:var(--accent)!important;color:var(--text)!important;}
 
-
+/* Was? */
 body.light-mode [id^="was-step-"]{color:var(--text2)!important;}
 
-
+/* Slot */
 body.light-mode .slot-tabbar{background:transparent!important;}
 body.light-mode [class*="slot-reel"]{background:var(--bg3)!important;border-color:rgba(0,0,0,0.12)!important;color:var(--text)!important;}
 body.light-mode [id^="slot-result"]{color:var(--text)!important;}
 
-
+/* Spiele */
 body.light-mode .spiele-tab-btn{color:var(--text2)!important;}
 body.light-mode .spiele-tab-btn.active-tmode{background:var(--accent)!important;color:#fff!important;}
 
-
+/* Wheel */
 body.light-mode .wheel-result{background:var(--bg3)!important;color:var(--text)!important;border-color:rgba(0,0,0,0.12)!important;}
 
-
+/* Timer ring in light mode */
 body.light-mode [id^="timer-svg-"] circle:first-child{stroke:rgba(0,0,0,0.1)!important;}
 body.light-mode [id^="td-svg-"]{fill:#1a1f3a!important;}
 body.light-mode [id^="timer-svg-"] line{stroke:rgba(0,0,0,0.2)!important;}
 body.light-mode .timer-disp:not(.timer-digi-lcd){color:var(--text)!important;text-shadow:none!important;}
-
+/* Timer mode-bar background */
 body.light-mode [id^="tbtn-ring-"],
 body.light-mode [id^="tbtn-digi-"],
 body.light-mode [id^="tbtn-lauf-"]{color:var(--text2)!important;}
@@ -188,7 +190,7 @@ body.light-mode div[style*="background:rgba(0,0,0,0.25)"]{background:rgba(var(--
 body.light-mode div[style*="background:rgba(0,0,0,0.22)"]{background:rgba(var(--accent-rgb),0.08)!important;}
 body.light-mode div[style*="background:rgba(0,0,0,0.28)"]{background:rgba(var(--accent-rgb),0.08)!important;}
 
-
+/* ── Würfel Ampel: Inputs hell ── */
 body.light-mode [id^="ampel-min-"],
 body.light-mode [id^="ampel-max-"]{
   background:var(--bg3)!important;
@@ -197,7 +199,7 @@ body.light-mode [id^="ampel-max-"]{
 }
 body.light-mode [id^="ampel-config-"]{color:var(--text2)!important;}
 
-
+/* ── Slot: nur Gehäuse-Hintergrund hell ── */
 body.light-mode .slot-machine{
   background:
     linear-gradient(180deg,rgba(0,0,0,0.1) 0%,transparent 18%,transparent 82%,rgba(0,0,0,0.15) 100%),
@@ -234,10 +236,10 @@ body.light-mode .slot-edit-textarea{
 }
 body.light-mode .wheel-edit{background:transparent!important;}
 
-
+/* Smileys */
 body.light-mode [class*="smiley"]{color:var(--text)!important;}
 
-
+/* Allgemein Text */
 body.light-mode .widget-body *{color:inherit;}
 body.light-mode .widget .row{color:var(--text)!important;}
 body.light-mode [id^="namesleft-"]{color:var(--text2)!important;}
@@ -245,7 +247,7 @@ body.light-mode [id^="was-step-"]{color:var(--text2)!important;}
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:hidden;font-family:'Arial',sans-serif;color:var(--text);}
 
-
+/* ── BG LAYER ── */
 #bg-layer{
   position:fixed;inset:0;z-index:0;
   background:var(--bg);
@@ -259,15 +261,17 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   background-position:center;
   background-repeat:no-repeat;
 }
-#bg-overlay{
+#bg-overlay{/* dim overlay over photo */
   position:fixed;inset:0;z-index:1;
   background:rgba(15,18,40,0.0);
   pointer-events:none;
   transition:background .3s;
 }
 
-
-
+/* ── TOPBAR ── */
+/* ═══════════════════════════════════════
+   TOPBAR — zweizeilig, vollständig responsiv
+   ═══════════════════════════════════════ */
 #topbar{
   position:fixed;top:0;left:0;right:0;z-index:9999;
   background:rgba(29,35,71,0.92);
@@ -278,7 +282,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   padding:0;
 }
 
-
+/* Zeile 1: Utility-Buttons + Uhr */
 #topbar-row1{
   display:flex;align-items:center;
   gap:4px;
@@ -292,7 +296,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 }
 #topbar-row1::-webkit-scrollbar{display:none;}
 
-
+/* Zeile 2: Werkzeug-Launcher */
 #launcher{
   display:flex;align-items:center;
   gap:5px;
@@ -306,12 +310,12 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 }
 #launcher::-webkit-scrollbar{display:none;}
 
-
+/* Uhr inline in Zeile 1 */
 #clock-inline{
   display:flex;flex-direction:column;align-items:flex-end;justify-content:center;
   margin-left:auto;flex-shrink:0;pointer-events:none;padding-right:4px;
 }
-
+/* Legacy clock-wrap falls noch irgendwo referenziert */
 #clock-wrap{display:none;}
 
 #logo{font-size:20px;font-weight:900;color:var(--accent);letter-spacing:-0.5px;white-space:nowrap;flex-shrink:0;}
@@ -319,7 +323,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 #clock-big{font-size:22px;font-weight:400;font-variant-numeric:tabular-nums;letter-spacing:1px;line-height:1;white-space:nowrap;}
 #date-big{font-size:9px;color:var(--text2);margin-top:1px;white-space:nowrap;text-align:right;}
 
-
+/* ── Tool-Buttons (beide Zeilen) ── */
 .tool-btn{
   background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.13);
   color:var(--text);border-radius:9px;
@@ -345,7 +349,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 .tool-btn:active{transform:scale(0.94);}
 .tool-btn.sep{margin-left:4px;}
 
-
+/* Werkzeug-Buttons in Launcher etwas höher */
 #launcher .tool-btn{
   height:54px;
   width:64px;flex:0 0 64px;
@@ -353,7 +357,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 }
 #launcher .tool-btn .tb-icon{font-size:26px;}
 
-
+/* ── MOBIL ≤ 540px ── */
 @media (max-width:540px){
   #topbar-row1{
     height:44px;
@@ -365,14 +369,14 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
     padding:4px 8px;
     gap:4px;
   }
-  
+  /* Utility-Buttons kleiner */
   #topbar-row1 .tool-btn{
     width:52px;height:38px;flex:0 0 52px;
     border-radius:8px;
   }
   #topbar-row1 .tool-btn .tb-icon{font-size:18px;}
   #topbar-row1 .tool-btn .tb-label{font-size:8.5px;}
-  
+  /* Werkzeug-Buttons etwas größer für Touch */
   #launcher .tool-btn{
     width:62px;height:60px;flex:0 0 62px;
   }
@@ -380,12 +384,12 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   #launcher .tool-btn span:not(.tb-icon){font-size:9.5px;}
   #clock-big{font-size:17px;}
   #date-big{display:none;}
-  
+  /* Zumpad schmaler */
   .zumpad-input{width:60px;}
   .zumpad-inline{padding:0 5px 0 8px;}
 }
 
-
+/* ── SEHR KLEINES HANDY ≤ 380px ── */
 @media (max-width:380px){
   #topbar-row1 .tool-btn{
     width:46px;height:36px;flex:0 0 46px;
@@ -398,7 +402,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   #clock-big{font-size:15px;}
 }
 
-
+/* ── HOCHFORMAT (Portrait) auf Handys/Tablets: Menü größer darstellen ── */
 @media (max-width:899px) and (orientation:portrait){
   #topbar-row1{
     height:52px;
@@ -425,7 +429,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   #date-big{display:none;}
 }
 
-
+/* ── SEHR KLEINES HANDY ≤ 380px Portrait: etwas kleiner als mittelgroß ── */
 @media (max-width:380px) and (orientation:portrait){
   #topbar-row1 .tool-btn{
     width:50px;height:40px;flex:0 0 50px;
@@ -438,7 +442,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   #clock-big{font-size:17px;}
 }
 
-
+/* ── DESKTOP ≥ 900px: flache Einzeiler-Topbar (wie vorher) ── */
 @media (min-width:900px){
   #topbar{flex-direction:row;align-items:center;height:68px;padding:0 10px;gap:0;}
   #topbar-row1{
@@ -458,13 +462,13 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   #topbar-row1 .tool-btn{height:44px;width:60px;flex:0 0 60px;}
 }
 
-
+/* Rechte Seite (legacy-Referenzen) */
 #topbar-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
 
-
+/* Sound dropdown */
 .sound-wrap{position:relative;flex-shrink:0;}
 
-
+/* ── SHARED STYLE: Audio · Design · Fullscreen · Zumpad ── */
 .sound-btn, .bg-btn, .zumpad-inline {
   background:var(--bg3);
   border:1px solid rgba(255,255,255,0.13);
@@ -488,7 +492,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 .sound-btn.muted{background:#3a1e1e;border-color:#f87171;color:#f87171;}
 .sound-menu{
   display:none;
-  position:fixed; 
+  position:fixed; /* FIX: Menü liegt nicht mehr in der schiebbaren Topbar */
   top:130px;
   right:12px;
   background:var(--card);border:1px solid rgba(255,255,255,0.12);
@@ -507,8 +511,8 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 .sound-opt:hover{background:var(--bg3);}
 .sound-opt.active{background:rgba(var(--accent-rgb),0.15);border-color:rgba(var(--accent-rgb),0.3);color:var(--accent);}
 
-
-.zumpad-inline{padding:0 6px 0 12px;gap:6px;} 
+/* ── ZUMPAD INPUT & LOS-BUTTON ── */
+.zumpad-inline{padding:0 6px 0 12px;gap:6px;} /* override: tighter right padding for button */
 .zumpad-inline:focus-within{border-color:rgba(var(--accent-rgb),0.5);}
 .zumpad-input{
   background:transparent;
@@ -545,9 +549,9 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 }
 .zumpad-los-btn:hover{background:#8aabff;}
 .zumpad-los-btn:active{transform:scale(0.93);filter:brightness(1.15);}
+/* Zumpad small screens — covered by new topbar responsive CSS above */
 
-
-
+/* old dropdown – keep empty to avoid errors */
 .zumpad-wrap,.zumpad-menu,.zumpad-go-btn,.zumpad-go-new{}
 
 .sound-preview{
@@ -562,7 +566,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   display:flex;align-items:center;justify-content:space-between;
   padding:5px 10px;font-size:12px;font-weight:700;color:var(--text2);
 }
-
+/* Toggle switch */
 .toggle{position:relative;width:36px;height:20px;cursor:pointer;flex-shrink:0;}
 .toggle input{opacity:0;width:0;height:0;}
 .toggle-track{
@@ -577,10 +581,10 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 }
 .toggle input:checked~.toggle-thumb{transform:translateX(16px);}
 
-
+/* BG button – styles shared with .sound-btn and .zumpad-inline above */
 .bg-btn:hover{background:var(--card2);}
 
-
+/* BG Panel */
 #bg-panel{
   display:none;position:fixed;
   width:260px;min-width:200px;max-width:min(520px,calc(100vw - 16px));
@@ -633,10 +637,10 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 .bg-dim-row{display:flex;flex-direction:column;gap:6px;}
 .bg-dim-row label{font-size:11px;color:var(--text2);font-weight:700;}
 
-
+/* ── DESKTOP ── */
 #desktop{position:fixed;left:0;right:0;bottom:0;z-index:2;overflow:hidden;min-height:0;}
 
-
+/* ── WIDGET ── */
 .widget{
   position:absolute;
   background:rgba(var(--card-rgb),0.70);
@@ -647,16 +651,16 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
   min-width:200px;min-height:80px;
   display:flex;flex-direction:column;
   overflow:hidden;
-  
+  /* Hard caps: never wider/taller than the desktop area */
   max-width:calc(100vw - 4px);
-  max-height:calc(100dvh - 120px); 
+  max-height:calc(100dvh - 120px); /* topbar + margin */
   box-sizing:border-box;
 }
-
+/* Spiele-Widget: keine max-height, füllt volle Desktop-Höhe */
 .widget[data-type="spiele"]{
   max-height:none;
 }
-
+/* Widgets deren Inhalt eine feste Höhe hat: Fenster schrumpft auf Inhalt */
 .widget.fit-content{
   height:auto !important;
 }
@@ -688,11 +692,59 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 .resize-handle{position:absolute;bottom:0;right:0;width:36px;height:36px;cursor:se-resize;display:flex;align-items:flex-end;justify-content:flex-end;padding:6px;opacity:0.45;transition:opacity .15s;z-index:10;touch-action:none;-webkit-user-select:none;user-select:none;}
 .resize-handle:hover{opacity:1;}
 
-
+/* ── WIDGET INTERNALS ── */
 .wbtn{background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:8px;padding:.45em 1em;font-size:1em;font-family:'Arial',sans-serif;font-weight:700;cursor:pointer;transition:background .15s;white-space:nowrap;}
 .wbtn:hover{background:var(--card2);}
 .wbtn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
 .wbtn.primary:hover{filter:brightness(1.15);}
+
+/* ── Fotos-Quiz: bunte, große Antwort-Knöpfe + goldener Lichter-Rahmen bei Gewinn ── */
+.was-quiz-frame{
+  position:relative; box-sizing:border-box; width:230px; flex-shrink:0; min-height:200px;
+  display:none; align-items:center; justify-content:center; padding:16px;
+  border:5px solid #ffd700; border-radius:18px;
+  background:linear-gradient(160deg,#1a1f35,#232a47);
+  box-shadow:0 0 0 2px rgba(255,215,0,.35), 0 0 22px rgba(255,215,0,.25),
+    inset 0 0 18px rgba(255,215,0,.1), 0 8px 24px rgba(0,0,0,.35);
+}
+.was-quiz-panel{
+  display:flex; flex-direction:column; gap:12px; width:100%; position:relative; z-index:2;
+}
+.was-quiz-answer-btn{
+  width:100%;padding:1em .8em;font-size:1.35em;font-weight:800;color:#fff;
+  border:none;border-radius:14px;cursor:pointer;white-space:normal;line-height:1.25;
+  letter-spacing:.2px;text-shadow:0 1px 3px rgba(0,0,0,.28);
+  font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive,sans-serif;
+  transition:transform .12s ease, filter .12s ease, box-shadow .12s ease;
+}
+.was-quiz-answer-btn:hover:not(:disabled){transform:translateY(-2px) scale(1.03);filter:brightness(1.08);}
+.was-quiz-answer-btn:active:not(:disabled){transform:translateY(0) scale(.97);}
+.was-quiz-answer-btn:disabled{opacity:.6;cursor:not-allowed;}
+@keyframes wasQuizShake{
+  0%,100%{transform:translateX(0);}
+  20%{transform:translateX(-7px);} 40%{transform:translateX(7px);}
+  60%{transform:translateX(-5px);} 80%{transform:translateX(5px);}
+}
+.was-quiz-shake{animation:wasQuizShake .4s ease;}
+@keyframes wasQuizWinPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
+.was-quiz-win-pulse{animation:wasQuizWinPulse .5s ease-in-out 2;}
+.was-quiz-lights{position:absolute;inset:-9px;pointer-events:none;z-index:5;display:none;border-radius:22px;}
+.was-quiz-bulb{position:absolute;width:11px;height:11px;margin:-5.5px;border-radius:50%;
+  box-shadow:0 0 8px 3px currentColor;animation:wasBulbTwinkle .5s ease-in-out infinite alternate;}
+@keyframes wasBulbTwinkle{0%{opacity:.3;transform:scale(.65);}100%{opacity:1;transform:scale(1.2);}}
+
+/* ── Fotos-Quiz: Feuerwerk-Effekt beim Abschluss des gesamten Quiz ── */
+.was-quiz-fireworks{position:absolute;inset:0;pointer-events:none;z-index:6;overflow:hidden;
+  border-radius:13px;display:none;}
+.was-quiz-fw-particle{position:absolute;width:6px;height:6px;border-radius:50%;left:50%;top:50%;
+  margin:-3px; box-shadow:0 0 7px 2px currentColor;
+  animation:wasFwBurst 1.15s ease-out forwards;}
+@keyframes wasFwBurst{
+  0%{transform:translate(0,0) scale(1);opacity:1;}
+  75%{opacity:1;}
+  100%{transform:translate(var(--dx),var(--dy)) scale(.25);opacity:0;}
+}
+
 .row{display:flex;gap:.6em;align-items:center;flex-wrap:wrap;margin-top:.6em;}
 .preset-btn{background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text2);border-radius:6px;padding:.25em .6em;font-size:.85em;font-family:'Arial',sans-serif;font-weight:700;cursor:pointer;transition:all .15s;}
 .preset-btn:hover{background:var(--card2);color:var(--text);}
@@ -708,7 +760,7 @@ textarea.winput{resize:vertical;}
 .dice-wrap:hover svg{transform:scale(1.08) rotate(6deg);}
 .dice-result{text-align:center;font-size:.95em;font-weight:700;color:var(--text2);margin:.2em 0 .5em;}
 .name-disp{font-size:2.8em;font-weight:700;text-align:center;color:rgba(30,26,14,0.35);transition:all .25s;margin:.2em 0 .5em;line-height:1.15;font-family:'Caveat',cursive;}
-
+/* ── DESKTOP DRAW OVERLAY ── */
 #desktop-draw-overlay{
   position:fixed;inset:0;z-index:10000;
   pointer-events:none;
@@ -718,7 +770,7 @@ textarea.winput{resize:vertical;}
   display:block;
   pointer-events:auto;
 }
-
+/* ── Vollbild-Overlay für Puzzle & Zuordnen ── */
 #spiel-overlay{
   position:fixed;inset:0;z-index:9999;
   display:none;flex-direction:column;
@@ -751,7 +803,7 @@ textarea.winput{resize:vertical;}
   display:flex;flex-direction:column;
   overflow:hidden;
 }
-
+/* Alle CSS-Variablen im Overlay auf helle Werte setzen */
 #spiel-overlay{
   --bg:#f4f6fb;--bg2:#eef0fa;--bg3:#e2e6f5;
   --card:#ffffff;--card2:#dde2f5;
@@ -760,9 +812,9 @@ textarea.winput{resize:vertical;}
   --card-rgb:255,255,255;
   --text:#1a1f3a;--text2:#555e7a;
 }
-
+/* Scrollbar im Overlay hell */
 #spiel-overlay-content ::-webkit-scrollbar-thumb{background:rgba(0,0,0,0.15);}
-
+/* pz-ghost muss über dem Overlay liegen */
 .pz-ghost{z-index:60000!important;}
 #desktop-draw-canvas{
   position:absolute;inset:0;
@@ -785,7 +837,7 @@ textarea.winput{resize:vertical;}
   pointer-events:auto;
 }
 #desktop-draw-toolbar.active{display:flex;}
-
+/* Wenn Bildschirm zu schmal: Farben umbrechen */
 @media (max-width:700px){
   #desktop-draw-toolbar{
     flex-wrap:wrap;
@@ -909,7 +961,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .jein-mode-btn:hover{background:var(--card2);color:var(--text);}
 .jein-mode-btn.active-jmode{background:rgba(var(--accent-rgb),0.2);border-color:var(--accent);color:var(--accent);}
 
-
+/* Notizzettel: Wisch-Navigation (nur Handy, bei mehreren Zetteln) */
 .sticky-nav{
   display:none;align-items:center;justify-content:center;gap:7px;
   padding:3px 0 7px;flex-shrink:0;touch-action:none;
@@ -923,7 +975,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   .sticky-nav{display:flex;}
 }
 
-
+/* Pinnwand: Korkbrett-Hintergrund */
 .pin-board{
   position:relative;flex:1;overflow:hidden;min-height:0;
   background-color:#c39a64;
@@ -965,7 +1017,10 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   .pin-note-small{max-width:108px;min-width:70px;font-size:10px;}
 }
 
-
+/* ════════════════════════════════════════════════
+   WIDGET: NACHRICHT (Chat) — eigener Stilblock,
+   bewusst getrennt von der Pinnwand-Optik (.pin-*)
+   ════════════════════════════════════════════════ */
 .chat-wrap{display:flex;flex-direction:column;height:100%;min-height:0;}
 .chat-messages{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-height:0;background:var(--card);}
 .chat-bubble{max-width:82%;padding:7px 11px;border-radius:10px;font-size:12.5px;
@@ -1040,6 +1095,13 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .chat-file-progress-bar{height:100%;background:var(--accent);width:0%;transition:width .15s;}
 .chat-attach-btn{background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.3);color:var(--text);border-radius:8px;padding:3px 9px;font-size:13px;cursor:pointer;}
 .chat-attach-btn:hover{background:rgba(255,255,255,.2);}
+.chat-pending-file{display:flex;align-items:center;gap:8px;background:rgba(79,110,247,.1);
+  border:1.5px solid rgba(79,110,247,.35);border-radius:8px;padding:5px 9px;font-size:11.5px;}
+.chat-pending-file span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.chat-pending-file button{background:rgba(239,68,68,.15);border:1.5px solid rgba(239,68,68,.4);
+  color:#f87171;border-radius:6px;width:20px;height:20px;flex-shrink:0;cursor:pointer;
+  font-size:11px;line-height:1;display:flex;align-items:center;justify-content:center;}
+.chat-pending-file button:hover{background:rgba(239,68,68,.28);}
 
 .timer-mode-btn{
   background:transparent;border:none;color:var(--text2);padding:4px 10px;
@@ -1050,17 +1112,17 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .spiele-tab-btn{font-size:13px!important;padding:6px 18px!important;border-radius:8px!important;}
 
 
-
+/* Better resize scaling on phone/tablet */
 .widget[data-type="dice"] .widget-body{display:flex;flex-direction:column;}
 .widget[data-type="dice"] .dice-wrap{min-height:80px;flex:1 1 auto;}
 .widget[data-type="dice"] .dice-type-btn svg{width:calc(var(--wscale,1)*32px);height:calc(var(--wscale,1)*32px);}
 .widget[data-type="dice"] .dice-result{font-size:calc(var(--wscale,1)*0.95em);}
 
-
+/* fit-content: dice-wrap soll nicht aufgebläht werden */
 .widget.fit-content[data-type="dice"] .dice-wrap{flex:0 0 auto;min-height:0;height:120px;}
 
 
-
+/* ── Mobile: Touch-freundliche Header-Buttons ── */
 @media (max-width: 900px){
   .widget-body{overscroll-behavior:contain;}
   .widget-header{min-height:40px;}
@@ -1073,7 +1135,8 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 }
 
 
-
+/* ── VERSION 9: FULL RESPONSIVE SYSTEM ──
+   Alle Widget-Inhalte wachsen gleichmäßiger mit dem Fenster mit. */
 .widget{--wscale:1;--hscale:1;--uiscale:1;}
 .widget-body{font-size:calc(var(--uiscale,1)*13px);}
 .widget-body > *{max-width:100%;}
@@ -1124,7 +1187,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .widget[data-type="timer"] .widget-body,
 .widget[data-type="clock"] .widget-body,
 .widget[data-type="textpad"] .widget-body,
-
+/* Fotos-Widget: kein Skalieren, kein Scrollbalken */
 .widget[data-type="was"] .widget-body{
   display:flex;
   flex-direction:column;
@@ -1146,7 +1209,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 }
 .widget[data-type="timer"] svg{width:100%;height:100%;}
 .widget[data-type="timer"] .timer-disp{font-size:calc(var(--uiscale,1)*4em);}
-
+/* Digital-Modus: LCD-Stil mit 7-Segment-Schrift */
 .timer-digi-lcd{
   font-family:'DSEG7','Courier New',monospace!important;
   font-size:clamp(2em,9vw,4.5em)!important;
@@ -1162,7 +1225,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   box-shadow:inset 0 2px 8px rgba(0,0,0,0.6),0 2px 6px rgba(0,0,0,0.4);
 }
 .timer-digi-lcd::before{content:none;}
-
+/* Timer-Widget: Buttons und Inputs nicht mit uiscale skalieren */
 .widget[data-type="timer"] .timer-mode-btn{font-size:11px!important;padding:4px 10px!important;}
 .widget[data-type="timer"] .wbtn{font-size:13px!important;padding:4px 8px!important;}
 .widget[data-type="timer"] .preset-btn{font-size:10px!important;padding:2px 6px!important;}
@@ -1198,7 +1261,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .widget[data-type="draw"] .draw-canvas{height:auto;}
 
 
-
+/* Classroom widget */
 .classroom-box{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.10);border-radius:10px;padding:10px;margin-top:8px;}
 .classroom-code{font-size:2.1em;font-weight:900;letter-spacing:.12em;text-align:center;color:var(--accent);padding:6px 0;}
 .classroom-pill{display:inline-flex;align-items:center;gap:5px;background:rgba(var(--accent-rgb),.15);border:1px solid rgba(var(--accent-rgb),.35);border-radius:999px;padding:4px 9px;font-size:.82em;font-weight:800;margin:3px;}
@@ -1216,7 +1279,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 
 
 
-
+/* ── Frage-Rad Widget ── */
 .widget[data-type="wheel"] .widget-body{
   font-size:calc(var(--uiscale,1)*15px);
   overflow:hidden;padding:0;display:flex;flex-direction:column;
@@ -1251,7 +1314,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
   background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);
   border-radius:14px;padding:.45em;min-height:2.05em;
   display:flex;align-items:center;justify-content:center;
-  flex-shrink:0; 
+  flex-shrink:0; /* never compress — canvas gets the space */
 }
 .wheel-title{display:none;}
 .wheel-help{display:none;}
@@ -1262,7 +1325,7 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 .wheel-edit{display:none;flex:0 0 auto;}
 .wheel-edit.open{display:block;}
 .wheel-edit textarea{min-height:120px;font-size:.95em;}
-
+/* Wheel tab bar */
 .wheel-tabbar{
   display:flex;gap:6px;align-items:center;justify-content:flex-start;flex-shrink:0;
   padding:8px 10px 6px;background:transparent;
@@ -1282,9 +1345,9 @@ input[type=range]{accent-color:var(--accent);cursor:pointer;width:100%;}
 body.light-mode .wheel-edit-panel textarea{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
 body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:none!important;}
 
-
+/* ── MOBILE: Spiele-Widget allgemein ── */
 @media(max-width:700px){
-  
+  /* Tabbar: kleinere Schrift, scrollbar */
   .widget[data-type="spiele"] .timer-mode-bar{
     gap:4px;padding:4px 6px;flex-wrap:nowrap;
     overflow-x:auto;scrollbar-width:none;
@@ -1296,7 +1359,7 @@ body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:non
     border-radius:7px!important;white-space:nowrap;flex-shrink:0;
   }
 
-  
+  /* Rad: stage füllt Platz, Ergebnis bleibt kompakt */
   .widget[data-type="spiele"] .wheel-box{gap:4px;padding:4px;}
   .widget[data-type="spiele"] .wheel-result{
     font-size:1.1em;min-height:1.8em;padding:.3em .5em;
@@ -1308,7 +1371,7 @@ body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:non
     font-size:.82em;padding:.3em .7em;
   }
 
-  
+  /* Slot: alles kompakter */
   .widget[data-type="spiele"] .slot-machine{padding:2% 2%;gap:2%;}
   .widget[data-type="spiele"] .slot-scorebar{padding:1% 3%;min-height:0;}
   .widget[data-type="spiele"] .slot-scorebar-title{font-size:clamp(10px,3vw,18px);letter-spacing:1px;}
@@ -1318,7 +1381,7 @@ body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:non
   }
   .widget[data-type="spiele"] .slot-btn-stop-main{font-size:clamp(11px,3.5vw,22px);}
 
-  
+  /* Puzzle: Container füllt Platz */
   .widget[data-type="spiele"] .pz-container{overflow-y:auto;align-content:flex-start;}
   .widget[data-type="spiele"] .pz-word{
     font-size:clamp(14px,calc(var(--uiscale,1)*20px),36px)!important;
@@ -1336,7 +1399,7 @@ body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:non
     padding:clamp(8px,calc(var(--uiscale,1)*12px),22px)!important;
   }
 
-  
+  /* Zuordnen: Wortfeld füllt Platz */
   .widget[data-type="spiele"] .zu-textfield{
     overflow-y:auto;align-content:flex-start;
     gap:clamp(5px,calc(var(--uiscale,1)*7px),14px)!important;
@@ -1353,7 +1416,7 @@ body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:non
   .widget[data-type="spiele"] .zu-titles-row{gap:clamp(4px,calc(var(--uiscale,1)*6px),12px);padding:2px 0;}
   .widget[data-type="spiele"] .zu-check-row{padding:clamp(3px,calc(var(--uiscale,1)*5px),10px) 2px 0;flex-shrink:0;}
 
-  
+  /* Ampel: Config-Zeile kompakter */
   .widget[data-type="spiele"] [id^="ampel-cfg-"]{
     font-size:.82em;padding:.4em .7em;gap:.3em;
   }
@@ -1361,13 +1424,15 @@ body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:non
   .widget[data-type="spiele"] [id^="sa-max-"]{width:42px;padding:.2em .3em;}
 }
 
-
+/* Empty state */
 #empty-hint{
   position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
   text-align:center;pointer-events:none;color:var(--text2);
 }
 
-
+/* ══════════════════════════════════════
+   SLOT MASCHINE
+   ══════════════════════════════════════ */
 
 .widget[data-type="slot"] .widget-body{
   padding:0 !important;
@@ -1376,13 +1441,13 @@ body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:non
   flex-direction:column !important;
 }
 
-
+/* Tab bar lives outside the machine */
 .slot-tabbar{
   display:flex;gap:6px;align-items:center;justify-content:flex-start;
   padding:8px 10px 6px;background:transparent;flex-shrink:0;
 }
 
-
+/* The machine fills all remaining space — richer dark-wood gradient */
 .slot-machine{
   flex:1;min-height:0;
   background:
@@ -1393,11 +1458,11 @@ body.light-mode .wheel-tabbar{background:transparent!important;border-bottom:non
   gap:3%;
   box-sizing:border-box;
   overflow:hidden;
-  
+  /* subtle wood-grain top/bottom edge light */
   box-shadow:inset 0 6px 18px rgba(255,200,80,0.08), inset 0 -6px 18px rgba(0,0,0,0.5);
 }
 
-
+/* ── SCOREBAR: polished gold display ── */
 .slot-scorebar{
   flex-shrink:0;
   background:linear-gradient(90deg,#111 0%,#1e1e1e 30%,#242424 50%,#1e1e1e 70%,#111 100%);
@@ -1449,13 +1514,13 @@ body.light-mode .slot-scorebar-title{
   text-shadow:0 1px 2px rgba(200,160,0,0.3)!important;
 }
 
-
+/* ── ROLLEN-GEHÄUSE ── */
 .slot-reels-outer{
   flex:1;min-height:0;
   background:linear-gradient(180deg,#0a0a0a 0%,#181818 15%,#141414 85%,#080808 100%);
   border:3px solid #c8a840;border-radius:14px;
   padding:2%;display:flex;align-items:stretch;
-  
+  /* 3D-Rahmen: helle Oberkante simuliert Lichteinfall von oben */
   box-shadow:
     0 2px 0 rgba(255,220,100,0.5),
     0 -2px 0 rgba(0,0,0,0.8),
@@ -1466,22 +1531,22 @@ body.light-mode .slot-scorebar-title{
   flex:1;display:flex;gap:2%;align-items:stretch;
 }
 
-
+/* ── EINZELNE ROLLE — 3D-Look ── */
 .slot-reel-wrap{
   flex:1;min-width:0;
   background:#ffffff;
   border-radius:8px;overflow:hidden;
   position:relative;
-  
+  /* Außenschatten: Vertiefung im Gehäuse */
   box-shadow:
     0 4px 12px rgba(0,0,0,0.7),
     0 -2px 6px rgba(0,0,0,0.5),
     inset 0 0 0 1px rgba(0,0,0,0.2);
-  
+  /* Rand aus sattem Braun/Bronze */
   border:2px solid rgba(100,70,20,0.6);
 }
 
-
+/* Win-Highlight */
 .slot-reel-wrap::before{
   content:'';position:absolute;inset:0;border-radius:6px;
   box-shadow:inset 0 0 0 3px transparent;
@@ -1491,7 +1556,7 @@ body.light-mode .slot-scorebar-title{
   box-shadow:inset 0 0 0 4px #22cc44,0 0 22px rgba(34,204,68,0.8);
 }
 
-
+/* 3D-Schatten oben und unten auf der Rolle (pseudo-element über dem Content) */
 .slot-reel-wrap::after{
   content:'';
   position:absolute;inset:0;border-radius:6px;
@@ -1511,7 +1576,7 @@ body.light-mode .slot-scorebar-title{
   position:absolute;left:0;right:0;top:0;transition:none;
 }
 
-
+/* Mittellinie — etwas prominenter */
 .slot-center-line{
   background:linear-gradient(90deg,transparent,rgba(200,168,64,0.55) 20%,rgba(200,168,64,0.65) 50%,rgba(200,168,64,0.55) 80%,transparent);
   transform:translateY(-50%);
@@ -1519,7 +1584,7 @@ body.light-mode .slot-scorebar-title{
   box-shadow:0 1px 4px rgba(200,168,64,0.4),0 -1px 4px rgba(200,168,64,0.4);
 }
 
-
+/* Each cell is exactly 100% of the wrap height — set by JS */
 .slot-reel-cell{
   width:100%;box-sizing:border-box;
   display:flex;align-items:center;justify-content:center;
@@ -1539,7 +1604,7 @@ body.light-mode .slot-scorebar-title{
   gap:2px;
 }
 
-
+/* ── BUTTONS ── */
 .slot-btn-row{
   flex-shrink:0;
   display:flex;align-items:center;justify-content:center;gap:4%;
@@ -1556,10 +1621,10 @@ body.light-mode .slot-scorebar-title{
     inset 0 -1px 3px rgba(255,180,40,0.12);
 }
 
-
+/* ── Einheitlicher Knopf: rund, altes Maß (0.90), 3D-Look ── */
 .slot-btn-stop-main{
   flex-shrink:0;
-  
+  /* size set by JS */
   border-radius:50%;
   color:#fff;font-weight:900;letter-spacing:1px;text-transform:uppercase;
   font-size:clamp(14px,4vw,30px);
@@ -1567,7 +1632,7 @@ body.light-mode .slot-scorebar-title{
   transition:box-shadow .12s, transform .1s, filter .1s;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
 
-  
+  /* Rot STOP-Zustand, goldener Rand */
   background:
     radial-gradient(circle at 38% 28%, #ff9090 0%, #e80000 45%, #7a0000 100%);
   border:3px solid #c8a840;
@@ -1598,7 +1663,7 @@ body.light-mode .slot-scorebar-title{
 }
 .slot-btn-stop-main:disabled{filter:brightness(0.38);cursor:not-allowed;transform:none;}
 
-
+/* Rot Idle/START/NEUES SPIEL-Zustand, goldener Rand */
 .slot-btn-stop-main.idle{
   background:
     radial-gradient(circle at 38% 28%, #80ff70 0%, #18bb00 45%, #095500 100%);
@@ -1621,7 +1686,7 @@ body.light-mode .slot-scorebar-title{
 }
 .slot-btn-stop-sub{font-size:0.42em;letter-spacing:2px;opacity:0.82;margin-top:1px;}
 
-
+/* EDIT PANEL */
 .slot-edit-panel{display:none;flex:1;overflow-y:auto;padding:12px;box-sizing:border-box;}
 .slot-edit-panel.open{display:flex;flex-direction:column;gap:10px;}
 .slot-edit-hint{font-size:clamp(11px,1.5vw,13px);color:var(--text2);line-height:1.5;}
@@ -1697,36 +1762,36 @@ body.light-mode .slot-scorebar-title{
 
 
 
+/* Colored icons per tool */
+/* nth-child(2) = Nachricht (eigene Regel via #nachricht-tool-btn unten) */
+/* nth-child(3) = Pinnwand (eigene Regel unten) */
+.tool-btn:nth-child(4)  .tb-icon { color:#f472b6; }  /* Namen    - pink */
+.tool-btn:nth-child(5)  .tb-icon { color:#c084fc; }  /* Zeichnen - lila */
+.tool-btn:nth-child(6)  .tb-icon { color:#7dd3fc; }  /* Text     - hellblau */
+.tool-btn:nth-child(7)  .tb-icon { color:#fbbf24; }  /* Timer    - gelb */
+.tool-btn:nth-child(8)  .tb-icon { color:#f87171; }  /* Uhr      - rot */
+.tool-btn:nth-child(9)  .tb-icon { color:#4ade80; }  /* Würfel   - grün */
+.tool-btn:nth-child(10) .tb-icon { color:#facc15; }  /* Spiele   - gold */
+.tool-btn:nth-child(11) .tb-icon { color:#fb923c; }  /* Fotos    - orange */
+.tool-btn:nth-child(12) .tb-icon { color:#ffffff; }  /* QR       - weiß */
+#nachricht-tool-btn .tb-icon { color:#ffffff; }      /* Nachricht - weiß */
+#pinnwand-tool-btn  .tb-icon { color:#fb923c; }      /* Pinnwand  - orange */
+#lang-btn           .tb-icon { color:#4ade80; }      /* Sprache (DE/JA) - grün */
+#fullscreen-btn     .tb-icon { color:#ffffff; }      /* Vollbild - weiß */
 
-
-
-.tool-btn:nth-child(4)  .tb-icon { color:#f472b6; }  
-.tool-btn:nth-child(5)  .tb-icon { color:#c084fc; }  
-.tool-btn:nth-child(6)  .tb-icon { color:#7dd3fc; }  
-.tool-btn:nth-child(7)  .tb-icon { color:#fbbf24; }  
-.tool-btn:nth-child(8)  .tb-icon { color:#f87171; }  
-.tool-btn:nth-child(9)  .tb-icon { color:#4ade80; }  
-.tool-btn:nth-child(10) .tb-icon { color:#facc15; }  
-.tool-btn:nth-child(11) .tb-icon { color:#fb923c; }  
-.tool-btn:nth-child(12) .tb-icon { color:#ffffff; }  
-#nachricht-tool-btn .tb-icon { color:#ffffff; }      
-#pinnwand-tool-btn  .tb-icon { color:#fb923c; }      
-#lang-btn           .tb-icon { color:#4ade80; }      
-#fullscreen-btn     .tb-icon { color:#ffffff; }      
-
-
+/* hover keeps color but brighter */
 .tool-btn:hover .tb-icon {
   filter: brightness(1.4);
 }
 
 
-
+/* Audio icon red */
 #sound-btn .tb-icon {
   color: #f87171 !important;
 }
 
 
-
+/* ── Wörter-Puzzle (Spiele-Tab) ── */
 .pz-container{min-height:calc(var(--uiscale,1)*60px);border:2px solid rgba(180,195,220,0.7);border-radius:14px;padding:calc(var(--uiscale,1)*12px);display:flex;flex-wrap:wrap;gap:calc(var(--uiscale,1)*8px);background:rgba(235,240,255,0.92);align-content:flex-start;box-sizing:border-box;}
 .pz-container.drag-over{background:rgba(74,222,128,0.22);border-color:rgba(74,222,128,0.6);}
 .pz-word{padding:calc(var(--uiscale,1)*7px) calc(var(--uiscale,1)*13px);border-radius:10px;box-shadow:0 3px 8px rgba(0,0,0,0.55);cursor:grab;user-select:none;-webkit-user-select:none;border:1px solid rgba(255,255,255,0.5);font-size:calc(var(--uiscale,1)*22px);font-family:'Arial',sans-serif;font-weight:700;display:inline-block;touch-action:none;transition:transform 0.22s cubic-bezier(0.25,0.46,0.45,0.94);will-change:transform;color:#1a1f3a;}
@@ -1757,11 +1822,11 @@ body.light-mode .pz-word{background:#fff;border-color:rgba(0,0,0,0.12);color:#1a
 body.light-mode .pz-container{background:rgba(var(--accent-rgb),0.10);border:2px solid rgba(var(--accent-rgb),0.25);}
 body.light-mode .pz-file-label{background:rgba(var(--accent-rgb),0.12);border-color:var(--accent);color:var(--text);}
 
-
+/* ── Zuordnen-Spiel (click-to-mark) ── */
 .zu-setup-area{
   display:flex;flex-direction:column;gap:8px;padding:10px 10px 8px;flex-shrink:0;
 }
-
+/* Title chips row */
 .zu-titles-row{
   display:flex;flex-wrap:wrap;gap:6px;padding:4px 2px 2px;flex-shrink:0;justify-content:center;
 }
@@ -1782,7 +1847,7 @@ body.light-mode .pz-file-label{background:rgba(var(--accent-rgb),0.12);border-co
   opacity:1;
   box-shadow:0 4px 16px rgba(0,0,0,0.35);
 }
-
+/* Text field with fixed word chips */
 .zu-textfield{
   border:2px solid rgba(180,195,220,0.7);border-radius:14px;
   padding:clamp(6px, calc(var(--uiscale,1)*10px), 14px) clamp(6px, calc(var(--uiscale,1)*8px), 12px);
@@ -1796,7 +1861,7 @@ body.light-mode .pz-file-label{background:rgba(var(--accent-rgb),0.12);border-co
 }
 .zu-textfield::-webkit-scrollbar{display:none;}
 body.light-mode .zu-textfield{background:rgba(var(--accent-rgb),0.07);border-color:rgba(var(--accent-rgb),0.22);}
-
+/* Word chips — fixed, not draggable */
 .zu-word{
   padding:clamp(4px, calc(var(--uiscale,1)*6px), 9px) clamp(8px, calc(var(--uiscale,1)*13px), 17px);
   border-radius:10px;
@@ -1814,7 +1879,7 @@ body.light-mode .zu-textfield{background:rgba(var(--accent-rgb),0.07);border-col
 .zu-word.zu-correct-locked{cursor:default;opacity:0.75;}
 .zu-word.zu-correct-locked:hover{transform:none;box-shadow:0 2px 6px rgba(0,0,0,0.35);}
 body.light-mode .zu-word{color:#1a1f3a;}
-
+/* Prüfen button area */
 .zu-check-row{
   display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:2px 4px 0;flex-shrink:0;
 }
@@ -1845,7 +1910,7 @@ body.light-mode .zu-word{color:#1a1f3a;}
   100%{transform:translateY(0) scale(1);}
 }
 .zu-win-banner{animation:zu-win-pop 0.45s cubic-bezier(.34,1.56,.64,1) both;}
-
+/* Panel scrollbar hidden for zuordnen — no scroll, fits window */
 [id^="spiele-panel-zuordnen-"]{
   overflow:hidden!important;
   overflow-x:hidden!important;
@@ -1861,7 +1926,7 @@ body.light-mode .zu-word{color:#1a1f3a;}
   -webkit-appearance:none;appearance:none;
 }
 body.light-mode .zu-count-input{background:var(--bg3)!important;border-color:rgba(0,0,0,0.15)!important;color:var(--text)!important;}
-
+/* Improved textarea: larger touch target, clear font, scroll on small screens */
 .zu-textarea{
   width:100%;min-height:80px;max-height:38vh;
   background:var(--bg3);border:1px solid rgba(255,255,255,0.15);border-radius:9px;
@@ -1877,7 +1942,7 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 
 </style>
 
-
+<!-- FIXED_FULL_FROM_UPLOADED_T19_SOUND_MENU_DROPDOWN_V1 -->
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded" rel="stylesheet">
 <style>
 @font-face{font-family:'DSEG7';font-weight:400;font-style:normal;
@@ -1907,23 +1972,23 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 <div id="bg-layer"></div>
 <div id="bg-overlay"></div>
 
-
+<!-- ═══ TOPBAR ═══ -->
 <div id="topbar">
 
-  
+  <!-- ── Zeile 1: Utility-Leiste (Audio, Design, Sprache, Vollbild + Uhrzeit) ── -->
   <div id="topbar-row1">
 
-    
+    <!-- Sprache -->
     <button class="tool-btn" id="lang-btn" onclick="toggleLanguage()">
       <span class="tb-icon material-symbols-rounded">language</span><span class="tb-label">Sprache</span>
     </button>
 
-    
+    <!-- Design -->
     <button class="tool-btn" onclick="toggleBgPanel()">
       <span class="tb-icon material-symbols-rounded">palette</span><span id="design-label" class="tb-label" data-i18n="design">Design</span>
     </button>
 
-    
+    <!-- Sound control -->
     <div class="sound-wrap" id="sound-wrap">
       <button class="tool-btn" id="sound-btn" onclick="toggleSoundMenu()">
         <span class="tb-icon material-symbols-rounded">volume_up</span><span class="tb-label">Audio ▾</span>
@@ -1933,12 +1998,12 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
       </div>
     </div>
 
-    
+    <!-- Fullscreen -->
     <button class="tool-btn" id="fullscreen-btn" onclick="toggleFullscreen()">
       <span class="tb-icon" style="font-size:22px;">⛶</span><span id="fullscreen-label" class="tb-label" data-i18n="fullscreen">Vollbild</span>
     </button>
 
-    
+    <!-- Uhrzeit inline (nur Desktop sichtbar, Handy hat eigene Uhr) -->
     <div id="clock-inline">
       <div id="clock-big">00:00:00</div>
       <div id="date-big"></div>
@@ -1946,7 +2011,7 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 
   </div>
 
-  
+  <!-- ── Zeile 2: Werkzeug-Launcher (scrollbar) ── -->
   <div id="launcher">
 
     <div class="zumpad-inline" id="zumpad-inline">
@@ -2020,7 +2085,7 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 
 </div>
 
-
+<!-- Uhr: jetzt in #clock-inline innerhalb der Topbar -->
 
 <div id="desktop">
   <div id="empty-hint">
@@ -2036,12 +2101,12 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
   </div>
 </div>
 
-
+<!-- BG PANEL -->
 <div id="bg-panel">
-  
+  <!-- Hell/Dunkel-Schalter -->
   <button id="light-mode-btn" onclick="toggleLightMode()" style="width:100%;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:7px;background:var(--bg3);border:1px solid rgba(255,255,255,0.13);color:var(--text);border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;cursor:pointer;transition:background .15s;font-family:Arial,sans-serif;"id="light-mode-btn-init">Helle Oberfläche</button>
   <div class="sound-divider" style="margin-bottom:10px;"></div>
-  
+  <!-- Theme picker -->
   <div id="theme-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;"></div>
   <div class="sound-divider" style="margin-bottom:10px;"></div>
 
@@ -2124,7 +2189,7 @@ body.light-mode .zu-textarea{background:var(--bg3)!important;border-color:rgba(0
 // ║                                           _stickyDeleteUnlocked)    ║
 // ║  WIDGET: PINNWAND               ~  9222  buildPinnwand (User+Admin) ║
 // ║  WIDGET: NACHRICHT (Chat)       ~ 10045  buildNachricht             ║
-// ║    ↳ WebRTC Dateiübertragung    ~ 10510  _chatOfferFile/_chatRequestFile ║
+// ║    ↳ WebRTC Dateiübertragung    ~ 10510  _chatStageFile/_chatSendPendingFile/_chatRequestFile ║
 // ║  WIDGET: JEIN                   ~ 10697  buildJein                  ║
 // ║  WIDGET: FOTOS / WAS?           ~ 10897  buildWas + Diashow         ║
 // ║  WIDGET: SMILEYS (Befinden)     ~ 11297  buildSmileys               ║
@@ -2189,6 +2254,7 @@ const LANG = {
     was:'Fotos',
     wasDiashow:'▶ Diashow starten',
     wasPause:'⏸ Pause',
+    wasStoppen:'⏹ Stoppen',
     timer:'Timer',
     uhr:'Uhr',
     wuerfel:'Würfel',
@@ -2278,6 +2344,10 @@ const LANG = {
     wasFoto:'Foto',
     wasWeiter:'Weiter ▶',
     wasFertig:'✓ Fertig',
+    wasQuiz:'❓ Quiz',
+    wasQuizBeenden:'✕ Quiz beenden',
+    wasQuizMindestens3:'Für das Quiz werden mindestens 3 Fotos benötigt.',
+    wasQuizFertig:'Quiz beendet!',
     // Jein widget
     jeinText:'Text',
     jeinSmiley:'😊 Smiley',
@@ -2455,6 +2525,7 @@ const LANG = {
     was:'画像',
     wasDiashow:'▶ スライドショー',
     wasPause:'⏸ 一時停止',
+    wasStoppen:'⏹ 停止',
     timer:'タイマー',
     uhr:'時計',
     wuerfel:'サイコロ',
@@ -2544,6 +2615,10 @@ const LANG = {
     wasFoto:'写真',
     wasWeiter:'次へ ▶',
     wasFertig:'✓ 完了',
+    wasQuiz:'❓ クイズ',
+    wasQuizBeenden:'✕ クイズ終了',
+    wasQuizMindestens3:'クイズには最低3枚の写真が必要です。',
+    wasQuizFertig:'クイズ終了！',
     // Jein widget
     jeinText:'テキスト',
     jeinSmiley:'😊 スマイリー',
@@ -3060,6 +3135,16 @@ function _trWas(uid){
     const m=navLabel.textContent.match(/(\d+)\s*\/\s*(\d+)/);
     if(m) navLabel.textContent=`${T('wasFoto')} ${m[1]} / ${m[2]}`;
   }
+  // Diashow-Knopf (Diashow/Stoppen) — state-dependent
+  const wState=wasState[uid];
+  const diashowNavBtn=document.getElementById('wastab-diashow-'+uid);
+  if(diashowNavBtn) diashowNavBtn.textContent=wState?.diashowActive?T('wasStoppen'):T('wasDiashow');
+  const diashowSingleBtn=document.getElementById('wastab-diashow-single-'+uid);
+  if(diashowSingleBtn) diashowSingleBtn.textContent=wState?.diashowActive?T('wasStoppen'):T('wasDiashow');
+  // Zufall-Knopf (an/aus) — state-dependent
+  wasSyncZufallBtn(uid);
+  // Quiz-Knopf — state-dependent
+  wasSyncQuizBtn(uid);
 }
 
 function _trJein(uid){
@@ -4662,40 +4747,40 @@ function buildTimer(body,uid){
 </div>
 <div id="tview-lauf-${uid}" style="display:none;width:100%;flex:1;min-height:130px;cursor:pointer;overflow:hidden;border-radius:10px;position:relative;" onclick="startTimer(${uid})" title="" data-i18n-title="ttKlickenTimer">
   <svg id="lauf-svg-${uid}" viewBox="0 0 790 160" width="100%" height="100%" style="display:block;" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
-    
+    <!-- Himmel (Farbe wird per JS animiert) -->
     <rect id="lauf-sky-${uid}" x="0" y="0" width="790" height="160" fill="#f9c27a"/>
-    
+    <!-- Sonne (groß, ohne Striche, mit weichen Glüh-Halos) -->
     <g id="lauf-sun-${uid}" transform="translate(50,145)">
       <circle r="38" fill="#FFD700" opacity="0.08"/>
       <circle r="28" fill="#FFD700" opacity="0.15"/>
       <circle r="20" fill="#ffe066" opacity="0.35"/>
       <circle id="lauf-sunbody-${uid}" r="22" fill="#FFD700"/>
     </g>
-    
+    <!-- Wolken — einige mit ID für Bewegungs-Animation -->
     <g id="lauf-cloud1-${uid}"><ellipse cx="120" cy="30" rx="40" ry="18" fill="white" opacity=".85"/><ellipse cx="150" cy="25" rx="30" ry="15" fill="white" opacity=".85"/><ellipse cx="88" cy="32" rx="22" ry="11" fill="white" opacity=".75"/></g>
     <g id="lauf-cloud2-${uid}"><ellipse cx="310" cy="18" rx="35" ry="13" fill="white" opacity=".7"/><ellipse cx="340" cy="14" rx="22" ry="10" fill="white" opacity=".7"/></g>
     <ellipse cx="500" cy="22" rx="45" ry="16" fill="white" opacity=".8"/>
     <g id="lauf-cloud3-${uid}"><ellipse cx="530" cy="17" rx="28" ry="13" fill="white" opacity=".8"/><ellipse cx="470" cy="26" rx="18" ry="9" fill="white" opacity=".65"/></g>
     <g id="lauf-cloud4-${uid}"><ellipse cx="650" cy="28" rx="38" ry="14" fill="white" opacity=".75"/><ellipse cx="680" cy="23" rx="24" ry="11" fill="white" opacity=".75"/></g>
-    
+    <!-- Hügel -->
     <ellipse cx="200" cy="130" rx="160" ry="45" fill="#5a9e5a"/>
     <ellipse cx="600" cy="135" rx="200" ry="40" fill="#4e8f4e"/>
-    
+    <!-- Bäume links (die 2 ganz links wurden entfernt) -->
     <rect x="90"  y="90" width="5"  height="25" fill="#795548"/>
     <circle cx="92"  cy="83"  r="14" fill="#27ae60"/>
     <rect x="115" y="88" width="5"  height="27" fill="#6d4c41"/>
     <circle cx="117" cy="80"  r="13" fill="#2ecc71" opacity=".9"/>
-    
+    <!-- Bäume Mitte-links (hinter Haus, weiter weg = kleiner) -->
     <rect x="245" y="96" width="4"  height="20" fill="#795548"/>
     <circle cx="247" cy="90"  r="10" fill="#1e8449" opacity=".85"/>
     <rect x="275" y="93" width="4"  height="23" fill="#6d4c41"/>
     <circle cx="277" cy="87"  r="11" fill="#27ae60" opacity=".8"/>
-    
+    <!-- Bäume Mitte-rechts -->
     <rect x="510" y="94" width="4"  height="21" fill="#795548"/>
     <circle cx="512" cy="88"  r="11" fill="#1e8449" opacity=".85"/>
     <rect x="535" y="91" width="5"  height="24" fill="#6d4c41"/>
     <circle cx="537" cy="84"  r="13" fill="#2ecc71" opacity=".8"/>
-    
+    <!-- Bäume rechts -->
     <rect x="660" y="86" width="5"  height="29" fill="#795548"/>
     <circle cx="662" cy="78"  r="16" fill="#27ae60"/>
     <rect x="700" y="80" width="7"  height="35" fill="#795548"/>
@@ -4704,193 +4789,193 @@ function buildTimer(body,uid){
     <circle cx="737" cy="81"  r="15" fill="#27ae60"/>
     <rect x="758" y="91" width="4"  height="24" fill="#6d4c41"/>
     <circle cx="760" cy="85"  r="11" fill="#1e8449" opacity=".9"/>
-    
+    <!-- Strasse -->
     <rect x="0" y="125" width="790" height="22" fill="#9ca3af"/>
     <line x1="0" y1="136" x2="790" y2="136" stroke="rgba(255,255,255,0.5)" stroke-dasharray="18,12" stroke-width="2"/>
-    
+    <!-- Haus / Halbzeit -->
     <rect x="340" y="78" width="110" height="47" fill="#fef3c7" stroke="#d1c04a" stroke-width="1.5"/>
     <polygon points="330,78 460,78 395,50" fill="#e74c3c" stroke="#c0392b" stroke-width="1.5"/>
-    
+    <!-- Hauseingang (dunkler Flur hinter der Tür) — immer vorhanden, Tür verdeckt ihn -->
     <rect x="378" y="96" width="18" height="29" rx="1" fill="#1a0f0a"/>
-    
+    <!-- dunkle Innenraumandeutung: Flurboden, Wand -->
     <rect id="lauf-door-inner-${uid}" x="379" y="115" width="16" height="10" fill="#3d1f10" opacity="0"/>
     <line id="lauf-door-frame-${uid}" x1="382" y1="97" x2="382" y2="124" stroke="#5a3000" stroke-width="0.5" opacity="0"/>
-    
+    <!-- Tür (animierbar) -->
     <g id="lauf-door-${uid}">
       <rect x="378" y="96" width="18" height="29" rx="2" fill="#a0522d" stroke="#7a3b1e" stroke-width="1"/>
       <circle cx="393" cy="111" r="1.5" fill="#fbbf24"/>
     </g>
-    
+    <!-- Fenster links -->
     <rect x="348" y="86" width="22" height="18" rx="2" fill="#bde0f7" stroke="#d1c04a" stroke-width="1"/>
     <line x1="359" y1="86" x2="359" y2="104" stroke="#d1c04a" stroke-width="0.8"/>
     <line x1="348" y1="95" x2="370" y2="95" stroke="#d1c04a" stroke-width="0.8"/>
-    
+    <!-- Schwarze Katze im linken Fenster (nur Variante 3, 1s Verzögerung, hidden) -->
     <g id="lauf-cat2-${uid}" visibility="hidden">
       <ellipse cx="359" cy="97" rx="7" ry="6" fill="#1a1a1a"/>
-      
+      <!-- Ohren -->
       <polygon points="353,92 355,86 358,91" fill="#1a1a1a"/>
       <polygon points="361,91 364,86 365,92" fill="#1a1a1a"/>
       <polygon points="354,91 355.5,87.5 357.5,91" fill="#5a2a2a"/>
       <polygon points="361.5,91 363,87.5 364.5,91" fill="#5a2a2a"/>
-      
+      <!-- Augen (gelb-grün, auffällig) -->
       <ellipse cx="356.5" cy="95.5" rx="1.8" ry="2" fill="#c8b400"/>
       <ellipse cx="361.5" cy="95.5" rx="1.8" ry="2" fill="#c8b400"/>
       <ellipse cx="356.5" cy="95.5" rx="0.8" ry="1.3" fill="#111"/>
       <ellipse cx="361.5" cy="95.5" rx="0.8" ry="1.3" fill="#111"/>
       <circle cx="357" cy="95.2" r="0.4" fill="white"/>
       <circle cx="362" cy="95.2" r="0.4" fill="white"/>
-      
+      <!-- Nase + Schnurrbart -->
       <polygon points="358.5,98 359.5,97.5 360,98.5" fill="#c04040"/>
       <line x1="353" y1="98" x2="356.5" y2="98.5" stroke="#555" stroke-width="0.6"/>
       <line x1="353" y1="99.5" x2="356.5" y2="99" stroke="#555" stroke-width="0.6"/>
       <line x1="362" y1="98.5" x2="365.5" y2="98" stroke="#555" stroke-width="0.6"/>
       <line x1="362" y1="99" x2="365.5" y2="99.5" stroke="#555" stroke-width="0.6"/>
-      
+      <!-- Fensterbank Überblendung -->
       <rect x="348" y="100" width="22" height="5" fill="#fef3c7"/>
     </g>
-    
+    <!-- Baum neben Haus — VOR dem Hund gezeichnet, damit Hund nicht verdeckt wird -->
     <rect x="465" y="83" width="8" height="42" fill="#795548"/>
     <circle cx="469" cy="72" r="22" fill="#2ecc71"/>
-    
+    <!-- Hund — startet unsichtbar, erscheint bei Halbzeit -->
     <g id="lauf-dog-${uid}" visibility="hidden">
-      
+      <!-- Körper -->
       <ellipse cx="362" cy="121" rx="9" ry="5" fill="#c8a87a"/>
-      
+      <!-- Kopf -->
       <circle cx="371" cy="117" r="5" fill="#c8a87a"/>
-      
+      <!-- Schnauze -->
       <ellipse cx="374.5" cy="119" rx="2.5" ry="1.8" fill="#d4b896"/>
-      
+      <!-- Nase -->
       <circle cx="376" cy="118.2" r="1" fill="#5a3825"/>
-      
+      <!-- Auge -->
       <circle cx="373" cy="115.5" r="1" fill="#333"/>
       <circle cx="373.3" cy="115.2" r="0.35" fill="white"/>
-      
+      <!-- Ohr -->
       <ellipse id="lauf-dog-ear-${uid}" cx="369" cy="113" rx="2.2" ry="3.2" fill="#b8935a" transform="rotate(-15,369,113)"/>
-      
+      <!-- Beine (4 Stück) -->
       <line id="lauf-dog-leg1-${uid}" x1="356" y1="125" x2="354" y2="132" stroke="#b8935a" stroke-width="2.2" stroke-linecap="round"/>
       <line id="lauf-dog-leg2-${uid}" x1="360" y1="126" x2="358" y2="132" stroke="#b8935a" stroke-width="2.2" stroke-linecap="round"/>
       <line id="lauf-dog-leg3-${uid}" x1="365" y1="126" x2="363" y2="132" stroke="#b8935a" stroke-width="2.2" stroke-linecap="round"/>
       <line id="lauf-dog-leg4-${uid}" x1="369" y1="125" x2="367" y2="132" stroke="#b8935a" stroke-width="2.2" stroke-linecap="round"/>
-      
+      <!-- Schwanz -->
       <path id="lauf-dog-tail-${uid}" d="M353,120 Q347,112 350,108" stroke="#c8a87a" stroke-width="2.5" fill="none" stroke-linecap="round"/>
     </g>
-    
+    <!-- Fenster rechts -->
     <rect x="408" y="86" width="22" height="18" rx="2" fill="#bde0f7" stroke="#d1c04a" stroke-width="1"/>
     <line x1="419" y1="86" x2="419" y2="104" stroke="#d1c04a" stroke-width="0.8"/>
     <line x1="408" y1="95" x2="430" y2="95" stroke="#d1c04a" stroke-width="0.8"/>
-    
+    <!-- Katze im Fenster (nur Variante 3, standardmäßig hidden) -->
     <g id="lauf-cat-${uid}" visibility="hidden">
-      
+      <!-- Katzen-Kopf im Fenster -->
       <ellipse cx="419" cy="97" rx="7" ry="6" fill="#c9a96e"/>
-      
+      <!-- Ohren -->
       <polygon points="413,92 415,86 418,91" fill="#c9a96e"/>
       <polygon points="421,91 424,86 425,92" fill="#c9a96e"/>
       <polygon points="414,91 415.5,87.5 417.5,91" fill="#e8b4b8"/>
       <polygon points="421.5,91 423,87.5 424.5,91" fill="#e8b4b8"/>
-      
+      <!-- Augen — hell grün -->
       <ellipse cx="416.5" cy="95.5" rx="1.8" ry="2" fill="#39d353"/>
       <ellipse cx="421.5" cy="95.5" rx="1.8" ry="2" fill="#39d353"/>
       <ellipse cx="416.5" cy="95.5" rx="0.8" ry="1.3" fill="#111"/>
       <ellipse cx="421.5" cy="95.5" rx="0.8" ry="1.3" fill="#111"/>
       <circle cx="417" cy="95.2" r="0.4" fill="white"/>
       <circle cx="422" cy="95.2" r="0.4" fill="white"/>
-      
+      <!-- Nase + Schnurrbart -->
       <polygon points="418.5,98 419.5,97.5 420,98.5" fill="#e87d7d"/>
       <line x1="413" y1="98" x2="416.5" y2="98.5" stroke="#a07040" stroke-width="0.6"/>
       <line x1="413" y1="99.5" x2="416.5" y2="99" stroke="#a07040" stroke-width="0.6"/>
       <line x1="422" y1="98.5" x2="425.5" y2="98" stroke="#a07040" stroke-width="0.6"/>
       <line x1="422" y1="99" x2="425.5" y2="99.5" stroke="#a07040" stroke-width="0.6"/>
-      
+      <!-- Fensterbank Überblendung — untere Hälfte der Katze versteckt -->
       <rect x="408" y="100" width="22" height="5" fill="#fef3c7"/>
     </g>
-    
-    
-    
-    
+    <!-- Vogel (nur Variante 2, standardmäßig hidden) — BLAU, zentriert bei cx=395,cy=52 -->
+    <!-- Alle Elemente relativ zu Mitte 395: Kopf rechts, Schwanz links, Flügel oben/unten -->
+    <!-- Bei scale(-1,1) um x=395 → Kopf zeigt links = korrekt gespiegelt -->
+    <!-- Vogelnest — nur bei Variante 2, auf Dachmitte -->
     <g id="lauf-nest-${uid}" visibility="hidden">
-      
+      <!-- Nestschale aus geflochtenen Zweigen -->
       <ellipse cx="395" cy="60" rx="13" ry="5" fill="#8B5E3C"/>
       <ellipse cx="395" cy="59" rx="10" ry="3.5" fill="#6B4423"/>
-      
+      <!-- Innere Nestmulde (heller) -->
       <ellipse cx="395" cy="59" rx="7" ry="2.2" fill="#A0784A"/>
-      
+      <!-- Zweig-Textur oben links -->
       <path d="M382,59 Q386,55 390,59" stroke="#5a3000" stroke-width="1.2" fill="none" stroke-linecap="round"/>
       <path d="M384,61 Q388,57 392,60" stroke="#5a3000" stroke-width="1" fill="none" stroke-linecap="round"/>
-      
+      <!-- Zweig-Textur oben rechts -->
       <path d="M400,59 Q404,55 408,59" stroke="#5a3000" stroke-width="1.2" fill="none" stroke-linecap="round"/>
       <path d="M399,61 Q403,57 407,60" stroke="#5a3000" stroke-width="1" fill="none" stroke-linecap="round"/>
     </g>
     <g id="lauf-bird-${uid}" visibility="hidden">
-      
+      <!-- Körper (Ellipse, Mitte x=395) -->
       <ellipse cx="395" cy="52" rx="10" ry="5.5" fill="#2980b9"/>
-      
+      <!-- Bauch heller -->
       <ellipse cx="395" cy="53" rx="6" ry="3.5" fill="#5dade2"/>
-      
+      <!-- Kopf (rechts vom Körper) -->
       <circle cx="404" cy="48" r="5" fill="#2471a3"/>
-      
+      <!-- Schnabel (zeigt nach rechts) -->
       <polygon points="408,47.5 413,48.5 408,50" fill="#f39c12"/>
-      
+      <!-- Auge -->
       <circle cx="406" cy="47" r="1.4" fill="#111"/>
       <circle cx="406.4" cy="46.6" r="0.5" fill="white"/>
-      
+      <!-- Schwanz (links vom Körper, 3 Federn) -->
       <path d="M385,50 L380,46" stroke="#1a5f8a" stroke-width="2.2" stroke-linecap="round" fill="none"/>
       <path d="M385,52 L379,51" stroke="#1a5f8a" stroke-width="2.2" stroke-linecap="round" fill="none"/>
       <path d="M385,54 L380,57" stroke="#1a5f8a" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-      
+      <!-- Flügel oben (animierbar) -->
       <path id="lauf-bird-wing-${uid}"  d="M390,50 Q388,43 396,47" fill="#1a6ea8"/>
-      
+      <!-- Flügel unten -->
       <path id="lauf-bird-wing2-${uid}" d="M390,53 Q388,60 396,56" fill="#1f7fc4"/>
     </g>
-    
+    <!-- START -->
     <rect x="18" y="90" width="3" height="35" fill="#22c55e"/>
     <rect x="0" y="68" width="44" height="22" rx="4" fill="#22c55e"/>
     <text x="22" y="83" fill="white" font-weight="bold" font-size="10" text-anchor="middle" font-family="Arial,sans-serif">START</text>
-    
+    <!-- ZIEL -->
     <rect x="769" y="90" width="3" height="35" fill="#ef4444"/>
     <rect x="748" y="68" width="44" height="22" rx="4" fill="#ef4444"/>
     <text x="770" y="83" fill="white" font-weight="bold" font-size="10" text-anchor="middle" font-family="Arial,sans-serif">ZIEL</text>
-    
+    <!-- Zeit oben rechts im Himmel -->
     <text id="lauf-time-${uid}" x="735" y="44" text-anchor="middle" font-family="Arial,sans-serif" font-size="40" font-weight="bold" fill="white" stroke="rgba(0,0,80,0.35)" stroke-width="5" paint-order="stroke">${fmtTime(300)}</text>
-    
+    <!-- Läufer Gruppe — Startposition cx=20, mit Knie- und Ellbogengelenk-Animation -->
     <g id="lauf-runner-${uid}">
-      
+      <!-- Kopf mit Haar-Detail -->
       <circle id="lauf-head-${uid}"  cx="20" cy="108" r="5.5" fill="#fbbf24"/>
-      
+      <!-- Torso -->
       <line  id="lauf-body-${uid}"   x1="20" y1="113" x2="20" y2="124" stroke="#fbbf24" stroke-width="2.8"/>
-      
+      <!-- Oberschenkel links (Hüfte→Knie) -->
       <path  id="lauf-thigh1-${uid}" d="M20,124 L14,130" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-      
+      <!-- Unterschenkel links (Knie→Fuß) -->
       <path  id="lauf-shin1-${uid}"  d="M14,130 L11,137" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-      
+      <!-- Oberschenkel rechts -->
       <path  id="lauf-thigh2-${uid}" d="M20,124 L26,130" stroke="#fbbf24" stroke-width="2.5" stroke-linecap="round" fill="none"/>
-      
+      <!-- Unterschenkel rechts -->
       <path  id="lauf-shin2-${uid}"  d="M26,130 L29,137" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round" fill="none"/>
-      
+      <!-- Oberarm links (Schulter→Ellbogen) -->
       <path  id="lauf-uarm1-${uid}"  d="M20,115 L14,119" stroke="#fbbf24" stroke-width="2"   stroke-linecap="round" fill="none"/>
-      
+      <!-- Unterarm links (Ellbogen→Hand) -->
       <path  id="lauf-larm1-${uid}"  d="M14,119 L11,123" stroke="#fbbf24" stroke-width="1.8" stroke-linecap="round" fill="none"/>
-      
+      <!-- Oberarm rechts -->
       <path  id="lauf-uarm2-${uid}"  d="M20,115 L26,119" stroke="#fbbf24" stroke-width="2"   stroke-linecap="round" fill="none"/>
-      
+      <!-- Unterarm rechts -->
       <path  id="lauf-larm2-${uid}"  d="M26,119 L29,123" stroke="#fbbf24" stroke-width="1.8" stroke-linecap="round" fill="none"/>
     </g>
-    
+    <!-- Maus — erscheint bei Variante 3 (Katze), läuft aus der Tür und überholt den Läufer -->
     <g id="lauf-mouse-${uid}" visibility="hidden">
-      
+      <!-- Körper -->
       <ellipse cx="385" cy="126" rx="5" ry="3" fill="#aaa"/>
-      
+      <!-- Kopf -->
       <circle cx="390" cy="124" r="3.5" fill="#bbb"/>
-      
+      <!-- Ohren -->
       <circle cx="388.5" cy="120.5" r="2" fill="#d4a0a0"/>
       <circle cx="391.5" cy="120" r="2" fill="#d4a0a0"/>
-      
+      <!-- Auge -->
       <circle cx="392" cy="122.8" r="0.8" fill="#111"/>
       <circle cx="392.3" cy="122.5" r="0.3" fill="white"/>
-      
+      <!-- Nase -->
       <circle cx="393.5" cy="123.8" r="0.6" fill="#f87171"/>
-      
+      <!-- Schwanz -->
       <path id="lauf-mouse-tail-${uid}" d="M380,126 Q376,122 379,119" stroke="#999" stroke-width="1.2" fill="none" stroke-linecap="round"/>
-      
+      <!-- Beine -->
       <line id="lauf-mouse-leg1-${uid}" x1="383" y1="128" x2="381" y2="132" stroke="#999" stroke-width="1.5" stroke-linecap="round"/>
       <line id="lauf-mouse-leg2-${uid}" x1="386" y1="129" x2="384" y2="132" stroke="#999" stroke-width="1.5" stroke-linecap="round"/>
       <line id="lauf-mouse-leg3-${uid}" x1="389" y1="128" x2="387" y2="132" stroke="#999" stroke-width="1.5" stroke-linecap="round"/>
@@ -5666,57 +5751,57 @@ function diceD6svg(val){
   const gid='d6_'+Math.random().toString(36).slice(2,7);
   return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      
+      <!-- Ivory base gradient: warm cream top-left to darker warm shadow bottom-right -->
       <linearGradient id="d6g_${gid}" x1="15%" y1="8%" x2="88%" y2="92%">
         <stop offset="0%"   stop-color="#fffff4"/>
         <stop offset="28%"  stop-color="#fdf8e8"/>
         <stop offset="62%"  stop-color="#f5eecc"/>
         <stop offset="100%" stop-color="#e2d8a8"/>
       </linearGradient>
-      
+      <!-- Bevel top edge: bright warm highlight -->
       <linearGradient id="d6t_${gid}" x1="0%" y1="0%" x2="0%" y2="100%">
         <stop offset="0%"   stop-color="rgba(255,255,245,0.95)"/>
         <stop offset="100%" stop-color="rgba(255,255,245,0)"/>
       </linearGradient>
-      
+      <!-- Bevel left edge -->
       <linearGradient id="d6l_${gid}" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%"   stop-color="rgba(255,255,245,0.80)"/>
         <stop offset="100%" stop-color="rgba(255,255,245,0)"/>
       </linearGradient>
-      
+      <!-- Inner shadow bottom-right corner -->
       <radialGradient id="d6sh_${gid}" cx="85%" cy="85%" r="55%">
         <stop offset="0%"   stop-color="rgba(160,140,80,0.28)"/>
         <stop offset="100%" stop-color="rgba(160,140,80,0)"/>
       </radialGradient>
-      
+      <!-- Drop shadow filter -->
       <filter id="d6f_${gid}" x="-20%" y="-20%" width="148%" height="148%">
         <feDropShadow dx="2" dy="4" stdDeviation="5" flood-color="rgba(80,60,20,0.42)"/>
       </filter>
-      
+      <!-- Subtle inner glow filter for dot depth -->
       <filter id="d6df_${gid}" x="-40%" y="-40%" width="180%" height="180%">
         <feGaussianBlur stdDeviation="0.6" result="blur"/>
         <feComposite in="SourceGraphic" in2="blur" operator="over"/>
       </filter>
     </defs>
-    
+    <!-- Main face with drop shadow -->
     <rect x="5" y="5" width="90" height="90" rx="16"
       fill="url(#d6g_${gid})" stroke="#c8b870" stroke-width="1.8"
       filter="url(#d6f_${gid})"/>
-    
+    <!-- Bottom-right inner shadow for depth -->
     <rect x="5" y="5" width="90" height="90" rx="16"
       fill="url(#d6sh_${gid})" stroke="none"/>
-    
+    <!-- Top bevel highlight -->
     <rect x="7" y="7" width="86" height="30" rx="14"
       fill="url(#d6t_${gid})" stroke="none"/>
-    
+    <!-- Left bevel highlight -->
     <rect x="7" y="7" width="28" height="86" rx="14"
       fill="url(#d6l_${gid})" stroke="none"/>
-    
+    <!-- Outer rim warm highlight line -->
     <rect x="6.5" y="6.5" width="87" height="87" rx="15"
       fill="none" stroke="rgba(255,252,220,0.70)" stroke-width="1.2"/>
-    
+    <!-- Dots: deep warm brown, slightly recessed look -->
     <g filter="url(#d6df_${gid})" style="fill:#5a4010!important">${D6_DOTS[val-1]||''}</g>
-    
+    <!-- Dot inner highlight (tiny white spark top-left of each dot) -->
   </svg>`;
 }
 
@@ -5790,31 +5875,31 @@ function dicePolySvg(sides,val){
         padding-bottom:8px;box-sizing:border-box;overflow:visible;">
         <style>
           @keyframes w100drop_${gid}{
-            
+            /* ── FREE FALL from above ── ease-in per segment */
             0%{
               top:-116px;
               transform:translateX(-50%) scaleY(1) scaleX(1) rotate(0deg);
               animation-timing-function:ease-in;
             }
-            
+            /* ── IMPACT 1 ── hard squish, ball fell 235px */
             19%{
               top:113px;
               transform:translateX(-50%) scaleY(0.68) scaleX(1.30) rotate(72deg);
               animation-timing-function:ease-out;
             }
-            
+            /* brief squish hold */
             20.5%{
               top:119px;
               transform:translateX(-50%) scaleY(0.68) scaleX(1.30) rotate(76deg);
               animation-timing-function:ease-out;
             }
-            
+            /* ── RISE 1 ── bounce up to 129px above floor = top:-10px, ease-out */
             30%{
               top:-10px;
               transform:translateX(-50%) scaleY(1.04) scaleX(0.97) rotate(128deg);
               animation-timing-function:ease-in;
             }
-            
+            /* ── FALL back, IMPACT 2 ── fell 129px, 0.55× squish */
             38%{
               top:113px;
               transform:translateX(-50%) scaleY(0.76) scaleX(1.22) rotate(172deg);
@@ -5825,13 +5910,13 @@ function dicePolySvg(sides,val){
               transform:translateX(-50%) scaleY(0.76) scaleX(1.22) rotate(175deg);
               animation-timing-function:ease-out;
             }
-            
+            /* ── RISE 2 ── up to 71px above floor = top:48px */
             46%{
               top:48px;
               transform:translateX(-50%) scaleY(1.02) scaleX(0.98) rotate(208deg);
               animation-timing-function:ease-in;
             }
-            
+            /* ── FALL + IMPACT 3 ── */
             52%{
               top:113px;
               transform:translateX(-50%) scaleY(0.84) scaleX(1.14) rotate(238deg);
@@ -5842,13 +5927,13 @@ function dicePolySvg(sides,val){
               transform:translateX(-50%) scaleY(0.84) scaleX(1.14) rotate(241deg);
               animation-timing-function:ease-out;
             }
-            
+            /* ── RISE 3 ── up to 39px above floor = top:80px */
             57%{
               top:80px;
               transform:translateX(-50%) scaleY(1.01) scaleX(0.99) rotate(260deg);
               animation-timing-function:ease-in;
             }
-            
+            /* ── FALL + IMPACT 4 ── */
             61%{
               top:113px;
               transform:translateX(-50%) scaleY(0.90) scaleX(1.08) rotate(278deg);
@@ -5859,19 +5944,19 @@ function dicePolySvg(sides,val){
               transform:translateX(-50%) scaleY(0.90) scaleX(1.08) rotate(281deg);
               animation-timing-function:ease-out;
             }
-            
+            /* ── RISE 4 ── up to 21px above floor = top:98px */
             65%{
               top:98px;
               transform:translateX(-50%) scaleY(1.00) scaleX(1.00) rotate(294deg);
               animation-timing-function:ease-in;
             }
-            
+            /* ── IMPACT 5 (tiny) ── */
             68%{
               top:118px;
               transform:translateX(-50%) scaleY(0.95) scaleX(1.04) rotate(308deg);
               animation-timing-function:ease-out;
             }
-            
+            /* ── SETTLE ── */
             72%{
               top:119px;
               transform:translateX(-50%) scaleY(1) scaleX(1) rotate(315deg);
@@ -5989,7 +6074,7 @@ function dicePolySvg(sides,val){
       <polygon points="${pts.join(' ')}" fill="url(#lg20_${gid20})" stroke="#0a3018" stroke-width="2.5" stroke-linejoin="round" filter="url(#d20s_${gid20})"/>
       <polygon points="${pts.join(' ')}" fill="url(#lg20i_${gid20})" stroke="none"/>
       <polygon points="${innerPts.join(' ')}" fill="none" stroke="rgba(255,255,255,0.25)" stroke-width="1.5" stroke-linejoin="round"/>
-      
+      <!-- top-left shine arc -->
       <ellipse cx="38" cy="35" rx="20" ry="11" fill="rgba(255,255,255,0.22)" transform="rotate(-25,38,35)"/>
       <text x="60" y="60" text-anchor="middle" dominant-baseline="central"
         font-family="Arial,sans-serif" font-weight="900" font-size="${fs}" fill="#ffffff"
@@ -6028,7 +6113,7 @@ function dicePolySvg(sides,val){
     <polygon points="${pts.join(' ')}" fill="url(#rg12_${gid12})" stroke="#5a0000" stroke-width="2.5" stroke-linejoin="round" filter="url(#d12s_${gid12})"/>
     <polygon points="${pts.join(' ')}" fill="url(#rg12i_${gid12})" stroke="none"/>
     <polygon points="${innerPts.join(' ')}" fill="none" stroke="rgba(255,255,255,0.22)" stroke-width="1.5" stroke-linejoin="round"/>
-    
+    <!-- top-left shine -->
     <ellipse cx="38" cy="34" rx="18" ry="10" fill="rgba(255,255,255,0.22)" transform="rotate(-20,38,34)"/>
     <text x="60" y="62" text-anchor="middle" dominant-baseline="central"
       font-family="Arial,sans-serif" font-weight="900" font-size="${fs}" fill="#ffffff"
@@ -6216,18 +6301,18 @@ function updateDiceGraphic(uid){
     }
     wrap.innerHTML=`<svg viewBox="0 0 300 168" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;opacity:0.55;">
       <defs>
-        
+        <!-- Gold: 10/20/50ct -->
         <radialGradient id="idleGold" cx="36%" cy="30%" r="70%"><stop offset="0%" stop-color="#f0be18"/><stop offset="100%" stop-color="#9a7000"/></radialGradient>
-        
+        <!-- Silber: 2€ äußerer Ring -->
         <radialGradient id="idleSilv" cx="36%" cy="30%" r="70%"><stop offset="0%" stop-color="#d8d8d8"/><stop offset="100%" stop-color="#808080"/></radialGradient>
-        
+        <!-- Kupfer: 1/2/5ct -->
         <radialGradient id="idleCop" cx="36%" cy="30%" r="70%"><stop offset="0%" stop-color="#e06830"/><stop offset="100%" stop-color="#9a4412"/></radialGradient>
       </defs>
-      
+      <!-- Schein 1: 5€ (grau) links -->
       ${idleNote(6, 14, 130, 68, 5, '#dde0d8', '#b0b8a8', '#5a6a52', '#3a4a32')}
-      
+      <!-- Schein 2: 20€ (blau) rechts -->
       ${idleNote(164, 14, 130, 68, 20, '#c8daf0', '#8aaed8', '#2a5a9a', '#1a3a72')}
-      
+      <!-- Münze 1: 50ct Gold (rechts versetzt) -->
       <ellipse cx="70" cy="145" rx="28" ry="4" fill="rgba(0,0,0,0.18)"/>
       <circle cx="70" cy="138" r="29" fill="url(#idleGold)"/>
       <circle cx="70" cy="138" r="29" fill="none" stroke="#9a7000" stroke-width="0.8"/>
@@ -6235,7 +6320,7 @@ function updateDiceGraphic(uid){
       <circle cx="70" cy="138" r="19" fill="none" stroke="#9a7000" stroke-width="0.8"/>
       <text x="${70+2}" y="135" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="14" fill="#6b4800">50</text>
       <text x="70" y="151" text-anchor="middle" font-family="Arial,sans-serif" font-size="8" fill="#6b4800">Cent</text>
-      
+      <!-- Münze 2: 1€ bicolor (Gold außen, Silber innen; Zahl links + "Euro") -->
       <ellipse cx="150" cy="145" rx="28" ry="4" fill="rgba(0,0,0,0.18)"/>
       <circle cx="150" cy="138" r="29" fill="url(#idleGold)"/>
       <circle cx="150" cy="138" r="29" fill="none" stroke="#9a7000" stroke-width="0.8"/>
@@ -6243,14 +6328,14 @@ function updateDiceGraphic(uid){
       <circle cx="150" cy="138" r="19" fill="none" stroke="#9a7000" stroke-width="0.8"/>
       <text x="${150-8}" y="135" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="17" fill="#5a6a6a">1</text>
       <text x="${150+2}" y="135" text-anchor="start" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="700" font-size="8" fill="#5a6a6a">Euro</text>
-      
+      <!-- Münze 3: 1ct Kupfer (links versetzt) -->
       <ellipse cx="230" cy="142" rx="21" ry="3.5" fill="rgba(0,0,0,0.18)"/>
       <circle cx="230" cy="135" r="22" fill="url(#idleCop)"/>
       <circle cx="230" cy="135" r="22" fill="none" stroke="#9a4412" stroke-width="0.8"/>
       <circle cx="230" cy="135" r="13" fill="#7a2e08"/>
       <text x="${230-8}" y="132" text-anchor="middle" dominant-baseline="central" font-family="Arial Black,sans-serif" font-weight="900" font-size="12" fill="#f0c090">1</text>
       <text x="${230+2}" y="132" text-anchor="start" dominant-baseline="central" font-family="Arial,sans-serif" font-weight="700" font-size="7" fill="#f0c090">Cent</text>
-      
+      <!-- Hinweis-Text -->
       <text x="150" y="6" text-anchor="middle" font-family="Arial,sans-serif" font-size="7" fill="rgba(255,255,255,0.40)" data-i18n="diceClickHint"></text>
     </svg>`;
   } else {
@@ -6381,47 +6466,47 @@ function rollDice(uid){
           </clipPath>
         </defs>
 
-        
+        <!-- Heller farbiger Hintergrund (gesamte Fläche) -->
         <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${nc.base}" stroke="${nc.dark}" stroke-width="1.0"/>
 
-        
+        <!-- Weißer linker Streifen (~25%) -->
         <rect x="${x}" y="${y}" width="${whiteW}" height="${h}" rx="${r}" fill="#f8f8f6" clip-path="url(#nc${nid})"/>
-        
+        <!-- Abrundung rechts vom weißen Bereich begradigen -->
         <rect x="${x + whiteW - r}" y="${y}" width="${r}" height="${h}" fill="#f8f8f6" clip-path="url(#nc${nid})"/>
 
-        
+        <!-- Trennlinie weißer Bereich / farbiger Bereich -->
         <line x1="${colorX}" y1="${y+2}" x2="${colorX}" y2="${y+h-2}" stroke="${nc.dark}" stroke-width="0.6" stroke-opacity="0.3" clip-path="url(#nc${nid})"/>
 
-        
+        <!-- Dunkleres Rechteck in der Mitte (Architektur-/Muster-Feld) -->
         <rect x="${midRectX}" y="${midRectY}" width="${midRectW}" height="${midRectH}" rx="3" fill="${nc.mid}" opacity="0.7" clip-path="url(#nc${nid})"/>
 
-        
+        <!-- Stilisiertes Architekturfenster im dunklen Rechteck -->
         <rect x="${midRectX + Math.round(midRectW*0.15)}" y="${midRectY + Math.round(midRectH*0.15)}" width="${Math.round(midRectW*0.70)}" height="${Math.round(midRectH*0.60)}" rx="2" fill="none" stroke="${nc.dark}" stroke-width="0.8" stroke-opacity="0.35" clip-path="url(#nc${nid})"/>
         <line x1="${(midRectX + midRectW*0.50).toFixed(1)}" y1="${(midRectY + midRectH*0.15).toFixed(1)}" x2="${(midRectX + midRectW*0.50).toFixed(1)}" y2="${(midRectY + midRectH*0.75).toFixed(1)}" stroke="${nc.dark}" stroke-width="0.6" stroke-opacity="0.25" clip-path="url(#nc${nid})"/>
         <line x1="${(midRectX + midRectW*0.15).toFixed(1)}" y1="${(midRectY + midRectH*0.45).toFixed(1)}" x2="${(midRectX + midRectW*0.85).toFixed(1)}" y2="${(midRectY + midRectH*0.45).toFixed(1)}" stroke="${nc.dark}" stroke-width="0.6" stroke-opacity="0.25" clip-path="url(#nc${nid})"/>
 
-        
+        <!-- 12 Sterne kreisförmig in der Mitte -->
         ${stars12}
 
-        
+        <!-- Äußerer Rahmen -->
         <rect x="${x+1}" y="${y+1}" width="${w-2}" height="${h-2}" rx="${r-0.5}" fill="none" stroke="${nc.dark}" stroke-width="0.5" stroke-opacity="0.3" clip-path="url(#nc${nid})"/>
 
-        
+        <!-- € oben links im weißen Bereich (dunkel) -->
         <text x="${eX}" y="${eY}" text-anchor="start" dominant-baseline="central"
           font-family="Arial,sans-serif" font-size="${eSize}" font-weight="700"
           fill="${labelText}">€</text>
 
-        
+        <!-- Kleine Zahl unten links im weißen Bereich -->
         <text x="${snX}" y="${snY}" text-anchor="start" dominant-baseline="central"
           font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${smallNumSize}"
           fill="${labelText}">${val}</text>
 
-        
+        <!-- "Euro" klein rechts neben der kleinen Zahl -->
         <text x="${euTxtX.toFixed(1)}" y="${euTxtY}" text-anchor="start" dominant-baseline="central"
           font-family="Arial,sans-serif" font-weight="400" font-size="${euroTxtSize}"
           fill="${labelText}">Euro</text>
 
-        
+        <!-- Große Hauptzahl oben rechts -->
         <text x="${bigNumX}" y="${bigNumY.toFixed(1)}" text-anchor="end" dominant-baseline="central"
           font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="${bigNumSize}"
           fill="${darkText}" clip-path="url(#nc${nid})">${val}</text>`;
@@ -7538,7 +7623,7 @@ function buildDraw(body,uid){
   body.style.display='flex';body.style.flexDirection='column';body.style.padding='6px';
   body.innerHTML=`
 <div class="timer-mode-bar" style="display:flex;gap:.3em;align-items:center;flex-wrap:wrap;margin-bottom:.4em;padding:4px 6px;background:rgba(0,0,0,0.18);border-radius:8px;flex-shrink:0;font-size:13px;">
-  
+  <!-- Colors (fixed 13px base, do not scale) -->
   <div style="display:flex;gap:4px;align-items:center;">
     <div class="color-dot selected" style="background:#000"  onclick="setDColor(${uid},'#000000',this)" title="Schwarz"></div>
     <div class="color-dot" style="background:#e74c3c" onclick="setDColor(${uid},'#e74c3c',this)" title="Rot"></div>
@@ -7549,7 +7634,7 @@ function buildDraw(body,uid){
     <div class="color-dot" style="background:#fff;border:1.5px solid rgba(255,255,255,.3);" onclick="setDColor(${uid},'#ffffff',this)" title="Weiß"></div>
   </div>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
-  
+  <!-- Tool buttons -->
   <div style="display:flex;gap:.25em;">
     <button class="draw-tool-btn active-tool" id="dtool-pen-${uid}" onclick="setDrawTool(${uid},'pen',this)" title="" data-i18n-title="drawTitelStift">✏️</button>
     <button class="draw-tool-btn" id="dtool-marker-${uid}" onclick="setDrawTool(${uid},'marker',this)" title="" data-i18n-title="drawTitelMarker">
@@ -7576,7 +7661,7 @@ function buildDraw(body,uid){
     </button>
   </div>
   <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
-  
+  <!-- Text tool options (shown only when text tool active) -->
   <div id="dtool-text-opts-${uid}" style="display:none;gap:.25em;align-items:center;flex-wrap:wrap;">
     <select id="dtextfont-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:11px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;min-width:140px;" title="" data-i18n-title="drawTitelSchriftart" onchange="updateDrawTextCursor(${uid})">
       <option value="Arial">Arial</option>
@@ -7601,17 +7686,17 @@ function buildDraw(body,uid){
     <div style="width:1px;height:20px;background:rgba(255,255,255,0.15);flex-shrink:0;"></div>
     <span style="font-size:10px;color:var(--text2);" data-i18n="drawKlicken"></span>
   </div>
-  
+  <!-- Size (pen/marker) -->
   <select id="dtool-sz-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:6px;font-size:12px;padding:2px 4px;height:26px;font-family:'Arial',sans-serif;" onchange="drawStates[${uid}].sz=parseInt(this.value)" title="" data-i18n-title="drawTitelStiftgroesse">
     <option value="2">2px</option><option value="5" selected>5px</option>
     <option value="10">10px</option><option value="20">20px</option><option value="40">40px</option>
   </select>
-  
+  <!-- Photo upload -->
   <label style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;display:flex;align-items:center;" title="" data-i18n-title="drawTitelFoto">
     🖼
     <input type="file" accept="image/*" style="display:none;" onchange="insertDrawPhoto(${uid},this.files[0]);this.value=''">
   </label>
-  
+  <!-- Actions -->
   <button id="dbtn-undo-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;opacity:0.4;" onclick="undoDraw(${uid})" title="" data-i18n-title="drawTitelRueckgaengig">↩</button>
   <button id="dbtn-copy-${uid}" style="background:var(--bg3);border:1px solid rgba(255,255,255,0.1);color:var(--text);border-radius:6px;padding:0 8px;font-size:13px;height:26px;cursor:pointer;opacity:0.4;" onclick="copyDraw(${uid})" title="Auswahl kopieren (Strg+C)">
     <svg viewBox="0 0 18 18" width="13" height="13" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle">
@@ -9462,11 +9547,82 @@ const _STICKY_SESSION_ID = 'sess_' + Date.now() + '_' + Math.random().toString(3
 
 // ── Passwort- & Admin-System ──────────────────────────────
 // Struktur in Firebase: { pinboard:{noteId: {...}}, userPassword:'...' }
-// Admin-Code: 'Simsalabim' — danach folgendes Wort = neues Benutzerpasswort
+// Admin-Code wird NICHT im Klartext gespeichert, sondern nur als SHA-256-Hash
+// (siehe _sha256Hex weiter unten). Zum Ändern des Admin-Codes:
+//   1. Das mitgelieferte Werkzeug "Admin-Code-Hash-Generator.html" öffnen
+//      (funktioniert offline, ohne Internetverbindung, per Doppelklick).
+//   2. Neuen Code eingeben → den angezeigten Hash kopieren.
+//   3. Den kopierten Hash unten bei _STICKY_ADMIN_CODE_HASH einsetzen und
+//      diese Datei speichern.
 let _stickyDeleteUnlocked = false;
 let _stickyUserUnlocked   = false;
-const _STICKY_ADMIN_CODE  = 'Simsalabim';
+const _STICKY_ADMIN_CODE_HASH = 'e9495ecdfd400f30961167f8764a652a2a6715c2fd83e03369b8189bb34a9d5d';
 let _stickyAdminPending   = false;
+
+// Reiner JavaScript-SHA-256 (kein crypto.subtle nötig — funktioniert daher auch
+// offline/lokal per Doppelklick geöffnet, ganz ohne https/localhost-Zwang).
+function _sha256Hex(rawStr){
+  const str = unescape(encodeURIComponent(rawStr)); // UTF-8-Bytes als Binärstring (Umlaute etc. sicher)
+  function rightRotate(v,a){ return (v>>>a) | (v<<(32-a)); }
+  const maxWord = Math.pow(2,32);
+  let hash = [], k = [];
+  let primeCounter = 0;
+  const isComposite = {};
+  for(let candidate=2; primeCounter<64; candidate++){
+    if(!isComposite[candidate]){
+      for(let i=0;i<313;i+=candidate) isComposite[i]=candidate;
+      hash[primeCounter]=(Math.pow(candidate,0.5)*maxWord)|0;
+      k[primeCounter++]=(Math.pow(candidate,1/3)*maxWord)|0;
+    }
+  }
+  let s = str + '\x80';
+  while(s.length % 64 - 56) s += '\x00';
+  const words = [];
+  const asciiBitLength = str.length * 8;
+  for(let i=0;i<s.length;i++){
+    const j = s.charCodeAt(i);
+    words[i>>2] |= j << ((3-(i%4))*8);
+  }
+  words[words.length] = Math.floor(asciiBitLength / maxWord);
+  words[words.length] = asciiBitLength;
+
+  for(let j=0;j<words.length;){
+    const w = words.slice(j, j+=16);
+    const oldHash = hash.slice(0);
+    hash = hash.slice(0,8);
+    for(let i=0;i<64;i++){
+      let w15 = w[i-15], w2 = w[i-2];
+      const a = hash[0], e = hash[4];
+      const temp1 = hash[7]
+        + (rightRotate(e,6) ^ rightRotate(e,11) ^ rightRotate(e,25))
+        + ((e & hash[5]) ^ ((~e) & hash[6]))
+        + k[i]
+        + (w[i] = (i<16) ? w[i] : (
+            (w[i-16]
+            + (rightRotate(w15,7) ^ rightRotate(w15,18) ^ (w15>>>3))
+            + w[i-7]
+            + (rightRotate(w2,17) ^ rightRotate(w2,19) ^ (w2>>>10))) | 0
+          )
+        );
+      const temp2 = (rightRotate(a,2) ^ rightRotate(a,13) ^ rightRotate(a,22))
+        + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+      hash = [(temp1+temp2)|0].concat(hash);
+      hash[4] = (hash[4]+temp1)|0;
+      hash.length = 8;
+    }
+    for(let i=0;i<8;i++){
+      hash[i] = (hash[i]+oldHash[i])|0;
+    }
+  }
+  let result = '';
+  for(let i=0;i<8;i++){
+    for(let j=3;j>=0;j--){
+      const b = (hash[i]>>(j*8)) & 255;
+      result += (b<16?'0':'') + b.toString(16);
+    }
+  }
+  return result;
+}
 
 // Gruppenpasswörter werden bei Eingabe live geprüft (kein Vorladen nötig)
 
@@ -9478,7 +9634,7 @@ async function _checkStickyCode(val){
   const trimmedClean = trimmed.startsWith('!') ? trimmed.slice(1) : trimmed;
 
   // ── Admin gibt Code ein ──────────────────────────────────
-  if(trimmedClean === _STICKY_ADMIN_CODE){
+  if(_sha256Hex(trimmedClean) === _STICKY_ADMIN_CODE_HASH){
     if(!_stickyAdminPending){
       _stickyAdminPending   = true;
       _stickyDeleteUnlocked = true;
@@ -9492,7 +9648,7 @@ async function _checkStickyCode(val){
   }
 
   // ── Admin gibt neues Gruppenpasswort ein ─────────────────
-  if(_stickyAdminPending && trimmedClean.length > 0 && trimmedClean !== _STICKY_ADMIN_CODE){
+  if(_stickyAdminPending && trimmedClean.length > 0 && _sha256Hex(trimmedClean) !== _STICKY_ADMIN_CODE_HASH){
     _stickyAdminPending  = false;
     const inp = document.getElementById('zumpad-input');
     if(inp){ inp.value = ''; inp.placeholder = isJa ? 'パッド名？' : 'Pad-Name?'; }
@@ -9612,7 +9768,7 @@ function buildPinnwand(body, uid){
   border-top:4px solid ${STICKY_COLORS[0].border};
   transition:background .25s,border-color .25s;
   position:relative;">
-  
+  <!-- Toolbar: Farb-Dots + Löschen -->
   <div style="display:flex;align-items:center;gap:5px;padding:6px 8px 4px;flex-shrink:0;flex-wrap:wrap;">
     <div style="display:flex;gap:5px;flex:1;">
       ${STICKY_COLORS.map(c=>`
@@ -9630,7 +9786,7 @@ function buildPinnwand(body, uid){
       onmouseover="this.style.background='#ef444433'"
       onmouseout="this.style.background='#ef444411'">${isJa?'🗑️ 削除':'🗑️ Löschen'}</button>
   </div>
-  
+  <!-- Textarea -->
   <textarea id="pin-edit-ta-${uid}"
     placeholder="${isJa?'メモ …':'Notiz …'}"
     spellcheck="true"
@@ -9640,7 +9796,7 @@ function buildPinnwand(body, uid){
       padding:4px 12px 8px;
       font-family:'Comic Sans MS','Comic Sans',cursive,sans-serif;
       font-size:15px;line-height:1.5;color:#2b2b2b;"></textarea>
-  
+  <!-- Abschicken-Button unten -->
   <div style="padding:6px 8px;flex-shrink:0;">
     <button onclick="savePinNote(${uid})" id="pin-edit-btn-save-${uid}"
       title="${isJa?'付箋を保存／投稿':'Notizzettel abschicken'}"
@@ -10444,6 +10600,18 @@ async function openNachricht(){
   spawnWidget('nachricht');
 }
 
+// ── Persönliche Geräte-Einstellung: Datei-Download für iPhone/iPad optimieren.
+//    Wird lokal je Browser/Gerät gespeichert (localStorage) — jeder Nutzer
+//    entscheidet das für sich selbst, unabhängig davon, wer die Datei sendet. ──
+function _chatGetIphoneDownloadPref(){
+  try{ return localStorage.getItem('chatIphoneDownloadPref') === '1'; }
+  catch(e){ return false; }
+}
+function _chatSetIphoneDownloadPref(val){
+  try{ localStorage.setItem('chatIphoneDownloadPref', val ? '1' : '0'); }
+  catch(e){}
+}
+
 // ── Aufbau des Chat-Fensters ─────────────────────────────
 function buildNachricht(body, uid){
   const isJa = document.documentElement.lang === 'ja';
@@ -10464,6 +10632,7 @@ function buildNachricht(body, uid){
       + '</select>';
 
   const importantId = 'chat-important-' + uid;
+  const iphoneId = 'chat-iphone-' + uid;
 
   body.innerHTML =
     '<div class="chat-wrap">' +
@@ -10473,8 +10642,8 @@ function buildNachricht(body, uid){
           + '<button class="chat-clear-btn" onclick="_clearChatConfirm(' + uid + ')">🗑️ '
           + (isJa ? 'チャットを削除' : 'Chat löschen') + '</button>'
           + '<button class="chat-attach-btn" onclick="_chatPickFile(' + uid + ')" title="'
-          + (isJa ? 'ファイルを送信' : 'Datei anbieten') + '">📎</button>'
-          + '<input type="file" id="chat-file-input-' + uid + '" style="display:none" onchange="_chatOfferFile(' + uid + ',this)">'
+          + (isJa ? 'ファイルを添付' : 'Datei anhängen') + '">📎</button>'
+          + '<input type="file" id="chat-file-input-' + uid + '" style="display:none" onchange="_chatStageFile(' + uid + ',this)">'
           + '</div>'
         : '') +
       '<div class="chat-messages" id="chat-msgs-' + uid + '"><div class="chat-empty">' +
@@ -10486,8 +10655,17 @@ function buildNachricht(body, uid){
           '<div class="chat-important-row">' +
             '<input type="checkbox" id="' + importantId + '">' +
             '<label for="' + importantId + '">⚑ ' + (isJa ? '重要' : 'Wichtig') + '</label>' +
+            (!isAdmin
+              ? '<input type="checkbox" id="' + iphoneId + '" style="margin-left:10px;" ' +
+                (_chatGetIphoneDownloadPref() ? 'checked ' : '') +
+                'onchange="_chatSetIphoneDownloadPref(this.checked)" title="' +
+                (isJa ? 'ダウンロードを自分の iPhone/iPad 用に最適化' : 'Download für mein iPhone/iPad optimieren') + '">' +
+                '<label for="' + iphoneId + '" title="' +
+                (isJa ? 'ダウンロードを自分の iPhone/iPad 用に最適化' : 'Download für mein iPhone/iPad optimieren') + '">📱 iPhone</label>'
+              : '') +
           '</div>' +
         '</div>' +
+        '<div class="chat-pending-file" id="chat-pending-file-' + uid + '" style="display:none;"></div>' +
         '<div class="chat-send-row">' +
           '<textarea id="chat-input-' + uid + '" rows="1" placeholder="' +
             (isJa ? 'メッセージを入力…' : 'Nachricht eingeben…') + '" ' +
@@ -10664,7 +10842,9 @@ async function _sendChatMessage(uid){
   const chk = document.getElementById('chat-important-' + uid);
   if(!ta || !sel) return;
   const text = ta.value.trim();
-  if(!text) return;
+  const pendingFile = st.pendingFile || null;
+  // Nichts zu tun, wenn weder Text noch eine angehängte Datei vorliegt
+  if(!text && !pendingFile) return;
 
   let name = _getChatUserName();
   if(!name){
@@ -10683,22 +10863,31 @@ async function _sendChatMessage(uid){
     targetPerson = selVal.slice(7); // Name nach "person:"
   }
 
-  const msg = {
-    messageId: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-    text,
-    sender: name,
-    target,
-    ts: Date.now(),
-    sessionId: _STICKY_SESSION_ID
-  };
-  if(targetPerson) msg.targetPerson = targetPerson;
-  if(chk && chk.checked) msg.important = true;
-
   if(btn) btn.disabled = true;
   try{
-    await Backend.chat.send(msg, st.group);
-    ta.value = '';
-    if(chk) chk.checked = false; // Wichtig-Haken nach Senden zurücksetzen
+    if(text){
+      const msg = {
+        messageId: 'msg_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        text,
+        sender: name,
+        target,
+        ts: Date.now(),
+        sessionId: _STICKY_SESSION_ID
+      };
+      if(targetPerson) msg.targetPerson = targetPerson;
+      if(chk && chk.checked) msg.important = true;
+      await Backend.chat.send(msg, st.group);
+      ta.value = '';
+      if(chk) chk.checked = false; // Wichtig-Haken nach Senden zurücksetzen
+    }
+    // Angehängte Datei erst jetzt (bei Enter/Senden) tatsächlich anbieten.
+    // Der Download-Modus (iPhone-optimiert oder nicht) wird NICHT hier festgelegt —
+    // das entscheidet jeder Empfänger individuell für sein eigenes Gerät.
+    if(pendingFile){
+      await _chatSendPendingFile(uid, pendingFile, name);
+      st.pendingFile = null;
+      _chatRenderPendingFile(uid);
+    }
   }catch(e){
     _stickyShowStatus('❌ ' + e.message, '#f87171');
   }finally{
@@ -10832,13 +11021,17 @@ function _chatShowToast(msg){
 // Signaling läuft über den bestehenden chat/<gruppe>/-Pfad als
 // Nachrichten mit type:'file-signal-*' — kein neuer Firebase-Pfad nötig.
 // Ablauf:
-//   1. Admin wählt Datei → _chatOfferFile() → sendet Chat-Msg type:'file-offer'
-//      + type:'file-signal-offer' (SDP) in den Chat
-//   2. User klickt "Herunterladen" → _chatRequestFile() → liest Offer-SDP
+//   1. Admin wählt Datei → _chatStageFile() merkt sie nur vor (Chip im Eingabefeld)
+//   2. Admin drückt Enter/„Senden" → _sendChatMessage() ruft _chatSendPendingFile()
+//      auf → sendet Chat-Msg type:'file-offer' + type:'file-signal-offer' (SDP)
+//   3. User klickt "Herunterladen" → _chatRequestFile() → liest Offer-SDP
 //      aus dem Chat-State, sendet type:'file-signal-answer'
-//   3. Admin-Listener sieht Answer → schließt Verbindung ab
-//   4. ICE-Kandidaten beider Seiten laufen als type:'file-signal-ice' durch den Chat
-//   5. Datei fließt direkt P2P, kein Server-Upload
+//   4. Admin-Listener sieht Answer → schließt Verbindung ab
+//   5. ICE-Kandidaten beider Seiten laufen als type:'file-signal-ice' durch den Chat
+//   6. Datei fließt direkt P2P, kein Server-Upload
+// Download-Modus (iPhone/iPad-optimiert oder klassisch): reine Geräte-Einstellung
+// des jeweiligen Empfängers (localStorage, siehe _chatGetIphoneDownloadPref),
+// hat nichts mit dem Upload/Angebot zu tun — der Upload läuft für alle gleich.
 // ════════════════════════════════════════════════════════════════════
 
 const _rtcState = {}; // msgId → { pc, dc, file, ... }
@@ -10873,9 +11066,9 @@ async function _chatSendSignal(group, msgId, signalType, payload){
   await Backend.chat.send(sigMsg, group);
 }
 
-// ── Admin: Datei auswählen → Offer erstellen → in Chat senden ────────────
-async function _chatOfferFile(uid, input){
-  const isJa = document.documentElement.lang === 'ja';
+// ── Admin: Datei auswählen → NICHT sofort senden, sondern nur vormerken.
+//    Der eigentliche Versand erfolgt erst über _sendChatMessage() (Enter/Senden) ──
+function _chatStageFile(uid, input){
   const st = nachrichtState[uid];
   if(!st){ console.error('nachrichtState fehlt für uid', uid); return; }
 
@@ -10884,6 +11077,42 @@ async function _chatOfferFile(uid, input){
   input.value = '';
   if(!file){ console.warn('Keine Datei ausgewählt'); return; }
 
+  st.pendingFile = file;
+  _chatRenderPendingFile(uid);
+}
+
+// ── Vorgemerkte Datei wieder entfernen, ohne sie zu senden ───────────────
+function _chatRemovePendingFile(uid){
+  const st = nachrichtState[uid];
+  if(!st) return;
+  st.pendingFile = null;
+  _chatRenderPendingFile(uid);
+}
+
+// ── Anzeige-Chip für die vorgemerkte, noch nicht gesendete Datei ─────────
+function _chatRenderPendingFile(uid){
+  const isJa = document.documentElement.lang === 'ja';
+  const st = nachrichtState[uid];
+  const box = document.getElementById('chat-pending-file-' + uid);
+  if(!st || !box) return;
+  if(st.pendingFile){
+    box.style.display = 'flex';
+    box.innerHTML =
+      '<span>📎 ' + escapeHtml(st.pendingFile.name) + ' (' + _chatFormatBytes(st.pendingFile.size) + ')</span>' +
+      '<button type="button" onclick="_chatRemovePendingFile(' + uid + ')" title="' +
+        (isJa ? '削除' : 'Entfernen') + '">✕</button>';
+  } else {
+    box.style.display = 'none';
+    box.innerHTML = '';
+  }
+}
+
+// ── Vorgemerkte Datei tatsächlich als Angebot in den Chat senden
+//    (wird nur von _sendChatMessage() bei Enter/Klick auf "Senden" aufgerufen) ──
+async function _chatSendPendingFile(uid, file, senderName){
+  const st = nachrichtState[uid];
+  if(!st) return;
+
   _stickyShowStatus('📎 Verbindung wird vorbereitet…', '#a5b4fc');
 
   const msgId = 'file_' + Date.now() + '_' + Math.random().toString(36).slice(2,7);
@@ -10891,9 +11120,12 @@ async function _chatOfferFile(uid, input){
   // Datei + Gruppe im State merken — pro Downloader wird später je eine eigene pc erstellt
   _rtcState[msgId] = { file, group: st.group, uid };
 
-  // Datei-Ankündigung für alle sichtbar im Chat
-  const myName = _getChatUserName() || 'Kursleitung';
-  await Backend.chat.send({
+  // Datei-Ankündigung für alle sichtbar im Chat. Der Upload selbst ist für
+  // alle Geräte identisch — ob der Download später iPhone-optimiert läuft,
+  // entscheidet ausschließlich der jeweilige Empfänger selbst (siehe
+  // _chatGetIphoneDownloadPref/_chatRequestFile).
+  const myName = senderName || _getChatUserName() || 'Kursleitung';
+  const offerMsg = {
     messageId: msgId,
     type: 'file-offer',
     fileName: file.name,
@@ -10902,7 +11134,8 @@ async function _chatOfferFile(uid, input){
     target: 'all',
     ts: Date.now(),
     sessionId: _STICKY_SESSION_ID,
-  }, st.group);
+  };
+  await Backend.chat.send(offerMsg, st.group);
 
   _stickyShowStatus('📎 Datei angeboten: ' + file.name, '#4ade80');
 }
@@ -10914,7 +11147,7 @@ function _chatSendFileChunks(stateKey){
   const file = s.file;
   let offset = 0;
   const reader = new FileReader();
-  s.dc.send(JSON.stringify({ type:'meta', name: file.name, size: file.size }));
+  s.dc.send(JSON.stringify({ type:'meta', name: file.name, size: file.size, mime: file.type }));
 
   const readNext = () => {
     if(offset >= file.size){
@@ -11024,12 +11257,56 @@ function _chatHandleSignal(m){
   }
 }
 
+// ── Empfangene Datei sichern: Web Share API (zuverlässig auf iOS/iPhone),
+//    sonst Fallback auf klassischen Blob-Link-Download (Desktop/Android) ──
+async function _chatSaveReceivedFile(blob, fileName, btn, isJa, iphoneMode){
+  const finish = () => {
+    if(btn){ btn.disabled=false; btn.textContent = isJa ? '✅ 完了' : '✅ Fertig'; }
+  };
+
+  // Web-Share-Dialog nur verwenden, wenn die Kursleitung diese Datei beim
+  // Senden ausdrücklich mit dem "iPhone"-Haken als für iPhone/iPad optimiert
+  // markiert hat. Grund: Der Web-Share-Weg hat sich auf Windows als nicht
+  // zuverlässig erwiesen (Download funktionierte dort nicht mehr richtig).
+  // Ohne Haken kommt immer die ursprüngliche, auf Windows bewährte Variante
+  // (klassischer Blob-Link-Download) zum Einsatz.
+  if(iphoneMode){
+    const file = new File([blob], fileName, { type: blob.type || 'application/octet-stream' });
+    if(navigator.canShare && navigator.canShare({ files: [file] })){
+      try{
+        await navigator.share({ files: [file], title: fileName });
+        finish();
+        return;
+      }catch(err){
+        // Nutzer hat den Teilen-Dialog abgebrochen (AbortError) → Datei ist
+        // trotzdem vollständig empfangen, kein echter Fehler.
+        if(err && err.name === 'AbortError'){ finish(); return; }
+        console.warn('Web Share fehlgeschlagen, Fallback auf Blob-Download:', err);
+        // fällt durch zum klassischen Download unten
+      }
+    }
+  }
+
+  // Ursprüngliche Variante: klassischer Blob-Link-Download (zuverlässig auf
+  // Windows, Desktop-Browsern und Android)
+  const url = URL.createObjectURL(blob);
+  const a   = document.createElement('a');
+  a.href = url; a.download = fileName;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+  finish();
+}
+
 // ── User: Herunterladen-Button → Download-Request an Admin senden ─────────
 async function _chatRequestFile(msgId, uid, btn){
   const isJa = document.documentElement.lang === 'ja';
   const st = nachrichtState[uid];
   if(!st) return;
   if(btn) btn.disabled = true;
+
+  // Persönliche Geräte-Einstellung: entscheidet NUR dieser Nutzer für sich selbst,
+  // unabhängig davon wie/von wem die Datei gesendet wurde.
+  const iphoneMode = _chatGetIphoneDownloadPref();
 
   const prEl  = document.getElementById('chat-pr-'  + msgId);
   const barEl = document.getElementById('chat-pr-'  + msgId + '-bar');
@@ -11043,7 +11320,7 @@ async function _chatRequestFile(msgId, uid, btn){
 
   const pc = new RTCPeerConnection(_STUN_SERVERS);
   const chunks = [];
-  let receivedBytes = 0, totalBytes = 0, fileName = 'download';
+  let receivedBytes = 0, totalBytes = 0, fileName = 'download', fileMime = '';
   _rtcState[dlKey] = { pc, uid, group: st.group };
 
   pc.onicecandidate = e => {
@@ -11059,16 +11336,11 @@ async function _chatRequestFile(msgId, uid, btn){
       if(typeof ev.data === 'string'){
         const msg = JSON.parse(ev.data);
         if(msg.type === 'meta'){
-          fileName = msg.name; totalBytes = msg.size;
+          fileName = msg.name; totalBytes = msg.size; fileMime = msg.mime || '';
           if(btn) btn.textContent = isJa ? '受信中…' : 'Empfange…';
         } else if(msg.type === 'done'){
-          const blob = new Blob(chunks);
-          const url  = URL.createObjectURL(blob);
-          const a    = document.createElement('a');
-          a.href = url; a.download = fileName;
-          document.body.appendChild(a); a.click(); a.remove();
-          setTimeout(() => URL.revokeObjectURL(url), 2000);
-          if(btn){ btn.disabled=false; btn.textContent = isJa ? '✅ 完了' : '✅ Fertig'; }
+          const blob = new Blob(chunks, fileMime ? { type: fileMime } : undefined);
+          _chatSaveReceivedFile(blob, fileName, btn, isJa, iphoneMode);
           if(barEl) barEl.style.width = '100%';
           pc.close(); delete _rtcState[dlKey];
         }
@@ -11293,8 +11565,13 @@ disp.style.transform='scale(0.8)';disp.style.opacity='0';
 // ════════════════════════════════════════════════
 const wasState={};
 
+// Kurzer "Pop"-Klick-Sound für Knöpfe im Fotos-Widget
+function wasClickPop(){
+  try{const ac=new (window.AudioContext||window.webkitAudioContext)();playPop(ac,0.7);}catch(e){}
+}
+
 function buildWas(body,uid){
-  wasState[uid]={imgs:[],imgIndex:0,step:0,maxSteps:8,canvas:null,revealed:false,mode:'diashow',blurInterval:null,diashowActive:false,diashowTimer:null,diashowRandom:false};
+  wasState[uid]={imgs:[],imgNames:[],imgIndex:0,step:0,maxSteps:8,canvas:null,revealed:false,mode:'diashow',blurInterval:null,diashowActive:false,diashowTimer:null,diashowRandom:false,quizActive:false,quizLocked:false,quizQueue:[],quizTotal:0,quizOptions:null};
   body.style.display='flex';body.style.flexDirection='column';body.style.padding='8px';
   body.innerHTML=`
 <div id="was-upload-${uid}" style="flex:1;display:flex;">
@@ -11309,31 +11586,42 @@ function buildWas(body,uid){
     <div style="font-size:11px;margin-top:3px;color:var(--text2);" data-i18n="wasUploadSub"></div>
   </div>
 </div>
-<div id="was-canvas-wrap-${uid}" style="display:none;flex:1;flex-direction:column;gap:6px;">
-  
+<div id="was-canvas-wrap-${uid}" style="display:none;flex:1;flex-direction:column;gap:6px;min-height:0;">
+  <!-- Photo nav bar (visible only when >1 photo) -->
   <div id="was-nav-${uid}" style="display:none;align-items:center;gap:6px;background:rgba(0,0,0,0.25);border-radius:8px;padding:4px 8px;">
     <button class="wbtn" onclick="wasGoPrev(${uid})" id="was-prev-${uid}" style="padding:.3em .7em;font-size:.85em;">◀</button>
     <button class="wbtn primary" onclick="wasGoNext(${uid})" id="was-next-${uid}" style="padding:.3em .9em;font-size:.85em;" data-i18n="wasWeiter"></button>
     <button id="wastab-diashow-${uid}" class="wbtn" onclick="wasDiashowToggle(${uid})" style="font-size:.82em;padding:.3em .7em;" data-i18n="wasDiashow"></button>
-    <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="display:none;font-size:.82em;padding:.3em .7em;" data-i18n="diceZufallAn"></button>
+    <button id="was-quiz-btn-${uid}" class="wbtn" onclick="wasQuizToggle(${uid})" style="display:none;font-size:.82em;padding:.3em .7em;" data-i18n="wasQuiz"></button>
     <div id="was-nav-label-${uid}" style="flex:1;text-align:center;font-size:.82em;color:var(--text2);font-weight:700;" data-i18n="wasFoto" data-i18n-suffix=" 1 / 1">1 / 1</div>
   </div>
-  <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:auto;cursor:pointer;" onclick="wasCanvasClick(${uid})" data-i18n-title="ttKlickenEnthuellen" title=""></canvas>
-  
+  <div id="was-zufall-row-${uid}" style="display:none;align-items:center;gap:6px;">
+    <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="font-size:.82em;padding:.3em .7em;" data-i18n="diceZufallAus"></button>
+  </div>
+  <div id="was-canvas-row-${uid}" style="display:flex;flex:1;gap:12px;min-height:0;align-items:flex-start;">
+    <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:auto;cursor:pointer;" onclick="wasCanvasClick(${uid})" data-i18n-title="ttKlickenEnthuellen" title=""></canvas>
+    <!-- Quiz-Antwortpanel: goldener Rahmen, darin blitzen bei Gewinn bunte Lichter auf, am Quiz-Ende ein Feuerwerk -->
+    <div id="was-quiz-frame-${uid}" class="was-quiz-frame">
+      <div id="was-quiz-panel-${uid}" class="was-quiz-panel"></div>
+      <div id="was-quiz-lights-${uid}" class="was-quiz-lights"></div>
+      <div id="was-quiz-fireworks-${uid}" class="was-quiz-fireworks"></div>
+    </div>
+  </div>
+  <!-- Effekt-Steuerung: nur sichtbar wenn Diashow/Quiz NICHT aktiv -->
   <div id="was-effect-controls-${uid}">
     <div style="display:flex;gap:.4em;align-items:center;">
       <div id="was-step-${uid}" style="font-size:.8em;color:var(--text2);flex:1;" data-i18n="wasSchritt" data-i18n-suffix=" 1 / 8">1 / 8</div>
       <button class="wbtn" onclick="wasRevealMore(${uid})" id="was-btn-${uid}" data-i18n="wasFeiner"></button>
       <button class="wbtn" onclick="wasReset(${uid})">↺</button>
     </div>
-    
+    <!-- Mode tabs -->
     <div style="display:flex;gap:3px;background:rgba(0,0,0,0.25);border-radius:8px;padding:3px;">
       <button id="wastab-mosaic-${uid}" class="timer-mode-btn" data-i18n="wasMosaik" onclick="setWasMode('mosaic',${uid})"></button>
       <button id="wastab-blur-${uid}" class="timer-mode-btn" data-i18n="wasVerschwommen" onclick="setWasMode('blur',${uid})"></button>
       <button id="wastab-twirl-${uid}" class="timer-mode-btn" data-i18n="wasVerdrehen" onclick="setWasMode('twirl',${uid})"></button>
       <button id="wastab-puzzle-${uid}" class="timer-mode-btn" data-i18n="wasPuzzle" onclick="setWasMode('puzzle',${uid})"></button>
       <button id="wastab-kaese-${uid}" class="timer-mode-btn" data-i18n="wasKaese" onclick="setWasMode('kaese',${uid})"></button>
-      
+      <!-- Diashow-Tab für Einzel-Bild (kein nav-bar) -->
       <button id="wastab-diashow-single-${uid}" class="timer-mode-btn" style="display:none;" onclick="wasDiashowToggle(${uid})" data-i18n="wasDiashow"></button>
     </div>
   </div>
@@ -11344,15 +11632,19 @@ function loadWasImages(uid, files){
   if(!files||!files.length)return;
   const s=wasState[uid];
   s.imgs=[];
+  s.imgNames=[];
   s.imgIndex=0;
   let loaded=0;
   const total=files.length;
   Array.from(files).forEach((file,i)=>{
     const img=new Image();
     const reader=new FileReader();
+    // Dateiname ohne Endung merken (wird u.a. für das Quiz benötigt)
+    const baseName=(file.name||'').replace(/\.[^/.]+$/,'');
     reader.onload=e=>{
       img.onload=()=>{
         s.imgs[i]=img;
+        s.imgNames[i]=baseName;
         loaded++;
         if(loaded===total) wasActivatePhoto(uid,0);
       };
@@ -11360,6 +11652,12 @@ function loadWasImages(uid, files){
     };
     reader.readAsDataURL(file);
   });
+}
+
+// Zusätzlich reservierte Breite fürs Quiz-Antwortpanel (Panel-Breite + Gap),
+// wird von allen Canvas-Größenberechnungen berücksichtigt solange Quiz aktiv ist.
+function wasQuizReserveW(s){
+  return (s && s.quizActive) ? 242 : 0; // Rahmenbreite (230px) + Abstand (12px)
 }
 
 function wasActivatePhoto(uid, index){
@@ -11383,7 +11681,7 @@ function wasActivatePhoto(uid, index){
     const topbarH = (document.getElementById('topbar')?.offsetHeight) || 68;
     // Verfügbare Breite
     const bodyW = bodyEl ? bodyEl.clientWidth : 0;
-    const availW = Math.max(120, bodyW > 0 ? bodyW - 16 : (widget ? widget.offsetWidth - 32 : 400));
+    const availW = Math.max(120, bodyW > 0 ? bodyW - 16 - wasQuizReserveW(s) : (widget ? widget.offsetWidth - 32 - wasQuizReserveW(s) : 400));
     // Verfügbare Höhe: Widget-Höhe minus Tabs (32px) + Header (36px) + Buttons (38px) + Padding + Nav
     const hasNav = s.imgs.length > 1;
     const reserved = 36/*header*/ + 32/*tabs*/ + (hasNav?42:0) + 38/*buttons+step*/ + 24/*padding*/;
@@ -11431,12 +11729,14 @@ function wasActivatePhoto(uid, index){
     navLabel.textContent=`${T('wasFoto')} ${index+1} / ${s.imgs.length}`;
     prevBtn.disabled=(index===0);
     prevBtn.style.opacity=(index===0)?'0.35':'1';
-    nextBtn.disabled=(index===s.imgs.length-1);
-    nextBtn.style.opacity=(index===s.imgs.length-1)?'0.35':'1';
-    nextBtn.textContent=index===s.imgs.length-1?T('wasFertig'):T('wasWeiter');
+    // Bei aktivem Zufall geht "Weiter" endlos weiter (wie die Diashow) statt bei "Fertig" zu stoppen
+    const wasAmEnde=(index===s.imgs.length-1) && !s.diashowRandom;
+    nextBtn.disabled=wasAmEnde;
+    nextBtn.style.opacity=wasAmEnde?'0.35':'1';
+    nextBtn.textContent=wasAmEnde?T('wasFertig'):T('wasWeiter');
     // Sync diashow button state in nav
     if(diashowNavBtn){
-      diashowNavBtn.textContent=s.diashowActive?T('wasPause'):T('wasDiashow');
+      diashowNavBtn.textContent=s.diashowActive?T('wasStoppen'):T('wasDiashow');
       diashowNavBtn.classList.toggle('primary',s.diashowActive);
     }
     if(diashowSingleBtn) diashowSingleBtn.style.display='none';
@@ -11445,6 +11745,8 @@ function wasActivatePhoto(uid, index){
     // For single image, hide diashow button (Diashow needs multiple photos)
     if(diashowSingleBtn) diashowSingleBtn.style.display='none';
   }
+  wasSyncZufallBtn(uid);
+  wasSyncQuizBtn(uid);
   // Erst nach dem nächsten Render-Frame messen (wrap ist gerade erst auf display:flex gesetzt)
   requestAnimationFrame(()=>{
     _wasSetCanvasSize();
@@ -11493,7 +11795,7 @@ function wasResizeCanvas(uid){
   const widget=cv.closest('.widget');
   const topbarH=(document.getElementById('topbar')?.offsetHeight)||68;
   const bodyW=bodyEl?bodyEl.clientWidth:0;
-  const availW=Math.max(120,bodyW>0?bodyW-16:(widget?widget.offsetWidth-32:400));
+  const availW=Math.max(120,bodyW>0?bodyW-16-wasQuizReserveW(s):(widget?widget.offsetWidth-32-wasQuizReserveW(s):400));
   const hasNav=s.imgs.length>1;
   const reserved=36+32+(hasNav?42:0)+38+24;
   const widgetH=widget?widget.offsetHeight:(window.innerHeight-topbarH);
@@ -11507,18 +11809,42 @@ function wasResizeCanvas(uid){
   cv.style.width=cw+'px'; cv.style.height=ch+'px';
 }
 
+// Zufall-Knopf (an/aus) synchronisieren: Beschriftung zeigt den AKTUELLEN Zustand,
+// nicht die Aktion — und der Knopf ist sichtbar sobald mehr als 1 Foto geladen ist
+// (unabhängig davon, ob die Diashow gerade läuft).
+function wasSyncZufallBtn(uid){
+  const s=wasState[uid]; if(!s)return;
+  const row=document.getElementById('was-zufall-row-'+uid);
+  const btn=document.getElementById('was-zufall-btn-'+uid);
+  // Zufall-Knopf ist auch während des Quiz nutzbar (steuert dort die Fragen-Reihenfolge)
+  if(row) row.style.display=(s.imgs&&s.imgs.length>1)?'flex':'none';
+  if(btn){
+    btn.textContent=s.diashowRandom ? T('diceZufallAn') : T('diceZufallAus');
+    btn.classList.toggle('primary', s.diashowRandom);
+  }
+}
+
 function wasGoNext(uid){
   const s=wasState[uid];
-  if(!s||!s.imgs.length)return;
-  if(s.imgIndex<s.imgs.length-1) wasActivatePhoto(uid, s.imgIndex+1);
+  if(!s||!s.imgs.length||s.quizActive)return;
+  if(s.diashowRandom && s.imgs.length>1){
+    // Zufall aktiv: "Weiter" nutzt dieselbe Shuffle-Reihenfolge wie die Diashow
+    wasClickPop();
+    if(!s.diashowQueue||!s.diashowQueue.length) s.diashowQueue=wasDiashowShuffle(s.imgs.length);
+    const nextIdx=s.diashowQueue.shift();
+    wasActivatePhoto(uid, nextIdx);
+    return;
+  }
+  if(s.imgIndex<s.imgs.length-1){ wasClickPop(); wasActivatePhoto(uid, s.imgIndex+1); }
 }
 function wasGoPrev(uid){
   const s=wasState[uid];
-  if(!s||!s.imgs.length)return;
-  if(s.imgIndex>0) wasActivatePhoto(uid, s.imgIndex-1);
+  if(!s||!s.imgs.length||s.quizActive)return;
+  if(s.imgIndex>0){ wasClickPop(); wasActivatePhoto(uid, s.imgIndex-1); }
 }
 
 function setWasMode(mode, uid){
+  wasClickPop();
   wasDiashowStop(uid);
   wasState[uid].mode = mode;
   wasState[uid].step = 0;
@@ -11763,19 +12089,30 @@ function wasRenderStep(uid){
 function wasUpdateControlsVisibility(uid){
   const s = wasState[uid]; if(!s) return;
   const effectEl  = document.getElementById('was-effect-controls-'+uid);
-  const zufallBtn = document.getElementById('was-zufall-btn-'+uid);
   const navEl     = document.getElementById('was-nav-'+uid);
   if(s.diashowActive){
     if(effectEl)  effectEl.style.display  = 'none';
-    if(zufallBtn) zufallBtn.style.display = '';
-    // Nav-Bar ausblenden: nur noch Pause-Button per Canvas-Klick
+    // Nav-Bar ausblenden: nur noch Stoppen-Button per Canvas-Klick
     if(navEl)     navEl.style.display     = 'none';
   } else {
-    if(effectEl)  effectEl.style.display  = '';
-    if(zufallBtn) zufallBtn.style.display = 'none';
-    // Nav-Bar wieder zeigen (wenn >1 Bild)
+    // Effekt-Steuerung auch während des Quiz ausblenden (irrelevant, Bild wird immer unbearbeitet gezeigt)
+    if(effectEl)  effectEl.style.display  = s.quizActive ? 'none' : '';
+    // Nav-Bar wieder zeigen (wenn >1 Bild) — bleibt auch während des Quiz sichtbar
     if(navEl && s.imgs && s.imgs.length > 1) navEl.style.display = 'flex';
   }
+  // Während des Quiz: Vor/Zurück/Diashow-Knopf sperren (Fortschritt läuft nur über richtige Antworten)
+  const prevBtn=document.getElementById('was-prev-'+uid);
+  const nextBtn=document.getElementById('was-next-'+uid);
+  const diashowNavBtn=document.getElementById('wastab-diashow-'+uid);
+  [prevBtn, nextBtn, diashowNavBtn].forEach(b=>{
+    if(!b) return;
+    b.disabled = !!s.quizActive;
+    b.style.opacity = s.quizActive ? '0.35' : '';
+  });
+  // Zufall-Knopf bleibt unabhängig vom Diashow-Status sichtbar (wenn >1 Foto, aber nicht während des Quiz)
+  wasSyncZufallBtn(uid);
+  // Quiz-Knopf synchronisieren (sichtbar ab 3 Fotos, Beschriftung je nach Status)
+  wasSyncQuizBtn(uid);
   // Canvas-Größe neu berechnen (verfügbarer Platz hat sich geändert)
   if(s.canvas && s.imgs && s.imgs.length){
     const cv = s.canvas;
@@ -11784,7 +12121,7 @@ function wasUpdateControlsVisibility(uid){
     const bodyEl = cv.closest('.widget-body');
     const widget  = cv.closest('.widget');
     const bodyW = bodyEl ? bodyEl.clientWidth : 0;
-    const availW = Math.max(120, bodyW > 0 ? bodyW - 16 : (widget ? widget.offsetWidth - 32 : 400));
+    const availW = Math.max(120, bodyW > 0 ? bodyW - 16 - wasQuizReserveW(s) : (widget ? widget.offsetWidth - 32 - wasQuizReserveW(s) : 400));
     const hasNav = !s.diashowActive && s.imgs.length > 1;
     const reserved = 36/*header*/ + (s.diashowActive ? 0 : 32/*tabs*/ + 38/*buttons+step*/) + (hasNav ? 42 : 0) + 24/*padding*/;
     const widgetH = widget ? widget.offsetHeight : window.innerHeight;
@@ -11803,6 +12140,7 @@ function wasUpdateControlsVisibility(uid){
 
 function wasCanvasClick(uid){
   const s=wasState[uid]; if(!s)return;
+  if(s.quizActive)return; // Im Quiz erfolgt der Fortschritt nur über die richtige Antwort
   if(s.mode==='diashow'){
     // In Diashow-Modus: zum nächsten Bild springen (wie Weiter-Knopf)
     if(s.imgs&&s.imgs.length>1) wasGoNext(uid);
@@ -11819,7 +12157,8 @@ function wasRevealMore(uid){
 }
 
 function wasReset(uid){
-  const s=wasState[uid]; if(!s)return;
+  const s=wasState[uid]; if(!s||s.quizActive)return;
+  wasClickPop();
   s.step=0; s.revealed=false;
   const btn=document.getElementById('was-btn-'+uid);
   if(btn){
@@ -11835,7 +12174,8 @@ function wasReset(uid){
 // ════════════════════════════════════════════════
 // DIASHOW für Was?-Widget
 function wasDiashowToggle(uid){
-  const s=wasState[uid]; if(!s)return;
+  const s=wasState[uid]; if(!s||s.quizActive)return;
+  wasClickPop();
   // Button kann in der Nav-Bar (was-nav) ODER im single-Modus sein
   const btn=document.getElementById('wastab-diashow-'+uid);
   const btnSingle=document.getElementById('wastab-diashow-single-'+uid);
@@ -11866,8 +12206,8 @@ function wasDiashowToggle(uid){
     if(!s.imgs||!s.imgs.length){alert('Bitte zuerst Fotos hochladen.');return;}
     s.diashowActive=true;
     s.mode='diashow';
-    if(btn){btn.textContent=T('wasPause');btn.classList.add('primary');}
-    if(btnSingle){btnSingle.textContent=T('wasPause');btnSingle.classList.add('active-tmode');}
+    if(btn){btn.textContent=T('wasStoppen');btn.classList.add('primary');}
+    if(btnSingle){btnSingle.textContent=T('wasStoppen');btnSingle.classList.add('active-tmode');}
     // Effekt-Tabs deaktivieren während Diashow
     document.getElementById('wastab-mosaic-'+uid)?.classList.remove('active-tmode');
     document.getElementById('wastab-blur-'+uid)?.classList.remove('active-tmode');
@@ -11926,18 +12266,310 @@ function wasDiashowStop(uid){
 
 function wasDiashowToggleZufall(uid){
   const s=wasState[uid]; if(!s)return;
+  wasClickPop();
   s.diashowRandom=!s.diashowRandom;
   s.diashowQueue=[];  // reset queue so new mode takes effect immediately
-  const btn=document.getElementById('was-zufall-btn-'+uid);
-  if(btn){
-    btn.textContent=s.diashowRandom ? T('diceZufallAus') : T('diceZufallAn');
-    btn.classList.toggle('primary', s.diashowRandom);
+  wasSyncZufallBtn(uid);
+  // "Weiter"-Knopf neu synchronisieren (Fertig/Weiter-Logik hängt von diashowRandom ab)
+  if(s.imgs&&s.imgs.length){
+    const nextBtn=document.getElementById('was-next-'+uid);
+    if(nextBtn){
+      const wasAmEnde=(s.imgIndex===s.imgs.length-1) && !s.diashowRandom;
+      nextBtn.disabled=wasAmEnde;
+      nextBtn.style.opacity=wasAmEnde?'0.35':'1';
+      nextBtn.textContent=wasAmEnde?T('wasFertig'):T('wasWeiter');
+    }
+  }
+  // Läuft gerade ein Quiz: nur die noch offenen (nicht die aktuelle) Fragen neu ordnen
+  if(s.quizActive && s.quizQueue && s.quizQueue.length>1){
+    const rest=s.quizQueue.slice(1);
+    wasQuizOrderRest(s, rest);
+    s.quizQueue=[s.quizQueue[0], ...rest];
   }
   // Laufenden Timer abbrechen und sofort nächsten Schritt ausführen
   if(s.diashowActive){
     if(s.diashowTimer){clearTimeout(s.diashowTimer);s.diashowTimer=null;}
     wasDiashowStep(uid);
   }
+}
+
+// ════════════════════════════════════════════════
+// QUIZ für Was?-Widget: Foto zeigen, Namen erraten (3 Auswahlmöglichkeiten)
+// ════════════════════════════════════════════════
+
+// Bunte Verläufe für die Antwort-Knöpfe (spielerischer Quiz-Look).
+// Zuordnung erfolgt nach Anzeige-Position, nicht nach Richtigkeit — verrät also nichts.
+const WAS_QUIZ_BTN_COLORS=[
+  {bg:'linear-gradient(135deg,#6366f1,#8b5cf6)', shadow:'rgba(99,102,241,.45)'},
+  {bg:'linear-gradient(135deg,#ec4899,#f43f5e)', shadow:'rgba(236,72,153,.45)'},
+  {bg:'linear-gradient(135deg,#f59e0b,#f97316)', shadow:'rgba(245,158,11,.45)'},
+];
+
+// Quiz-Knopf synchronisieren: nur sichtbar ab 3 Fotos, Beschriftung je nach Status
+function wasSyncQuizBtn(uid){
+  const s=wasState[uid]; if(!s)return;
+  const btn=document.getElementById('was-quiz-btn-'+uid);
+  if(!btn)return;
+  const canQuiz = !!(s.imgs && s.imgs.length>=3);
+  btn.style.display = canQuiz ? '' : 'none';
+  btn.textContent = s.quizActive ? T('wasQuizBeenden') : T('wasQuiz');
+  btn.classList.toggle('primary', !!s.quizActive);
+}
+
+function wasQuizToggle(uid){
+  const s=wasState[uid]; if(!s)return;
+  wasClickPop();
+  if(s.quizActive) wasQuizStop(uid);
+  else wasQuizStart(uid);
+}
+
+function wasQuizStart(uid){
+  const s=wasState[uid]; if(!s)return;
+  if(!s.imgs||s.imgs.length<3){ alert(T('wasQuizMindestens3')); return; }
+  // Laufende Diashow beenden, falls aktiv
+  if(s.diashowActive) wasDiashowStop(uid);
+
+  s.quizActive=true;
+  s.quizLocked=false;
+
+  if(s.diashowRandom){
+    // Zufall an: ALLE Fotos komplett mischen — auch die erste Frage ist zufällig,
+    // nicht zwingend das gerade angezeigte Foto (sonst wäre kein Unterschied
+    // zu "Zufall aus" erkennbar).
+    const all=[];
+    for(let i=0;i<s.imgs.length;i++) all.push(i);
+    wasQuizOrderRest(s, all);
+    s.quizQueue=all;
+  } else {
+    // Zufall aus: aktuell gezeigtes Foto zuerst, danach der Reihe nach (mit Umbruch am Ende)
+    const rest=[];
+    for(let i=0;i<s.imgs.length;i++) if(i!==s.imgIndex) rest.push(i);
+    wasQuizOrderRest(s, rest);
+    s.quizQueue=[s.imgIndex, ...rest];
+  }
+  s.quizTotal=s.quizQueue.length;
+
+  const frame=document.getElementById('was-quiz-frame-'+uid);
+  const panel=document.getElementById('was-quiz-panel-'+uid);
+  if(frame) frame.style.display='flex';
+  if(panel) panel.innerHTML='';
+
+  wasUpdateControlsVisibility(uid);
+  wasQuizShowQuestion(uid);
+}
+
+// Ordnet ein Array von Foto-Indizes: gemischt (Zufall an) oder sequentiell
+// ab "fromIndex" mit Umbruch am Ende (Zufall aus). Mutiert das Array in-place.
+function wasQuizOrderRest(s, indices){
+  if(s.diashowRandom){
+    for(let i=indices.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [indices[i],indices[j]]=[indices[j],indices[i]];
+    }
+  } else {
+    const from = s.imgIndex;
+    indices.sort((a,b)=>{
+      const da=(a-from+s.imgs.length)%s.imgs.length;
+      const db=(b-from+s.imgs.length)%s.imgs.length;
+      return da-db;
+    });
+  }
+}
+
+function wasQuizStop(uid){
+  const s=wasState[uid]; if(!s)return;
+  s.quizActive=false;
+  s.quizLocked=false;
+  s.quizQueue=[];
+  s.quizOptions=null;
+  const frame=document.getElementById('was-quiz-frame-'+uid);
+  const panel=document.getElementById('was-quiz-panel-'+uid);
+  if(frame) frame.style.display='none';
+  if(panel) panel.innerHTML='';
+  const lights=document.getElementById('was-quiz-lights-'+uid);
+  if(lights){ clearTimeout(lights._hideTimer); lights.style.display='none'; lights.innerHTML=''; }
+  wasUpdateControlsVisibility(uid);
+  // Aktuelles Foto ganz normal (mit Effekt-Steuerung) wieder anzeigen
+  if(s.imgs&&s.imgs.length) wasActivatePhoto(uid, s.imgIndex);
+}
+
+function wasQuizShowQuestion(uid){
+  const s=wasState[uid]; if(!s||!s.quizActive)return;
+  if(!s.quizQueue.length){ wasQuizFinish(uid); return; }
+  const idx=s.quizQueue[0];
+  s.imgIndex=idx;
+  s.quizLocked=false;
+
+  // Fortschritt in der Nav-Leiste anzeigen
+  const navLabel=document.getElementById('was-nav-label-'+uid);
+  const doneCount=s.quizTotal-s.quizQueue.length+1;
+  if(navLabel) navLabel.textContent=`${T('wasFoto')} ${doneCount} / ${s.quizTotal}`;
+
+  // Foto unbearbeitet zeichnen (kein Verpixeln/Verwischen im Quiz)
+  const cv=document.getElementById('was-canvas-'+uid);
+  s.canvas=cv;
+  const img=s.imgs[idx];
+  requestAnimationFrame(()=>{
+    wasResizeCanvas(uid);
+    const ctx=cv.getContext('2d');
+    if(img) ctx.drawImage(img,0,0,cv.width,cv.height);
+  });
+
+  // Richtigen Namen + 2 zufällige andere Namen bestimmen, Reihenfolge mischen
+  const correctName = (s.imgNames&&s.imgNames[idx]) || (T('wasFoto')+' '+(idx+1));
+  const otherIdxs=[];
+  for(let i=0;i<s.imgs.length;i++) if(i!==idx) otherIdxs.push(i);
+  for(let i=otherIdxs.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[otherIdxs[i],otherIdxs[j]]=[otherIdxs[j],otherIdxs[i]];}
+  const wrongIdxs=otherIdxs.slice(0,2);
+  const options=[
+    {name:correctName, correct:true},
+    {name:(s.imgNames&&s.imgNames[wrongIdxs[0]])||(T('wasFoto')+' '+(wrongIdxs[0]+1)), correct:false},
+    {name:(s.imgNames&&s.imgNames[wrongIdxs[1]])||(T('wasFoto')+' '+(wrongIdxs[1]+1)), correct:false},
+  ];
+  for(let i=options.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[options[i],options[j]]=[options[j],options[i]];}
+  s.quizOptions=options;
+
+  const panel=document.getElementById('was-quiz-panel-'+uid);
+  if(!panel)return;
+  panel.innerHTML = options.map((o,i)=>{
+    const c=WAS_QUIZ_BTN_COLORS[i % WAS_QUIZ_BTN_COLORS.length];
+    return `<button class="was-quiz-answer-btn" id="was-quiz-opt-${uid}-${i}" onclick="wasQuizAnswer(${uid},${i})"
+      data-bg="${c.bg}" data-shadow="${c.shadow}"
+      style="background:${c.bg};box-shadow:0 4px 14px ${c.shadow};">${escapeHtml(o.name)}</button>`;
+  }).join('');
+}
+
+function wasQuizAnswer(uid, optIndex){
+  const s=wasState[uid]; if(!s||!s.quizActive||s.quizLocked)return;
+  const opt=s.quizOptions && s.quizOptions[optIndex];
+  if(!opt)return;
+  const btn=document.getElementById('was-quiz-opt-'+uid+'-'+optIndex);
+  if(opt.correct){
+    s.quizLocked=true;
+    playSound('Applaus',0.85);
+    if(btn){
+      btn.style.background='linear-gradient(135deg,#22c55e,#4ade80)';
+      btn.style.boxShadow='0 4px 20px rgba(34,197,94,.65)';
+      btn.classList.add('was-quiz-win-pulse');
+    }
+    wasQuizFlashLights(uid);
+    // Alle Antwort-Knöpfe während der kurzen Pause sperren
+    (s.quizOptions||[]).forEach((_,i)=>{
+      const b=document.getElementById('was-quiz-opt-'+uid+'-'+i);
+      if(b) b.disabled=true;
+    });
+    setTimeout(()=>{
+      const st=wasState[uid]; if(!st||!st.quizActive)return;
+      st.quizQueue.shift();
+      wasQuizShowQuestion(uid);
+    }, 2000);
+  } else {
+    playSound('Buzzer',0.85);
+    if(btn){
+      const origBg=btn.dataset.bg||'', origShadow=btn.dataset.shadow||'';
+      btn.style.background='linear-gradient(135deg,#ef4444,#dc2626)';
+      btn.style.boxShadow='0 4px 20px rgba(239,68,68,.65)';
+      btn.classList.add('was-quiz-shake');
+      setTimeout(()=>{
+        if(btn){
+          btn.style.background=origBg;
+          btn.style.boxShadow=origShadow?('0 4px 14px '+origShadow):'';
+          btn.classList.remove('was-quiz-shake');
+        }
+      }, 500);
+    }
+    // Falsche Antwort: altes Foto bleibt stehen, Nutzer kann weiter raten
+  }
+}
+
+// Lässt bunte "Lämpchen" rund um den goldenen Antwort-Rahmen kurz aufblitzen (Gewinn-Effekt)
+function wasQuizFlashLights(uid){
+  const frame=document.getElementById('was-quiz-frame-'+uid);
+  const overlay=document.getElementById('was-quiz-lights-'+uid);
+  if(!frame||!overlay)return;
+  const w=frame.offsetWidth, h=frame.offsetHeight;
+  if(!w||!h)return;
+  const colors=['#ff5252','#ffd740','#40c4ff','#69f0ae','#e040fb','#ff6e40','#eeff41','#18ffff'];
+  const spacing=26; // ungefährer Abstand zwischen den Lämpchen in px
+  const perimeter=2*(w+h);
+  const count=Math.max(12, Math.round(perimeter/spacing));
+  let html='';
+  for(let i=0;i<count;i++){
+    const perim=(i/count)*perimeter;
+    let x,y;
+    if(perim<w){ x=perim; y=0; }
+    else if(perim<w+h){ x=w; y=perim-w; }
+    else if(perim<2*w+h){ x=w-(perim-(w+h)); y=h; }
+    else { x=0; y=h-(perim-(2*w+h)); }
+    const color=colors[i % colors.length];
+    const delay=((i % 6)*0.09).toFixed(2);
+    html += '<span class="was-quiz-bulb" style="left:'+Math.round(x)+'px;top:'+Math.round(y)+'px;'
+      + 'color:'+color+';background:'+color+';animation-delay:'+delay+'s;"></span>';
+  }
+  overlay.innerHTML=html;
+  overlay.style.display='block';
+  clearTimeout(overlay._hideTimer);
+  overlay._hideTimer=setTimeout(()=>{
+    overlay.style.display='none';
+    overlay.innerHTML='';
+  }, 2000);
+}
+
+// Feuerwerk-Partikel im Antwort-Fenster — spielt beim ABSCHLUSS des gesamten Quiz
+// (nicht nach jeder einzelnen richtigen Antwort, dafür gibt es wasQuizFlashLights)
+function wasQuizFireworks(uid){
+  const overlay=document.getElementById('was-quiz-fireworks-'+uid);
+  if(!overlay)return;
+  const colors=['#ff5252','#ffd740','#40c4ff','#69f0ae','#e040fb','#ff6e40','#eeff41','#18ffff','#ff8a80','#b388ff'];
+  const bursts=4;              // Anzahl Explosions-Zentren
+  const particlesPerBurst=16;  // Funken je Explosion
+  let html='';
+  for(let b=0;b<bursts;b++){
+    const cx=(18+Math.random()*64).toFixed(1); // % Position im Rahmen
+    const cy=(15+Math.random()*45).toFixed(1);
+    const burstDelay=(b*0.32).toFixed(2);
+    for(let p=0;p<particlesPerBurst;p++){
+      const angle=(p/particlesPerBurst)*Math.PI*2 + Math.random()*0.3;
+      const dist=38+Math.random()*34;
+      const dx=(Math.cos(angle)*dist).toFixed(0);
+      const dy=(Math.sin(angle)*dist).toFixed(0);
+      const color=colors[Math.floor(Math.random()*colors.length)];
+      html += '<span class="was-quiz-fw-particle" style="left:'+cx+'%;top:'+cy+'%;color:'+color+';background:'+color
+        + ';--dx:'+dx+'px;--dy:'+dy+'px;animation-delay:'+burstDelay+'s;"></span>';
+    }
+  }
+  overlay.innerHTML=html;
+  overlay.style.display='block';
+  clearTimeout(overlay._hideTimer);
+  overlay._hideTimer=setTimeout(()=>{
+    overlay.style.display='none';
+    overlay.innerHTML='';
+  }, 2600);
+}
+
+function wasQuizFinish(uid){
+  const s=wasState[uid]; if(!s)return;
+  playSound('Feuerwerk',0.9);      // Feuerwerk-Sound zum Quiz-Abschluss
+  wasQuizFlashLights(uid);         // goldener Rahmen blitzt zusätzlich
+  wasQuizFireworks(uid);           // Feuerwerk-Funken im Antwort-Fenster
+  const frame=document.getElementById('was-quiz-frame-'+uid);
+  const panel=document.getElementById('was-quiz-panel-'+uid);
+  if(panel){
+    panel.innerHTML = `<div style="text-align:center;font-weight:700;font-size:1.15em;font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive,sans-serif;padding:.5em;">🎉 ${escapeHtml(T('wasQuizFertig'))}</div>`;
+  }
+  const navLabel=document.getElementById('was-nav-label-'+uid);
+  if(navLabel) navLabel.textContent=T('wasQuizFertig');
+  setTimeout(()=>{
+    const st=wasState[uid]; if(!st)return;
+    st.quizActive=false;
+    st.quizLocked=false;
+    st.quizQueue=[];
+    st.quizOptions=null;
+    if(frame) frame.style.display='none';
+    if(panel) panel.innerHTML='';
+    wasUpdateControlsVisibility(uid);
+    if(st.imgs&&st.imgs.length) wasActivatePhoto(uid, st.imgIndex);
+  }, 2500);
 }
 
 // ════════════════════════════════════════════════
@@ -12868,12 +13500,12 @@ function buildAmpelPanel(panel, uid){
   panel.innerHTML = `
 <div id="ampel-scene-${auid}" style="width:100%;height:100%;position:relative;overflow:hidden;background:linear-gradient(180deg,#0d1235 0%,#1a2060 40%,#252d7a 75%,#1e2650 100%);display:flex;align-items:center;justify-content:center;cursor:pointer;" onclick="ampelPanelClick(${auid})" title="" data-i18n-title="ttKlickenNeustart">
 
-  
+  <!-- Sterne -->
   <svg style="position:absolute;inset:0;width:100%;height:72%;pointer-events:none;" viewBox="0 0 400 160" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
     ${[[254.9,5.6,0.8],[90.9,107.3,1.2],[354.5,14.4,0.8],[202.1,5.8,0.8],[259.1,79.9,0.8],[235.2,117.7,0.8],[320.5,101.8,0.8],[64.3,138.9,0.8],[336.9,88.3,1.2],[290.5,78.7,2.2],[152.1,80.9,1.7],[246.7,125.2,1.2],[280.6,8.6,0.8],[117.0,13.4,0.8],[253.5,54.2,0.8],[85.5,40.2,1.7],[258.3,89.1,0.8],[290.3,25.4,0.8],[392.9,93.5,1.2],[272.7,122.5,1.2],[93.2,6.6,0.8],[108.5,32.2,1.7],[348.3,47.0,1.2],[158.9,132.8,0.8],[224.2,39.6,1.2],[356.7,59.1,0.8],[396.0,74.9,0.8],[250.2,115.3,0.8],[28.0,56.6,2.2],[211.5,140.9,1.7],[7.5,105.1,1.2],[214.6,40.2,1.2],[47.0,64.2,0.8],[378.8,127.2,0.8],[200.2,27.5,1.7],[63.2,111.0,0.8],[309.8,77.8,0.8],[130.7,4.8,1.7],[349.2,120.9,0.8],[25.8,127.6,1.7],[36.7,71.5,0.8],[302.7,111.5,0.8],[190.3,80.6,0.8],[346.7,62.5,0.8],[215.5,106.4,0.8],[125.8,144.3,1.2],[175.6,76.0,0.8],[91.5,50.3,1.2],[93.7,33.5,0.8],[251.7,34.7,1.7],[341.7,12.1,0.8],[266.6,32.6,0.8],[371.6,83.7,0.8],[312.1,117.5,0.8],[290.3,98.3,2.2]].map(([x,y,r],i)=>`<circle id="astar-${auid}-${i}" cx="${x}" cy="${y}" r="${r}" fill="white" opacity="0.7"/>`).join('')}
   </svg>
 
-  
+  <!-- Mond (größer, mit Glüh-Halo) -->
   <svg style="position:absolute;top:5%;left:10%;width:90px;height:90px;pointer-events:none;" viewBox="0 0 90 90" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <radialGradient id="moon-halo-${auid}" cx="50%" cy="50%" r="50%">
@@ -12887,19 +13519,19 @@ function buildAmpelPanel(panel, uid){
         <stop offset="100%" stop-color="#c8920a"/>
       </radialGradient>
     </defs>
-    
+    <!-- Halo -->
     <ellipse cx="45" cy="45" rx="44" ry="44" fill="url(#moon-halo-${auid})"/>
-    
+    <!-- Mondscheibe (Sichel) -->
     <path d="M50,8 A37,37 0 0,0 50,82 A40,40 0 0,0 50,8 Z" fill="url(#moon-grad-${auid})"/>
-    
+    <!-- Krater -->
     <ellipse cx="16" cy="30" rx="2.2" ry="1.8" fill="rgba(160,100,0,0.18)"/>
     <ellipse cx="21" cy="47" rx="1.8" ry="1.5" fill="rgba(160,100,0,0.14)"/>
     <ellipse cx="15" cy="62" rx="2" ry="1.7" fill="rgba(160,100,0,0.12)"/>
   </svg>
 
-  
+  <!-- ═══ TIEFSTE EBENE: Silhouetten ganz hinten (dunkel, kaum Detail) ═══ -->
   <svg style="position:absolute;bottom:0;left:0;width:100%;height:62%;pointer-events:none;" viewBox="0 0 800 310" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
-    
+    <!-- Hintergrund-Skyline als einheitliche Silhouette -->
     <path d="
       M0,310 L0,180 L30,180 L30,140 L55,140 L55,180 L70,180 L70,100 L90,100 L90,80 L95,80
       L95,100 L110,100 L110,180 L130,180 L130,120 L150,120 L150,110 L160,110 L160,90
@@ -12912,13 +13544,13 @@ function buildAmpelPanel(panel, uid){
       L685,180 L710,180 L710,110 L730,110 L730,180 L755,180 L755,155 L775,155 L775,180
       L800,180 L800,310 Z
     " fill="#1a1f45" opacity="0.9"/>
-    
+    <!-- Wenige Lichter hinten, sehr klein und gedimmt -->
     ${Array.from({length:28},(_,i)=>{const x=20+i*27+Math.sin(i)*8;const y=165+Math.cos(i*1.7)*18;return `<rect x="${x}" y="${y}" width="4" height="4" fill="#ffd04488" opacity="0.45"/>`}).join('')}
   </svg>
 
-  
+  <!-- ═══ MITTLERE EBENE: Gebäude links und rechts, mittelgroß ═══ -->
 
-  
+  <!-- Mittleres Gebäude links (hinter dem großen) -->
   <svg style="position:absolute;bottom:0;left:2%;width:14%;height:55%;pointer-events:none;z-index:1;" viewBox="0 0 80 220" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bm-l1-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -12926,10 +13558,10 @@ function buildAmpelPanel(panel, uid){
       </linearGradient>
     </defs>
     <rect x="0" y="0" width="80" height="220" rx="2" fill="url(#bm-l1-${auid})" stroke="#252a50" stroke-width="1.5"/>
-    
+    <!-- Dachaufbau -->
     <rect x="28" y="0" width="24" height="18" rx="1" fill="#252a50"/>
     <rect x="34" y="-12" width="12" height="15" fill="#252a50"/>
-    
+    <!-- Fensterreihen -->
     ${Array.from({length:6},(_,r)=>Array.from({length:3},(_,c)=>{
       const lit = (r*3+c+1)%5!==0;
       const idx = r*3+c;
@@ -12940,7 +13572,7 @@ function buildAmpelPanel(panel, uid){
     }).join('')).join('')}
   </svg>
 
-  
+  <!-- Mittleres Gebäude rechts (hinter dem großen) -->
   <svg style="position:absolute;bottom:0;right:2%;width:16%;height:60%;pointer-events:none;z-index:1;" viewBox="0 0 90 250" preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bm-r1-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -12948,10 +13580,10 @@ function buildAmpelPanel(panel, uid){
       </linearGradient>
     </defs>
     <rect x="0" y="0" width="90" height="250" rx="2" fill="url(#bm-r1-${auid})" stroke="#252a50" stroke-width="1.5"/>
-    
+    <!-- Antenne -->
     <rect x="42" y="-22" width="6" height="25" fill="#1e2248"/>
     <circle cx="45" cy="-24" r="3" fill="#ff4444" opacity="0.8"/>
-    
+    <!-- Fensterreihen -->
     ${Array.from({length:7},(_,r)=>Array.from({length:3},(_,c)=>{
       const lit = (r+c)%3!==0;
       const idx = r*3+c;
@@ -12962,26 +13594,26 @@ function buildAmpelPanel(panel, uid){
     }).join('')).join('')}
   </svg>
 
-  
+  <!-- ═══ VORDERSTE EBENE: Die großen Hauptgebäude ═══ -->
 
-  
+  <!-- Großes Gebäude links -->
   <svg style="position:absolute;bottom:0;left:0;width:20%;height:80%;pointer-events:none;z-index:2;" viewBox="0 0 110 340" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bg-l-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" stop-color="#4a5070"/><stop offset="50%" stop-color="#565c80"/><stop offset="100%" stop-color="#3e4464"/>
       </linearGradient>
     </defs>
-    
+    <!-- Hauptkörper -->
     <rect x="0" y="0" width="110" height="340" fill="url(#bg-l-${auid})" stroke="#2e3358" stroke-width="2"/>
-    
+    <!-- Gesimse -->
     <rect x="0" y="0"   width="110" height="8"  fill="#3a3e5c"/>
     <rect x="0" y="100" width="110" height="6"  fill="#3a3e5c" opacity="0.7"/>
     <rect x="0" y="200" width="110" height="6"  fill="#3a3e5c" opacity="0.7"/>
     <rect x="0" y="300" width="110" height="6"  fill="#3a3e5c" opacity="0.7"/>
-    
+    <!-- Seitenstreifen -->
     <rect x="8" y="0" width="4" height="340" fill="#3a3e5c" opacity="0.5"/>
     <rect x="98" y="0" width="4" height="340" fill="#3a3e5c" opacity="0.5"/>
-    
+    <!-- Fenster in 2 Spalten, viele Reihen -->
     ${Array.from({length:9},(_,r)=>Array.from({length:2},(_,c)=>{
       const lit = Math.sin(r*2.3+c*1.7)>-0.3;
       const warm = Math.sin(r+c*3)>0;
@@ -12994,7 +13626,7 @@ function buildAmpelPanel(panel, uid){
     }).join('')).join('')}
   </svg>
 
-  
+  <!-- Kleines Gebäude vor dem großen links (vorne) -->
   <svg style="position:absolute;bottom:0;left:17%;width:10%;height:38%;pointer-events:none;z-index:3;" viewBox="0 0 65 180" preserveAspectRatio="xMinYMax meet" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bs-l-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -13002,10 +13634,10 @@ function buildAmpelPanel(panel, uid){
       </linearGradient>
     </defs>
     <rect x="0" y="0" width="65" height="180" fill="url(#bs-l-${auid})" stroke="#2e3358" stroke-width="1.5"/>
-    
+    <!-- Dachterrasse -->
     <rect x="5" y="0"  width="55" height="10" fill="#383c58"/>
     <rect x="20" y="-8" width="25" height="10" fill="#383c58"/>
-    
+    <!-- Fenster -->
     ${Array.from({length:4},(_,r)=>Array.from({length:2},(_,c)=>{
       const lit = (r+c*2)%3!==2;
       const idx = r*2+c;
@@ -13014,31 +13646,31 @@ function buildAmpelPanel(panel, uid){
         stroke="${lit?'#b88a0033':'#1a2040'}" stroke-width="1"
         data-lit="${lit?1:0}" data-warm="1"/>`;
     }).join('')).join('')}
-    
+    <!-- Eingang unten -->
     <rect x="20" y="155" width="25" height="25" rx="3" fill="rgba(8,12,40,0.8)" stroke="#2e3358" stroke-width="1"/>
   </svg>
 
-  
+  <!-- Großes Gebäude rechts -->
   <svg style="position:absolute;bottom:0;right:0;width:21%;height:85%;pointer-events:none;z-index:2;" viewBox="0 0 115 360" preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bg-r-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
         <stop offset="0%" stop-color="#3e4464"/><stop offset="50%" stop-color="#565c80"/><stop offset="100%" stop-color="#4a5070"/>
       </linearGradient>
     </defs>
-    
+    <!-- Hauptkörper -->
     <rect x="0" y="0" width="115" height="360" fill="url(#bg-r-${auid})" stroke="#2e3358" stroke-width="2"/>
-    
+    <!-- Gesimse -->
     <rect x="0" y="0"   width="115" height="8"  fill="#3a3e5c"/>
     <rect x="0" y="90"  width="115" height="6"  fill="#3a3e5c" opacity="0.7"/>
     <rect x="0" y="180" width="115" height="6"  fill="#3a3e5c" opacity="0.7"/>
     <rect x="0" y="270" width="115" height="6"  fill="#3a3e5c" opacity="0.7"/>
-    
+    <!-- Seitenstreifen -->
     <rect x="8"   y="0" width="4" height="360" fill="#3a3e5c" opacity="0.5"/>
     <rect x="103" y="0" width="4" height="360" fill="#3a3e5c" opacity="0.5"/>
-    
+    <!-- Antenne mit Blinklicht -->
     <rect x="54" y="-30" width="7" height="33" fill="#1e2248"/>
     <circle cx="57.5" cy="-32" r="4" fill="#ff3333" opacity="0.85"/>
-    
+    <!-- Fenster in 2 Spalten -->
     ${Array.from({length:11},(_,r)=>Array.from({length:2},(_,c)=>{
       const lit = Math.sin(r*1.9+c*2.5)>-0.2;
       const warm = Math.cos(r*0.8+c)>0;
@@ -13051,7 +13683,7 @@ function buildAmpelPanel(panel, uid){
     }).join('')).join('')}
   </svg>
 
-  
+  <!-- Kleines Gebäude vor dem großen rechts (vorne) -->
   <svg style="position:absolute;bottom:0;right:17%;width:11%;height:42%;pointer-events:none;z-index:3;" viewBox="0 0 70 190" preserveAspectRatio="xMaxYMax meet" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <linearGradient id="bs-r-${auid}" x1="0%" y1="0%" x2="100%" y2="0%">
@@ -13059,14 +13691,14 @@ function buildAmpelPanel(panel, uid){
       </linearGradient>
     </defs>
     <rect x="0" y="0" width="70" height="190" fill="url(#bs-r-${auid})" stroke="#2e3358" stroke-width="1.5"/>
-    
+    <!-- Treppenartiger Abschluss oben -->
     <rect x="0"  y="0"  width="70" height="10" fill="#383c58"/>
     <rect x="10" y="-10" width="50" height="12" fill="#383c58"/>
     <rect x="22" y="-18" width="26" height="10" fill="#383c58"/>
-    
+    <!-- Wasserturm -->
     <rect x="26" y="-32" width="18" height="16" rx="2" fill="#303450"/>
     <ellipse cx="35" cy="-32" rx="11" ry="5" fill="#2a2e4a"/>
-    
+    <!-- Fenster -->
     ${Array.from({length:5},(_,r)=>Array.from({length:2},(_,c)=>{
       const lit = (r*2+c)%4!==3;
       const warm = (r+c)%2===0;
@@ -13076,50 +13708,50 @@ function buildAmpelPanel(panel, uid){
         stroke="${lit?'#b88a0033':'#1a2040'}" stroke-width="1"
         data-lit="${lit?1:0}" data-warm="${warm?1:0}"/>`;
     }).join('')).join('')}
-    
+    <!-- Eingang -->
     <rect x="22" y="165" width="26" height="25" rx="3" fill="rgba(8,12,40,0.8)" stroke="#2e3358" stroke-width="1"/>
   </svg>
 
-  
+  <!-- Bürgersteig / Straße -->
   <div style="position:absolute;bottom:0;left:0;right:0;height:12%;background:linear-gradient(180deg,#1e2350 0%,#171b40 100%);border-top:2px solid #2e3470;pointer-events:none;z-index:4;">
-    
+    <!-- Straßenmarkierung -->
     <div style="position:absolute;bottom:30%;left:5%;right:5%;height:2px;background:repeating-linear-gradient(90deg,rgba(255,255,255,0.15) 0px,rgba(255,255,255,0.15) 30px,transparent 30px,transparent 60px);"></div>
   </div>
 
-  
+  <!-- Ampel-Mast -->
   <svg id="ampel-svg-${auid}" style="position:relative;z-index:10;height:96%;max-height:520px;width:auto;pointer-events:none;filter:drop-shadow(0 6px 32px rgba(0,0,0,0.8));" viewBox="0 0 120 360" xmlns="http://www.w3.org/2000/svg">
     <defs>
       <radialGradient id="rg-r-${auid}" cx="38%" cy="35%"><stop offset="0%" stop-color="#ff6060"/><stop offset="100%" stop-color="#cc0000"/></radialGradient>
       <radialGradient id="rg-y-${auid}" cx="38%" cy="35%"><stop offset="0%" stop-color="#ffe060"/><stop offset="100%" stop-color="#cc9900"/></radialGradient>
       <radialGradient id="rg-g-${auid}" cx="38%" cy="35%"><stop offset="0%" stop-color="#60e860"/><stop offset="100%" stop-color="#009900"/></radialGradient>
     </defs>
-    
+    <!-- Gehäuse -->
     <rect x="28" y="10" width="64" height="220" rx="16" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="3"/>
     <rect x="31" y="13" width="58" height="214" rx="14" fill="#787d8a" stroke="none"/>
-    
+    <!-- Seitenflügel oben -->
     <polygon points="10,50 28,44 28,72 10,66" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
     <polygon points="110,50 92,44 92,72 110,66" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
-    
+    <!-- Seitenflügel mitte -->
     <polygon points="10,115 28,109 28,137 10,131" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
     <polygon points="110,115 92,109 92,137 110,131" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
-    
+    <!-- Seitenflügel unten -->
     <polygon points="10,178 28,172 28,200 10,194" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
     <polygon points="110,178 92,172 92,200 110,194" fill="#6a6f7a" stroke="#4a4f5a" stroke-width="2"/>
-    
+    <!-- Innere Vertiefungen -->
     <circle cx="60" cy="58"  r="22" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="1.5"/>
     <circle cx="60" cy="120" r="22" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="1.5"/>
     <circle cx="60" cy="182" r="22" fill="#2a2a2a" stroke="#1a1a1a" stroke-width="1.5"/>
-    
+    <!-- ROT -->
     <circle id="ampel-rot-${auid}"  cx="60" cy="58"  r="18" fill="rgba(80,0,0,0.35)"/>
-    
+    <!-- GELB -->
     <circle id="ampel-gelb-${auid}" cx="60" cy="120" r="18" fill="rgba(80,70,0,0.35)"/>
-    
+    <!-- GRÜN -->
     <circle id="ampel-gruen-${auid}" cx="60" cy="182" r="18" fill="rgba(0,80,0,0.35)"/>
-    
+    <!-- Mast -->
     <rect x="54" y="230" width="12" height="130" rx="4" fill="#3a3d44" stroke="#2a2d34" stroke-width="1.5"/>
   </svg>
 
-  
+  <!-- Start / Pause Knopf -->
   <button id="ampel-playbtn-${auid}"
     onclick="event.stopPropagation();ampelPanelToggle(${auid})"
     style="position:absolute;bottom:14%;left:50%;transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:.55em;padding:.65em 1.6em;font-size:clamp(1em,2.2vw,1.35em);font-weight:900;font-family:Arial,sans-serif;letter-spacing:.04em;color:#fff;background:linear-gradient(135deg,#22c55e 0%,#16a34a 100%);border:none;border-radius:50px;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,0.55),0 0 0 3px rgba(255,255,255,0.18);transition:background .2s,transform .12s,box-shadow .2s;white-space:nowrap;pointer-events:all;"
@@ -13132,7 +13764,7 @@ function buildAmpelPanel(panel, uid){
     <span id="ampel-playbtn-label-${auid}" data-i18n="ampelStart"></span>
   </button>
 
-  
+  <!-- Timer-Konfiguration -->
   <div id="ampel-cfg-${auid}" onclick="event.stopPropagation()" style="position:absolute;bottom:4%;left:50%;transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:.5em;background:rgba(0,0,0,0.55);border-radius:12px;padding:.55em 1em;font-size:1em;font-weight:700;color:rgba(255,255,255,0.9);white-space:nowrap;">
     <span id="ampel-gruen-label-${auid}" style="white-space:nowrap;">${(typeof T!=='undefined'?T('diceGruenDauer'):'Grün-Dauer:')}</span>
     <input type="number" id="sa-min-${auid}" value="10" min="1" max="600" onclick="event.stopPropagation()" style="width:52px;padding:.25em .4em;border-radius:7px;border:1px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.5);color:inherit;font-size:1em;text-align:center;">
@@ -15931,8 +16563,8 @@ function spinQuestionWheel(uid){
 <audio id="snd-Wuerfel" src="data:audio/mpeg;base64,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" preload="auto"></audio>
 
 
-
-
+<!-- ══ DESKTOP DRAW OVERLAY ══ -->
+<!-- Vollbild-Overlay für Puzzle & Zuordnen -->
 <div id="spiel-overlay">
   <div id="spiel-overlay-bar">
     <span id="spiel-overlay-title"></span>
@@ -15944,11 +16576,11 @@ function spinQuestionWheel(uid){
   <div id="spiel-overlay-content"></div>
 </div>
 <div id="desktop-draw-toolbar">
-  
+  <!-- Tool buttons -->
   <button class="ddt-btn active-tool" id="ddt-pen"    onclick="ddtSetTool('pen',this)"    title="Stift">✏️</button>
   <button class="ddt-btn"             id="ddt-marker" onclick="ddtSetTool('marker',this)" title="Marker">
     <svg viewBox="0 0 18 18" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      
+      <!-- Textmarker / Highlighter -->
       <rect x="3" y="2" width="8" height="11" rx="1.5" fill="currentColor" opacity="0.18" stroke="currentColor" stroke-width="1.3"/>
       <rect x="3" y="2" width="8" height="7" rx="1.5" fill="currentColor" opacity="0.55"/>
       <polygon points="5,13 9,13 8,16 6,16" fill="currentColor" opacity="0.85"/>
@@ -15957,7 +16589,7 @@ function spinQuestionWheel(uid){
   </button>
   <button class="ddt-btn"             id="ddt-eraser" onclick="ddtSetTool('eraser',this)" title="Radierer">
     <svg viewBox="0 0 18 18" width="16" height="16" fill="none" xmlns="http://www.w3.org/2000/svg">
-      
+      <!-- Radiergummi: Quader mit abgerundeten Ecken, diagonal -->
       <rect x="1.5" y="7" width="15" height="7" rx="2" fill="currentColor" opacity="0.2" stroke="currentColor" stroke-width="1.3"/>
       <rect x="1.5" y="7" width="7" height="7" rx="2" fill="currentColor" opacity="0.75"/>
       <line x1="1" y1="15.5" x2="17" y2="15.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
@@ -15979,7 +16611,7 @@ function spinQuestionWheel(uid){
   <button class="ddt-btn" id="ddt-paste" onclick="ddtPaste()" data-i18n-title="drawTitelEinfuegen">📋</button>
   <div class="ddt-sep"></div>
   <button class="ddt-btn" id="ddt-text" onclick="ddtSetTool('text',this)" data-i18n-title="drawTitelText" style="cursor:pointer;font-size:12px;font-weight:700;padding:0 10px;width:auto;" data-i18n="drawTextBtn">Text</button>
-  
+  <!-- Text options (only when text tool active) -->
   <div class="ddt-text-opts" id="ddt-text-opts">
     <select class="ddt-text-sel" id="ddt-textfont" onchange="if(_ddtTextState.cur)_ddtRenderTextCursor()" title="Schriftart" style="min-width:140px;">
       <option value="Arial">Arial</option>
@@ -16004,7 +16636,7 @@ function spinQuestionWheel(uid){
     </select>
     <div class="ddt-sep"></div>
   </div>
-  
+  <!-- Pen size -->
   <select class="ddt-size-sel" id="ddt-sz" onchange="ddtState.sz=parseInt(this.value)" title="Stiftgröße">
     <option value="2">2px</option>
     <option value="5" selected>5px</option>
@@ -16012,12 +16644,12 @@ function spinQuestionWheel(uid){
     <option value="20">20px</option>
     <option value="40">40px</option>
   </select>
-  
+  <!-- Photo insert -->
   <label class="ddt-btn" title="Foto einfügen" style="cursor:pointer;font-size:12px;font-weight:700;padding:0 10px;width:auto;">
     Foto
     <input type="file" accept="image/*" style="display:none;" onchange="ddtInsertPhoto(this.files[0]);this.value=''">
   </label>
-  
+  <!-- Undo / Save / Clear -->
   <button class="ddt-btn ddt-undo-btn" id="ddt-undo" onclick="ddtUndo()" title="Rückgängig (Strg+Z)">↩</button>
   <button class="ddt-btn" onclick="ddtSave()" title="Speichern">💾</button>
   <button class="ddt-btn" onclick="ddtClear()" title="Löschen">
@@ -16030,7 +16662,7 @@ function spinQuestionWheel(uid){
     </svg>
   </button>
   <div class="ddt-sep"></div>
-  
+  <!-- Colors -->
   <div id="ddt-color-row" style="display:flex;gap:5px;align-items:center;flex-shrink:0;">
     <div class="ddt-color selected" style="background:#111111"                                      id="ddtc-0"  onclick="ddtSetColor('#111111',this)"  title="Schwarz"></div>
     <div class="ddt-color"          style="background:#6b7280"                                      id="ddtc-1"  onclick="ddtSetColor('#6b7280',this)"  title="Grau"></div>
@@ -16044,7 +16676,7 @@ function spinQuestionWheel(uid){
     <div class="ddt-color"          style="background:#9b59b6"                                      id="ddtc-9"  onclick="ddtSetColor('#9b59b6',this)"  title="Lila"></div>
     <div class="ddt-color"          style="background:#e91e8c"                                      id="ddtc-10" onclick="ddtSetColor('#e91e8c',this)"  title="Rosa"></div>
   </div>
-  
+  <!-- Fullscreen / Close -->
   <button class="ddt-fs" onclick="toggleFullscreen()" title="Vollbild">⛶</button>
   <button class="ddt-close" onclick="closeDesktopDraw()" title="Schließen">✕</button>
 </div>
