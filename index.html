@@ -698,11 +698,23 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 .wbtn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
 .wbtn.primary:hover{filter:brightness(1.15);}
 
-/* ── Fotos-Quiz: bunte, große Antwort-Knöpfe + Lichter-Rahmen bei Gewinn ── */
+/* ── Fotos-Quiz: bunte, große Antwort-Knöpfe + goldener Lichter-Rahmen bei Gewinn ── */
+.was-quiz-frame{
+  position:relative; box-sizing:border-box; width:230px; flex-shrink:0; min-height:200px;
+  display:none; align-items:center; justify-content:center; padding:16px;
+  border:5px solid #ffd700; border-radius:18px;
+  background:linear-gradient(160deg,#1a1f35,#232a47);
+  box-shadow:0 0 0 2px rgba(255,215,0,.35), 0 0 22px rgba(255,215,0,.25),
+    inset 0 0 18px rgba(255,215,0,.1), 0 8px 24px rgba(0,0,0,.35);
+}
+.was-quiz-panel{
+  display:flex; flex-direction:column; gap:12px; width:100%; position:relative; z-index:2;
+}
 .was-quiz-answer-btn{
-  width:100%;padding:1em .9em;font-size:1.08em;font-weight:800;color:#fff;
-  border:none;border-radius:14px;cursor:pointer;white-space:normal;line-height:1.3;
-  letter-spacing:.2px;text-shadow:0 1px 3px rgba(0,0,0,.28);font-family:'Arial',sans-serif;
+  width:100%;padding:1em .8em;font-size:1.35em;font-weight:800;color:#fff;
+  border:none;border-radius:14px;cursor:pointer;white-space:normal;line-height:1.25;
+  letter-spacing:.2px;text-shadow:0 1px 3px rgba(0,0,0,.28);
+  font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive,sans-serif;
   transition:transform .12s ease, filter .12s ease, box-shadow .12s ease;
 }
 .was-quiz-answer-btn:hover:not(:disabled){transform:translateY(-2px) scale(1.03);filter:brightness(1.08);}
@@ -716,7 +728,7 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 .was-quiz-shake{animation:wasQuizShake .4s ease;}
 @keyframes wasQuizWinPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.06);}}
 .was-quiz-win-pulse{animation:wasQuizWinPulse .5s ease-in-out 2;}
-.was-quiz-lights{position:absolute;inset:-9px;pointer-events:none;z-index:5;display:none;}
+.was-quiz-lights{position:absolute;inset:-9px;pointer-events:none;z-index:5;display:none;border-radius:22px;}
 .was-quiz-bulb{position:absolute;width:11px;height:11px;margin:-5.5px;border-radius:50%;
   box-shadow:0 0 8px 3px currentColor;animation:wasBulbTwinkle .5s ease-in-out infinite alternate;}
 @keyframes wasBulbTwinkle{0%{opacity:.3;transform:scale(.65);}100%{opacity:1;transform:scale(1.2);}}
@@ -9523,11 +9535,82 @@ const _STICKY_SESSION_ID = 'sess_' + Date.now() + '_' + Math.random().toString(3
 
 // ── Passwort- & Admin-System ──────────────────────────────
 // Struktur in Firebase: { pinboard:{noteId: {...}}, userPassword:'...' }
-// Admin-Code: 'Simsalabim' — danach folgendes Wort = neues Benutzerpasswort
+// Admin-Code wird NICHT im Klartext gespeichert, sondern nur als SHA-256-Hash
+// (siehe _sha256Hex weiter unten). Zum Ändern des Admin-Codes:
+//   1. Das mitgelieferte Werkzeug "Admin-Code-Hash-Generator.html" öffnen
+//      (funktioniert offline, ohne Internetverbindung, per Doppelklick).
+//   2. Neuen Code eingeben → den angezeigten Hash kopieren.
+//   3. Den kopierten Hash unten bei _STICKY_ADMIN_CODE_HASH einsetzen und
+//      diese Datei speichern.
 let _stickyDeleteUnlocked = false;
 let _stickyUserUnlocked   = false;
-const _STICKY_ADMIN_CODE  = 'Simsalabim';
+const _STICKY_ADMIN_CODE_HASH = 'e9495ecdfd400f30961167f8764a652a2a6715c2fd83e03369b8189bb34a9d5d';
 let _stickyAdminPending   = false;
+
+// Reiner JavaScript-SHA-256 (kein crypto.subtle nötig — funktioniert daher auch
+// offline/lokal per Doppelklick geöffnet, ganz ohne https/localhost-Zwang).
+function _sha256Hex(rawStr){
+  const str = unescape(encodeURIComponent(rawStr)); // UTF-8-Bytes als Binärstring (Umlaute etc. sicher)
+  function rightRotate(v,a){ return (v>>>a) | (v<<(32-a)); }
+  const maxWord = Math.pow(2,32);
+  let hash = [], k = [];
+  let primeCounter = 0;
+  const isComposite = {};
+  for(let candidate=2; primeCounter<64; candidate++){
+    if(!isComposite[candidate]){
+      for(let i=0;i<313;i+=candidate) isComposite[i]=candidate;
+      hash[primeCounter]=(Math.pow(candidate,0.5)*maxWord)|0;
+      k[primeCounter++]=(Math.pow(candidate,1/3)*maxWord)|0;
+    }
+  }
+  let s = str + '\x80';
+  while(s.length % 64 - 56) s += '\x00';
+  const words = [];
+  const asciiBitLength = str.length * 8;
+  for(let i=0;i<s.length;i++){
+    const j = s.charCodeAt(i);
+    words[i>>2] |= j << ((3-(i%4))*8);
+  }
+  words[words.length] = Math.floor(asciiBitLength / maxWord);
+  words[words.length] = asciiBitLength;
+
+  for(let j=0;j<words.length;){
+    const w = words.slice(j, j+=16);
+    const oldHash = hash.slice(0);
+    hash = hash.slice(0,8);
+    for(let i=0;i<64;i++){
+      let w15 = w[i-15], w2 = w[i-2];
+      const a = hash[0], e = hash[4];
+      const temp1 = hash[7]
+        + (rightRotate(e,6) ^ rightRotate(e,11) ^ rightRotate(e,25))
+        + ((e & hash[5]) ^ ((~e) & hash[6]))
+        + k[i]
+        + (w[i] = (i<16) ? w[i] : (
+            (w[i-16]
+            + (rightRotate(w15,7) ^ rightRotate(w15,18) ^ (w15>>>3))
+            + w[i-7]
+            + (rightRotate(w2,17) ^ rightRotate(w2,19) ^ (w2>>>10))) | 0
+          )
+        );
+      const temp2 = (rightRotate(a,2) ^ rightRotate(a,13) ^ rightRotate(a,22))
+        + ((a & hash[1]) ^ (a & hash[2]) ^ (hash[1] & hash[2]));
+      hash = [(temp1+temp2)|0].concat(hash);
+      hash[4] = (hash[4]+temp1)|0;
+      hash.length = 8;
+    }
+    for(let i=0;i<8;i++){
+      hash[i] = (hash[i]+oldHash[i])|0;
+    }
+  }
+  let result = '';
+  for(let i=0;i<8;i++){
+    for(let j=3;j>=0;j--){
+      const b = (hash[i]>>(j*8)) & 255;
+      result += (b<16?'0':'') + b.toString(16);
+    }
+  }
+  return result;
+}
 
 // Gruppenpasswörter werden bei Eingabe live geprüft (kein Vorladen nötig)
 
@@ -9539,7 +9622,7 @@ async function _checkStickyCode(val){
   const trimmedClean = trimmed.startsWith('!') ? trimmed.slice(1) : trimmed;
 
   // ── Admin gibt Code ein ──────────────────────────────────
-  if(trimmedClean === _STICKY_ADMIN_CODE){
+  if(_sha256Hex(trimmedClean) === _STICKY_ADMIN_CODE_HASH){
     if(!_stickyAdminPending){
       _stickyAdminPending   = true;
       _stickyDeleteUnlocked = true;
@@ -9553,7 +9636,7 @@ async function _checkStickyCode(val){
   }
 
   // ── Admin gibt neues Gruppenpasswort ein ─────────────────
-  if(_stickyAdminPending && trimmedClean.length > 0 && trimmedClean !== _STICKY_ADMIN_CODE){
+  if(_stickyAdminPending && trimmedClean.length > 0 && _sha256Hex(trimmedClean) !== _STICKY_ADMIN_CODE_HASH){
     _stickyAdminPending  = false;
     const inp = document.getElementById('zumpad-input');
     if(inp){ inp.value = ''; inp.placeholder = isJa ? 'パッド名？' : 'Pad-Name?'; }
@@ -11504,13 +11587,12 @@ function buildWas(body,uid){
     <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="font-size:.82em;padding:.3em .7em;" data-i18n="diceZufallAus"></button>
   </div>
   <div id="was-canvas-row-${uid}" style="display:flex;flex:1;gap:12px;min-height:0;align-items:flex-start;">
-    <div id="was-canvas-frame-${uid}" style="position:relative;display:inline-block;">
-      <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:auto;cursor:pointer;" onclick="wasCanvasClick(${uid})" data-i18n-title="ttKlickenEnthuellen" title=""></canvas>
-      <!-- Bunte Lichter, blitzen kurz auf wenn im Quiz die richtige Antwort geklickt wurde -->
+    <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:auto;cursor:pointer;" onclick="wasCanvasClick(${uid})" data-i18n-title="ttKlickenEnthuellen" title=""></canvas>
+    <!-- Quiz-Antwortpanel: goldener Rahmen, darin blitzen bei Gewinn bunte Lichter auf -->
+    <div id="was-quiz-frame-${uid}" class="was-quiz-frame">
+      <div id="was-quiz-panel-${uid}" class="was-quiz-panel"></div>
       <div id="was-quiz-lights-${uid}" class="was-quiz-lights"></div>
     </div>
-    <!-- Quiz-Antwortpanel: nur sichtbar wenn Quiz aktiv -->
-    <div id="was-quiz-panel-${uid}" style="display:none;flex-direction:column;gap:10px;justify-content:center;width:200px;flex-shrink:0;min-height:120px;"></div>
   </div>
   <!-- Effekt-Steuerung: nur sichtbar wenn Diashow/Quiz NICHT aktiv -->
   <div id="was-effect-controls-${uid}">
@@ -11562,7 +11644,7 @@ function loadWasImages(uid, files){
 // Zusätzlich reservierte Breite fürs Quiz-Antwortpanel (Panel-Breite + Gap),
 // wird von allen Canvas-Größenberechnungen berücksichtigt solange Quiz aktiv ist.
 function wasQuizReserveW(s){
-  return (s && s.quizActive) ? 212 : 0;
+  return (s && s.quizActive) ? 242 : 0; // Rahmenbreite (230px) + Abstand (12px)
 }
 
 function wasActivatePhoto(uid, index){
@@ -12254,8 +12336,10 @@ function wasQuizStart(uid){
   }
   s.quizTotal=s.quizQueue.length;
 
+  const frame=document.getElementById('was-quiz-frame-'+uid);
   const panel=document.getElementById('was-quiz-panel-'+uid);
-  if(panel){ panel.style.display='flex'; panel.innerHTML=''; }
+  if(frame) frame.style.display='flex';
+  if(panel) panel.innerHTML='';
 
   wasUpdateControlsVisibility(uid);
   wasQuizShowQuestion(uid);
@@ -12285,8 +12369,10 @@ function wasQuizStop(uid){
   s.quizLocked=false;
   s.quizQueue=[];
   s.quizOptions=null;
+  const frame=document.getElementById('was-quiz-frame-'+uid);
   const panel=document.getElementById('was-quiz-panel-'+uid);
-  if(panel){ panel.style.display='none'; panel.innerHTML=''; }
+  if(frame) frame.style.display='none';
+  if(panel) panel.innerHTML='';
   const lights=document.getElementById('was-quiz-lights-'+uid);
   if(lights){ clearTimeout(lights._hideTimer); lights.style.display='none'; lights.innerHTML=''; }
   wasUpdateControlsVisibility(uid);
@@ -12383,9 +12469,9 @@ function wasQuizAnswer(uid, optIndex){
   }
 }
 
-// Lässt bunte "Lämpchen" rund um den Bilderrahmen kurz aufblitzen (Gewinn-Effekt)
+// Lässt bunte "Lämpchen" rund um den goldenen Antwort-Rahmen kurz aufblitzen (Gewinn-Effekt)
 function wasQuizFlashLights(uid){
-  const frame=document.getElementById('was-canvas-frame-'+uid);
+  const frame=document.getElementById('was-quiz-frame-'+uid);
   const overlay=document.getElementById('was-quiz-lights-'+uid);
   if(!frame||!overlay)return;
   const w=frame.offsetWidth, h=frame.offsetHeight;
@@ -12419,9 +12505,10 @@ function wasQuizFlashLights(uid){
 function wasQuizFinish(uid){
   const s=wasState[uid]; if(!s)return;
   wasQuizFlashLights(uid); // kleines Abschluss-Funkeln
+  const frame=document.getElementById('was-quiz-frame-'+uid);
   const panel=document.getElementById('was-quiz-panel-'+uid);
   if(panel){
-    panel.innerHTML = `<div style="text-align:center;font-weight:700;font-size:1.05em;padding:.5em;">🎉 ${escapeHtml(T('wasQuizFertig'))}</div>`;
+    panel.innerHTML = `<div style="text-align:center;font-weight:700;font-size:1.15em;font-family:'Comic Sans MS','Comic Sans','Comic Neue',cursive,sans-serif;padding:.5em;">🎉 ${escapeHtml(T('wasQuizFertig'))}</div>`;
   }
   const navLabel=document.getElementById('was-nav-label-'+uid);
   if(navLabel) navLabel.textContent=T('wasQuizFertig');
@@ -12431,7 +12518,8 @@ function wasQuizFinish(uid){
     st.quizLocked=false;
     st.quizQueue=[];
     st.quizOptions=null;
-    if(panel){ panel.style.display='none'; panel.innerHTML=''; }
+    if(frame) frame.style.display='none';
+    if(panel) panel.innerHTML='';
     wasUpdateControlsVisibility(uid);
     if(st.imgs&&st.imgs.length) wasActivatePhoto(uid, st.imgIndex);
   }, 2500);
