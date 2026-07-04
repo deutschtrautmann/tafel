@@ -702,13 +702,13 @@ html,body{width:100%;height:100dvh;max-height:100dvh;min-height:100dvh;overflow:
 .was-quiz-frame{
   position:relative; box-sizing:border-box; width:230px; flex-shrink:0; min-height:200px;
   display:none; align-items:center; justify-content:center; padding:16px;
-  border:5px solid #ffd700; border-radius:18px;
+  border:9px solid #ffd700; border-radius:18px;
   background:linear-gradient(160deg,#1a1f35,#232a47);
   box-shadow:0 0 0 2px rgba(255,215,0,.35), 0 0 22px rgba(255,215,0,.25),
     inset 0 0 18px rgba(255,215,0,.1), 0 8px 24px rgba(0,0,0,.35);
 }
 .was-quiz-panel{
-  display:flex; flex-direction:column; gap:12px; width:100%; position:relative; z-index:2;
+  display:flex; flex-direction:column; justify-content:center; gap:12px; width:100%; height:100%; position:relative; z-index:2;
 }
 .was-quiz-answer-btn{
   width:100%;padding:1em .8em;font-size:1.35em;font-weight:800;color:#fff;
@@ -11598,7 +11598,7 @@ function buildWas(body,uid){
   <div id="was-zufall-row-${uid}" style="display:none;align-items:center;gap:6px;">
     <button class="wbtn" onclick="wasDiashowToggleZufall(${uid})" id="was-zufall-btn-${uid}" style="font-size:.82em;padding:.3em .7em;" data-i18n="diceZufallAus"></button>
   </div>
-  <div id="was-canvas-row-${uid}" style="display:flex;flex:1;gap:12px;min-height:0;align-items:flex-start;">
+  <div id="was-canvas-row-${uid}" style="display:flex;flex:1;gap:26px;min-height:0;align-items:flex-start;">
     <canvas id="was-canvas-${uid}" style="display:block;max-width:100%;border-radius:8px;image-rendering:auto;cursor:pointer;" onclick="wasCanvasClick(${uid})" data-i18n-title="ttKlickenEnthuellen" title=""></canvas>
     <!-- Quiz-Antwortpanel: goldener Rahmen, darin blitzen bei Gewinn bunte Lichter auf, am Quiz-Ende ein Feuerwerk -->
     <div id="was-quiz-frame-${uid}" class="was-quiz-frame">
@@ -11657,7 +11657,7 @@ function loadWasImages(uid, files){
 // Zusätzlich reservierte Breite fürs Quiz-Antwortpanel (Panel-Breite + Gap),
 // wird von allen Canvas-Größenberechnungen berücksichtigt solange Quiz aktiv ist.
 function wasQuizReserveW(s){
-  return (s && s.quizActive) ? 242 : 0; // Rahmenbreite (230px) + Abstand (12px)
+  return (s && s.quizActive) ? 256 : 0; // Rahmenbreite (230px) + Abstand (26px)
 }
 
 function wasActivatePhoto(uid, index){
@@ -12135,6 +12135,7 @@ function wasUpdateControlsVisibility(uid){
     // Bild neu zeichnen
     const ctx = cv.getContext('2d');
     ctx.drawImage(img, 0, 0, cw, ch);
+    if(s.quizActive) wasQuizSyncFrameHeight(uid);
   }
 }
 
@@ -12298,12 +12299,32 @@ function wasDiashowToggleZufall(uid){
 // ════════════════════════════════════════════════
 
 // Bunte Verläufe für die Antwort-Knöpfe (spielerischer Quiz-Look).
-// Zuordnung erfolgt nach Anzeige-Position, nicht nach Richtigkeit — verrät also nichts.
+// Bei jeder Frage werden 3 davon per Zufall ausgewählt und den Positionen
+// zugeordnet — Zuordnung erfolgt zufällig, nicht nach Richtigkeit, verrät also nichts.
 const WAS_QUIZ_BTN_COLORS=[
-  {bg:'linear-gradient(135deg,#6366f1,#8b5cf6)', shadow:'rgba(99,102,241,.45)'},
-  {bg:'linear-gradient(135deg,#ec4899,#f43f5e)', shadow:'rgba(236,72,153,.45)'},
-  {bg:'linear-gradient(135deg,#f59e0b,#f97316)', shadow:'rgba(245,158,11,.45)'},
+  {bg:'linear-gradient(135deg,#6366f1,#8b5cf6)', shadow:'rgba(99,102,241,.45)'},   // Indigo/Violett
+  {bg:'linear-gradient(135deg,#ec4899,#f43f5e)', shadow:'rgba(236,72,153,.45)'},   // Pink/Rot
+  {bg:'linear-gradient(135deg,#f59e0b,#f97316)', shadow:'rgba(245,158,11,.45)'},   // Orange/Gelb
+  {bg:'linear-gradient(135deg,#10b981,#059669)', shadow:'rgba(16,185,129,.45)'},   // Grün
+  {bg:'linear-gradient(135deg,#06b6d4,#0891b2)', shadow:'rgba(6,182,212,.45)'},    // Türkis
+  {bg:'linear-gradient(135deg,#3b82f6,#2563eb)', shadow:'rgba(59,130,246,.45)'},   // Blau
+  {bg:'linear-gradient(135deg,#a855f7,#7e22ce)', shadow:'rgba(168,85,247,.45)'},   // Lila
+  {bg:'linear-gradient(135deg,#f43f5e,#be123c)', shadow:'rgba(244,63,94,.45)'},    // Kirschrot
+  {bg:'linear-gradient(135deg,#eab308,#ca8a04)', shadow:'rgba(234,179,8,.45)'},    // Goldgelb
+  {bg:'linear-gradient(135deg,#14b8a6,#0d9488)', shadow:'rgba(20,184,166,.45)'},   // Smaragd
+  {bg:'linear-gradient(135deg,#f97316,#c2410c)', shadow:'rgba(249,115,22,.45)'},   // Kräftig-Orange
+  {bg:'linear-gradient(135deg,#8b5cf6,#6d28d9)', shadow:'rgba(139,92,246,.45)'},   // Tiefviolett
 ];
+
+// Wählt 3 zufällige, unterschiedliche Farben aus der Palette (Fisher-Yates-Shuffle)
+function wasQuizPickRandomColors(){
+  const pool=WAS_QUIZ_BTN_COLORS.slice();
+  for(let i=pool.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [pool[i],pool[j]]=[pool[j],pool[i]];
+  }
+  return pool.slice(0,3);
+}
 
 // Quiz-Knopf synchronisieren: nur sichtbar ab 3 Fotos, Beschriftung je nach Status
 function wasSyncQuizBtn(uid){
@@ -12393,6 +12414,16 @@ function wasQuizStop(uid){
   if(s.imgs&&s.imgs.length) wasActivatePhoto(uid, s.imgIndex);
 }
 
+// Passt die Höhe des goldenen Antwort-Rahmens an die aktuelle Foto-Höhe an,
+// damit Rahmen und Foto immer gut aufeinander abgestimmt sind.
+function wasQuizSyncFrameHeight(uid){
+  const cv=document.getElementById('was-canvas-'+uid);
+  const frame=document.getElementById('was-quiz-frame-'+uid);
+  if(!cv||!frame)return;
+  const h=cv.offsetHeight||cv.height;
+  if(h) frame.style.height=h+'px';
+}
+
 function wasQuizShowQuestion(uid){
   const s=wasState[uid]; if(!s||!s.quizActive)return;
   if(!s.quizQueue.length){ wasQuizFinish(uid); return; }
@@ -12413,6 +12444,7 @@ function wasQuizShowQuestion(uid){
     wasResizeCanvas(uid);
     const ctx=cv.getContext('2d');
     if(img) ctx.drawImage(img,0,0,cv.width,cv.height);
+    wasQuizSyncFrameHeight(uid); // Rahmen-Höhe an die Foto-Höhe angleichen
   });
 
   // Richtigen Namen + 2 zufällige andere Namen bestimmen, Reihenfolge mischen
@@ -12431,12 +12463,64 @@ function wasQuizShowQuestion(uid){
 
   const panel=document.getElementById('was-quiz-panel-'+uid);
   if(!panel)return;
+  // Bei jeder Frage neue, zufällige Knopf-Farben (nicht immer dieselben drei)
+  const colors=wasQuizPickRandomColors();
   panel.innerHTML = options.map((o,i)=>{
-    const c=WAS_QUIZ_BTN_COLORS[i % WAS_QUIZ_BTN_COLORS.length];
+    const c=colors[i];
     return `<button class="was-quiz-answer-btn" id="was-quiz-opt-${uid}-${i}" onclick="wasQuizAnswer(${uid},${i})"
       data-bg="${c.bg}" data-shadow="${c.shadow}"
       style="background:${c.bg};box-shadow:0 4px 14px ${c.shadow};">${escapeHtml(o.name)}</button>`;
   }).join('');
+}
+
+// ── Spielt ein <audio>-Element nur teilweise ab: 'first' (nur 1. Hälfte),
+//    'second' (nur 2. Hälfte) oder 'full' (ganz). Gibt ein Promise zurück,
+//    das sich auflöst sobald der jeweilige Teil zu Ende gespielt wurde.
+//    Fällt auf normales Ganz-Abspielen zurück, falls die Dauer (noch) nicht
+//    ermittelt werden kann. ──
+function _wasPlayAudioPart(audio, vol, part){
+  return new Promise(resolve=>{
+    if(!audio){ resolve(); return; }
+    const begin=()=>{
+      const dur = audio.duration;
+      const half = (dur && isFinite(dur) && dur>0) ? dur/2 : null;
+      audio.volume = Math.min(1, vol);
+      audio.currentTime = (part==='second' && half) ? half : 0;
+      const cleanup=()=>{
+        audio.removeEventListener('ended', onEnded);
+        audio.removeEventListener('timeupdate', onTimeUpdate);
+      };
+      const onEnded=()=>{ cleanup(); resolve(); };
+      const onTimeUpdate=()=>{
+        if(part==='first' && half && audio.currentTime>=half){
+          audio.pause();
+          cleanup();
+          resolve();
+        }
+      };
+      audio.addEventListener('ended', onEnded);
+      if(part==='first' && half) audio.addEventListener('timeupdate', onTimeUpdate);
+      audio.play();
+    };
+    if(audio.duration && isFinite(audio.duration) && audio.duration>0){
+      begin();
+    } else {
+      audio.addEventListener('loadedmetadata', function onMeta(){
+        audio.removeEventListener('loadedmetadata', onMeta);
+        begin();
+      }, {once:true});
+      if(audio.readyState===0){ try{ audio.load(); }catch(e){} }
+    }
+  });
+}
+
+// Spielt einen Sound-Effekt aus der globalen Sound-Bibliothek nur teilweise ab
+// (nutzt dieselbe Lautstärke-Logik wie playSound()).
+function _wasPlaySoundPart(id, vol, part){
+  if(!soundEnabled) return Promise.resolve();
+  const v = vol * soundVolume;
+  const audio = document.getElementById('snd-'+id);
+  return _wasPlayAudioPart(audio, v, part);
 }
 
 function wasQuizAnswer(uid, optIndex){
@@ -12446,7 +12530,7 @@ function wasQuizAnswer(uid, optIndex){
   const btn=document.getElementById('was-quiz-opt-'+uid+'-'+optIndex);
   if(opt.correct){
     s.quizLocked=true;
-    playSound('Applaus',0.85);
+    _wasPlaySoundPart('Applaus',0.85,'second'); // nur die zweite Hälfte
     if(btn){
       btn.style.background='linear-gradient(135deg,#22c55e,#4ade80)';
       btn.style.boxShadow='0 4px 20px rgba(34,197,94,.65)';
@@ -12464,7 +12548,7 @@ function wasQuizAnswer(uid, optIndex){
       wasQuizShowQuestion(uid);
     }, 2000);
   } else {
-    playSound('Buzzer',0.85);
+    _wasPlaySoundPart('Buzzer',0.85,'second'); // nur die zweite Hälfte
     if(btn){
       const origBg=btn.dataset.bg||'', origShadow=btn.dataset.shadow||'';
       btn.style.background='linear-gradient(135deg,#ef4444,#dc2626)';
@@ -12521,13 +12605,13 @@ function wasQuizFireworks(uid){
   const overlay=document.getElementById('was-quiz-fireworks-'+uid);
   if(!overlay)return;
   const colors=['#ff5252','#ffd740','#40c4ff','#69f0ae','#e040fb','#ff6e40','#eeff41','#18ffff','#ff8a80','#b388ff'];
-  const bursts=4;              // Anzahl Explosions-Zentren
+  const bursts=10;             // Anzahl Explosions-Zentren (über ~5s verteilt)
   const particlesPerBurst=16;  // Funken je Explosion
   let html='';
   for(let b=0;b<bursts;b++){
     const cx=(18+Math.random()*64).toFixed(1); // % Position im Rahmen
     const cy=(15+Math.random()*45).toFixed(1);
-    const burstDelay=(b*0.32).toFixed(2);
+    const burstDelay=(b*0.43).toFixed(2);
     for(let p=0;p<particlesPerBurst;p++){
       const angle=(p/particlesPerBurst)*Math.PI*2 + Math.random()*0.3;
       const dist=38+Math.random()*34;
@@ -12544,14 +12628,28 @@ function wasQuizFireworks(uid){
   overlay._hideTimer=setTimeout(()=>{
     overlay.style.display='none';
     overlay.innerHTML='';
-  }, 2600);
+  }, 5000);
+}
+
+// Feuerwerk-Sound-Finale: zweimal ganz abspielen, danach dreimal nur die
+// erste Hälfte — jeder Teil wartet wirklich auf das Ende des vorherigen.
+async function wasQuizPlayFireworkFinale(vol){
+  if(typeof soundEnabled!=='undefined' && !soundEnabled) return;
+  const audio=document.getElementById('snd-Feuerwerk');
+  if(!audio){ playSound('Feuerwerk', vol); return; }
+  const v=vol*(typeof soundVolume!=='undefined'?soundVolume:1);
+  await _wasPlayAudioPart(audio, v, 'full');
+  await _wasPlayAudioPart(audio, v, 'full');
+  await _wasPlayAudioPart(audio, v, 'first');
+  await _wasPlayAudioPart(audio, v, 'first');
+  await _wasPlayAudioPart(audio, v, 'first');
 }
 
 function wasQuizFinish(uid){
   const s=wasState[uid]; if(!s)return;
-  playSound('Feuerwerk',0.9);      // Feuerwerk-Sound zum Quiz-Abschluss
-  wasQuizFlashLights(uid);         // goldener Rahmen blitzt zusätzlich
-  wasQuizFireworks(uid);           // Feuerwerk-Funken im Antwort-Fenster
+  wasQuizPlayFireworkFinale(0.9);      // 2× ganz, danach 3× nur die erste Hälfte
+  wasQuizFlashLights(uid);            // goldener Rahmen blitzt zusätzlich
+  wasQuizFireworks(uid);              // Feuerwerk-Funken im Antwort-Fenster (~5s)
   const frame=document.getElementById('was-quiz-frame-'+uid);
   const panel=document.getElementById('was-quiz-panel-'+uid);
   if(panel){
@@ -12569,7 +12667,7 @@ function wasQuizFinish(uid){
     if(panel) panel.innerHTML='';
     wasUpdateControlsVisibility(uid);
     if(st.imgs&&st.imgs.length) wasActivatePhoto(uid, st.imgIndex);
-  }, 2500);
+  }, 5300);
 }
 
 // ════════════════════════════════════════════════
