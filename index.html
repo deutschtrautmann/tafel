@@ -11656,8 +11656,22 @@ function loadWasImages(uid, files){
 
 // Zusätzlich reservierte Breite fürs Quiz-Antwortpanel (Panel-Breite + Gap),
 // wird von allen Canvas-Größenberechnungen berücksichtigt solange Quiz aktiv ist.
-function wasQuizReserveW(s){
-  return (s && s.quizActive) ? 256 : 0; // Rahmenbreite (230px) + Abstand (26px)
+// Berechnet eine zur verfügbaren Fensterbreite passende Rahmenbreite
+// (ca. 30% der Breite, mit sinnvollen Ober-/Untergrenzen).
+function wasQuizComputeFrameWidth(totalW){
+  return Math.max(170, Math.min(340, Math.round((totalW||400) * 0.30)));
+}
+
+// Setzt die Breite des goldenen Quiz-Rahmens passend zur aktuellen Fensterbreite
+// und liefert den dafür reservierten Platz (Rahmenbreite + Abstand) zurück.
+// So passt sich der Rahmen (samt Text/Knöpfen) immer sofort der Fenstergröße an.
+function wasQuizSyncFrameWidth(uid, totalW){
+  const s=wasState[uid];
+  if(!s || !s.quizActive) return 0;
+  const w = wasQuizComputeFrameWidth(totalW);
+  const frame=document.getElementById('was-quiz-frame-'+uid);
+  if(frame) frame.style.width = w+'px';
+  return w + 26; // Rahmenbreite + Abstand zum Foto
 }
 
 function wasActivatePhoto(uid, index){
@@ -11681,7 +11695,8 @@ function wasActivatePhoto(uid, index){
     const topbarH = (document.getElementById('topbar')?.offsetHeight) || 68;
     // Verfügbare Breite
     const bodyW = bodyEl ? bodyEl.clientWidth : 0;
-    const availW = Math.max(120, bodyW > 0 ? bodyW - 16 - wasQuizReserveW(s) : (widget ? widget.offsetWidth - 32 - wasQuizReserveW(s) : 400));
+    const totalW1 = bodyW > 0 ? bodyW : (widget ? widget.offsetWidth : 400);
+    const availW = Math.max(120, bodyW > 0 ? bodyW - 16 - wasQuizSyncFrameWidth(uid, totalW1) : (widget ? widget.offsetWidth - 32 - wasQuizSyncFrameWidth(uid, totalW1) : 400));
     // Verfügbare Höhe: Widget-Höhe minus Tabs (32px) + Header (36px) + Buttons (38px) + Padding + Nav
     const hasNav = s.imgs.length > 1;
     const reserved = 36/*header*/ + 32/*tabs*/ + (hasNav?42:0) + 38/*buttons+step*/ + 24/*padding*/;
@@ -11795,7 +11810,8 @@ function wasResizeCanvas(uid){
   const widget=cv.closest('.widget');
   const topbarH=(document.getElementById('topbar')?.offsetHeight)||68;
   const bodyW=bodyEl?bodyEl.clientWidth:0;
-  const availW=Math.max(120,bodyW>0?bodyW-16-wasQuizReserveW(s):(widget?widget.offsetWidth-32-wasQuizReserveW(s):400));
+  const totalW2=bodyW>0?bodyW:(widget?widget.offsetWidth:400);
+  const availW=Math.max(120,bodyW>0?bodyW-16-wasQuizSyncFrameWidth(uid,totalW2):(widget?widget.offsetWidth-32-wasQuizSyncFrameWidth(uid,totalW2):400));
   const hasNav=s.imgs.length>1;
   const reserved=36+32+(hasNav?42:0)+38+24;
   const widgetH=widget?widget.offsetHeight:(window.innerHeight-topbarH);
@@ -11807,6 +11823,7 @@ function wasResizeCanvas(uid){
   const ch=Math.round(img.height*scale);
   cv.width=cw; cv.height=ch;
   cv.style.width=cw+'px'; cv.style.height=ch+'px';
+  if(s.quizActive) wasQuizSyncFrameHeight(uid);
 }
 
 // Zufall-Knopf (an/aus) synchronisieren: Beschriftung zeigt den AKTUELLEN Zustand,
@@ -12121,7 +12138,8 @@ function wasUpdateControlsVisibility(uid){
     const bodyEl = cv.closest('.widget-body');
     const widget  = cv.closest('.widget');
     const bodyW = bodyEl ? bodyEl.clientWidth : 0;
-    const availW = Math.max(120, bodyW > 0 ? bodyW - 16 - wasQuizReserveW(s) : (widget ? widget.offsetWidth - 32 - wasQuizReserveW(s) : 400));
+    const totalW3 = bodyW > 0 ? bodyW : (widget ? widget.offsetWidth : 400);
+    const availW = Math.max(120, bodyW > 0 ? bodyW - 16 - wasQuizSyncFrameWidth(uid, totalW3) : (widget ? widget.offsetWidth - 32 - wasQuizSyncFrameWidth(uid, totalW3) : 400));
     const hasNav = !s.diashowActive && s.imgs.length > 1;
     const reserved = 36/*header*/ + (s.diashowActive ? 0 : 32/*tabs*/ + 38/*buttons+step*/) + (hasNav ? 42 : 0) + 24/*padding*/;
     const widgetH = widget ? widget.offsetHeight : window.innerHeight;
