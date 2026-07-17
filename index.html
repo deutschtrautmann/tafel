@@ -1805,18 +1805,20 @@ body.light-mode .slot-scorebar-title{
 
 
 
-.tool-btn:nth-child(5)  .tb-icon { color:#f472b6; }  
-.tool-btn:nth-child(6)  .tb-icon { color:#c084fc; }  
-.tool-btn:nth-child(7)  .tb-icon { color:#7dd3fc; }  
-.tool-btn:nth-child(8)  .tb-icon { color:#fbbf24; }  
-.tool-btn:nth-child(9)  .tb-icon { color:#f87171; }  
-.tool-btn:nth-child(10) .tb-icon { color:#4ade80; }  
-.tool-btn:nth-child(11) .tb-icon { color:#facc15; }  
-.tool-btn:nth-child(12) .tb-icon { color:#fb923c; }  
-.tool-btn:nth-child(13) .tb-icon { color:#ffffff; }  
+
+.tool-btn:nth-child(6)  .tb-icon { color:#f472b6; }  
+.tool-btn:nth-child(7)  .tb-icon { color:#c084fc; }  
+.tool-btn:nth-child(8)  .tb-icon { color:#7dd3fc; }  
+.tool-btn:nth-child(9)  .tb-icon { color:#fbbf24; }  
+.tool-btn:nth-child(10) .tb-icon { color:#f87171; }  
+.tool-btn:nth-child(11) .tb-icon { color:#4ade80; }  
+.tool-btn:nth-child(12) .tb-icon { color:#facc15; }  
+.tool-btn:nth-child(13) .tb-icon { color:#fb923c; }  
+.tool-btn:nth-child(14) .tb-icon { color:#ffffff; }  
 #nachricht-tool-btn .tb-icon { color:#ffffff; }      
 #pinnwand-tool-btn  .tb-icon { color:#fb923c; }      
 #umfrage-tool-btn   .tb-icon { color:#38bdf8; }      
+#test-tool-btn      .tb-icon { color:#a3e635; }      
 #lang-btn           .tb-icon { color:#4ade80; }      
 #fullscreen-btn     .tb-icon { color:#ffffff; }      
 
@@ -2114,6 +2116,11 @@ min-height:auto!important;
       <span id="lbl-umfrage" data-i18n="umfrage">Umfrage</span>
     </button>
 
+    <button class="tool-btn" id="test-tool-btn" onclick="spawnWidget('test')" style="display:none;">
+      <span class="tb-icon material-symbols-rounded">quiz</span>
+      <span id="lbl-test" data-i18n="test">Test</span>
+    </button>
+
     <button class="tool-btn" onclick="spawnWidget('names')">
       <span class="tb-icon material-symbols-rounded">groups</span>
       <span id="lbl-namen" data-i18n="namen">Namen</span>
@@ -2241,68 +2248,83 @@ min-height:auto!important;
 // ║  INTERAKTIVE TAFEL — Haupt-Script                                    ║
 // ║  Inhaltsübersicht (Ctrl+G / Goto Line zum Navigieren)                ║
 // ║  ⚠️ Zeilennummern verschieben sich bei jeder Änderung — vor Arbeit   ║
-// ║     mit grep/view verifizieren! Zuletzt geprüft: 13. Juli 2026.      ║
+// ║     mit grep/view verifizieren! Zuletzt geprüft: 16. Juli 2026.      ║
 // ╠══════════════════════════════════════════════════════════════════════╣
-// ║  GLOBALS                        ~  2296                             ║
-// ║  i18n / LANG / applyI18n        ~  2330  (T(), LANG {de, ja})       ║
-// ║  WIDGET-SYSTEM: spawnWidget     ~  4058  killWidget ~ 4248           ║
-// ║    ↳ getDesktopBounds/clampWidget ~ 4005 (Mobile: getInitialWidgetSize ~4034) ║
-// ║    ↳ _destroyTimer/_destroySpiele ~ 4209/4221 (Aufräumen beim Schließen) ║
-// ║    ↳ _rafCoalesce (Perf-Helfer) ~  4394  makeDraggable/makeResizable ~4404/4463 ║
-// ║  WIDGET_DEFS (Typ-Registrierung)~  3987                             ║
-// ║  WIDGET: UHR (clock)            ~  4532  buildClock                 ║
-// ║  WIDGET: TIMER                  ~  4733  buildTimer                 ║
-// ║  WIDGET: WÜRFEL (dice)          ~  6128  buildDice / rollJeinInDice ║
+// ║  GLOBALS                        ~  2259                             ║
+// ║  i18n / LANG / applyI18n        ~  2377  (T(), LANG {de, ja})       ║
+// ║  WIDGET-SYSTEM: spawnWidget     ~  4251  killWidget ~ 4441           ║
+// ║    ↳ getDesktopBounds/clampWidget ~ 4198 (Mobile: getInitialWidgetSize ~4227) ║
+// ║    ↳ _destroyTimer/_destroySpiele ~ 4402/4414 (Aufräumen beim Schließen) ║
+// ║    ↳ _rafCoalesce (Perf-Helfer) ~  4587  makeDraggable/makeResizable ~4597/4656 ║
+// ║  WIDGET_DEFS (Typ-Registrierung)~  4178                             ║
+// ║  WIDGET: UHR (clock)            ~  4725  buildClock                 ║
+// ║  WIDGET: TIMER                  ~  4926  buildTimer                 ║
+// ║  WIDGET: WÜRFEL (dice)          ~  6321  buildDice / rollJeinInDice ║
 // ║    ↳ Jein-Modi: text/smiley/janken/color/country                    ║
-// ║    ↳ Satzbau-Modus              ~  6991  rollSatzbau                ║
-// ║  WIDGET: NAMEN (names)          ~  7095  buildNames                 ║
-// ║  WIDGET: ZEICHNEN (draw)        ~  7508  buildDraw                  ║
-// ║  WIDGET: CLASSROOM/PAARE        ~  8158  buildCardMixer             ║
-// ║  LIVE-SCHREIBRAUM               ~  8308  (liveRoomInitFirebase etc., kein WIDGET_DEFS-Eintrag) ║
-// ║  WIDGET: QR-CODE                ~  8362  buildQR                    ║
-// ║  WIDGET: TEXTPAD                ~  8387  buildTextpad               ║
-// ║  WIDGET: STICKY NOTE            ~  9131  (→ PINNWAND)               ║
+// ║    ↳ Satzbau-Modus              ~  7184  rollSatzbau                ║
+// ║  WIDGET: NAMEN (names)          ~  7288  buildNames                 ║
+// ║  WIDGET: ZEICHNEN (draw)        ~  7701  buildDraw                  ║
+// ║  WIDGET: CLASSROOM/PAARE        ~  8351  buildCardMixer             ║
+// ║  LIVE-SCHREIBRAUM               ~  8509  (liveRoomInitFirebase etc., kein WIDGET_DEFS-Eintrag) ║
+// ║  WIDGET: QR-CODE                ~  8555  buildQR                    ║
+// ║  WIDGET: TEXTPAD                ~  8580  buildTextpad               ║
+// ║  WIDGET: STICKY NOTE            ~  9324  (→ PINNWAND)               ║
 // ╠══════════════════════════════════════════════════════════════════════╣
-// ║  BACKEND-ABSTRAKTIONS-LAYER     ~  9148  ← Datenbankzugriffe hier   ║
-// ║    _FB_CONFIG                   ~  9148                             ║
-// ║    _backendListenLastChild      ~  9260  (sparsamer Listener, nur neuestes Kind) ║
+// ║  BACKEND-ABSTRAKTIONS-LAYER     ~  9387  ← Datenbankzugriffe hier   ║
+// ║    _FB_CONFIG                   ~  9341                             ║
+// ║    _backendListenLastChild      ~  9453  (sparsamer Listener, nur neuestes Kind) ║
 // ║    Backend.auth.*               Passwort-Prüfung / Registrierung    ║
 // ║    Backend.pinboard.*           Pinnwand-Zettel (CRUD + Listener)   ║
 // ║    Backend.chat.*               Chat-Nachrichten (CRUD + Listener,   ║
-// ║                                  inkl. listenLatest ~sparsam)        ║
-// ║    _fb*-Aliase (Kompatibilität) ~  9460                             ║
+// ║                                  inkl. listenLatest ~9588, sparsam)  ║
+// ║    Backend.bgShare.*            Geteiltes Hintergrundbild           ║
+// ║    Backend.survey.*             ~  9653  Umfrage (Fragen+Ergebnisse ║
+// ║                                  unter boardImport/<gruppe>/survey) ║
+// ║    Backend.test.*               ~  9693  Test/Multiple-Choice       ║
+// ║                                  (unter boardImport/<gruppe>/test,  ║
+// ║                                  gleiches Prinzip wie survey/bgShare:║
+// ║                                  kein eigener Top-Level-Pfad wegen   ║
+// ║                                  der Firebase-Security-Rules)       ║
+// ║    _fb*-Aliase (Kompatibilität) ~  9736                             ║
 // ╠══════════════════════════════════════════════════════════════════════╣
-// ║  AUTH & SESSION-SYSTEM          ~  9473  (_STICKY_SESSION_GROUP,    ║
-// ║    _isNormalUserSession         ~  9495  _stickyDeleteUnlocked)     ║
-// ║    _STICKY_ADMIN_CODE_HASH      ~  9498                             ║
-// ║  WIDGET: PINNWAND               ~  9706  buildPinnwand (User+Admin) ║
-// ║  WIDGET: NACHRICHT (Chat)       ~ 10535  buildNachricht             ║
-// ║    ↳ WebRTC Dateiübertragung    ~ 11000  _chatStageFile/_chatRequestFile ║
-// ║    ↳ pagehide-Gnadenfrist/Unavailable-Fix ~ 11019 _chatNotifyFileOffersUnavailable ║
-// ║  WIDGET: JEIN                   ~ 11478  buildJein                  ║
-// ║  WIDGET: FOTOS / WAS?           ~ 11680  buildWas + Diashow         ║
-// ║  WIDGET: SMILEYS (Befinden)     ~ 12918  buildSmileys               ║
-// ║  WIDGET: SLOT-MASCHINE          ~ 13232  buildSlot                  ║
-// ║    ↳ slotSizeReels (inkl. Mobile-Größenbegrenzung) ~ 13347          ║
-// ║  WIDGET: SPIELE                 ~ 13716  buildSpiele                ║
-// ║    ↳ AMPEL-PANEL                ~ 13777  buildAmpelPanel            ║
-// ║    ↳ AMPEL LIVE ANIMATION       ~ 14067                             ║
-// ║    ↳ PUZZLE-PANEL               ~ 14646  buildPuzzlePanel           ║
+// ║  AUTH & SESSION-SYSTEM          ~  9749  (_STICKY_SESSION_GROUP,    ║
+// ║    _isNormalUserSession         ~  9771  _stickyDeleteUnlocked)     ║
+// ║    _STICKY_ADMIN_CODE_HASH      ~  9774                             ║
+// ║  WIDGET: PINNWAND               ~ 10007  buildPinnwand (User+Admin) ║
+// ║  WIDGET: UMFRAGE                ~ 10800  buildUmfrage (nur Admin-   ║
+// ║    Menü; Ergebnis-Überlagerung bei Usern: _surveyStartListener/     ║
+// ║    _surveyShowOverlay direkt im Anschluss an buildUmfrage)          ║
+// ║  WIDGET: TEST                   ~ 11289  buildTest (nur Admin-Menü; ║
+// ║    Multiple-Choice mit Name/Nummer-Eingabe + Punktevergabe bei den   ║
+// ║    Nutzern, siehe _testStartListener/_testShowOverlay/               ║
+// ║    _testShowScoreOverlay direkt im Anschluss an buildTest)          ║
+// ║  WIDGET: NACHRICHT (Chat)       ~ 11833  buildNachricht             ║
+// ║    ↳ WebRTC Dateiübertragung    ~ 12399  _chatStageFile/_chatRequestFile ║
+// ║    ↳ pagehide-Gnadenfrist/Unavailable-Fix ~ 12322 _chatNotifyFileOffersUnavailable ║
+// ║  WIDGET: JEIN                   ~ 12776  buildJein                  ║
+// ║  WIDGET: FOTOS / WAS?           ~ 12978  buildWas + Diashow         ║
+// ║  WIDGET: SMILEYS (Befinden)     ~ 14216  buildSmileys               ║
+// ║  WIDGET: SLOT-MASCHINE          ~ 14530  buildSlot                  ║
+// ║    ↳ slotSizeReels (inkl. Mobile-Größenbegrenzung) ~ 14645          ║
+// ║  WIDGET: SPIELE                 ~ 15014  buildSpiele                ║
+// ║    ↳ AMPEL-PANEL                ~ 15075  buildAmpelPanel            ║
+// ║    ↳ AMPEL LIVE ANIMATION       ~ 15365                             ║
+// ║    ↳ PUZZLE-PANEL               ~ 15944  buildPuzzlePanel           ║
 // ║    ↳ _buildEintraegeModal (gemeinsamer Eintraege-Dialog für         ║
-// ║      Rad/Slot/Satzbau/Puzzle/Zuordnen) ~ 14687                      ║
-// ║    ↳ ZUORDNEN-PANEL             ~ 15226  buildZuordnenPanel         ║
-// ║  ZUMPAD / Import-System         ~ 15608  _zumpadImportBlocks ~15655 ║
-// ║    ↳ _chatDotStartListener (dauerhafter Benachrichtigungs-Punkt) ~ 15973 ║
-// ║  WIDGET: FRAGE-RAD (wheel)      ~ 16306  buildWheel                 ║
-// ║    ↳ drawQuestionWheel (inkl. Font-Cache) ~ 16449                   ║
+// ║      Rad/Slot/Satzbau/Puzzle/Zuordnen) ~ 15985                      ║
+// ║    ↳ ZUORDNEN-PANEL             ~ 16524  buildZuordnenPanel         ║
+// ║  ZUMPAD / Import-System         ~ 16953  _zumpadImportBlocks        ║
+// ║    ↳ _chatDotStartListener (dauerhafter Benachrichtigungs-Punkt) ~ 17271 ║
+// ║  WIDGET: FRAGE-RAD (wheel)      ~ 17604  buildWheel                 ║
+// ║    ↳ drawQuestionWheel (inkl. Font-Cache) ~ 17747                   ║
 // ╠══════════════════════════════════════════════════════════════════════╣
-// ║  <script 2> DESKTOP DRAW        ~ 16982  (ddtState, vollbild)       ║
-// ║  <script 3> AUDIO-SYSTEM        ~ 17895  (Web Audio API, Puffer,    ║
+// ║  <script 2> DESKTOP DRAW        ~ 18280  (ddtState, vollbild)       ║
+// ║  <script 3> AUDIO-SYSTEM        ~ 19193  (Web Audio API, Puffer,    ║
 // ║                                  window._pzAudioCtx — IMMER          ║
 // ║                                  wiederverwenden, nie neu erzeugen!) ║
 // ╠══════════════════════════════════════════════════════════════════════╣
 // ║  SERVER-WECHSEL (Firebase → eigener Server):                        ║
-// ║    Nur Backend-Abstraktions-Layer (~9148–9472) anpassen.            ║
+// ║    Nur Backend-Abstraktions-Layer (~9387–9735) anpassen.            ║
 // ║    Widget-Code, Auth und UI bleiben vollständig unverändert.        ║
 // ╚══════════════════════════════════════════════════════════════════════╝
 // ════════════════════════════════════════════════
@@ -2347,6 +2369,7 @@ const LANG = {
     sticky:'Notiz',
     pinnwand:'Pinnwand',
     umfrage:'Umfrage',
+    test:'Test',
     nachricht:'Nachricht',
     was:'Fotos',
     wasDiashow:'▶ Diashow starten',
@@ -2489,7 +2512,7 @@ const LANG = {
     // Zuordnen-Spiel
     spieleZuordnen:'Zuordnen',
     zuordnenAnzahl:'Anzahl Gruppen:',
-    zuordnenHint:'Erste Zeile einer Gruppe = Nummer (1, 2, 3 …)\nZweite Zeile = Titel der Gruppe\nDarunter: Begriffe, die zugeordnet werden müssen',
+    zuordnenHint:'Erste Zeile einer Gruppe = Titel der Gruppe\nDarunter: Begriffe, die zugeordnet werden müssen\nLeerzeile vor der nächsten Gruppe',
     zuordnenStart:'▶ Spiel starten',
     zuordnenDatei:'📄 TXT laden',
     zuordnenInstr:'Wähle einen Titel – dann klicke die Wörter an:',
@@ -2640,11 +2663,54 @@ const LANG = {
     umfFragenKurz:'Fragen',
     umfAktivKurz:'aktiv',
     umfBeendetKurz:'beendet',
+    umfBereitsBeendetLabel:'Umfrage beendet',
     umfAntwortenKurz:'Antworten',
     // Umfrage-Überlagerung (Nutzer)
     umfTitelUser:'Umfrage',
+    umfMehrfachauswahlHinweis:'Mehrfachauswahl möglich',
     umfAbschicken:'Absenden',
     umfDanke:'Danke für deine Antwort!',
+    // Test-Widget (Admin)
+    wtTest:'Test',
+    testTabErstellen:'Erstellen',
+    testTabErgebnisse:'Ergebnisse',
+    testHint:'Format: Frage in eine Zeile, danach die Antwort-Optionen (je eine Zeile). Richtige Antworten mit „(richtig)" markieren — nicht markierte Antworten gelten automatisch als falsch. Mehrere richtige Antworten pro Frage sind möglich. Leerzeile vor der nächsten Frage. Bewertung: +1 Punkt je richtig angekreuzter Antwort, −1 Punkt je zusätzlich falsch angekreuzter Antwort (nie unter 0 Punkte pro Frage).',
+    testPlaceholder:'Wie heißt die Hauptstadt von Deutschland?\nZürich (falsch)\nWien (falsch)\nBerlin (richtig)\n\nWo spricht man Deutsch?\nIn Liechtenstein (richtig)\nIn England (falsch)\nIn Österreich (richtig)',
+    testLaden:'Laden',
+    testSpeichern:'Speichern (TXT)',
+    testAktivieren:'Aktivieren',
+    testBeenden:'Test beenden',
+    testAlleLoeschen:'Alle Einträge löschen',
+    testAuswertungAnzeigen:'Auswertung bei Nutzern anzeigen',
+    testAuswertungSpeichern:'Auswertung speichern (RTF)',
+    testKeinTest:'Noch kein Test erstellt.',
+    testKeineErgebnisse:'Noch keine Teilnahmen.',
+    testTeilnehmerGesamt:'Teilnehmer insgesamt',
+    testTitelAuswertungRtf:'Test-Auswertung',
+    testFehlerLeer:'Bitte mindestens eine Frage mit 2 Antwort-Optionen und einer „richtig"-Markierung eingeben.',
+    testFehlerNichtEingeloggt:'Nicht eingeloggt.',
+    testWirdVerteilt:'Wird an die Gruppe gesendet …',
+    testAktiviertStatus:'Fragen aktiviert und an die Gruppe gesendet.',
+    testBeendetStatus:'Test beendet — Ergebnisse bleiben erhalten.',
+    testGeloeschtStatus:'Alle Einträge gelöscht.',
+    testAuswertungGesendetStatus:'Auswertung wird den Nutzern angezeigt.',
+    testFragenKurz:'Fragen',
+    testAktivKurz:'aktiv',
+    testBeendetKurz:'beendet',
+    testBereitsBeendetLabel:'Test beendet',
+    testTeilnehmerKurz:'Teilnehmer',
+    testBeendetToast:'Test beendet',
+    testKeineLoeschenBestaetigung:'Wirklich ALLE Teilnahmen dieses Tests löschen? Nicht rückgängig machbar!',
+    // Test-Überlagerung (Nutzer)
+    testTitelUser:'Test',
+    testNameLabel:'Name / Nummer',
+    testNamePlaceholder:'Dein Name oder deine Nummer',
+    testNameFehlt:'Bitte zuerst deinen Namen oder deine Nummer eingeben.',
+    testAbschicken:'Abschicken',
+    testDanke:'Test abgeschickt! Danke.',
+    testDeineAuswertung:'Deine Auswertung',
+    testPunkteVon:'von',
+    testPunkte:'Punkten',
   },
   ja: {
     namen:'名前',
@@ -2653,6 +2719,7 @@ const LANG = {
     sticky:'付箋',
     pinnwand:'掲示板',
     umfrage:'アンケート',
+    test:'テスト',
     nachricht:'メッセージ',
     was:'画像',
     wasDiashow:'▶ スライドショー',
@@ -2796,7 +2863,7 @@ const LANG = {
     // Zuordnen-Spiel
     spieleZuordnen:'分類',
     zuordnenAnzahl:'グループ数:',
-    zuordnenHint:'グループの1行目 = 番号（1, 2, 3…）\n2行目 = グループのタイトル\n以下：分類する言葉',
+    zuordnenHint:'グループの1行目 = タイトル\n以下：分類する言葉\n次のグループの前には空行を入れてください',
     zuordnenStart:'▶ ゲーム開始',
     zuordnenDatei:'📄 TXTを読み込む',
     zuordnenInstr:'タイトルを選んでから単語をクリック：',
@@ -2947,11 +3014,54 @@ const LANG = {
     umfFragenKurz:'質問',
     umfAktivKurz:'実施中',
     umfBeendetKurz:'終了',
+    umfBereitsBeendetLabel:'アンケートを終了しました',
     umfAntwortenKurz:'回答',
     // アンケート表示（利用者）
     umfTitelUser:'アンケート',
+    umfMehrfachauswahlHinweis:'複数選択可能',
     umfAbschicken:'送信',
     umfDanke:'回答ありがとうございました！',
+    // テストウィジェット（管理者）
+    wtTest:'テスト',
+    testTabErstellen:'作成',
+    testTabErgebnisse:'結果',
+    testHint:'形式：1行目に質問、続く行に回答の選択肢（1行に1つ）。正解には「（正解）」と印を付けてください — 印のない選択肢は自動的に不正解として扱われます。1つの質問に複数の正解も可能です。次の質問の前には空行を入れてください。採点：正解を選ぶと+1点、さらに不正解も選んだ場合は1つにつき-1点（1問につき0点を下回ることはありません）。',
+    testPlaceholder:'ドイツの首都は?\nチューリッヒ（不正解）\nウィーン（不正解）\nベルリン（正解）\n\nドイツ語が話されているのは?\nリヒテンシュタイン（正解）\nイギリス（不正解）\nオーストリア（正解）',
+    testLaden:'読み込む',
+    testSpeichern:'保存（TXT）',
+    testAktivieren:'開始',
+    testBeenden:'テストを終了',
+    testAlleLoeschen:'すべての回答を削除',
+    testAuswertungAnzeigen:'利用者に結果を表示',
+    testAuswertungSpeichern:'結果を保存（RTF）',
+    testKeinTest:'まだテストが作成されていません。',
+    testKeineErgebnisse:'まだ参加者がいません。',
+    testTeilnehmerGesamt:'件の参加（合計）',
+    testTitelAuswertungRtf:'テスト結果',
+    testFehlerLeer:'少なくとも2つの選択肢と「正解」マークを持つ質問を1つ以上入力してください。',
+    testFehlerNichtEingeloggt:'ログインしていません。',
+    testWirdVerteilt:'グループに送信中 …',
+    testAktiviertStatus:'質問を開始し、グループに送信しました。',
+    testBeendetStatus:'テストを終了しました — 結果は保持されます。',
+    testGeloeschtStatus:'すべての回答を削除しました。',
+    testAuswertungGesendetStatus:'利用者に結果が表示されます。',
+    testFragenKurz:'質問',
+    testAktivKurz:'実施中',
+    testBeendetKurz:'終了',
+    testBereitsBeendetLabel:'テストを終了しました',
+    testTeilnehmerKurz:'参加者',
+    testBeendetToast:'テストを終了しました',
+    testKeineLoeschenBestaetigung:'このテストのすべての回答を本当に削除しますか？元に戻せません！',
+    // テスト表示（利用者）
+    testTitelUser:'テスト',
+    testNameLabel:'名前 / 番号',
+    testNamePlaceholder:'あなたの名前または番号',
+    testNameFehlt:'先にお名前または番号を入力してください。',
+    testAbschicken:'送信',
+    testDanke:'テストを送信しました！ありがとうございました。',
+    testDeineAuswertung:'あなたの結果',
+    testPunkteVon:'点中',
+    testPunkte:'点',
   }
 };
 
@@ -4068,6 +4178,7 @@ const WIDGET_DEFS={
   textpad:{titleKey:'wtText',   icon:'📝', w:600,h:520, fitContent:false, build:buildTextpad, translate:_trTextpad},
   pinnwand: {titleKey:'wtPinnwand', icon:'📌', w:280,h:300, fitContent:false, build:buildPinnwand, translate:_trPinnwand, onDestroy:_destroyPinnwand},
   umfrage: {titleKey:'wtUmfrage', icon:'📊', w:480,h:560, fitContent:false, minw:340, minh:380, build:buildUmfrage, translate:_trUmfrage, onDestroy:_destroyUmfrage},
+  test: {titleKey:'wtTest', icon:'📝', w:500,h:580, fitContent:false, minw:340, minh:400, build:buildTest, translate:_trTest, onDestroy:_destroyTest},
   nachricht: {titleKey:'wtNachricht', icon:'✉️', w:340,h:430, fitContent:false, minw:280, minh:320, build:buildNachricht, translate:_trNachricht, onDestroy:_destroyNachricht},
   jein:   {titleKey:'wtJein',   icon:'🤔', w:310,h:355, fitContent:true,  build:buildJein,    translate:_trJein,   onDestroy:_destroyJein},
   was:    {titleKey:'wtFotos',  icon:'🖼', w:700,h:600, fitContent:false, build:buildWas,     translate:_trWas},
@@ -9558,6 +9669,53 @@ const Backend = {
     },
   },
 
+  // ══════════════════════════════════════════
+  // Backend.test — Test-Widget (Multiple-Choice, Admin erstellt/aktiviert,
+  // Nutzer tragen Name/Nummer ein und beantworten, Admin sieht Live-
+  // Ergebnisse und kann den Nutzern ihre eigene Auswertung anzeigen lassen)
+  // Pfad: boardImport/<gruppe>/test (gleiches Prinzip wie survey/bgShare —
+  // kein eigener Top-Level-Pfad wegen der Firebase-Security-Rules)
+  // test : { questions:[{q,options:[{text,correct}]}], active, showResults,
+  //          ts, responses: { <sessionId>: {name,score,maxScore,ts} } }
+  // Hinweis: die "correct"-Markierungen sind Teil desselben Datensatzes, den
+  // auch die Nutzer per Firebase-Listener empfangen — wie überall sonst in
+  // dieser App gibt es keine serverseitige Geheimhaltung (kein eigenes
+  // Backend, nur Firebase Realtime Database). Das ist ein bewusster
+  // Rahmen-Kompromiss dieser Architektur, kein Versehen.
+  // ══════════════════════════════════════════
+  test: {
+    // Neuen Test aktivieren — überschreibt Fragen UND alte Ergebnisse
+    // komplett (set() statt update()), damit jede Aktivierung mit leeren
+    // Ergebnissen und ausgeblendeter Auswertung (showResults:false) startet.
+    set: async (questions, group) => {
+      await _backendWrite('boardImport/' + group + '/test', { questions, active: true, showResults: false, ts: Date.now() });
+    },
+    // Test beenden — Fragen UND Ergebnisse bleiben vollständig erhalten,
+    // nur die automatische Anzeige/Teilnahme bei den Nutzern wird gestoppt.
+    deactivate: async group => {
+      await _backendUpdate('boardImport/' + group + '/test', { active: false });
+    },
+    // Allen Nutzern, die bereits teilgenommen haben, ihre eigene Auswertung
+    // anzeigen (jeder sieht nur sein eigenes Ergebnis, siehe _testStartListener).
+    showResults: async (group, show) => {
+      await _backendUpdate('boardImport/' + group + '/test', { showResults: !!show });
+    },
+    // Alle Teilnahmen löschen (Test-Definition bleibt erhalten, z. B. für
+    // eine zweite Runde) — auch die Auswertungs-Anzeige wird zurückgesetzt.
+    clearResponses: async group => {
+      await _backendUpdate('boardImport/' + group + '/test', { responses: null, showResults: false });
+    },
+    // Realtime-Listener auf Test-Definition + Status + Ergebnisse
+    listen: (callback, group) => {
+      return _backendListen('boardImport/' + group + '/test', val => callback(val || null));
+    },
+    // Eigene Teilnahme abschicken (eine pro Session; spätere Abgabe
+    // derselben Session überschreibt die vorherige)
+    submitResponse: async (name, score, maxScore, group, sessionId) => {
+      await _backendWrite('boardImport/' + group + '/test/responses/' + sessionId, { name, score, maxScore, ts: Date.now() });
+    },
+  },
+
 }; // Ende Backend
 
 // ════════════════════════════════════════════════════════════════════════
@@ -9725,6 +9883,9 @@ async function _checkStickyCode(val){
     // Ausblendung weiter unten beim Verlassen des Admin-Modus.
     const umfrageBtn1 = document.getElementById('umfrage-tool-btn');
     if(umfrageBtn1) umfrageBtn1.style.display = '';
+    // Test: gleiches Prinzip wie Umfrage — nur im echten Administrator-Modus sichtbar.
+    const testBtn1 = document.getElementById('test-tool-btn');
+    if(testBtn1) testBtn1.style.display = '';
     // boardImport-Listener für die neue Gruppe starten
     _boardImportStartListener(_STICKY_SESSION_GROUP);
     // bgShare-Listener starten — übernimmt Admin-Hintergrundbild für alle
@@ -9733,6 +9894,8 @@ async function _checkStickyCode(val){
     _chatDotStartListener(_STICKY_SESSION_GROUP);
     // Umfrage-Listener starten (Admin sieht Live-Ergebnisse im Widget)
     _surveyStartListener(_STICKY_SESSION_GROUP);
+    // Test-Listener starten (Admin sieht Live-Ergebnisse im Widget)
+    _testStartListener(_STICKY_SESSION_GROUP);
     return true;
   }
 
@@ -9747,6 +9910,9 @@ async function _checkStickyCode(val){
     // wieder ausblenden (Widget selbst bleibt, falls bereits offen, unangetastet).
     const umfrageBtn2 = document.getElementById('umfrage-tool-btn');
     if(umfrageBtn2) umfrageBtn2.style.display = 'none';
+    // Test-Button ebenso nur im Administrator-Modus sichtbar.
+    const testBtn2 = document.getElementById('test-tool-btn');
+    if(testBtn2) testBtn2.style.display = 'none';
     return true;
   }
 
@@ -9797,6 +9963,9 @@ function _stickyUnlockUser(isJa){
   // Umfrage-Listener starten — zeigt aktive Umfragen automatisch als
   // Vollbild-Überlagerung an (siehe _surveyStartListener).
   _surveyStartListener(_STICKY_SESSION_GROUP);
+  // Test-Listener starten — zeigt aktive Tests automatisch als
+  // Vollbild-Überlagerung an (siehe _testStartListener).
+  _testStartListener(_STICKY_SESSION_GROUP);
 }
 // WIDGET: PINNWAND (Notizzettel + Pinnwand vereint)
 // ════════════════════════════════════════════════
@@ -10631,24 +10800,25 @@ function buildUmfrage(body, uid){
 
   body.innerHTML = `
     <div style="display:flex;gap:6px;padding:8px 8px 0;flex-shrink:0;">
-      <button id="umf-tab-edit-${uid}" class="timer-mode-btn active-tmode" onclick="umfrageShowTab(${uid},'edit')" data-i18n="umfTabErstellen">${isJa?'作成':'Erstellen'}</button>
-      <button id="umf-tab-results-${uid}" class="timer-mode-btn" onclick="umfrageShowTab(${uid},'results')" data-i18n="umfTabErgebnisse">${isJa?'結果':'Ergebnisse'}</button>
+      <button id="umf-tab-edit-${uid}" class="timer-mode-btn active-tmode" style="font-size:.95em;padding:.45em 1.1em;min-height:34px;" onclick="umfrageShowTab(${uid},'edit')" data-i18n="umfTabErstellen">${isJa?'作成':'Erstellen'}</button>
+      <button id="umf-tab-results-${uid}" class="timer-mode-btn" style="font-size:.95em;padding:.45em 1.1em;min-height:34px;" onclick="umfrageShowTab(${uid},'results')" data-i18n="umfTabErgebnisse">${isJa?'結果':'Ergebnisse'}</button>
     </div>
     <div id="umf-edit-${uid}" style="flex:1;display:flex;flex-direction:column;gap:8px;padding:10px;min-height:0;">
       <div style="font-size:11.5px;color:var(--text2);line-height:1.4;" data-i18n="umfHint"></div>
       <textarea id="umf-textarea-${uid}" style="flex:1;min-height:0;resize:none;background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.55em .75em;font-size:13px;font-family:'Arial',sans-serif;line-height:1.5;" data-i18n-placeholder="umfPlaceholder" oninput="umfrageState[${uid}]&&(umfrageState[${uid}].loadedOnce=true)"></textarea>
       <div id="umf-status-${uid}" style="font-size:11.5px;color:var(--text2);min-height:14px;"></div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <input type="file" id="umf-file-${uid}" accept=".txt,text/plain" style="display:none;" onchange="umfrageLoadFile(event,${uid})">
-        <button class="wbtn" onclick="umfrageTriggerFileDialog(${uid})" data-i18n="umfLaden"></button>
-        <button class="wbtn" onclick="umfrageSaveTxt(${uid})" data-i18n-prefix="💾 " data-i18n="umfSpeichern"></button>
-        <button class="wbtn" style="background:#ef4444;border-color:#ef4444;color:#fff;" onclick="umfrageActivate(${uid})" data-i18n-prefix="🚀 " data-i18n="umfAktivieren"></button>
+        <button class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;" onclick="umfrageTriggerFileDialog(${uid})" data-i18n="umfLaden"></button>
+        <button class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;" onclick="umfrageSaveTxt(${uid})" data-i18n-prefix="💾 " data-i18n="umfSpeichern"></button>
+        <button class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;background:#ef4444;border-color:#ef4444;color:#fff;" onclick="umfrageActivate(${uid})" data-i18n-prefix="🚀 " data-i18n="umfAktivieren"></button>
       </div>
     </div>
     <div id="umf-results-${uid}" style="display:none;flex:1;flex-direction:column;gap:8px;padding:10px;min-height:0;overflow-y:auto;">
-      <div style="display:flex;gap:6px;flex-wrap:wrap;flex-shrink:0;">
-        <button class="wbtn" onclick="umfrageSaveResultsRtf(${uid})" data-i18n-prefix="📄 " data-i18n="umfErgebnisseSpeichern"></button>
-        <button class="wbtn" style="background:#ef4444;border-color:#ef4444;color:#fff;" onclick="umfrageDeactivate(${uid})" data-i18n-prefix="🛑 " data-i18n="umfBeenden"></button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0;">
+        <button class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;" onclick="umfrageSaveResultsRtf(${uid})" data-i18n-prefix="📄 " data-i18n="umfErgebnisseSpeichern"></button>
+        <button id="umf-beenden-btn-${uid}" class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;background:#ef4444;border-color:#ef4444;color:#fff;" onclick="umfrageDeactivate(${uid})" data-i18n-prefix="🛑 " data-i18n="umfBeenden"></button>
+        <span id="umf-beenden-label-${uid}" style="display:none;font-size:.95em;padding:.5em 1.1em;min-height:36px;font-weight:700;color:var(--text2);align-items:center;" data-i18n-prefix="🛑 " data-i18n="umfBereitsBeendetLabel"></span>
       </div>
       <div id="umf-results-empty-${uid}" style="font-size:12.5px;color:var(--text2);"></div>
       <div id="umf-results-list-${uid}"></div>
@@ -10797,6 +10967,19 @@ function umfrageRenderResults(uid, val){
   const questions = (val && val.questions) || [];
   const responses = (val && val.responses) ? Object.values(val.responses) : [];
 
+  // "Umfrage beenden"-Knopf ausblenden und durch einen reinen Status-Text
+  // ersetzen, sobald die Umfrage bereits beendet wurde (val.active===false).
+  // Läuft VOR den frühen "return"s unten, damit der Status auch dann korrekt
+  // gesetzt wird, wenn noch keine Antworten (oder noch gar keine Umfrage)
+  // vorhanden sind.
+  const beendenBtn   = document.getElementById('umf-beenden-btn-'+uid);
+  const beendenLabel = document.getElementById('umf-beenden-label-'+uid);
+  if(beendenBtn && beendenLabel){
+    const isBeendet = !!(val && questions.length && val.active === false);
+    beendenBtn.style.display   = isBeendet ? 'none' : '';
+    beendenLabel.style.display = isBeendet ? 'inline-flex' : 'none';
+  }
+
   if(!questions.length){
     emptyEl.style.display = '';
     emptyEl.textContent = T('umfKeineUmfrage');
@@ -10817,7 +11000,16 @@ function umfrageRenderResults(uid, val){
     let answered = 0;
     responses.forEach(r => {
       const a = r && r.answers ? r.answers[qi] : null;
-      if(a !== null && a !== undefined && a >= 0 && a < counts.length){ counts[a]++; answered++; }
+      // Mehrfachauswahl: a ist ein Array angekreuzter Options-Indizes.
+      // Altformat (vor Einführung der Mehrfachauswahl) unterstützt bleiben:
+      // dort war a ein einzelner Index statt eines Arrays.
+      if(Array.isArray(a)){
+        let hasAny = false;
+        a.forEach(idx => { if(idx >= 0 && idx < counts.length){ counts[idx]++; hasAny = true; } });
+        if(hasAny) answered++;
+      } else if(a !== null && a !== undefined && a >= 0 && a < counts.length){
+        counts[a]++; answered++;
+      }
     });
     html += `<div style="margin-bottom:16px;">
       <div style="font-weight:700;font-size:13.5px;color:var(--text);margin-bottom:8px;">${qi+1}. ${escHtml(q.q)}</div>`;
@@ -10873,20 +11065,33 @@ function umfrageSaveResultsRtf(uid){
     return;
   }
 
-  let body = '\\fs28\\b ' + _rtfEscape(T('umfTitelErgebnisseRtf')) + '\\b0\\fs20\\par\\par';
+  let body = '\\fs28\\b ' + _rtfEscape(T('umfTitelErgebnisseRtf')) + '\\b0\\fs20\\par\\par\r\n';
   questions.forEach((q, qi) => {
     const counts = new Array(q.options.length).fill(0);
     let answered = 0;
     responses.forEach(r => {
       const a = r && r.answers ? r.answers[qi] : null;
-      if(a !== null && a !== undefined && a >= 0 && a < counts.length){ counts[a]++; answered++; }
+      // Mehrfachauswahl: a ist ein Array angekreuzter Options-Indizes.
+      // Altformat (vor Einführung der Mehrfachauswahl) unterstützt bleiben.
+      if(Array.isArray(a)){
+        let hasAny = false;
+        a.forEach(idx => { if(idx >= 0 && idx < counts.length){ counts[idx]++; hasAny = true; } });
+        if(hasAny) answered++;
+      } else if(a !== null && a !== undefined && a >= 0 && a < counts.length){
+        counts[a]++; answered++;
+      }
     });
-    body += '\\b ' + (qi+1) + '. ' + _rtfEscape(q.q) + '\\b0\\par';
+    // WICHTIG: nach jedem RTF-Steuerwort (\par, \b0, \tab, …) muss ein
+    // Leerzeichen/Zeilenumbruch folgen, BEVOR Text kommt, der mit einer
+    // Ziffer beginnt — sonst wird diese Ziffer vom vorherigen Steuerwort
+    // als (unsichtbarer) Zahlen-Parameter verschluckt statt angezeigt zu
+    // werden (klassische RTF-Falle, z. B. "\\par3" statt "\\par 3").
+    body += '\\b ' + (qi+1) + '. ' + _rtfEscape(q.q) + '\\b0\\par\r\n';
     q.options.forEach((opt, oi) => {
       const pct = answered ? Math.round(counts[oi]/answered*100) : 0;
-      body += '\\tab ' + _rtfEscape(opt) + ': ' + counts[oi] + ' (' + pct + '%)\\par';
+      body += '\\tab ' + _rtfEscape(opt) + ': ' + counts[oi] + ' (' + pct + '%)\\par\r\n';
     });
-    body += '\\par';
+    body += '\\par\r\n';
   });
   body += _rtfEscape(responses.length + ' ' + T('umfAntwortenGesamt')) + '\\par';
 
@@ -10962,7 +11167,10 @@ function _surveyShowOverlay(val, group){
   title.textContent = '📊 ' + T('umfTitelUser');
   box.appendChild(title);
 
-  const answers = new Array(val.questions.length).fill(null);
+  // answers[qi] = Set der angekreuzten Options-Indizes — Mehrfachauswahl
+  // pro Frage ist erlaubt (anders als früher, wo nur eine Antwort je Frage
+  // möglich war).
+  const answers = val.questions.map(() => new Set());
 
   val.questions.forEach((q, qi) => {
     const qWrap = document.createElement('div');
@@ -10979,14 +11187,16 @@ function _surveyShowOverlay(val, group){
       optBtn.textContent = opt;
       optBtn.style.cssText = 'text-align:left;background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:10px;padding:.6em .9em;font-size:14px;cursor:pointer;transition:all .15s;font-family:Arial,sans-serif;';
       optBtn.onclick = () => {
-        answers[qi] = oi;
-        optWrap.querySelectorAll('button').forEach(b => {
-          b.style.background = 'var(--bg3)'; b.style.borderColor = 'rgba(255,255,255,0.15)';
-          b.style.color = 'var(--text)'; b.style.fontWeight = '400';
-        });
-        optBtn.style.background = 'var(--accent)'; optBtn.style.borderColor = 'var(--accent)';
-        optBtn.style.color = '#fff'; optBtn.style.fontWeight = '700';
-        submitBtn.disabled = answers.includes(null);
+        if(answers[qi].has(oi)){
+          answers[qi].delete(oi);
+          optBtn.style.background = 'var(--bg3)'; optBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+          optBtn.style.color = 'var(--text)'; optBtn.style.fontWeight = '400';
+        } else {
+          answers[qi].add(oi);
+          optBtn.style.background = 'var(--accent)'; optBtn.style.borderColor = 'var(--accent)';
+          optBtn.style.color = '#fff'; optBtn.style.fontWeight = '700';
+        }
+        submitBtn.disabled = answers.some(s => s.size === 0);
         submitBtn.style.opacity = submitBtn.disabled ? '0.5' : '1';
       };
       optWrap.appendChild(optBtn);
@@ -10996,14 +11206,15 @@ function _surveyShowOverlay(val, group){
   });
 
   const submitBtn = document.createElement('button');
-  submitBtn.className = 'wbtn primary';
+  submitBtn.className = 'wbtn';
   submitBtn.textContent = T('umfAbschicken');
   submitBtn.disabled = true;
-  submitBtn.style.cssText = 'opacity:0.5;font-size:15px;padding:.65em 1em;font-weight:700;';
+  submitBtn.style.cssText = 'align-self:center;opacity:0.5;font-size:15px;padding:.65em 1.6em;font-weight:700;background:#ef4444;border-color:#ef4444;color:#fff;';
   submitBtn.onclick = async () => {
     submitBtn.disabled = true;
     try{
-      await Backend.survey.submitResponse(answers, group, _STICKY_SESSION_ID);
+      const answersArr = answers.map(s => Array.from(s));
+      await Backend.survey.submitResponse(answersArr, group, _STICKY_SESSION_ID);
       _surveyAnsweredTs = val.ts;
       _surveyThankYou(overlay);
     }catch(e){
@@ -11026,6 +11237,566 @@ function _surveyThankYou(overlay){
   msg.textContent = '✅ ' + T('umfDanke');
   box.appendChild(msg);
   setTimeout(()=>{ overlay.remove(); if(_surveyCurrentTs === null) return; _surveyCurrentTs = null; }, 1800);
+}
+
+
+// ════════════════════════════════════════════════
+// WIDGET: TEST
+// ════════════════════════════════════════════════
+// Technisch identisch zur Umfrage aufgebaut (siehe dortiger Kommentar für die
+// Grundarchitektur) — nur im Administrator-Menü sichtbar, gleiches
+// Zeilenformat-Prinzip in der Eingabe-Maske, gleicher Backend-Aufbau unter
+// boardImport/<gruppe>/…, gleicher Klick-Sound (playPop) auf allen Knöpfen.
+//
+// Unterschiede zur Umfrage:
+//  • Jede Antwort-Option ist zusätzlich als "richtig" oder "falsch" markiert
+//    (Mehrfachauswahl möglich — eine Frage kann mehrere richtige Antworten
+//    haben, siehe Aufgabenstellung).
+//  • Nutzer tragen zuerst Name/Nummer ein, bevor sie den Test ausfüllen
+//    können (Checkboxen statt Radio-Buttons, da mehrere Antworten pro Frage
+//    richtig sein können).
+//  • Punktevergabe: 1 Punkt pro angekreuzter, tatsächlich richtiger Antwort
+//    (keine Abzüge für falsch angekreuzte Antworten). Die maximal erreichbare
+//    Punktzahl einer Frage = Anzahl ihrer "richtig"-markierten Optionen.
+//  • Admin kann im Ergebnisse-Tab zusätzlich: Auswertung als RTF speichern,
+//    alle Teilnahmen löschen (Test-Definition bleibt erhalten) und den
+//    Nutzern ihre EIGENE Auswertung anzeigen lassen (jeder sieht nur sein
+//    eigenes Ergebnis, siehe _testStartListener/_testShowScoreOverlay).
+//
+// Firebase-Struktur: boardImport/<gruppe>/test = {
+//   questions: [ {q:"Frage-Text", options:[{text, correct:true|false}, ...]}, ... ],
+//   active: true|false,
+//   showResults: true|false,   // Auswertung wird gerade den Nutzern gezeigt
+//   ts: <Aktivierungs-Zeitstempel>,
+//   responses: { <sessionId>: {name, score, maxScore, ts} }
+// }
+// Wichtiger Hinweis (siehe auch Kommentar bei Backend.test): die "correct"-
+// Markierungen stehen im selben Datensatz, den auch die Nutzer per Firebase-
+// Listener empfangen — es gibt in dieser Architektur (reine Firebase
+// Realtime Database ohne eigenes Backend) keine Möglichkeit, das vor einem
+// technisch versierten Nutzer geheim zu halten. Das gilt bereits für alle
+// anderen Stellen der App gleichermaßen (z. B. Admin-Passwort-Hash) und ist
+// ein bewusster Rahmen-Kompromiss dieser Architektur, kein Versehen.
+const testState = {}; // uid -> {tab, loadedOnce, unsub, serverVal}
+
+// Eingabe-Zeilenformat parsen: 1. Zeile = Frage, folgende Zeilen bis zur
+// nächsten Leerzeile = Antwort-Optionen, jeweils mit "(richtig)"/"(falsch)"
+// am Zeilenende markiert. Fehlt die Markierung, gilt die Option als falsch
+// (Tippfehler-tolerant). Fragen mit weniger als 2 Optionen oder ganz ohne
+// "richtig"-Markierung werden verworfen (nicht sinnvoll auswertbar).
+const _TEST_MARKER_RE = /\(\s*(richtig|falsch)\s*\)\s*$/i;
+function testParseText(text){
+  const lines = String(text||'').split(/\r?\n/);
+  const blocks = [];
+  let current = null;
+  for(const raw of lines){
+    const line = raw.trim();
+    if(!line){
+      if(current && current.q) blocks.push(current);
+      current = null;
+      continue;
+    }
+    if(!current){
+      current = { q: line, options: [] };
+    } else {
+      const m = line.match(_TEST_MARKER_RE);
+      if(m){
+        const correct = /richtig/i.test(m[1]);
+        const optText = line.slice(0, m.index).trim();
+        if(optText) current.options.push({ text: optText, correct });
+      } else if(line){
+        current.options.push({ text: line, correct: false });
+      }
+    }
+  }
+  if(current && current.q) blocks.push(current);
+  return blocks.filter(b => b.options.length >= 2 && b.options.some(o => o.correct));
+}
+
+// Fragen-Array zurück in das Textformat wandeln (zum Laden/Weiterbearbeiten
+// eines bereits aktivierten Tests).
+function testQuestionsToText(questions){
+  return (questions||[]).map(q =>
+    q.q + '\n' + q.options.map(o => o.text + ' (' + (o.correct ? 'richtig' : 'falsch') + ')').join('\n')
+  ).join('\n\n');
+}
+
+function buildTest(body, uid){
+  testState[uid] = { tab:'edit', loadedOnce:false, unsub:null, serverVal:null };
+  body.style.display = 'flex';
+  body.style.flexDirection = 'column';
+  body.style.padding = '0';
+  body.style.minHeight = '0';
+  const isJa = document.documentElement.lang === 'ja';
+
+  body.innerHTML = `
+    <div style="display:flex;gap:6px;padding:8px 8px 0;flex-shrink:0;">
+      <button id="test-tab-edit-${uid}" class="timer-mode-btn active-tmode" style="font-size:.95em;padding:.45em 1.1em;min-height:34px;" onclick="testShowTab(${uid},'edit')" data-i18n="testTabErstellen">${isJa?'作成':'Erstellen'}</button>
+      <button id="test-tab-results-${uid}" class="timer-mode-btn" style="font-size:.95em;padding:.45em 1.1em;min-height:34px;" onclick="testShowTab(${uid},'results')" data-i18n="testTabErgebnisse">${isJa?'結果':'Ergebnisse'}</button>
+    </div>
+    <div id="test-edit-${uid}" style="flex:1;display:flex;flex-direction:column;gap:8px;padding:10px;min-height:0;">
+      <div style="font-size:11.5px;color:var(--text2);line-height:1.4;" data-i18n="testHint"></div>
+      <textarea id="test-textarea-${uid}" style="flex:1;min-height:0;resize:none;background:var(--bg3);border:1px solid rgba(255,255,255,0.12);color:var(--text);border-radius:8px;padding:.55em .75em;font-size:13px;font-family:'Arial',sans-serif;line-height:1.5;" data-i18n-placeholder="testPlaceholder" oninput="testState[${uid}]&&(testState[${uid}].loadedOnce=true)"></textarea>
+      <div id="test-status-${uid}" style="font-size:11.5px;color:var(--text2);min-height:14px;"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <input type="file" id="test-file-${uid}" accept=".txt,text/plain" style="display:none;" onchange="testLoadFile(event,${uid})">
+        <button class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;" onclick="testTriggerFileDialog(${uid})" data-i18n="testLaden"></button>
+        <button class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;" onclick="testSaveTxt(${uid})" data-i18n-prefix="💾 " data-i18n="testSpeichern"></button>
+        <button class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;background:#ef4444;border-color:#ef4444;color:#fff;" onclick="testActivate(${uid})" data-i18n-prefix="🚀 " data-i18n="testAktivieren"></button>
+      </div>
+    </div>
+    <div id="test-results-${uid}" style="display:none;flex:1;flex-direction:column;gap:8px;padding:10px;min-height:0;overflow-y:auto;">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;flex-shrink:0;">
+        <button class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;" onclick="testSaveResultsRtf(${uid})" data-i18n-prefix="📄 " data-i18n="testAuswertungSpeichern"></button>
+        <button class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;" onclick="testShowResultsToUsers(${uid})" data-i18n-prefix="👁️ " data-i18n="testAuswertungAnzeigen"></button>
+        <button class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;" onclick="testClearResponses(${uid})" data-i18n-prefix="🗑️ " data-i18n="testAlleLoeschen"></button>
+        <button id="test-beenden-btn-${uid}" class="wbtn" style="font-size:.95em;padding:.5em 1.1em;min-height:36px;background:#ef4444;border-color:#ef4444;color:#fff;" onclick="testDeactivate(${uid})" data-i18n-prefix="🛑 " data-i18n="testBeenden"></button>
+        <span id="test-beenden-label-${uid}" style="display:none;font-size:.95em;padding:.5em 1.1em;min-height:36px;font-weight:700;color:var(--text2);align-items:center;" data-i18n-prefix="🛑 " data-i18n="testBereitsBeendetLabel"></span>
+      </div>
+      <div id="test-results-empty-${uid}" style="font-size:12.5px;color:var(--text2);"></div>
+      <div id="test-results-list-${uid}"></div>
+    </div>
+  `;
+
+  if(!_STICKY_SESSION_GROUP){
+    const statusEl = document.getElementById('test-status-'+uid);
+    if(statusEl) statusEl.textContent = '⚠️ ' + T('testFehlerNichtEingeloggt');
+  }
+
+  testState[uid].unsub = Backend.test.listen(val => {
+    const st = testState[uid];
+    if(!st) return; // Widget bereits geschlossen
+    st.serverVal = val;
+
+    const statusEl = document.getElementById('test-status-'+uid);
+    if(statusEl && val && val.questions && val.questions.length){
+      const respCount = val.responses ? Object.keys(val.responses).length : 0;
+      statusEl.textContent = (val.active ? '🟢 ' : '⚪ ') + val.questions.length + ' ' + T('testFragenKurz') +
+        ' · ' + (val.active ? T('testAktivKurz') : T('testBeendetKurz')) +
+        ' · ' + respCount + ' ' + T('testTeilnehmerKurz');
+    }
+
+    // Bestehenden Test einmalig in den Editor laden (nur solange der
+    // Administrator noch nichts eigenes eingetippt hat)
+    if(!st.loadedOnce && val && val.questions && val.questions.length){
+      const ta = document.getElementById('test-textarea-'+uid);
+      if(ta && !ta.value.trim()) ta.value = testQuestionsToText(val.questions);
+      st.loadedOnce = true;
+    }
+
+    testRenderResults(uid, val);
+  }, _STICKY_SESSION_GROUP);
+}
+
+function testShowTab(uid, tab){
+  _umfPlayPop();
+  const st = testState[uid];
+  if(st) st.tab = tab;
+  const editPanel    = document.getElementById('test-edit-'+uid);
+  const resultsPanel = document.getElementById('test-results-'+uid);
+  const editTabBtn    = document.getElementById('test-tab-edit-'+uid);
+  const resultsTabBtn = document.getElementById('test-tab-results-'+uid);
+  if(editPanel)    editPanel.style.display    = (tab==='edit')    ? 'flex' : 'none';
+  if(resultsPanel) resultsPanel.style.display = (tab==='results') ? 'flex' : 'none';
+  if(editTabBtn)    editTabBtn.classList.toggle('active-tmode',    tab==='edit');
+  if(resultsTabBtn) resultsTabBtn.classList.toggle('active-tmode', tab==='results');
+}
+
+function testTriggerFileDialog(uid){
+  _umfPlayPop();
+  const inp = document.getElementById('test-file-'+uid);
+  if(inp){ inp.value = ''; inp.click(); }
+}
+
+function testLoadFile(event, uid){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+  const ta = document.getElementById('test-textarea-'+uid);
+  const apply = text => { if(ta){ ta.value = text; const st=testState[uid]; if(st) st.loadedOnce = true; } };
+  const r1 = new FileReader();
+  r1.onload = ev => {
+    const text = ev.target.result || '';
+    if(text.indexOf('\uFFFD') !== -1){
+      const r2 = new FileReader();
+      r2.onload = ev2 => apply(ev2.target.result || '');
+      r2.readAsText(file, 'windows-1252');
+    } else {
+      apply(text);
+    }
+  };
+  r1.readAsText(file, 'UTF-8');
+}
+
+function testSaveTxt(uid){
+  _umfPlayPop();
+  const ta = document.getElementById('test-textarea-'+uid);
+  if(!ta) return;
+  const blob = new Blob([ta.value], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.download = 'test.txt';
+  a.href = URL.createObjectURL(blob);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+
+async function testActivate(uid){
+  _umfPlayPop();
+  const ta = document.getElementById('test-textarea-'+uid);
+  const statusEl = document.getElementById('test-status-'+uid);
+  if(!ta) return;
+  const questions = testParseText(ta.value);
+  if(!questions.length){
+    if(statusEl) statusEl.textContent = '⚠️ ' + T('testFehlerLeer');
+    return;
+  }
+  if(!_STICKY_SESSION_GROUP){
+    if(statusEl) statusEl.textContent = '⚠️ ' + T('testFehlerNichtEingeloggt');
+    return;
+  }
+  try{
+    if(statusEl) statusEl.textContent = '📤 ' + T('testWirdVerteilt');
+    await Backend.test.set(questions, _STICKY_SESSION_GROUP);
+    const st = testState[uid];
+    if(st) st.loadedOnce = true; // eigener Listener-Rückruf soll den Text nicht überschreiben
+    if(statusEl) statusEl.textContent = '✅ ' + questions.length + ' ' + T('testAktiviertStatus');
+    testShowTab(uid, 'results');
+  }catch(e){
+    if(statusEl) statusEl.textContent = '❌ ' + e.message;
+  }
+}
+
+async function testDeactivate(uid){
+  _umfPlayPop();
+  const statusEl = document.getElementById('test-status-'+uid);
+  if(!_STICKY_SESSION_GROUP) return;
+  try{
+    await Backend.test.deactivate(_STICKY_SESSION_GROUP);
+    if(statusEl) statusEl.textContent = '🛑 ' + T('testBeendetStatus');
+    _stickyShowStatus('🛑 ' + T('testBeendetToast'), '#f87171');
+  }catch(e){
+    if(statusEl) statusEl.textContent = '❌ ' + e.message;
+  }
+}
+
+async function testClearResponses(uid){
+  _umfPlayPop();
+  const statusEl = document.getElementById('test-status-'+uid);
+  if(!_STICKY_SESSION_GROUP) return;
+  if(!confirm(T('testKeineLoeschenBestaetigung'))) return;
+  try{
+    await Backend.test.clearResponses(_STICKY_SESSION_GROUP);
+    if(statusEl) statusEl.textContent = '🗑️ ' + T('testGeloeschtStatus');
+  }catch(e){
+    if(statusEl) statusEl.textContent = '❌ ' + e.message;
+  }
+}
+
+async function testShowResultsToUsers(uid){
+  _umfPlayPop();
+  const statusEl = document.getElementById('test-status-'+uid);
+  if(!_STICKY_SESSION_GROUP) return;
+  try{
+    await Backend.test.showResults(_STICKY_SESSION_GROUP, true);
+    if(statusEl) statusEl.textContent = '👁️ ' + T('testAuswertungGesendetStatus');
+  }catch(e){
+    if(statusEl) statusEl.textContent = '❌ ' + e.message;
+  }
+}
+
+function testRenderResults(uid, val){
+  const listEl  = document.getElementById('test-results-list-'+uid);
+  const emptyEl = document.getElementById('test-results-empty-'+uid);
+  if(!listEl || !emptyEl) return;
+  const questions = (val && val.questions) || [];
+  const responses = (val && val.responses) ? Object.values(val.responses) : [];
+
+  // "Test beenden"-Knopf ausblenden und durch einen reinen Status-Text
+  // ersetzen, sobald der Test bereits beendet wurde (val.active===false).
+  // Läuft VOR den frühen "return"s unten, damit der Status auch dann korrekt
+  // gesetzt wird, wenn noch keine Teilnahmen (oder noch gar kein Test)
+  // vorhanden sind.
+  const beendenBtn   = document.getElementById('test-beenden-btn-'+uid);
+  const beendenLabel = document.getElementById('test-beenden-label-'+uid);
+  if(beendenBtn && beendenLabel){
+    const isBeendet = !!(val && questions.length && val.active === false);
+    beendenBtn.style.display   = isBeendet ? 'none' : '';
+    beendenLabel.style.display = isBeendet ? 'inline-flex' : 'none';
+  }
+
+  if(!questions.length){
+    emptyEl.style.display = '';
+    emptyEl.textContent = T('testKeinTest');
+    listEl.innerHTML = '';
+    return;
+  }
+  if(!responses.length){
+    emptyEl.style.display = '';
+    emptyEl.textContent = T('testKeineErgebnisse');
+    listEl.innerHTML = '';
+    return;
+  }
+  emptyEl.style.display = 'none';
+
+  const sorted = [...responses].sort((a,b) => (b.score - a.score) || String(a.name||'').localeCompare(String(b.name||'')));
+  let html = '';
+  sorted.forEach(r => {
+    const pct = r.maxScore ? Math.round(r.score/r.maxScore*100) : 0;
+    html += `<div style="display:flex;align-items:center;gap:8px;font-size:13px;margin-bottom:7px;">
+      <div style="flex:1;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(r.name||'–')}</div>
+      <div style="flex:1;background:var(--bg3);border-radius:6px;overflow:hidden;height:14px;">
+        <div style="height:100%;background:var(--accent);width:${pct}%;"></div>
+      </div>
+      <div style="flex:0 0 66px;text-align:right;color:var(--text2);">${r.score} / ${r.maxScore}</div>
+      <div style="flex:0 0 42px;text-align:right;font-weight:700;color:var(--accent);">${pct}%</div>
+    </div>`;
+  });
+  html += `<div style="font-size:11px;color:var(--text2);margin-top:4px;">${responses.length} ${T('testTeilnehmerGesamt')}</div>`;
+  listEl.innerHTML = html;
+}
+
+function testSaveResultsRtf(uid){
+  _umfPlayPop();
+  const st = testState[uid];
+  const val = st && st.serverVal;
+  const questions = (val && val.questions) || [];
+  const responses = (val && val.responses) ? Object.values(val.responses) : [];
+  const statusEl = document.getElementById('test-status-'+uid);
+
+  if(!questions.length || !responses.length){
+    if(statusEl) statusEl.textContent = '⚠️ ' + T('testKeineErgebnisse');
+    return;
+  }
+
+  const sorted = [...responses].sort((a,b) => (b.score - a.score) || String(a.name||'').localeCompare(String(b.name||'')));
+  let body = '\\fs28\\b ' + _rtfEscape(T('testTitelAuswertungRtf')) + '\\b0\\fs20\\par\\par\r\n';
+  sorted.forEach(r => {
+    const pct = r.maxScore ? Math.round(r.score/r.maxScore*100) : 0;
+    // WICHTIG: nach \par muss ein Leerzeichen/Zeilenumbruch folgen, BEVOR
+    // Text kommt, der mit einer Ziffer beginnt (hier die Punktzahl) — sonst
+    // verschluckt \par diese Ziffer als eigenen (unsichtbaren) Zahlen-
+    // Parameter statt sie anzuzeigen. Deshalb hier \r\n als Trenner.
+    body += '\\b ' + _rtfEscape(r.name || '–') + '\\b0' + '\\par\r\n';
+    body += _rtfEscape(r.score + ' / ' + r.maxScore + ' (' + pct + '%)') + '\\par\r\n\\par\r\n';
+  });
+  body += '\\b ' + _rtfEscape(responses.length + ' ' + T('testTeilnehmerGesamt')) + '\\b0\\par';
+
+  const rtf = '{\\rtf1\\ansi\\ansicpg1252\\deff0{\\fonttbl{\\f0\\fswiss\\fcharset0 Arial;}}\\viewkind4\\uc1\\pard\\f0\\fs20 ' + body + '}';
+
+  const blob = new Blob([rtf], {type:'application/rtf'});
+  const a = document.createElement('a');
+  a.download = 'test-auswertung.rtf';
+  a.href = URL.createObjectURL(blob);
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+
+function _destroyTest(uid){
+  const st = testState[uid];
+  if(st && st.unsub) st.unsub();
+  delete testState[uid];
+}
+
+function _trTest(uid){
+  const body = document.getElementById('body-'+uid);
+  if(!body) return;
+  applyI18n(body);
+  const st = testState[uid];
+  if(st && st.serverVal) testRenderResults(uid, st.serverVal);
+}
+
+// ── Test-Überlagerung bei normalen Nutzern ─────────────────────────────
+// Wird automatisch angezeigt, sobald der Administrator einen Test
+// aktiviert. Der Administrator selbst sieht stattdessen die Ergebnisse im
+// „Test"-Fenster und bekommt daher keine Überlagerung.
+let _testUnsub          = null;
+let _testAnsweredTs     = null; // ts des zuletzt von dieser Session abgeschickten Tests
+let _testCurrentTs      = null; // ts des Tests, der gerade als Überlagerung offen ist
+let _testMyScore        = null; // {ts, score, maxScore} — eigenes Ergebnis dieser Session
+let _testScoreShownForTs = null; // verhindert wiederholtes Einblenden derselben Auswertung
+
+function _testStartListener(group){
+  if(_testUnsub) _testUnsub();
+  _testUnsub = Backend.test.listen(val => {
+    if(!_isNormalUserSession()) return;
+    if(!val || !val.questions || !val.questions.length){
+      _testCloseOverlay();
+      return;
+    }
+    // Admin hat "Auswertung anzeigen" geklickt UND diese Session hat bereits
+    // teilgenommen → eigene Punktzahl einblenden (nur einmal pro Test).
+    if(val.showResults && _testMyScore && _testMyScore.ts === val.ts){
+      if(_testScoreShownForTs !== _testMyScore.ts){
+        _testScoreShownForTs = _testMyScore.ts;
+        _testShowScoreOverlay(_testMyScore);
+      }
+      return;
+    }
+    if(val.active === false){ _testCloseOverlay(); return; }
+    if(val.ts === _testAnsweredTs) return; // schon abgeschickt
+    if(val.ts === _testCurrentTs)  return; // schon offen
+    _testShowOverlay(val, group);
+  }, group);
+}
+
+function _testCloseOverlay(){
+  const ov = document.getElementById('test-overlay');
+  if(ov) ov.remove();
+  _testCurrentTs = null;
+}
+
+function _testShowOverlay(val, group){
+  document.getElementById('test-overlay')?.remove();
+  _testCurrentTs = val.ts;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'test-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:60000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);padding:20px;';
+
+  const box = document.createElement('div');
+  box.style.cssText = 'background:var(--card);border:1px solid rgba(255,255,255,0.14);border-radius:18px;box-shadow:0 16px 60px rgba(0,0,0,0.65);padding:24px;display:flex;flex-direction:column;gap:16px;width:min(560px,calc(100vw - 40px));max-height:calc(100dvh - 60px);overflow-y:auto;';
+
+  const title = document.createElement('div');
+  title.style.cssText = 'font-size:18px;font-weight:800;color:var(--text);';
+  title.textContent = '📝 ' + T('testTitelUser');
+  box.appendChild(title);
+
+  // Name / Nummer
+  const nameWrap = document.createElement('div');
+  nameWrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+  const nameLabel = document.createElement('div');
+  nameLabel.style.cssText = 'font-size:13px;font-weight:700;color:var(--text);';
+  nameLabel.textContent = T('testNameLabel');
+  const nameInput = document.createElement('input');
+  nameInput.type = 'text';
+  nameInput.placeholder = T('testNamePlaceholder');
+  nameInput.style.cssText = 'background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:10px;padding:.55em .8em;font-size:14px;font-family:Arial,sans-serif;';
+  nameWrap.appendChild(nameLabel); nameWrap.appendChild(nameInput);
+  box.appendChild(nameWrap);
+
+  // answers[qi] = Set der angekreuzten Options-Indizes
+  const answers = val.questions.map(()=> new Set());
+
+  val.questions.forEach((q, qi) => {
+    const qWrap = document.createElement('div');
+    qWrap.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+    const qLabel = document.createElement('div');
+    qLabel.style.cssText = 'font-size:15px;font-weight:700;color:var(--text);';
+    qLabel.textContent = (qi+1) + '. ' + q.q;
+    qWrap.appendChild(qLabel);
+    const optWrap = document.createElement('div');
+    optWrap.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
+    q.options.forEach((opt, oi) => {
+      const optBtn = document.createElement('button');
+      optBtn.type = 'button';
+      optBtn.textContent = (opt.text!=null?opt.text:opt);
+      optBtn.style.cssText = 'text-align:left;background:var(--bg3);border:1.5px solid rgba(255,255,255,0.15);color:var(--text);border-radius:10px;padding:.6em .9em;font-size:14px;cursor:pointer;transition:all .15s;font-family:Arial,sans-serif;';
+      optBtn.onclick = () => {
+        if(answers[qi].has(oi)){
+          answers[qi].delete(oi);
+          optBtn.style.background = 'var(--bg3)'; optBtn.style.borderColor = 'rgba(255,255,255,0.15)';
+          optBtn.style.color = 'var(--text)'; optBtn.style.fontWeight = '400';
+        } else {
+          answers[qi].add(oi);
+          optBtn.style.background = 'var(--accent)'; optBtn.style.borderColor = 'var(--accent)';
+          optBtn.style.color = '#fff'; optBtn.style.fontWeight = '700';
+        }
+      };
+      optWrap.appendChild(optBtn);
+    });
+    qWrap.appendChild(optWrap);
+    box.appendChild(qWrap);
+  });
+
+  const submitBtn = document.createElement('button');
+  submitBtn.className = 'wbtn';
+  submitBtn.textContent = T('testAbschicken');
+  submitBtn.style.cssText = 'align-self:center;font-size:15px;padding:.65em 1.6em;font-weight:700;background:#ef4444;border-color:#ef4444;color:#fff;';
+  submitBtn.onclick = async () => {
+    const name = nameInput.value.trim();
+    if(!name){
+      nameInput.style.borderColor = '#ef4444';
+      nameInput.focus();
+      return;
+    }
+    submitBtn.disabled = true;
+    submitBtn.style.opacity = '0.6';
+    // Punkte auswerten: +1 Punkt je angekreuzter, tatsächlich richtiger
+    // Option. Wird bei derselben Frage zusätzlich eine falsche Option
+    // angekreuzt, gibt es dafür -1 Punkt — der Punktestand EINER Frage darf
+    // dabei aber nie unter 0 fallen (Deckelung je Frage, nicht insgesamt).
+    // Beispiel (Frage mit 1 richtiger von 3 Optionen):
+    //   nur die richtige angekreuzt           → +1        = 1 Punkt
+    //   richtige + 1 falsche angekreuzt        → +1 -1     = 0 Punkte
+    //   richtige + beide falschen angekreuzt   → +1 -1 -1  = 0 Punkte (nicht -1)
+    let score = 0, maxScore = 0;
+    val.questions.forEach((q, qi) => {
+      let qScore = 0;
+      q.options.forEach((opt, oi) => {
+        if(opt.correct) maxScore++;
+        if(answers[qi].has(oi)) qScore += opt.correct ? 1 : -1;
+      });
+      score += Math.max(0, qScore);
+    });
+    try{
+      await Backend.test.submitResponse(name, score, maxScore, group, _STICKY_SESSION_ID);
+      _testAnsweredTs = val.ts;
+      _testMyScore = { ts: val.ts, score, maxScore };
+      _testThankYou(overlay);
+    }catch(e){
+      submitBtn.disabled = false;
+      submitBtn.style.opacity = '1';
+    }
+  };
+  box.appendChild(submitBtn);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+function _testThankYou(overlay){
+  const box = overlay.firstChild;
+  if(!box) { overlay.remove(); _testCurrentTs = null; return; }
+  box.innerHTML = '';
+  const msg = document.createElement('div');
+  msg.style.cssText = 'font-size:16px;font-weight:700;color:var(--text);text-align:center;padding:24px 0;';
+  msg.textContent = '✅ ' + T('testDanke');
+  box.appendChild(msg);
+  setTimeout(()=>{ overlay.remove(); _testCurrentTs = null; }, 1800);
+}
+
+// Eigene Auswertung anzeigen (nur diese Session sieht ihr eigenes Ergebnis) —
+// wird ausgelöst, sobald der Administrator "Auswertung anzeigen" klickt.
+function _testShowScoreOverlay(myScore){
+  document.getElementById('test-overlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'test-overlay';
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:60000;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);padding:20px;';
+
+  const box = document.createElement('div');
+  box.style.cssText = 'background:var(--card);border:1px solid rgba(255,255,255,0.14);border-radius:18px;box-shadow:0 16px 60px rgba(0,0,0,0.65);padding:32px;display:flex;flex-direction:column;gap:10px;align-items:center;width:min(420px,calc(100vw - 40px));text-align:center;';
+
+  const title = document.createElement('div');
+  title.style.cssText = 'font-size:16px;font-weight:700;color:var(--text2);';
+  title.textContent = '📝 ' + T('testDeineAuswertung');
+
+  const pct = myScore.maxScore ? Math.round(myScore.score/myScore.maxScore*100) : 0;
+  const scoreLine = document.createElement('div');
+  scoreLine.style.cssText = 'font-size:34px;font-weight:800;color:var(--accent);';
+  scoreLine.textContent = myScore.score + ' ' + T('testPunkteVon') + ' ' + myScore.maxScore + ' ' + T('testPunkte');
+
+  const pctLine = document.createElement('div');
+  pctLine.style.cssText = 'font-size:15px;color:var(--text2);';
+  pctLine.textContent = pct + '%';
+
+  box.appendChild(title); box.appendChild(scoreLine); box.appendChild(pctLine);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+  overlay.addEventListener('click', e => { if(e.target === overlay) overlay.remove(); });
 }
 
 
@@ -15856,7 +16627,7 @@ function buildZuordnenPanel(panel, uid){
   scrollArea.appendChild(gameWrap);
 
   // Beispiel-Einträge sofort anzeigen
-  const defaultText = '1\nDas ist mein\nBruder\nVater\nSohn\nGroßvater\nOnkel\nNeffe\nMann\n2\nDas ist meine\nMutter\nFrau\nTante\nGroßmutter\nTochter\nNichte\nFamilie\nSchwester\n3\nDas sind meine\nEltern\nGroßeltern\nGeschwister';
+  const defaultText = 'Das ist mein\nBruder\nVater\nSohn\nGroßvater\nOnkel\nNeffe\nMann\n\nDas ist meine\nMutter\nFrau\nTante\nGroßmutter\nTochter\nNichte\nFamilie\nSchwester\n\nDas sind meine\nEltern\nGroßeltern\nGeschwister';
   zuState[uid].rawText = defaultText;
   zuStartGame(uid, defaultText);
 }
@@ -15872,25 +16643,24 @@ function zuShowEintraegeModal(uid){
 }
 
 function zuParseText(text){
+  // Neues Format (wie bei Umfrage/Test): keine Nummerierung mehr nötig —
+  // 1. Zeile eines Blocks = Titel der Gruppe, folgende Zeilen bis zur
+  // Leerzeile = zuzuordnende Begriffe, Leerzeile markiert die nächste Gruppe.
   const lines = text.split(/\r?\n/);
   const groups = [];
   let cur = null;
-  let firstLine = true;
   for(const raw of lines){
     const line = raw.trim();
-    if(!line){ firstLine = true; continue; }
-    if(/^\d+$/.test(line)){
-      if(cur) groups.push(cur);
-      cur = { title:'', words:[] };
-      firstLine = true;
+    if(!line){
+      if(cur && cur.title) groups.push(cur);
+      cur = null;
       continue;
     }
-    if(!cur) cur = { title:'', words:[] };
-    if(firstLine){ cur.title = line; firstLine = false; }
-    else cur.words.push(line);
+    if(!cur){ cur = { title: line, words: [] }; }
+    else { cur.words.push(line); }
   }
-  if(cur) groups.push(cur);
-  return groups.filter(g=>g.title);
+  if(cur && cur.title) groups.push(cur);
+  return groups.filter(g => g.title && g.words.length >= 1);
 }
 
 function zuStartGame(uid, rawText){
